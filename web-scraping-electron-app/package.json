@@ -4,12 +4,16 @@
   "description": "A web scraping application that is to be used for assisting in NLP model training",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-	"start": "electron ."
+    "start": "electron ."
   },
   "author": "ASU Capstone 2024 Group 8",
   "license": "UNLICENSED",
   "devDependencies": {
     "electron": "^33.0.0"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.3",
+    "web-scraping-electron-app": "file:"
   }
 }
