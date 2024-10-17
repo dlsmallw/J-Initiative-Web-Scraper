@@ -4,7 +4,8 @@
   "description": "A web scraping application that is to be used for assisting in NLP model training",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+	"build": "npm ci"
   },
   "author": "ASU Capstone 2024 Group 8",
   "license": "UNLICENSED",
