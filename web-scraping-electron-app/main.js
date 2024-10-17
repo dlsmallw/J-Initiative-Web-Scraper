@@ -4,18 +4,19 @@
 
 const path = require('node:path');
 
-const { app, BrowserWindow} = require('electron');
+const { app, BrowserWindow, nativeTheme } = require('electron');
 
 const isMac = process.platform === 'darwin';
 const isDev = process.env.NODE_ENV !== 'production';
 
-let homeWin;
-let aboutWin;
+let mainWin;
 
-function createHomeWindow() {
-    homeWin = new BrowserWindow({
+function createMainWindow() {
+    mainWin = new BrowserWindow({
         width: isDev ? 1200 : 800,
         height: 600,
+        "minWidth": isDev ? 1200 : 800,
+        "minHeight": 600,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js')
         }
@@ -23,19 +24,21 @@ function createHomeWindow() {
 
     // Displays dev tools if in a dev environment
     if (isDev) {
-        homeWin.webContents.openDevTools();
+        mainWin.webContents.openDevTools();
     }
 
-    homeWin.setMenu(null);
+    mainWin.setMenu(null);
 
-    homeWin.loadFile('./renderer/index.html')
+    mainWin.loadFile('./renderer/index.html')
 }
 
+nativeTheme.themeSource = 'dark'
+
 app.whenReady().then(() => {
-    createHomeWindow()
+    createMainWindow()
 
     app.on('activate', () => {
-        if (BrowserWindow.getAllWindows().length === 0) createHomeWindow()
+        if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
     })
 })
 
