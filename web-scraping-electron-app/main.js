@@ -27,16 +27,20 @@ function createMainWindow() {
         mainWin.webContents.openDevTools();
     }
 
+    // Gets rid of the default toolbar (in favor of bootstrap navbar)
     mainWin.setMenu(null);
 
     mainWin.loadFile('./renderer/index.html')
 }
 
+// This is a current placeholder for seeting the color mode of the app window to dark theme
 nativeTheme.themeSource = 'dark'
 
+// Waits for the app to be initialized before creating/displaying the main window
 app.whenReady().then(() => {
     createMainWindow()
 
+    // Opens the main window if now windows currently open
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
     })

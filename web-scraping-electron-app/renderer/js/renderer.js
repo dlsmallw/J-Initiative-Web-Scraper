@@ -1,3 +1,8 @@
+/**
+ * This script is ran on every html file, to render information and other processes.
+ */
+
+// Determines the currently opened file.
 var url = location.href;
 var filename = url.substring(url.lastIndexOf('/') + 1);
 
@@ -5,6 +10,7 @@ if (filename === 'index.html') {
     // WIP
 }
 
+// Populates the version info on the About page
 if (filename === 'about.html') {
     const nodeVersion = document.getElementById('node-version');
     nodeVersion.innerHTML = versions.node();
