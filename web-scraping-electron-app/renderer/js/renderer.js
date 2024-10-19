@@ -11,7 +11,7 @@ if (filename === 'index.html') {
 }
 
 // Populates the version info on the About page
-if (filename === 'about.html') {
+if (document.getElementById('about-container') !== null) {
     const nodeVersion = document.getElementById('node-version');
     nodeVersion.innerHTML = versions.node();
 
