@@ -4,8 +4,9 @@
   "description": "A web scraping application that is to be used for assisting in NLP model training",
   "main": "main.js",
   "scripts": {
+	"dev": "npx electronmon .",
     "start": "electron .",
-	"build": "npm ci"
+    "build": "npm ci"
   },
   "author": "ASU Capstone 2024 Group 8",
   "license": "UNLICENSED",
@@ -15,6 +16,7 @@
   "dependencies": {
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.3",
+    "jquery": "^3.7.1",
     "python-shell": "^5.0.0",
     "web-scraping-electron-app": "file:"
   }
