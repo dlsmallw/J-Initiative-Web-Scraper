@@ -4,9 +4,11 @@
   "description": "A web scraping application that is to be used for assisting in NLP model training",
   "main": "main.js",
   "scripts": {
-	"dev": "npx electronmon .",
+    "dev": "npx electronmon .",
     "start": "electron .",
-    "build": "npm ci"
+    "build:node": "npm ci",
+    "build:py": "chmod +x build.sh && build.sh",
+    "build": "npm run build:node && npm run build:py"
   },
   "author": "ASU Capstone 2024 Group 8",
   "license": "UNLICENSED",
