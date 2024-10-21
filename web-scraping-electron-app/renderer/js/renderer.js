@@ -21,3 +21,12 @@ if (document.getElementById('about-container') !== null) {
     const electronVersion = document.getElementById('electron-version');
     electronVersion.innerHTML = versions.electron();
 }
+
+if (document.getElementById('scrape-container') !== null) {
+    var submitBtn = document.getElementById("button-addon2");
+    submitBtn.addEventListener('click', function() {
+        
+        var result = window.jspyAPI.helloPy();
+        document.getElementById('staticURL').value = result;
+    })
+}

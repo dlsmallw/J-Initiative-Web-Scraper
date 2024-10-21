@@ -3,7 +3,9 @@
 -->
 <div>
     <!--The associated logic for the component-->
-    <script>
+    <script type="module">
+        import {testCommWithPyAPI} from '../js_to_py_comms.js';
+
         var scrapePerformed = false;
 
         function submitBtnPressed() {
@@ -17,6 +19,8 @@
                 $('#results-container').toggle();
                 scrapePerformed = true;
             }
+
+            testCommWithPyAPI();
         } 
     </script>
 
@@ -28,7 +32,7 @@
                 <label for="url-input" class="form-label">URL of Web Page</label>
                 <div class="input-group mb-3 w-50">
                     <input id="url-input" type="text" class="form-control" placeholder="URL" aria-label="URL" aria-describedby="button-addon2">
-                    <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="submitBtnPressed()">Submit</button>
+                    <button class="btn btn-outline-secondary" type="button" id="button-addon2" >Submit</button>
                 </div>
             </form>
         </div>
@@ -71,5 +75,6 @@
             </div>
         </div>
     </div>
+    
     <script src='../renderer/js/renderer.js'></script>
 </div>

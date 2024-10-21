@@ -13,13 +13,16 @@
   "author": "ASU Capstone 2024 Group 8",
   "license": "UNLICENSED",
   "devDependencies": {
+    "axios": "^1.7.7",
     "electron": "^33.0.0"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
+    "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
     "jquery": "^3.7.1",
     "python-shell": "^5.0.0",
+    "requirejs": "^2.3.7",
     "web-scraping-electron-app": "file:"
   }
 }
