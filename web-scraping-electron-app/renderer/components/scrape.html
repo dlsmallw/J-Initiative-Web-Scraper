@@ -1,75 +1,77 @@
-<!--
-    HTML component used for the web scraping form in the application.
--->
-<div>
-    <!--The associated logic for the component-->
-    <script>
-        var scrapePerformed = false;
+<!-- HTML component used for the web scraping form in the application. -->
+<div class="container">
+    <div id="scrape-container" class="my-5">
+        <h1 class="display-4">Web Scraper Form</h1>
 
-        function submitBtnPressed() {
-            // WIP
-            console.log("Submit Pressed!")
-
-            var url = document.getElementById('url-input').value;
-            document.getElementById('staticURL').value = url;
-
-            if (!scrapePerformed) {
-                $('#results-container').toggle();
-                scrapePerformed = true;
-            }
-        } 
-    </script>
-
-    <!--The html structure of the component-->
-    <div id="scrape-container">
-        <h1>Web Scraper Form</h1>
-        <div id="scrape-form-container">
+        <!-- Scraper Form -->
+        <div id="scrape-form-container" class="my-4">
             <form>
-                <label for="url-input" class="form-label">URL of Web Page</label>
-                <div class="input-group mb-3 w-50">
-                    <input id="url-input" type="text" class="form-control" placeholder="URL" aria-label="URL" aria-describedby="button-addon2">
-                    <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="submitBtnPressed()">Submit</button>
+                <div class="mb-3">
+                    <label for="url-input" class="form-label">URL of Web Page</label>
+                    <div class="input-group mb-3">
+                        <input id="url-input" type="text" class="form-control" placeholder="Enter the URL here" aria-label="URL" aria-describedby="button-addon2">
+                        <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="submitBtnPressed()">Submit</button>
+                    </div>
                 </div>
             </form>
         </div>
-        <div id="results-container" style="display: none">
-            <label for="results" class="form-label">
-                <h4>Results</h4>
-            </label>
-            <div class="accordion" id="results">
-                <div class="mb-3 row">
-                    <label for="staticURL" class="col-sm-2 col-form-label">URL</label>
-                    <div class="col-sm-10">
-                        <input type="text" readonly class="form-control-plaintext" id="staticURL" value="">
+
+        <!-- Results Container -->
+        <div id="results-container" class="accordion mt-5" style="display: none">
+            <div class="mb-3 row">
+                <label for="staticURL" class="col-sm-2 col-form-label">URL</label>
+                <div class="col-sm-10">
+                    <input type="text" readonly class="form-control-plaintext" id="staticURL" value="">
+                </div>
+            </div>
+
+            <!-- Formatted Data Accordion -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                        Formatted Data
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse">
+                    <div class="accordion-body" id="formatted-data-text">
+                        Placeholder Text:
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid corrupti nostrum ad harum ducimus, sed quaerat possimus debitis sapiente qui facere, voluptate voluptatem eveniet voluptatum saepe assumenda aperiam. Debitis, ullam?</p>
                     </div>
                 </div>
-                
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                            Formatted Data
-                        </button>
-                    </h2>
-                    <div id="collapseOne" class="accordion-collapse collapse">
-                        <div class="accordion-body" id="formatted-data-text">
-                            Placeholder Text: <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid corrupti nostrum ad harum ducimus, sed quaerat possimus debitis sapiente qui facere, voluptate voluptatem eveniet voluptatum saepe assumenda aperiam. Debitis, ullam?</p>
-                        </div>
+            </div>
+
+            <!-- Raw Data Accordion -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Raw Data
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse">
+                    <div class="accordion-body" id="raw-data-text">
+                        Placeholder Text:
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid corrupti nostrum ad harum ducimus, sed quaerat possimus debitis sapiente qui facere, voluptate voluptatem eveniet voluptatum saepe assumenda aperiam. Debitis, ullam?</p>
                     </div>
-                </div>    
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                            Raw Data
-                        </button>
-                    </h2>
-                    <div id="collapseTwo" class="accordion-collapse collapse">
-                        <div class="accordion-body" id="raw-data-text">
-                            Placeholder Text: <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid corrupti nostrum ad harum ducimus, sed quaerat possimus debitis sapiente qui facere, voluptate voluptatem eveniet voluptatum saepe assumenda aperiam. Debitis, ullam?</p>
-                        </div>
-                    </div>
-                </div>                 
+                </div>
             </div>
         </div>
     </div>
-    <script src='../renderer/js/renderer.js'></script>
 </div>
+<script src="../renderer/js/renderer.js"></script>
+
+<!-- JavaScript for Form Handling -->
+<script>
+    var scrapePerformed = false;
+
+    function submitBtnPressed() {
+        console.log("Submit Pressed!");
+
+        var url = document.getElementById('url-input').value;
+        document.getElementById('staticURL').value = url;
+
+        if (!scrapePerformed) {
+            $('#results-container').toggle();
+            scrapePerformed = true;
+        }
+    }
+</script>

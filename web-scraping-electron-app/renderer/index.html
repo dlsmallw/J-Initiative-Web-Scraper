@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'">
     <title>J-Initiative Web Scraper</title>
+
+    <!-- CSS Stylesheets -->
     <link rel='stylesheet' type='text/css' media='screen' href='../renderer/css/style.css'>
     <link rel='stylesheet' type='text/css' media='screen' href='../node_modules/bootstrap/dist/css/bootstrap.css'>
+
+    <!-- jQuery -->
     <script src="../node_modules/jquery/dist/jquery.js"></script>
+
+    <!-- JavaScript - Pseudo-enum object used for page control -->
     <script>
-        // Psuedo-enum object used for organization and control of page state
         const Pages = {
             Home: {
                 name: "home",
@@ -24,53 +30,25 @@
                 state: null
             }
         };
-
-        // Tracks the current page
         var currentPage;
 
-        /**
-         * Initializes all of the pages using the pre-defined components.
-         */
-        function initPages() {
-            $.get("components/home.html", function(data) {
-                Pages.Home.state = data;
-            });
-            $.get("components/scrape.html", function(data) {
-                Pages.Scrape.state = data;
-            });
-            $.get("components/about.html", function(data) {
-                Pages.About.state = data;
-            });
+        async function initPages() {
+            Pages.Home.state = await $.get("components/home.html");
+            Pages.Scrape.state = await $.get("components/scrape.html");
+            Pages.About.state = await $.get("components/about.html");
 
             currentPage = getPage("home");
+            $('#d_content').html(Pages.Home.state);
         }
 
-        /**
-         * Updates the current state of the current page (effectively just stores the current state of the given element).
-         */
-        function updatePageState() { 
-            currentPage.state = document.getElementById("d_content").children[0]; 
+        function updatePageState() {
+            currentPage.state = document.getElementById("d_content").children[0];
         }
 
-        /**
-         * Returns the corresponding Page 'enum' object (has name and state).
-         */
         function getPage(value) {
-            var result;
-
-            Object.keys(Pages).forEach(e => {
-                if (Pages[e].name === value) {
-                    result = Pages[e];
-                }
-            });
-
-            return result;
+            return Pages[Object.keys(Pages).find(e => Pages[e].name === value)];
         }
 
-        /**
-         * Method for dynamically changing the page. This is accomplished through the use of predefined components, and using JQuery to insert the 
-         * html for these components into the page.
-         */
         function changePage(element) {
             var pageName = element.id.split('-')[0];
             var newPage = getPage(pageName);
@@ -85,53 +63,49 @@
             }
         }
 
-        /**
-         * Method for exitting the application.
-         */
         function exitApp() {
-            const remote = require('electron').remote;
-            let currWin = remote.getCurrentWindow();
-            currWin.close();
+            require('electron').remote.getCurrentWindow().close();
         }
 
-        initPages();
+        $(document).ready(function() {
+            initPages();
+        });
     </script>
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-sm bg-body-tertiary .navbar-dark">
+    <nav class="navbar navbar-expand-sm navbar-dark bg-secondary">
         <div class="container-fluid">
             <span class="navbar-brand mb-0 h1">Web Scraper</span>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-0">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" id="home-nav" aria-current="page" onclick="changePage(this)" href="#">Home</a>
+                        <a class="nav-link" id="home-nav" onclick="changePage(this)" href="#">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="scrape-nav" aria-current="page" onclick="changePage(this)" href="#">Scraper</a>
+                        <a class="nav-link" id="scrape-nav" onclick="changePage(this)" href="#">Scraper</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" id="about-nav" onclick="changePage(this)" href="#">About</a>
                     </li>
                 </ul>
-                <ul class="navbar-nav ms-auto mb-0">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" id="exit-nav" aria-current="page" onclick="window.close()" href="#">Exit</a>
+                        <a class="nav-link" id="exit-nav" onclick="exitApp()" href="#">Exit</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
-    <div id="d_content" class="container-fluid">
-        <script>
-            $('#d_content').load('components/home.html');
-        </script>
+    <div id="d_content" class="container-fluid mt-4">
+        <!-- The home component loads by default -->
     </div>
+
+    <!-- Bootstrap JS Bundle -->
     <script src='../node_modules/bootstrap/dist/js/bootstrap.bundle.js'></script>
-    <script>
-        console.log()
-    </script>
 </body>
+
 </html>

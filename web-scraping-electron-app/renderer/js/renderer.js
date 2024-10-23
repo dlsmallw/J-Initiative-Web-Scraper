@@ -1,23 +1,30 @@
 /**
- * This script is ran on every html file, to render information and other processes.
+ * This script runs on every HTML file to render information and other processes.
  */
 
 // Determines the currently opened file.
-var url = location.href;
-var filename = url.substring(url.lastIndexOf('/') + 1);
+document.addEventListener('DOMContentLoaded', () => {
+    var url = location.href;
+    var filename = url.substring(url.lastIndexOf('/') + 1);
 
-if (filename === 'index.html') {
-    // WIP
-}
+    // Populates version info on the About page
+    if (filename === 'about.html') {
+        populateVersionInfo();
+    }
+});
 
-// Populates the version info on the About page
-if (document.getElementById('about-container') !== null) {
+/**
+ * Populates the version info on the About page.
+ */
+function populateVersionInfo() {
     const nodeVersion = document.getElementById('node-version');
-    nodeVersion.innerHTML = versions.node();
-
     const chromeVersion = document.getElementById('chrome-version');
-    chromeVersion.innerHTML = versions.chrome();
-
     const electronVersion = document.getElementById('electron-version');
-    electronVersion.innerHTML = versions.electron();
+
+    if (nodeVersion && chromeVersion && electronVersion) {
+        nodeVersion.innerHTML = versions.node();
+        chromeVersion.innerHTML = versions.chrome();
+        electronVersion.innerHTML = versions.electron();
+    }
 }
+
