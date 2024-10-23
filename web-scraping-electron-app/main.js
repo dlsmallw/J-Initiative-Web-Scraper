@@ -1,10 +1,13 @@
 /**
  * This file will be used as the primary entry point for the application.
  */
-
-const { app, BrowserWindow, nativeTheme } = require('electron');
+const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
+// const pyshell = require('python-shell');
 const { PythonShell } = require('python-shell');
+const kill = require('tree-kill');
 const path = require('node:path');
+
+const { testCommWithPyAPI, stopPyBackend } = require('./js-api.js');
 
 // This will be needed when packaging the python code base as an executable (i.e., WIP)
 // const PROD_API_PATH = path.join(process.resourcesPath, "")
@@ -18,6 +21,7 @@ let mainWin;
 
 if (isDev) {
     console.log("Python FastAPI server started")
+    
     PythonShell.run(DEV_API_PATH, function(err, res) {
         if (err) {
             console.log(err);
@@ -71,7 +75,10 @@ app.on("before-quit", () => {
     if (!isDev) {
         fileExecutor.kill('SIGINT');
     } else {
-        PythonShell.kill(DEV_API_PATH);
+        stopPyBackend()
+            .then(res => {
+                console.log(res.message);
+            })
     }
 });
 
@@ -80,3 +87,9 @@ app.on('window-all-closed', () => {
     if (!isMac) app.quit();
 });
 
+ipcMain.on('scrape:request', () => {
+    testCommWithPyAPI()
+        .then(function(data) {
+            mainWin.webContents.send('scrape:result', data);
+        });
+})

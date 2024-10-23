@@ -2,31 +2,25 @@
  * This script is ran on every html file, to render information and other processes.
  */
 
-// Determines the currently opened file.
-var url = location.href;
-var filename = url.substring(url.lastIndexOf('/') + 1);
-
-if (filename === 'index.html') {
-    // WIP
-}
-
 // Populates the version info on the About page
 if (document.getElementById('about-container') !== null) {
-    const nodeVersion = document.getElementById('node-version');
-    nodeVersion.innerHTML = versions.node();
-
-    const chromeVersion = document.getElementById('chrome-version');
-    chromeVersion.innerHTML = versions.chrome();
-
-    const electronVersion = document.getElementById('electron-version');
-    electronVersion.innerHTML = versions.electron();
+    $('node-version').innerHTML(versions.node());
+    $('chrome-version').innerHTML(versions.chrome());
+    $('electron-version').innerHTML(versions.electron());
 }
 
 if (document.getElementById('scrape-container') !== null) {
-    var submitBtn = document.getElementById("button-addon2");
-    submitBtn.addEventListener('click', function() {
-        
-        var result = window.jspyAPI.helloPy();
-        document.getElementById('staticURL').value = result;
+    var submitBtn = $("#button-addon2");
+
+    $("#button-addon2").on('click', () => {
+        window.jsapi.send('scrape:request', {});
+    })
+
+    // WIP... JQuery has some bugs when used in conjunction with ipcRenderer and ipcMain
+    window.jsapi.on('scrape:result', (data) => {
+        $('#staticURL').val(data.message);
+        $('#results-container').show();
+        document.getElementById('formatted-data-text').innerHTML = data.formattedData;
+        document.getElementById('raw-data-text').innerHTML = data.rawData;
     })
 }

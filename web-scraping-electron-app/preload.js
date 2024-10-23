@@ -4,9 +4,6 @@
  */
 
 const { contextBridge, ipcRenderer } = require('electron');
-const { axios } = require('axios').default;
-
-const HOST_URL = 'http://127.0.0.1:7777/';
 
 // Effectively makes these available in the applications global scope
 contextBridge.exposeInMainWorld('versions', {
@@ -15,11 +12,7 @@ contextBridge.exposeInMainWorld('versions', {
     electron: () => process.versions.electron
 });
 
-contextBridge.exposeInMainWorld('jspyAPI', {
-    helloPy: () => {
-        axios.get(HOST_URL)
-            .then(function(res) {
-                ipcRenderer.send('callPyAPI', res);
-            });
-    }
-})
+contextBridge.exposeInMainWorld('jsapi', {
+    send: (channel, data) => ipcRenderer.send(channel, data),
+    on: (channel, func) => ipcRenderer.on(channel, (event, ...args) => func(...args))
+});
