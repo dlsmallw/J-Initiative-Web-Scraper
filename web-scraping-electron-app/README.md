@@ -49,6 +49,7 @@ which python
 source .venv/bin/activate
 
 # this checks that it properly activated
+
 which python 
 ```
  - If you are using Windows Powershell, run the following:

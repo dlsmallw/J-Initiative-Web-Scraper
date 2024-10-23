@@ -1,16 +1,16 @@
 /* General CSS Variables for easy customization */
 :root {
-  --primary-bg: #fafafa;
+  --primary-bg: #faff;
   --secondary-bg: #2c2c34;
   --accent-bg: #444;
   --primary-color: #ffffff;
   --secondary-color: #888;
   --hover-color: #e2e2e2;
   --font-family: 'Poppins', sans-serif;
-  --link-home-color: #28a745; /* Green */
-  --link-scraper-color: #e83e8c; /* Pink */
-  --link-about-color: #007bff; /* Blue */
-  --link-exit-color: #dc3545; /* Red */
+  --link-home-color: #ffffff;
+  --link-scraper-color: #ffffff;
+  --link-about-color: #ffffff;
+  --link-exit-color: #ffffff;
   --transition-speed: 0.3s; /* Consistent transition speed */
   --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Reusable box shadow */
 }
