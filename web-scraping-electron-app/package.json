@@ -7,7 +7,7 @@
     "dev": "npx electronmon .",
     "start": "electron .",
     "build:node": "npm ci",
-    "build:py": "chmod +x build.sh && build.sh",
+    "build:py": "chmod +x build.sh && ./scripts/build.sh",
     "build": "npm run build:node && npm run build:py"
   },
   "author": "ASU Capstone 2024 Group 8",
