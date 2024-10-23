@@ -9,6 +9,8 @@ requests = "*"
 beautifulsoup4 = "*"
 uvicorn = "*"
 sqlalchemy = "*"
+flake8 = "*"
+pytest = "*"
 
 [dev-packages]
 flake8 = "*"
