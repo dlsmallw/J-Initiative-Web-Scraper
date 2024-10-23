@@ -1,181 +1,250 @@
 /* General CSS Variables for easy customization */
 :root {
-  --primary-bg: #faff;
-  --secondary-bg: #2c2c34;
-  --accent-bg: #444;
-  --primary-color: #ffffff;
-  --secondary-color: #888;
-  --hover-color: #e2e2e2;
-  --font-family: 'Poppins', sans-serif;
-  --link-home-color: #ffffff;
-  --link-scraper-color: #ffffff;
-  --link-about-color: #ffffff;
-  --link-exit-color: #ffffff;
-  --transition-speed: 0.3s; /* Consistent transition speed */
-  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Reusable box shadow */
+    --primary-bg: #f8f9fa;
+    --secondary-bg: #e9ecef;
+    --accent-bg: #dee2e6;
+    --primary-color: #000;
+    --secondary-color: #6c757d;
+    --hover-color: #adb5bd;
+    --font-family: 'Poppins', sans-serif;
+
+    --navbar-bg: var(--secondary-bg);
+    --navbar-link-color: var(--primary-color);
+    --button-bg: var(--accent-bg);
+    --button-color: var(--primary-color);
+    --content-bg: var(--primary-bg);
+    --text-color: var(--primary-color);
+    --link-color: blue;
+    --border-color: var(--secondary-color);
 }
 
-/* Import Google Fonts for a modern look */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-html {
-  margin: 0;
-  padding: 0;
-  height: 100%; /* Ensure html takes full viewport height */
+/* Light Theme */
+html.light-theme {
+    --primary-bg: #ffffff;
+    --secondary-bg: #f0f0f0;
+    --accent-bg: #cccccc;
+    --primary-color: #000000;
+    --secondary-color: #555555;
+    --hover-color: #dddddd;
+    --navbar-bg: #f0f0f0;  /* Added */
+    --content-bg: #ffffff; /* Added */
 }
+
+/* Dark Theme */
+html.dark-theme {
+    --primary-bg: #1a1a1a;
+    --secondary-bg: #2c2c2c;
+    --accent-bg: #333333;
+    --primary-color: #ffffff;
+    --secondary-color: #bbbbbb;
+    --hover-color: #444444;
+    --navbar-bg: #2c2c2c;  /* Updated: Define navbar background */
+    --content-bg: #1a1a1a; /* Updated: Define content background */
+}
+
+/* Blue Theme */
+html.blue-theme {
+    --primary-bg: #e8f1ff;
+    --secondary-bg: #d0e7ff;
+    --accent-bg: #007bff;
+    --primary-color: #ffffff;
+    --secondary-color: #0056b3;
+    --hover-color: #339cff;
+    --navbar-bg: #d0e7ff;  /* Added */
+    --content-bg: #e8f1ff; /* Added */
+}
+
+/* Disco Theme - Colorful and Playful */
+html.disco-theme {
+    --primary-bg: #ffb6c1;
+    --secondary-bg: #ff69b4;
+    --accent-bg: #ba55d3;
+    --primary-color: #ffffff;
+    --secondary-color: #ff6347;
+    --hover-color: #ffd700;
+    --navbar-bg: #ff69b4;  /* Added */
+    --content-bg: #ffb6c1; /* Added */
+}
+
 /* General page settings */
 body {
-  font-family: var(--font-family);
-  background-color: var(--primary-bg);
-  color: #333;
-  margin: 0;
-  padding: 0;
-  line-height: 1.6;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column; /* Ensure body takes full viewport height */
+    font-family: var(--font-family);
+    background-color: var(--primary-bg);
+    color: var(--primary-color);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Navbar styling */
 .navbar {
-  background-color: var(--secondary-bg);
-  box-shadow: var(--box-shadow);
+    background-color: var(--navbar-bg) !important; /* Force the background change */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    transition: background-color 0.3s ease-in-out; /* Add smooth transition */
 }
 
 .navbar .nav-link {
-  font-weight: 500;
-  transition: color var(--transition-speed) ease;
+    color: var(--navbar-link-color);
+    font-weight: 500;
+    transition: color 0.3s ease;
 }
 
-/* Specific link colors for navbar (using CSS variables for consistency) */
-.navbar .nav-link[id="home-nav"] { color: var(--link-home-color); }
-.navbar .nav-link[id="scrape-nav"] { color: var(--link-scraper-color); }
-.navbar .nav-link[id="about-nav"] { color: var(--link-about-color); }
-.navbar .nav-link[id="exit-nav"] { color: var(--link-exit-color); }
+/* Specific link colors for navbar */
+#home-nav {
+    color: var(--link-home-color, var(--primary-color)) !important;
+}
+
+#scrape-nav {
+    color: var(--link-scraper-color, var(--secondary-color)) !important;
+}
+
+#about-nav {
+    color: var(--link-about-color, var(--link-color)) !important;
+}
+
+#exit-nav {
+    color: var(--link-exit-color, var(--secondary-color)) !important;
+}
 
 .navbar .nav-link:hover {
-  color: var(--hover-color);
+    color: var(--hover-color) !important;
 }
 
 .navbar-brand {
-  font-weight: 600;
-  color: var(--primary-color);
+    font-weight: 600;
+    color: var(--primary-color);
 }
 
 /* Content area */
 #d_content {
-  padding: 40px;
-  max-width: 1200px;
-  margin: 0 auto; /* Center content horizontally */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex-grow: 1; /* Allow content to grow and fill available space */
+    background-color: var(--content-bg); /* Updated to use --content-bg for theming */
+    padding: 40px;
+    max-width: 1200px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease-in-out; /* Add smooth transition */
 }
 
 /* Button styling */
 .btn-outline-secondary {
-  border: 2px solid var(--secondary-color);
-  color: var(--secondary-color);
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 500;
-  transition: background-color var(--transition-speed), color var(--transition-speed);
-  box-shadow: var(--box-shadow); /* Apply consistent box shadow */
+    border: 2px solid var(--secondary-color);
+    color: var(--secondary-color);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .btn-outline-secondary:hover {
-  background-color: var(--accent-bg);
-  color: var(--primary-color);
+    background-color: var(--accent-bg);
+    color: var(--primary-color);
 }
 
 /* Form styling */
 .form-label {
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #333;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--primary-color);
 }
 
 .input-group {
-  max-width: 600px;
-  margin: 0 auto; /* Center form horizontally */
+    max-width: 600px;
+    margin: auto;
 }
 
 /* Accordion styling */
 .accordion-header .accordion-button {
-  background-color: var(--secondary-bg);
-  color: var(--primary-color);
-  border: none;
-  border-radius: 4px;
-  transition: background-color var(--transition-speed) ease;
-  padding: 15px;
-  box-shadow: var(--box-shadow); /* Apply consistent box shadow */
+    background-color: var(--secondary-bg);
+    color: var(--primary-color);
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+    padding: 15px;
 }
 
 .accordion-button.collapsed {
-  background-color: var(--accent-bg);
-  color: var(--primary-color);
+    background-color: var(--accent-bg);
+    color: var(--primary-color);
 }
 
 .accordion-body {
-  background-color: var(--primary-bg);
-  padding: 20px;
-  border-top: 2px solid var(--secondary-color);
+    background-color: var(--primary-bg);
+    padding: 20px;
+    border-top: 2px solid var(--secondary-color);
 }
 
+/* Box shadow for depth */
+.accordion-button, .btn-outline-secondary {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Smooth transitions for an elegant feel */
+* {
+    transition: all 0.3s ease-in-out;
+}
 
 /* Responsive utilities for modern design */
 @media (max-width: 768px) {
-  #d_content {
-    padding: 20px;
-    max-width: 90%;
-  }
+    #d_content {
+        padding: 20px;
+        max-width: 90%;
+    }
 
-  .btn-outline-secondary {
-    padding: 8px 15px;
-  }
+    .btn-outline-secondary {
+        padding: 8px 15px;
+    }
 
-  .navbar-brand {
-    font-size: 1.25rem;
-  }
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
 }
 
 /* Customizing Bootstrap Accordion for more elegance */
 .accordion-item {
-  border: none;
-  margin-bottom: 1rem;
+    border: none;
+    margin-bottom: 1rem;
 }
 
 .accordion-button::after {
-  filter: brightness(0) invert(1);
+    filter: brightness(0) invert(1);
 }
 
 /* Container and Layout Adjustments */
 .container {
-  max-width: 1200px;
-  margin: 0 auto; /* Center containers */
-  padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
 }
 
 .container-fluid {
-  padding: 0 20px;
+    padding: 0 20px;
 }
 
 /* Footer Styling (if applicable) */
 .footer {
-  background-color: var(--secondary-bg);
-  color: var(--primary-color);
-  text-align: center;
-  padding: 20px;
-  margin-top: 40px;
+    background-color: var(--secondary-bg);
+    color: var(--primary-color);
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
 }
 
 .footer a {
-  color: var(--hover-color);
-  text-decoration: none;
+    color: var(--hover-color);
+    text-decoration: none;
 }
 
 .footer a:hover {
-  text-decoration: underline;
+    text-decoration: underline;
 }
+
+
 

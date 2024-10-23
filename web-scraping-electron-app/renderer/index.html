@@ -8,9 +8,8 @@
     <title>J-Initiative Web Scraper</title>
 
     <!-- CSS Stylesheets -->
-    <link rel='stylesheet' type='text/css' media='screen' href='../renderer/css/style.css'>
     <link rel='stylesheet' type='text/css' media='screen' href='../node_modules/bootstrap/dist/css/bootstrap.css'>
-
+    <link rel='stylesheet' type='text/css' media='screen' href='../renderer/css/style.css'>
     <!-- jQuery -->
     <script src="../node_modules/jquery/dist/jquery.js"></script>
 
@@ -32,6 +31,7 @@
         };
         var currentPage;
 
+        // Initializes all the pages by loading their HTML content and setting the default page to Home.
         async function initPages() {
             Pages.Home.state = await $.get("components/home.html");
             Pages.Scrape.state = await $.get("components/scrape.html");
@@ -41,14 +41,17 @@
             $('#d_content').html(Pages.Home.state);
         }
 
+        // Updates the current state of the current page (stores the current state of the given element).
         function updatePageState() {
             currentPage.state = document.getElementById("d_content").children[0];
         }
 
+        // Returns the corresponding Page 'enum' object (has name and state).
         function getPage(value) {
             return Pages[Object.keys(Pages).find(e => Pages[e].name === value)];
         }
 
+        // Handles changing the page when a navigation link is clicked.
         function changePage(element) {
             var pageName = element.id.split('-')[0];
             var newPage = getPage(pageName);
@@ -63,18 +66,57 @@
             }
         }
 
+        // Function to exit the application.
         function exitApp() {
             require('electron').remote.getCurrentWindow().close();
         }
 
+        // Initializes the pages and the theme when the document is ready.
         $(document).ready(function() {
             initPages();
+            initializeTheme(); // Initialize the theme based on saved user preference.
         });
+
+        /**
+         * Initializes the theme based on the user's saved preference or defaults.
+         */
+        function initializeTheme() {
+            const themeSelect = document.getElementById('theme-select');
+
+            // Load the saved theme from localStorage if it exists
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.className = savedTheme; // Apply saved theme to the document
+            }
+
+            if (themeSelect) {
+                // Set the dropdown to the saved value if available
+                if (savedTheme) {
+                    themeSelect.value = savedTheme;
+                }
+
+                // Add an event listener to change the theme whenever the user selects a new option
+                themeSelect.addEventListener('change', changeTheme);
+            }
+        }
+
+        /**
+         * Changes the theme based on user selection and saves the choice to localStorage.
+         */
+        function changeTheme() {
+            const theme = document.getElementById('theme-select').value;
+
+            // Set the selected theme class on the HTML element
+            document.documentElement.className = theme;
+
+            // Save the selected theme to localStorage so it persists across sessions
+            localStorage.setItem('theme', theme);
+        }
     </script>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-sm navbar-dark bg-secondary">
+    <nav class="navbar navbar-expand-sm navbar-dark">
         <div class="container-fluid">
             <span class="navbar-brand mb-0 h1">Web Scraper</span>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,6 +135,16 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <!-- Theme Select Dropdown for user to choose the theme -->
+                    <li class="nav-item">
+                        <label for="theme-select" class="form-label me-2">Theme:</label>
+                        <select id="theme-select" class="form-select form-select-sm me-3" onchange="changeTheme()">
+                            <option value="light-theme">Light Theme</option>
+                            <option value="dark-theme">Dark Theme</option>
+                            <option value="blue-theme">Blue Theme</option>
+                            <option value="disco-theme">Disco Theme</option>
+                        </select>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" id="exit-nav" onclick="exitApp()" href="#">Exit</a>
                     </li>
