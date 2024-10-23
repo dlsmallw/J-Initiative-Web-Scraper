@@ -1,72 +1,102 @@
-/* General CSS Variables for easy customization */
+/*=======================================================================
+    General CSS Variables for Easy Customization
+    - These variables serve as the default values.
+    - They can be overridden by theme-specific variables.
+=======================================================================*/
 :root {
-    --primary-bg: #f8f9fa;
-    --secondary-bg: #e9ecef;
-    --accent-bg: #dee2e6;
-    --primary-color: #000;
-    --secondary-color: #6c757d;
-    --hover-color: #adb5bd;
-    --font-family: 'Poppins', sans-serif;
+    /* Base Colors */
+    --primary-bg: #f8f9fa;        /* Default background color */
+    --secondary-bg: #e9ecef;      /* Secondary background color */
+    --accent-bg: #dee2e6;         /* Accent elements background */
+    --primary-color: #000000;     /* Primary text color */
+    --secondary-color: #6c757d;   /* Secondary text color */
+    --hover-color: #495057;       /* Hover state color */
 
+    /* Fonts and Borders */
+    --font-family: 'Poppins', sans-serif;
+    --border-color: #ced4da;
+
+    /* Navbar and Links */
     --navbar-bg: var(--secondary-bg);
     --navbar-link-color: var(--primary-color);
+    --link-color: #007bff;        /* Default link color */
+
+    /* Buttons */
     --button-bg: var(--accent-bg);
     --button-color: var(--primary-color);
+
+    /* Content Area */
     --content-bg: var(--primary-bg);
     --text-color: var(--primary-color);
-    --link-color: blue;
-    --border-color: var(--secondary-color);
 }
 
-/* Light Theme */
+/*=======================================================================
+    Light Theme
+    - A clean and minimalistic theme with light colors.
+=======================================================================*/
 html.light-theme {
     --primary-bg: #ffffff;
-    --secondary-bg: #f0f0f0;
-    --accent-bg: #cccccc;
-    --primary-color: #000000;
-    --secondary-color: #555555;
-    --hover-color: #dddddd;
-    --navbar-bg: #f0f0f0;  /* Added */
-    --content-bg: #ffffff; /* Added */
+    --secondary-bg: #f8f9fa;
+    --accent-bg: #e9ecef;
+    --primary-color: #212529;
+    --secondary-color: #6c757d;
+    --hover-color: #adb5bd;
+    --navbar-bg: #f8f9fa;
+    --content-bg: #ffffff;
+    --link-color: #007bff;
 }
 
-/* Dark Theme */
+/*=======================================================================
+    Dark Theme
+    - A modern theme with dark backgrounds and light text.
+=======================================================================*/
 html.dark-theme {
-    --primary-bg: #1a1a1a;
-    --secondary-bg: #2c2c2c;
-    --accent-bg: #333333;
-    --primary-color: #ffffff;
-    --secondary-color: #bbbbbb;
-    --hover-color: #444444;
-    --navbar-bg: #2c2c2c;  /* Updated: Define navbar background */
-    --content-bg: #1a1a1a; /* Updated: Define content background */
+    --primary-bg: #121212;
+    --secondary-bg: #1e1e1e;
+    --accent-bg: #2c2c2c;
+    --primary-color: #f8f9fa;
+    --secondary-color: #ced4da;
+    --hover-color: #495057;
+    --navbar-bg: #1e1e1e;
+    --content-bg: #121212;
+    --link-color: #66b2ff;
 }
 
-/* Blue Theme */
+/*=======================================================================
+    Blue Theme
+    - A calm theme with shades of blue.
+=======================================================================*/
 html.blue-theme {
-    --primary-bg: #e8f1ff;
-    --secondary-bg: #d0e7ff;
-    --accent-bg: #007bff;
-    --primary-color: #ffffff;
-    --secondary-color: #0056b3;
-    --hover-color: #339cff;
-    --navbar-bg: #d0e7ff;  /* Added */
-    --content-bg: #e8f1ff; /* Added */
+    --primary-bg: #e3f2fd;
+    --secondary-bg: #bbdefb;
+    --accent-bg: #90caf9;
+    --primary-color: #0d47a1;
+    --secondary-color: #1976d2;
+    --hover-color: #1565c0;
+    --navbar-bg: #bbdefb;
+    --content-bg: #e3f2fd;
+    --link-color: #0d47a1;
 }
 
-/* Disco Theme - Colorful and Playful */
+/*=======================================================================
+    Disco Theme
+    - Party time.
+=======================================================================*/
 html.disco-theme {
-    --primary-bg: #ffb6c1;
-    --secondary-bg: #ff69b4;
-    --accent-bg: #ba55d3;
-    --primary-color: #ffffff;
-    --secondary-color: #ff6347;
-    --hover-color: #ffd700;
-    --navbar-bg: #ff69b4;  /* Added */
-    --content-bg: #ffb6c1; /* Added */
+    --primary-bg: #FF00FF;
+    --secondary-bg: #00CED1;
+    --accent-bg: #c8bca7;
+    --primary-color: #4B0082;
+    --secondary-color: #8d6e63;
+    --hover-color: #6d4c41;
+    --navbar-bg: #7FFF00;
+    --content-bg: #00CED1;
+    --link-color: #5d4037;
 }
 
-/* General page settings */
+/*=======================================================================
+    General Page Settings
+=======================================================================*/
 body {
     font-family: var(--font-family);
     background-color: var(--primary-bg);
@@ -80,49 +110,101 @@ body {
     flex-direction: column;
 }
 
-/* Navbar styling */
+/*=======================================================================
+    Navbar Styling
+=======================================================================*/
 .navbar {
-    background-color: var(--navbar-bg) !important; /* Force the background change */
+    display: flex;
+    justify-content: space-between; /* Space between brand and nav items */
+    align-items: center; /* Vertically align navbar items */
+    padding: 0.5rem 1rem; /* Add padding for spacing */
+    background-color: var(--navbar-bg);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 100%;
-    transition: background-color 0.3s ease-in-out; /* Add smooth transition */
+    transition: background-color 0.3s ease-in-out;
 }
 
+/* Flexbox container for nav links */
+.navbar-nav {
+    display: flex;
+    gap: 1rem; /* Space between nav items */
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Navbar links styling */
 .navbar .nav-link {
     color: var(--navbar-link-color);
     font-weight: 500;
-    transition: color 0.3s ease;
+    text-decoration: none; /* Remove underline */
+    padding: 0.5rem 0.75rem; /* Add padding for clickable area */
+    transition: color 0.3s ease, background-color 0.3s ease; /* Transition for smoother hover effect */
 }
 
-/* Specific link colors for navbar */
-#home-nav {
-    color: var(--link-home-color, var(--primary-color)) !important;
-}
-
-#scrape-nav {
-    color: var(--link-scraper-color, var(--secondary-color)) !important;
-}
-
-#about-nav {
-    color: var(--link-about-color, var(--link-color)) !important;
-}
-
-#exit-nav {
-    color: var(--link-exit-color, var(--secondary-color)) !important;
-}
-
+/* Specific hover effect for all nav links */
 .navbar .nav-link:hover {
-    color: var(--hover-color) !important;
+    color: var(--hover-color);
+    background-color: var(--accent-bg); /* Add subtle background change on hover */
+    border-radius: 4px; /* Add rounded corners for better UI */
 }
 
+/* Navbar Brand Styling */
 .navbar-brand {
     font-weight: 600;
     color: var(--primary-color);
+    text-decoration: none;
+    padding: 0.5rem 1rem; /* Add padding to balance with other links */
 }
 
-/* Content area */
+/* Prevent hover effect on navbar brand */
+.navbar-brand:hover {
+    color: var(--primary-color); /* Keep color the same on hover */
+}
+/*=======================================================================
+    Specific Link Colors for Navbar
+    - Customize individual link colors if needed.
+=======================================================================*/
+#home-nav,
+#scrape-nav,
+#about-nav,
+#exit-nav {
+    color: var(--navbar-link-color);
+    cursor: pointer; /* Indicate clickable items */
+    transition: color 0.3s ease, background-color 0.3s ease;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px; /* Match the rounded corners for consistency */
+}
+
+/* Hover effect for ID-linked navbar items */
+#home-nav:hover,
+#scrape-nav:hover,
+#about-nav:hover,
+#exit-nav:hover {
+    color: var(--hover-color);
+    background-color: var(--accent-bg);
+}
+
+/* Custom style for Theme Select dropdown to keep a constant size and theme consistency */
+#theme-select {
+    width: 150px; /* Fixed width for the dropdown */
+    background-color: var(--primary-bg); /* Use the current theme's background */
+    color: var(--primary-color); /* Use the current theme's text color */
+    border: 2px solid var(--border-color); /* Match the border color with the current theme */
+    border-radius: 4px; /* Rounded corners for a better look */
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; /* Smooth transitions for color changes */
+}
+
+/* Change hover behavior for dropdown to match the theme */
+#theme-select:hover {
+    background-color: var(--accent-bg); /* Use accent color for a hover effect */
+    color: var(--primary-color); /* Keep text color consistent */
+}
+/*=======================================================================
+    Content Area Styling
+=======================================================================*/
 #d_content {
-    background-color: var(--content-bg); /* Updated to use --content-bg for theming */
+    background-color: var(--content-bg);
     padding: 40px;
     max-width: 1200px;
     margin: auto;
@@ -130,16 +212,19 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.3s ease-in-out; /* Add smooth transition */
+    transition: background-color 0.3s ease-in-out;
 }
 
-/* Button styling */
+/*=======================================================================
+    Button Styling
+=======================================================================*/
 .btn-outline-secondary {
     border: 2px solid var(--secondary-color);
     color: var(--secondary-color);
     padding: 10px 20px;
     border-radius: 8px;
     font-weight: 500;
+    background-color: transparent;
     transition: background-color 0.3s, color 0.3s;
 }
 
@@ -148,7 +233,9 @@ body {
     color: var(--primary-color);
 }
 
-/* Form styling */
+/*=======================================================================
+    Form Styling
+=======================================================================*/
 .form-label {
     font-weight: 600;
     margin-bottom: 8px;
@@ -160,14 +247,22 @@ body {
     margin: auto;
 }
 
-/* Accordion styling */
+/*=======================================================================
+    Accordion Styling
+=======================================================================*/
+.accordion-item {
+    border: none;
+    margin-bottom: 1rem;
+}
+
 .accordion-header .accordion-button {
     background-color: var(--secondary-bg);
     color: var(--primary-color);
     border: none;
     border-radius: 4px;
-    transition: background-color 0.3s ease;
     padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .accordion-button.collapsed {
@@ -175,23 +270,52 @@ body {
     color: var(--primary-color);
 }
 
+.accordion-button::after {
+    filter: brightness(0) invert(1);
+}
+
 .accordion-body {
     background-color: var(--primary-bg);
     padding: 20px;
-    border-top: 2px solid var(--secondary-color);
+    border-top: 2px solid var(--border-color);
 }
 
-/* Box shadow for depth */
-.accordion-button, .btn-outline-secondary {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/*=======================================================================
+    Container and Layout Adjustments
+=======================================================================*/
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
 }
 
-/* Smooth transitions for an elegant feel */
-* {
-    transition: all 0.3s ease-in-out;
+.container-fluid {
+    padding: 0 20px;
 }
 
-/* Responsive utilities for modern design */
+/*=======================================================================
+    Footer Styling (if applicable)
+=======================================================================*/
+.footer {
+    background-color: var(--secondary-bg);
+    color: var(--primary-color);
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+}
+
+.footer a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/*=======================================================================
+    Responsive Utilities for Modern Design
+=======================================================================*/
 @media (max-width: 768px) {
     #d_content {
         padding: 20px;
@@ -206,45 +330,5 @@ body {
         font-size: 1.25rem;
     }
 }
-
-/* Customizing Bootstrap Accordion for more elegance */
-.accordion-item {
-    border: none;
-    margin-bottom: 1rem;
-}
-
-.accordion-button::after {
-    filter: brightness(0) invert(1);
-}
-
-/* Container and Layout Adjustments */
-.container {
-    max-width: 1200px;
-    margin: auto;
-    padding: 20px;
-}
-
-.container-fluid {
-    padding: 0 20px;
-}
-
-/* Footer Styling (if applicable) */
-.footer {
-    background-color: var(--secondary-bg);
-    color: var(--primary-color);
-    text-align: center;
-    padding: 20px;
-    margin-top: 40px;
-}
-
-.footer a {
-    color: var(--hover-color);
-    text-decoration: none;
-}
-
-.footer a:hover {
-    text-decoration: underline;
-}
-
 
 
