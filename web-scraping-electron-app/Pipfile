@@ -8,8 +8,13 @@ fastapi = {extras = ["standard"], version = "*"}
 requests = "*"
 beautifulsoup4 = "*"
 uvicorn = "*"
+sqlalchemy = "*"
+flake8 = "*"
+pytest = "*"
 
 [dev-packages]
+flake8 = "*"
+pytest = "*"
 
 [requires]
-python_version = "3.12"
+python_version = "*"
