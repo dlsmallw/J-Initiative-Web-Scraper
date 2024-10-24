@@ -14,7 +14,7 @@ PORT = 7777
 @app.get("/")
 async def testFunc():
     return {
-        "message": "Hello JS prom Python!",
+        "message": "Hello JS from Python!",
         "formattedData": "FORMATTED TEST DATA",
         "rawData": "RAW TEST DATA"
     }
