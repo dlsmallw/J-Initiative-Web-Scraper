@@ -4,7 +4,6 @@
 const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
 // const pyshell = require('python-shell');
 const { PythonShell } = require('python-shell');
-const kill = require('tree-kill');
 const path = require('node:path');
 
 const { testCommWithPyAPI, stopPyBackend } = require('./js-api.js');
