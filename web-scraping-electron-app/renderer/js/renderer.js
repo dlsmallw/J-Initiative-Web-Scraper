@@ -3,13 +3,13 @@
  */
 
 // Populates the version info on the About page
-if (document.getElementById('about-container') !== null) {
+if ($.get('about-container') !== null) {
     $('node-version').innerHTML(versions.node());
     $('chrome-version').innerHTML(versions.chrome());
     $('electron-version').innerHTML(versions.electron());
 }
 
-if (document.getElementById('scrape-container') !== null) {
+if ($.get('scrape-container') !== null) {
     var submitBtn = $("#button-addon2");
 
     $("#button-addon2").on('click', () => {
