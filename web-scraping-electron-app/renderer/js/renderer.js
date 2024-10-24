@@ -55,13 +55,13 @@ function changeTheme() {
 }
 
 // Populates the version info on the About page
-if ($.get('about-container') !== null) {
-    $('node-version').innerHTML(versions.node());
-    $('chrome-version').innerHTML(versions.chrome());
-    $('electron-version').innerHTML(versions.electron());
+if ($.get('#about-container') !== null) {
+    $('#node-version').html(versions.node());
+    $('#chrome-version').html(versions.chrome());
+    $('#electron-version').html(versions.electron());
 }
 
-if ($.get('scrape-container') !== null) {
+if ($.get('#scrape-container') !== null) {
     var submitBtn = $("#button-addon2");
 
     $("#button-addon2").on('click', () => {
@@ -76,3 +76,7 @@ if ($.get('scrape-container') !== null) {
         document.getElementById('raw-data-text').innerHTML = data.rawData;
     })
 }
+
+$('#exit-nav').on('click', () => {
+    window.jsapi.send('exit:request', {});
+})

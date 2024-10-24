@@ -117,7 +117,6 @@ body {
     display: flex;
     justify-content: space-between; /* Space between brand and nav items */
     align-items: center; /* Vertically align navbar items */
-    padding: 0.5rem 1rem; /* Add padding for spacing */
     background-color: var(--navbar-bg);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 100%;
@@ -127,7 +126,8 @@ body {
 /* Flexbox container for nav links */
 .navbar-nav {
     display: flex;
-    gap: 1rem; /* Space between nav items */
+    align-items: center;
+    gap: 0.3rem; /* Space between nav items */
     list-style: none;
     margin: 0;
     padding: 0;
@@ -187,7 +187,6 @@ body {
 
 /* Custom style for Theme Select dropdown to keep a constant size and theme consistency */
 #theme-select {
-    width: 150px; /* Fixed width for the dropdown */
     background-color: var(--primary-bg); /* Use the current theme's background */
     color: var(--primary-color); /* Use the current theme's text color */
     border: 2px solid var(--border-color); /* Match the border color with the current theme */
@@ -208,7 +207,6 @@ body {
     padding: 40px;
     max-width: 1200px;
     margin: auto;
-    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -244,7 +242,6 @@ body {
 
 .input-group {
     max-width: 600px;
-    margin: auto;
 }
 
 /*=======================================================================
@@ -286,7 +283,6 @@ body {
 .container {
     max-width: 1200px;
     margin: auto;
-    padding: 20px;
 }
 
 .container-fluid {

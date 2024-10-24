@@ -67,7 +67,7 @@
 
         // Function to exit the application.
         function exitApp() {
-            require('electron').remote.getCurrentWindow().close();
+            
         }
 
         // Initializes the pages and the theme when the document is ready.
@@ -113,12 +113,7 @@
         }
     </script>
 
-    <style>
-        /* Custom style for Theme Select dropdown to keep a constant size */
-        #theme-select {
-            width: 150px; /* Fixed width for the dropdown */
-        }
-    </style>
+    
 </head>
 
 <body>
@@ -130,7 +125,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <!-- Navigation Links for Home, Scraper, About, and Exit -->
-                <ul class="navbar-nav mb-2 mb-lg-0">
+                <ul class="navbar-nav mb-0">
                     <li class="nav-item">
                         <a class="nav-link" id="home-nav" onclick="changePage(this)" href="#">Home</a>
                     </li>
@@ -140,13 +135,11 @@
                     <li class="nav-item">
                         <a class="nav-link" id="about-nav" onclick="changePage(this)" href="#">About</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="exit-nav" onclick="exitApp()" href="#">Exit</a>
-                    </li>
+                    
                 </ul>
 
                 <!-- Theme Selector Dropdown aligned to the far right -->
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav ms-auto mb-0">
                     <li class="nav-item">
                         <select id="theme-select" class="form-select form-select-sm" onchange="changeTheme()">
                             <option value="light-theme">Light Theme</option>
@@ -154,6 +147,9 @@
                             <option value="blue-theme">Blue Theme</option>
                             <option value="disco-theme">Disco Theme</option>
                         </select>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="exit-nav" href="#">Exit</a>
                     </li>
                 </ul>
             </div>

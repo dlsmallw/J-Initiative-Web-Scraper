@@ -91,4 +91,8 @@ ipcMain.on('scrape:request', () => {
         .then(function(data) {
             mainWin.webContents.send('scrape:result', data);
         });
+});
+
+ipcMain.on('exit:request', () => {
+    mainWin.close();
 })
