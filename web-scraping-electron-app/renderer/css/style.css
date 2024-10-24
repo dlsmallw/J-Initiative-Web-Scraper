@@ -331,4 +331,6 @@ body {
     }
 }
 
-
+input[readonly].default-cursor {
+    cursor: default;
+}

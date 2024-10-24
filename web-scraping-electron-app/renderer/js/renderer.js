@@ -54,20 +54,25 @@ function changeTheme() {
     localStorage.setItem('theme', theme);
 }
 
-/**
- * Populates the version info on the About page.
- */
-function populateVersionInfo() {
-    const nodeVersion = document.getElementById('node-version');
-    const chromeVersion = document.getElementById('chrome-version');
-    const electronVersion = document.getElementById('electron-version');
-
-    if (nodeVersion && chromeVersion && electronVersion) {
-        nodeVersion.innerHTML = versions.node();
-        chromeVersion.innerHTML = versions.chrome();
-        electronVersion.innerHTML = versions.electron();
-    }
+// Populates the version info on the About page
+if ($.get('about-container') !== null) {
+    $('node-version').innerHTML(versions.node());
+    $('chrome-version').innerHTML(versions.chrome());
+    $('electron-version').innerHTML(versions.electron());
 }
 
+if ($.get('scrape-container') !== null) {
+    var submitBtn = $("#button-addon2");
 
+    $("#button-addon2").on('click', () => {
+        window.jsapi.send('scrape:request', {});
+    })
 
+    // WIP... JQuery has some bugs when used in conjunction with ipcRenderer and ipcMain
+    window.jsapi.on('scrape:result', (data) => {
+        $('#staticURL').val(data.message);
+        $('#results-container').show();
+        document.getElementById('formatted-data-text').innerHTML = data.formattedData;
+        document.getElementById('raw-data-text').innerHTML = data.rawData;
+    })
+}
