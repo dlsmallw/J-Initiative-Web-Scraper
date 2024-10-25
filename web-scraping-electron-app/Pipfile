@@ -12,6 +12,7 @@ asyncio = "*"
 sqlalchemy = "*"
 flake8 = "*"
 pytest = "*"
+pyinstaller = "*"
 
 [dev-packages]
 flake8 = "*"
