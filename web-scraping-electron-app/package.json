@@ -5,15 +5,6 @@
   "main": "main.js",
   "build": {
     "appId": "com.electron.python",
-    "files": [
-      "./node_modules/**/*",
-      "package.json",
-      "package-lock.json",
-      "main.js",
-      "preload.js",
-      "js-api.js",
-      "./renderer/**"
-    ],
     "extraResources": [
       "backend_api.exe",
       "backend_api.spec"

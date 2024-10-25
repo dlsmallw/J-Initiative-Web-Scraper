@@ -11,7 +11,7 @@ const { testCommWithPyAPI, stopPyBackend } = require('./js-api.js');
 // This will be needed when packaging the python code base as an executable (i.e., WIP)
 // const PROD_API_PATH = path.join(process.resourcesPath, "")
 const DEV_API_PATH = path.join(__dirname, "./backend/backend_api.py");
-const fileExecutor = require("child_process").execFile;
+const fileExecutor = require("child_process");
 
 const isMac = process.platform === 'darwin';
 const isDev = !app.isPackaged;
@@ -76,7 +76,6 @@ app.on("before-quit", () => {
             .then(res => {
                 console.log(res.message);
             });
-            fileExecutor.kill('SIGINT');
     } else {
         stopPyBackend()
             .then(res => {
