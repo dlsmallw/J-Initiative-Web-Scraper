@@ -3,21 +3,44 @@
   "version": "1.0.0",
   "description": "A web scraping application that is to be used for assisting in NLP model training",
   "main": "main.js",
+  "build": {
+    "appId": "com.electron.python",
+    "files": [
+      "./node_modules/**/*",
+      "package.json",
+      "package-lock.json",
+      "main.js",
+      "preload.js",
+      "js-api.js",
+      "./renderer/**"
+    ],
+    "extraResources": [
+      "backend_api.exe",
+      "backend_api.spec"
+    ],
+    "win": {
+      "target": "nsis"
+    }
+  },
   "scripts": {
     "dev": "npx electronmon .",
     "start": "electron .",
     "build:node": "npm ci",
     "build:py": "chmod +x build.sh && ./scripts/build.sh",
-    "build": "npm run build:node && npm run build:py"
+    "build": "npm run build:node && npm run build:py",
+    "package": "electron-builder "
   },
   "author": "ASU Capstone 2024 Group 8",
   "license": "UNLICENSED",
   "devDependencies": {
+    "@electron/packager": "^18.3.5",
     "axios": "^1.7.7",
-    "electron": "^33.0.0"
+    "electron": "^33.0.2",
+    "electron-builder": "^25.1.8"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
+    "atomically": "^2.0.3",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
     "electron-store": "^10.0.0",

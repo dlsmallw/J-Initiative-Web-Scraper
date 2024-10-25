@@ -3,7 +3,7 @@
  */
 const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
 // const pyshell = require('python-shell');
-const { PythonShell } = require('python-shell');
+// const { PythonShell } = require('python-shell');
 const path = require('node:path');
 
 const { testCommWithPyAPI, stopPyBackend } = require('./js-api.js');
@@ -14,22 +14,22 @@ const DEV_API_PATH = path.join(__dirname, "./backend/backend_api.py");
 const fileExecutor = require("child_process").execFile;
 
 const isMac = process.platform === 'darwin';
-const isDev = process.env.NODE_ENV !== 'production';
+const isDev = !app.isPackaged;
 
 let mainWin;
 
 if (isDev) {
-    console.log("Python FastAPI server started")
+    console.log("Python FastAPI server started - DEV MODE")
     
-    PythonShell.run(DEV_API_PATH, function(err, res) {
-        if (err) {
-            console.log(err);
-        }
-    });
-} else {
-    // fileExecutor(PROD_API_PATH, {
-    // WIP
+    // PythonShell.run(DEV_API_PATH, function(err, res) {
+    //     if (err) {
+    //         console.log(err);
+    //     }
     // });
+} else {
+    console.log("Python FastAPI server started - PRODUCTION MODE")
+
+    fileExecutor.execFile('./backend_api.exe');
 }
 
 function createMainWindow() {
@@ -72,7 +72,11 @@ app.whenReady().then(() => {
 // Kills child processes when closing the app
 app.on("before-quit", () => {
     if (!isDev) {
-        fileExecutor.kill('SIGINT');
+        stopPyBackend()
+            .then(res => {
+                console.log(res.message);
+            });
+            fileExecutor.kill('SIGINT');
     } else {
         stopPyBackend()
             .then(res => {

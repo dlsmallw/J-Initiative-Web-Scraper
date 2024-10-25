@@ -22,6 +22,7 @@ async def testFunc():
 @app.get("/kill")
 async def shutdown():
     loop.stop()
+    print(" > Shutdown Backend Server")
     return {
         "message": "Backend Successfully Shutdown!"
     }
@@ -30,3 +31,4 @@ if __name__ == "__main__":
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(uvicorn.run(app, host=HOST, port=PORT))
+    print(" > Started Backend Server")
