@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>WebView Window</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+        #myWebView {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <webview id="myWebView" src="about:blank"></webview>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        ipcRenderer.on('load-url', (event, url) => {
+            const webview = document.getElementById('myWebView');
+            webview.src = url;
+        });
+
+        // Optional: Handle webview events
+        const webview = document.getElementById('myWebView');
+        webview.addEventListener('dom-ready', () => {
+            console.log('WebView DOM is ready');
+        });
+    </script>
+</body>
+</html>

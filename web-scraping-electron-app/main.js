@@ -86,6 +86,25 @@ app.on('window-all-closed', () => {
     if (!isMac) app.quit();
 });
 
+function createWebviewWindow(url) {
+    const webviewWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+            preload: path.join(__dirname, 'preload.js'),
+            webviewTag: true
+        }
+    });
+
+    webviewWindow.loadFile('webview.html');
+
+    webviewWindow.webContents.on('did-finish-load', () => {
+        webviewWindow.webContents.send('load-url', url);
+    });
+}
+
 ipcMain.on('scrape:request', () => {
     testCommWithPyAPI()
         .then(function(data) {
@@ -96,3 +115,41 @@ ipcMain.on('scrape:request', () => {
 ipcMain.on('exit:request', () => {
     mainWin.close();
 })
+
+// IPC listener for unrecognized URLs
+ipcMain.on('open-unrecognized-url', (event, url) => {
+    createUnrecognizedURLWindow(url);
+});
+
+// Function to create a new window for unrecognized URLs
+function createUnrecognizedURLWindow(url) {
+    const unrecognizedURLWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        webPreferences: {
+            nodeIntegration: false, // Disable Node.js integration
+            contextIsolation: true, // Enable context isolation
+            sandbox: true,          // Enable sandbox mode
+            preload: path.join(__dirname, 'preload.js'),
+        }
+    });
+
+    // Load the unrecognized URL
+    unrecognizedURLWindow.loadURL(url);
+
+    // Restrict navigation and new window creation
+    unrecognizedURLWindow.webContents.on('will-navigate', (event, navigateUrl) => {
+        if (navigateUrl !== url) {
+            event.preventDefault();
+        }
+    });
+
+    unrecognizedURLWindow.webContents.setWindowOpenHandler(({ url }) => {
+        return { action: 'deny' };
+    });
+
+    // Handle window closure
+    unrecognizedURLWindow.on('closed', () => {
+        // Cleanup
+    });
+}

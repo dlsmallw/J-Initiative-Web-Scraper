@@ -1,6 +1,7 @@
 /**
  * This script runs on every HTML file to handle theme switching and other processes.
  */
+const { ipcRenderer } = require('electron');
 
 // Wait until the DOM content is loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -80,3 +81,42 @@ if ($.get('#scrape-container') !== null) {
 $('#exit-nav').on('click', () => {
     window.jsapi.send('exit:request', {});
 })
+
+// Function to determine if a URL is recognized
+function isRecognizedURL(url) {
+    // List of recognized URLs or patterns
+    const recognizedURLs = [
+        'https://www.google.com/*',
+        'https://www.youtube.com/*',
+        // Other recognized URLs or patterns here
+    ];
+
+    // Simple pattern matching
+    return recognizedURLs.some(pattern => {
+        const regex = new RegExp('^' + pattern.replace('*', '.*') + '$');
+        return regex.test(url);
+    });
+}
+
+// Function to handle unrecognized URLs
+function handleUnrecognizedURL(url) {
+    // Send a message to the main process to open a new window
+    ipcRenderer.send('open-webview-window', url);
+}
+
+// Example usage when processing URLs
+function processURL(url) {
+    if (isRecognizedURL(url)) {
+        // Handle recognized URL
+        console.log(`Recognized URL: ${url}`);
+        // Code for handling recognized URLs
+    } else {
+        // Handle unrecognized URL
+        console.log(`Unrecognized URL: ${url}`);
+        handleUnrecognizedURL(url);
+    }
+}
+
+// Example URL
+const urlToCheck = 'https://www.unrecognizedwebsite.com/page';
+processURL(urlToCheck);
