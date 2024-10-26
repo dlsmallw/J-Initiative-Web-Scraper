@@ -65,6 +65,7 @@ if ($.get('#scrape-container') !== null) {
     var submitBtn = $("#button-addon2");
 
     $("#button-addon2").on('click', () => {
+        console.log("SUBMIT PRESSED!")
         window.jsapi.send('scrape:request', {});
     })
 

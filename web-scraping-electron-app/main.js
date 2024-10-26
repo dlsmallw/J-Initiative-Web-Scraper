@@ -1,7 +1,7 @@
 /**
  * This file will be used as the primary entry point for the application.
  */
-const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
+const { app, BrowserWindow, nativeTheme, ipcMain, Notification } = require('electron');
 // const pyshell = require('python-shell');
 // const { PythonShell } = require('python-shell');
 const path = require('node:path');
@@ -9,7 +9,7 @@ const path = require('node:path');
 const { testCommWithPyAPI, stopPyBackend } = require('./js-api.js');
 
 // This will be needed when packaging the python code base as an executable (i.e., WIP)
-// const PROD_API_PATH = path.join(process.resourcesPath, "")
+const PROD_API_PATH = path.join(process.resourcesPath, "");
 const DEV_API_PATH = path.join(__dirname, "./backend/backend_api.py");
 const fileExecutor = require("child_process");
 
@@ -18,19 +18,7 @@ const isDev = !app.isPackaged;
 
 let mainWin;
 
-if (isDev) {
-    console.log("Python FastAPI server started - DEV MODE")
-    
-    // PythonShell.run(DEV_API_PATH, function(err, res) {
-    //     if (err) {
-    //         console.log(err);
-    //     }
-    // });
-} else {
-    console.log("Python FastAPI server started - PRODUCTION MODE")
 
-    fileExecutor.execFile('./backend_api.exe');
-}
 
 function createMainWindow() {
     mainWin = new BrowserWindow({
@@ -50,6 +38,8 @@ function createMainWindow() {
         mainWin.webContents.openDevTools();
     }
 
+    mainWin.webContents.openDevTools();
+
     // Gets rid of the default toolbar (in favor of bootstrap navbar)
     mainWin.setMenu(null);
 
@@ -66,7 +56,31 @@ app.whenReady().then(() => {
     // Opens the main window if now windows currently open
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
-    })
+    });
+
+    if (isDev) {
+        console.log("Python FastAPI server started - DEV MODE")
+    
+        new Notification({
+            title: "NOTIFICATION",
+            body: "Dev Started"
+        }).show();
+        
+        // PythonShell.run(DEV_API_PATH, function(err, res) {
+        //     if (err) {
+        //         console.log(err);
+        //     }
+        // });
+    } else {
+        
+        console.log("Python FastAPI server started - PRODUCTION MODE")
+    
+        new Notification({
+            title: "NOTIFICATION",
+            body: "Production Started. DIRECTORY: " + PROD_API_PATH
+        }).show();
+        fileExecutor.execFile(PROD_API_PATH);
+    }
 });
 
 // Kills child processes when closing the app
@@ -99,3 +113,4 @@ ipcMain.on('scrape:request', () => {
 ipcMain.on('exit:request', () => {
     mainWin.close();
 })
+
