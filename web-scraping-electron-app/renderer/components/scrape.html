@@ -4,17 +4,21 @@
         <h1 class="display-4">Web Scraper Form</h1>
 
         <!-- Scraper Form -->
-        <div id="scrape-form-container" class="my-4">
-            <form>
-                <div class="mb-3">
-                    <label for="url-input" class="form-label">URL of Web Page</label>
-                    <div class="input-group mb-3">
-                        <input id="url-input" type="text" class="form-control" placeholder="Enter the URL here" aria-label="URL" aria-describedby="button-addon2">
-                        <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="submitBtnPressed()">Submit</button>
-                    </div>
+    <div id="scrape-form-container" class="my-4">
+        <form>
+            <div class="mb-3">
+                <label for="url-input" class="form-label">URL of Web Page</label>
+                <div class="input-group mb-3">
+                    <input id="url-input" type="text" class="form-control" placeholder="Enter the URL here" aria-label="URL" aria-describedby="button-addon2">
+                    <button class="btn btn-outline-secondary" type="button" id="button-addon2">Submit</button>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Include renderer.js -->
+<script src="../renderer/js/renderer.js"></script>
 
         <!-- Results Container -->
         <div id="results-container" class="accordion mt-5" style="display: none">

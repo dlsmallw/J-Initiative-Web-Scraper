@@ -2,6 +2,18 @@
  * This script runs on every HTML file to handle theme switching and other processes.
  */
 const { ipcRenderer } = require('electron');
+// Ensure the element exists before adding the event listener
+const submitButton = document.getElementById('button-addon2');
+if (submitButton) {
+    submitButton.addEventListener('click', submitBtnPressed);
+} else {
+    console.error('Submit button not found.');
+}
+
+// Listen for errors from main process
+window.electronAPI.receive('open-url-error', (errorMessage) => {
+    alert(`Failed to open URL: ${errorMessage}`);
+});
 
 // Wait until the DOM content is loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -82,41 +94,40 @@ $('#exit-nav').on('click', () => {
     window.jsapi.send('exit:request', {});
 })
 
-// Function to determine if a URL is recognized
-function isRecognizedURL(url) {
-    // List of recognized URLs or patterns
-    const recognizedURLs = [
-        'https://www.google.com/*',
-        'https://www.youtube.com/*',
-        // Other recognized URLs or patterns here
-    ];
+  // Add event listener to the "Submit" button
+    document.getElementById('button-addon2').addEventListener('click', submitBtnPressed);
 
-    // Simple pattern matching
-    return recognizedURLs.some(pattern => {
-        const regex = new RegExp('^' + pattern.replace('*', '.*') + '$');
-        return regex.test(url);
-    });
-}
+    // Function to handle the "Submit" button click
+    function submitBtnPressed() {
+        const urlInput = document.getElementById('url-input');
+        let url = urlInput.value.trim();
 
-// Function to handle unrecognized URLs
-function handleUnrecognizedURL(url) {
-    // Send a message to the main process to open a new window
-    ipcRenderer.send('open-webview-window', url);
-}
+        if (url) {
+            // Prepend 'http://' or 'https://' if no protocol is specified
+            if (!url.match(/^https?:\/\//i)) {
+                url = 'https://' + url;
+            }
 
-// Example usage when processing URLs
-function processURL(url) {
-    if (isRecognizedURL(url)) {
-        // Handle recognized URL
-        console.log(`Recognized URL: ${url}`);
-        // Code for handling recognized URLs
-    } else {
-        // Handle unrecognized URL
-        console.log(`Unrecognized URL: ${url}`);
-        handleUnrecognizedURL(url);
+            // Validate the URL format
+            if (!isValidURL(url)) {
+                alert('Please enter a valid URL.');
+                return;
+            }
+
+            // Send the URL to the main process
+            ipcRenderer.send('open-url', url);
+        } else {
+            alert('Please enter a URL.');
+        }
     }
-}
 
-// Example URL
-const urlToCheck = 'https://www.unrecognizedwebsite.com/page';
-processURL(urlToCheck);
+    // URL validation function
+    function isValidURL(url) {
+        try {
+            new URL(url);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    }
+});
