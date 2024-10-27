@@ -1,38 +1,166 @@
-/**
+ /**
  * This script runs on every HTML file to handle theme switching and other processes.
  */
-const { ipcRenderer } = require('electron');
-// Ensure the element exists before adding the event listener
-const submitButton = document.getElementById('button-addon2');
-if (submitButton) {
-    submitButton.addEventListener('click', submitBtnPressed);
-} else {
-    console.error('Submit button not found.');
-}
 
-// Listen for errors from main process
-window.electronAPI.receive('open-url-error', (errorMessage) => {
-    alert(`Failed to open URL: ${errorMessage}`);
-});
+// Use the IPC methods exposed by the preload script
+const ipcRenderer = window.electronAPI;
 
-// Wait until the DOM content is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Determine the currently opened file
-    var url = location.href;
-    var filename = url.substring(url.lastIndexOf('/') + 1);
+    // Initialize theme when the document is fully loaded
+    initializeTheme();
 
-    // Populate version info on the About page
-    if (filename === 'about.html') {
-        populateVersionInfo();
+    // Initialize pages by loading their content
+    initPages();
+
+    // Add event listeners for navigation buttons to change pages
+    document.getElementById('home-nav').addEventListener('click', changePage);
+    document.getElementById('scrape-nav').addEventListener('click', changePage);
+    document.getElementById('about-nav').addEventListener('click', changePage);
+
+    // Event listener for the "Exit" navigation link
+    const exitNav = document.getElementById('exit-nav');
+    if (exitNav) {
+        exitNav.addEventListener('click', () => {
+            ipcRenderer.send('exit:request', {}); // Send exit request to main process
+        });
     }
 
-    // Initialize theme based on saved preference or default
-    initializeTheme();
+    // Listen for errors from main process related to URL opening
+    ipcRenderer.receive('open-url-error', (errorMessage) => {
+        alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
+    });
 });
 
-/**
- * Initializes the theme based on the user's saved preference or defaults.
- */
+// Pages object to manage different sections of the application
+const Pages = {
+    Home: {
+        name: "home",
+        state: null
+    },
+    Scrape: {
+        name: "scrape",
+        state: null
+    },
+    About: {
+        name: "about",
+        state: null
+    }
+};
+let currentPage;
+
+// Initializes all the pages by loading their HTML content and setting the default page to Home
+async function initPages() {
+    // Load HTML content for each page using jQuery
+    Pages.Home.state = await $.get("components/home.html");
+    Pages.Scrape.state = await $.get("components/scrape.html");
+    Pages.About.state = await $.get("components/about.html");
+
+    // Set default page to Home and display its content
+    currentPage = getPage("home");
+    $('#d_content').html(Pages.Home.state);
+
+    // Attach event listeners specific to the initial page
+    attachPageEventListeners();
+}
+
+// Updates the current state of the current page to keep track of changes
+function updatePageState() {
+    currentPage.state = $('#d_content').html();
+}
+
+// Returns the corresponding Page object based on the page name
+function getPage(value) {
+    return Pages[Object.keys(Pages).find(e => Pages[e].name === value)];
+}
+
+// Handles changing the page when a navigation link is clicked
+function changePage(event) {
+    event.preventDefault(); // Prevent default link behavior
+    const pageName = this.id.split('-')[0]; // Extract page name from element ID
+    const newPage = getPage(pageName);
+
+    // Only switch pages if the new page is different from the current page
+    if (currentPage.name !== newPage.name) {
+        updatePageState(); // Save the current page state before switching
+        $('#d_content').html(newPage.state); // Update the content area with the new page
+        currentPage = newPage;
+        console.log("Page Changed To " + pageName);
+
+        // Attach event listeners specific to the new page
+        attachPageEventListeners();
+    } else {
+        console.log("Page Not Changed");
+    }
+}
+
+// Attach event listeners specific to the current page (e.g., buttons, input fields)
+function attachPageEventListeners() {
+    if (currentPage.name === 'scrape') {
+        const submitButton = document.getElementById('button-addon2');
+        const urlInput = document.getElementById('url-input');
+
+        // Event listener for the "Submit" button on the Scrape page
+        if (submitButton) {
+            submitButton.addEventListener('click', submitBtnPressed);
+        } else {
+            console.error('Submit button not found.');
+        }
+
+        // Event listener for the "Enter" key press in the input field
+        if (urlInput) {
+            urlInput.addEventListener('keypress', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // Prevent the default form submission
+                    submitBtnPressed();     // Call the submit function
+                }
+            });
+        } else {
+            console.error('URL input field not found.');
+        }
+    }
+}
+
+// Function to handle the "Submit" button click on the Scrape page
+function submitBtnPressed() {
+    console.log('Submit button pressed');
+    const urlInput = document.getElementById('url-input');
+    let url = urlInput.value.trim();
+
+    // Check if a URL was entered
+    if (url) {
+        // Prepend 'https://' if no protocol is specified
+        if (!url.match(/^https?:\/\//i)) {
+            url = 'https://' + url;
+        }
+
+        // Validate the URL format before sending
+        if (!isValidURL(url)) {
+            alert('Please enter a valid URL.');
+            return;
+        }
+
+        // Send the URL to the main process to open it
+        ipcRenderer.send('open-url', url);
+
+        // Update the results container to display the submitted URL
+        document.getElementById('staticURL').value = url;
+        document.getElementById('results-container').style.display = 'block';
+    } else {
+        alert('Please enter a URL.'); // Alert the user if no URL is entered
+    }
+}
+
+// URL validation function to check if the URL is valid
+function isValidURL(url) {
+    try {
+        new URL(url);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+
+// Initializes the theme based on the user's saved preference or defaults to light theme
 function initializeTheme() {
     const themeSelect = document.getElementById('theme-select');
 
@@ -54,9 +182,7 @@ function initializeTheme() {
     }
 }
 
-/**
- * Changes the theme based on user selection and saves the choice to localStorage.
- */
+// Changes the theme based on user selection and saves the choice to localStorage
 function changeTheme() {
     const theme = document.getElementById('theme-select').value;
 
@@ -67,67 +193,3 @@ function changeTheme() {
     localStorage.setItem('theme', theme);
 }
 
-// Populates the version info on the About page
-if ($.get('#about-container') !== null) {
-    $('#node-version').html(versions.node());
-    $('#chrome-version').html(versions.chrome());
-    $('#electron-version').html(versions.electron());
-}
-
-if ($.get('#scrape-container') !== null) {
-    var submitBtn = $("#button-addon2");
-
-    $("#button-addon2").on('click', () => {
-        window.jsapi.send('scrape:request', {});
-    })
-
-    // WIP... JQuery has some bugs when used in conjunction with ipcRenderer and ipcMain
-    window.jsapi.on('scrape:result', (data) => {
-        $('#staticURL').val(data.message);
-        $('#results-container').show();
-        document.getElementById('formatted-data-text').innerHTML = data.formattedData;
-        document.getElementById('raw-data-text').innerHTML = data.rawData;
-    })
-}
-
-$('#exit-nav').on('click', () => {
-    window.jsapi.send('exit:request', {});
-})
-
-  // Add event listener to the "Submit" button
-    document.getElementById('button-addon2').addEventListener('click', submitBtnPressed);
-
-    // Function to handle the "Submit" button click
-    function submitBtnPressed() {
-        const urlInput = document.getElementById('url-input');
-        let url = urlInput.value.trim();
-
-        if (url) {
-            // Prepend 'http://' or 'https://' if no protocol is specified
-            if (!url.match(/^https?:\/\//i)) {
-                url = 'https://' + url;
-            }
-
-            // Validate the URL format
-            if (!isValidURL(url)) {
-                alert('Please enter a valid URL.');
-                return;
-            }
-
-            // Send the URL to the main process
-            ipcRenderer.send('open-url', url);
-        } else {
-            alert('Please enter a URL.');
-        }
-    }
-
-    // URL validation function
-    function isValidURL(url) {
-        try {
-            new URL(url);
-            return true;
-        } catch (_) {
-            return false;
-        }
-    }
-});
