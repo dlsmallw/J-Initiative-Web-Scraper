@@ -35,9 +35,15 @@ async def testFunc():
 @app.post("/url")
 async def scrape_request(scrape_request: ScrapeRequest):
     url = scrape_request.url
-
-    result = scraper.scrape_url(url)
-    return result
+    try:
+        result = scraper.scrape_url(url)
+        return result
+    except:
+        return {
+            "ok": False,
+            "message": "Failed to scrape the requested url",
+            "url": url
+        }
     
 
 @app.get("/ping")
