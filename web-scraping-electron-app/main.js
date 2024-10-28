@@ -6,7 +6,7 @@ const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
 const { PythonShell } = require('python-shell');
 const path = require('node:path');
 
-const { testCommWithPyAPI, stopPyBackend } = require('./js-api.js');
+const { testCommWithPyAPI, stopPyBackend, pingBackend, scrapeRequest } = require('./js-api.js');
 
 // This will be needed when packaging the python code base as an executable (i.e., WIP)
 // const PROD_API_PATH = path.join(process.resourcesPath, "")
@@ -40,8 +40,6 @@ function createMainWindow() {
         "minHeight": 600,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
-            nodeIntegration: true,
-            contextIsolation: true,
         }
     });
 
@@ -86,11 +84,8 @@ app.on('window-all-closed', () => {
     if (!isMac) app.quit();
 });
 
-ipcMain.on('scrape:request', () => {
-    testCommWithPyAPI()
-        .then(function(data) {
-            mainWin.webContents.send('scrape:result', data);
-        });
+ipcMain.handle('scrape:request', async (event, arg) => {
+    return JSON.stringify((await scrapeRequest(arg)).data);
 });
 
 ipcMain.on('exit:request', () => {

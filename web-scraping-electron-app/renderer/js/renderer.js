@@ -64,19 +64,25 @@ if ($.get('#about-container') !== null) {
 if ($.get('#scrape-container') !== null) {
     var submitBtn = $("#button-addon2");
 
-    $("#button-addon2").on('click', () => {
-        window.jsapi.send('scrape:request', {});
-    })
+    $("#button-addon2").on('click', async () => {
+        var url = $('#url-input').val();
+        var urlEncoded = encodeURIComponent(url);
 
-    // WIP... JQuery has some bugs when used in conjunction with ipcRenderer and ipcMain
-    window.jsapi.on('scrape:result', (data) => {
-        $('#staticURL').val(data.message);
-        $('#results-container').show();
-        document.getElementById('formatted-data-text').innerHTML = data.formattedData;
-        document.getElementById('raw-data-text').innerHTML = data.rawData;
-    })
+        console.log(urlEncoded);
+
+        var response = JSON.parse(await window.jsapi.invoke('scrape:request', url));
+        
+        if (response.ok) {
+            $('#staticURL').val(response.url);
+            $('#results-container').show();
+            $('#formatted-data-text').text(response.formattedData);
+            $('#raw-data-text').text(response.rawData);
+        } else {
+            // WIP: This is were we would handle an error response (i.e., display a "Failed to scrape web url")
+        }
+    });
 }
 
 $('#exit-nav').on('click', () => {
-    window.jsapi.send('exit:request', {});
-})
+    window.jsapi.exitSignal('exit:request', {});
+});

@@ -1,4 +1,7 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
+
+from webscrape_test import Scraper
 
 import asyncio
 import uvicorn
@@ -10,19 +13,45 @@ loop = None
 HOST = "127.0.0.1"
 PORT = 7777
 
+import requests
+from bs4 import BeautifulSoup
+import textwrap
+
+scraper = Scraper()
+
+class ScrapeRequest(BaseModel):
+    url: str
+
 # Testing API calls between JS and Python with this test function
 @app.get("/")
 async def testFunc():
     return {
+        "ok": True,
         "message": "Hello JS from Python!",
         "formattedData": "FORMATTED TEST DATA",
         "rawData": "RAW TEST DATA"
+    }
+
+@app.post("/url")
+async def scrape_request(scrape_request: ScrapeRequest):
+    url = scrape_request.url
+
+    result = scraper.scrape_url(url)
+    return result
+    
+
+@app.get("/ping")
+async def ping_backend():
+    return {
+        "ok": True,
+        "message": "Backend Is Currently Running"
     }
 
 @app.get("/kill")
 async def shutdown():
     loop.stop()
     return {
+        "ok": True,
         "message": "Backend Successfully Shutdown!"
     }
 
