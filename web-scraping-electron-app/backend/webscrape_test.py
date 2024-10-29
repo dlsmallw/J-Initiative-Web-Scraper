@@ -29,8 +29,8 @@ class Scraper:
 
         return string
 
-    def scrape_url(self, url):
-        raw_html = requests.get(url)
+    def scrape_url(self, url_to_scrape):
+        raw_html = requests.get(url_to_scrape)
         soup = BeautifulSoup(raw_html.content, "html.parser")
 
         raw_body = soup.find('body')
@@ -38,8 +38,7 @@ class Scraper:
 
 
         return {
-            "ok": True,
-            "url": url,
+            "url": url_to_scrape,
             "formattedData": formatted_text,
             "rawData": f"{raw_body}"
         }

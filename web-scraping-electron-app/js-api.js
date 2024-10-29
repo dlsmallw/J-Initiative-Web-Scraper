@@ -10,11 +10,9 @@ const opts = {
 
 function pingBackend() {
     return new Promise((resolve, reject) => {
-        console.log("Backend Pinged");
-
         axios.get(HOST_URL + "ping")
             .then(function(res) {
-                resolve(res.data);
+                resolve(res);
             })
             .catch((err) => {
                 console.log(err);
@@ -24,25 +22,9 @@ function pingBackend() {
 
 function stopPyBackend() {
     return new Promise((resolve, reject) => {
-        console.log("Command To Shutdown Backend Sent");
-
         axios.get(HOST_URL + "kill")
             .then(function(res) {
-                resolve(res.data);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    });
-}
-
-function testCommWithPyAPI() {
-    console.log("TEST API METHOD CALLED");
-
-    return new Promise((resolve, reject) => {
-        axios.get(HOST_URL)
-            .then(function(res) {
-                resolve(res.data);
+                resolve(res);
             })
             .catch((err) => {
                 console.log(err);
@@ -66,4 +48,4 @@ function scrapeRequest(urlToScrape) {
     });
 }
 
-module.exports = { testCommWithPyAPI, stopPyBackend, pingBackend, scrapeRequest };
+module.exports = { stopPyBackend, pingBackend, scrapeRequest };

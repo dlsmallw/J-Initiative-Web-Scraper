@@ -1,65 +1,37 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-
-from webscrape_test import Scraper
-
 import asyncio
 import uvicorn
+from fastapi import FastAPI
 
-app = FastAPI()
+from webscrape_test import Scraper
+from JSON_Models import *
 
 loop = None
-
 HOST = "127.0.0.1"
 PORT = 7777
 
-import requests
-from bs4 import BeautifulSoup
-import textwrap
-
+app = FastAPI()
 scraper = Scraper()
 
-class ScrapeRequest(BaseModel):
-    url: str
-
-# Testing API calls between JS and Python with this test function
-@app.get("/")
-async def testFunc():
-    return {
-        "ok": True,
-        "message": "Hello JS from Python!",
-        "formattedData": "FORMATTED TEST DATA",
-        "rawData": "RAW TEST DATA"
-    }
-
+# Handles a scrape request
 @app.post("/url")
-async def scrape_request(scrape_request: ScrapeRequest):
-    url = scrape_request.url
-    try:
-        result = scraper.scrape_url(url)
-        return result
-    except:
-        return {
-            "ok": False,
-            "message": "Failed to scrape the requested url",
-            "url": url
-        }
+async def scrape_request(request: ScrapeRequest):
+    url = request.url
     
-
+    try:
+        return scrapeSuccessResp(scraper.scrape_url(url))
+    except:
+        return scrapeFailResp()
+    
+# Responds to a ping message
 @app.get("/ping")
 async def ping_backend():
-    return {
-        "ok": True,
-        "message": "Backend Is Currently Running"
-    }
+    return pingResp()
 
+# Handles a shutdown request
 @app.get("/kill")
 async def shutdown():
     loop.stop()
-    return {
-        "ok": True,
-        "message": "Backend Successfully Shutdown!"
-    }
+    return shutdownResp()
 
 if __name__ == "__main__":
     loop = asyncio.new_event_loop()

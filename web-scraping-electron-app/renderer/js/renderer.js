@@ -4,15 +4,6 @@
 
 // Wait until the DOM content is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Determine the currently opened file
-    var url = location.href;
-    var filename = url.substring(url.lastIndexOf('/') + 1);
-
-    // Populate version info on the About page
-    if (filename === 'about.html') {
-        populateVersionInfo();
-    }
-
     // Initialize theme based on saved preference or default
     initializeTheme();
 });
@@ -65,12 +56,7 @@ if ($.get('#scrape-container') !== null) {
     var submitBtn = $("#button-addon2");
 
     $("#button-addon2").on('click', async () => {
-        var url = $('#url-input').val();
-        var urlEncoded = encodeURIComponent(url);
-
-        console.log(urlEncoded);
-
-        var response = JSON.parse(await window.jsapi.invoke('scrape:request', url));
+        var response = JSON.parse(await window.jsapi.invoke('scrape:request', $('#url-input').val()));
         
         if (response.ok) {
             $('#staticURL').val(response.url);
@@ -84,5 +70,5 @@ if ($.get('#scrape-container') !== null) {
 }
 
 $('#exit-nav').on('click', () => {
-    window.jsapi.exitSignal('exit:request', {});
+    window.jsapi.exitSignal();
 });

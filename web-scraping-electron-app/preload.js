@@ -15,6 +15,6 @@ contextBridge.exposeInMainWorld('versions', {
 contextBridge.exposeInMainWorld(
     'jsapi', {
         invoke: (channel, data) => ipcRenderer.invoke(channel, data),
-        exitSignal: (channel) => ipcRenderer.send(channel)
+        exitSignal: () => ipcRenderer.send('exit:request')
     }
 );
