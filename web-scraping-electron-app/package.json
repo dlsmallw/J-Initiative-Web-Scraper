@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "npx electronmon .",
     "start": "electron .",
-    "build:node": "npm ci",
+    "build:node": "yarn install",
     "build:py": "chmod +x build.sh && ./scripts/build.sh",
-    "build": "npm run build:node && npm run build:py"
+    "build": "yarn run build:node && yarn run build:py"
   },
   "author": "ASU Capstone 2024 Group 8",
   "license": "UNLICENSED",
