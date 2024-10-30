@@ -2,7 +2,7 @@
 
 build() {
     clean 
-    npm run build:node
+    yarn run build:node
 
     python -m venv .venv
     source .venv/Scripts/activate
