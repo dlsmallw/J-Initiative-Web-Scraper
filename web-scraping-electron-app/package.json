@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "npx electronmon .",
     "start": "electron .",
-    "build:node": "yarn install --frozen-lockfile",
+    "build:node": "yarn install",
     "build:py": "chmod +x build.sh && ./scripts/build.sh",
     "build": "yarn run build:node && yarn run build:py"
   },
