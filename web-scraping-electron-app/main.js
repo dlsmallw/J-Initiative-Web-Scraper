@@ -150,3 +150,7 @@ app.on("before-quit", () => {
 ipcMain.handle('scrape:request', async (event, arg) => {
     return JSON.stringify((await scrapeRequest(arg)).data);
 });
+
+ipcMain.on('exit:request', () => {
+    mainWin.close();
+})

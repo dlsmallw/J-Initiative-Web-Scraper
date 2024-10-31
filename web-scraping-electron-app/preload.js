@@ -5,7 +5,6 @@
 // Import necessary modules from Electron
 const { contextBridge, ipcRenderer } = require('electron');
 
-// Expose a safe API for IPC communication between renderer and main processes
 contextBridge.exposeInMainWorld(
     'versions', {       // Expose version information to the renderer process through the context bridge
         // Method to get the Node.js version
@@ -14,7 +13,18 @@ contextBridge.exposeInMainWorld(
         chrome: () => process.versions.chrome,
         // Method to get the Electron version
         electron: () => process.versions.electron
-    },
+    }
+);
+
+contextBridge.exposeInMainWorld(
+    'jsapi', {
+        invoke: (channel, data) => ipcRenderer.invoke(channel, data),
+        exitSignal: () => ipcRenderer.send('exit:request')
+    }
+);
+
+// Expose a safe API for IPC communication between renderer and main processes
+contextBridge.exposeInMainWorld(
     'electronAPI', {    // Expose a safe API for IPC communication between renderer and main processes
         // Method to send messages from renderer to main process
         send: (channel, data) => {
@@ -34,9 +44,6 @@ contextBridge.exposeInMainWorld(
                 ipcRenderer.on(channel, (event, ...args) => func(...args));
             }
         }
-    },
-    'jsapi', {
-        invoke: (channel, data) => ipcRenderer.invoke(channel, data),
-        exitSignal: () => ipcRenderer.send('exit:request')
     }
 );
+
