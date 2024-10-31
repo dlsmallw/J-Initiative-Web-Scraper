@@ -27,6 +27,7 @@ clean() {
 
     rm -rf package-lock.json
     rm -rf yarn.lock
+    rm -rf Pipfile.lock
 }
 
 # Cleans and then builds the project
