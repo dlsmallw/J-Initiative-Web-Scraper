@@ -8,25 +8,44 @@ const opts = {
     }
 };
 
+function pingBackend() {
+    return new Promise((resolve, reject) => {
+        axios.get(HOST_URL + "ping")
+            .then(function(res) {
+                resolve(res);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    });
+}
+
 function stopPyBackend() {
     return new Promise((resolve, reject) => {
-        console.log("Command To Shutdown Backend Sent")
         axios.get(HOST_URL + "kill")
             .then(function(res) {
-                resolve(res.data);
+                resolve(res);
+            })
+            .catch((err) => {
+                console.log(err);
             });
     });
 }
 
-function testCommWithPyAPI() {
-    console.log("TEST API METHOD CALLED")
+function scrapeRequest(urlToScrape) {
+    console.log("Scrape Request Made");
 
     return new Promise((resolve, reject) => {
-        axios.get(HOST_URL)
-            .then(function(res) {
-                resolve(res.data);
-            });
+        axios.post(HOST_URL + "url", 
+            {
+                url: urlToScrape
+            }
+        ).then(function(res) {
+                resolve(res);
+            }).catch(err => {
+                console.log(err);
+            })
     });
 }
 
-module.exports = { testCommWithPyAPI, stopPyBackend };
+module.exports = { stopPyBackend, pingBackend, scrapeRequest };

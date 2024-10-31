@@ -4,15 +4,6 @@
 
 // Wait until the DOM content is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Determine the currently opened file
-    var url = location.href;
-    var filename = url.substring(url.lastIndexOf('/') + 1);
-
-    // Populate version info on the About page
-    if (filename === 'about.html') {
-        populateVersionInfo();
-    }
-
     // Initialize theme based on saved preference or default
     initializeTheme();
 });
@@ -64,19 +55,20 @@ if ($.get('#about-container') !== null) {
 if ($.get('#scrape-container') !== null) {
     var submitBtn = $("#button-addon2");
 
-    $("#button-addon2").on('click', () => {
-        window.jsapi.send('scrape:request', {});
-    })
-
-    // WIP... JQuery has some bugs when used in conjunction with ipcRenderer and ipcMain
-    window.jsapi.on('scrape:result', (data) => {
-        $('#staticURL').val(data.message);
-        $('#results-container').show();
-        document.getElementById('formatted-data-text').innerHTML = data.formattedData;
-        document.getElementById('raw-data-text').innerHTML = data.rawData;
-    })
+    $("#button-addon2").on('click', async () => {
+        var response = JSON.parse(await window.jsapi.invoke('scrape:request', $('#url-input').val()));
+        
+        if (response.ok) {
+            $('#staticURL').val(response.url);
+            $('#results-container').show();
+            $('#formatted-data-text').text(response.formattedData);
+            $('#raw-data-text').text(response.rawData);
+        } else {
+            // WIP: This is were we would handle an error response (i.e., display a "Failed to scrape web url")
+        }
+    });
 }
 
 $('#exit-nav').on('click', () => {
-    window.jsapi.send('exit:request', {});
-})
+    window.jsapi.exitSignal();
+});
