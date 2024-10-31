@@ -5,32 +5,6 @@
 // Use the IPC methods exposed by the preload script
 const ipcRenderer = window.electronAPI;
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize theme when the document is fully loaded
-    initializeTheme();
-
-    // Initialize pages by loading their content
-    initPages();
-
-    // Add event listeners for navigation buttons to change pages
-    document.getElementById('home-nav').addEventListener('click', changePage);
-    document.getElementById('scrape-nav').addEventListener('click', changePage);
-    document.getElementById('about-nav').addEventListener('click', changePage);
-
-    // Event listener for the "Exit" navigation link
-    const exitNav = document.getElementById('exit-nav');
-    if (exitNav) {
-        exitNav.addEventListener('click', () => {
-            ipcRenderer.send('exit:request', {}); // Send exit request to main process
-        });
-    }
-
-    // Listen for errors from main process related to URL opening
-    ipcRenderer.receive('open-url-error', (errorMessage) => {
-        alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
-    });
-});
-
 // Pages object to manage different sections of the application
 const Pages = {
     Home: {
@@ -46,7 +20,31 @@ const Pages = {
         state: null
     }
 };
+
 let currentPage;
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize theme when the document is fully loaded
+    initializeTheme();
+
+    // Initialize pages by loading their content
+    initPages();
+
+    // Add event listeners for navigation buttons to change pages
+    $('#home-nav').on('click', changePage);
+    $('#scrape-nav').on('click', changePage);
+    $('#about-nav').on('click', changePage);
+
+    // Event listener for the "Exit" navigation link
+    $('#exit-nav').on('click', () => {
+        window.jsapi.exitSignal();
+    });
+
+    // Listen for errors from main process related to URL opening
+    ipcRenderer.receive('open-url-error', (errorMessage) => {
+        alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
+    });
+});
 
 // Initializes all the pages by loading their HTML content and setting the default page to Home
 async function initPages() {
@@ -193,3 +191,26 @@ function changeTheme() {
     localStorage.setItem('theme', theme);
 }
 
+// Populates the version info on the About page
+if ($.get('#about-container') !== null) {
+    $('#node-version').html(versions.node());
+    $('#chrome-version').html(versions.chrome());
+    $('#electron-version').html(versions.electron());
+}
+
+if ($.get('#scrape-container') !== null) {
+    var submitBtn = $("#button-addon2");
+
+    $("#button-addon2").on('click', async () => {
+        var response = JSON.parse(await window.jsapi.invoke('scrape:request', $('#url-input').val()));
+        
+        if (response.ok) {
+            $('#staticURL').val(response.url);
+            $('#results-container').show();
+            $('#formatted-data-text').text(response.formattedData);
+            $('#raw-data-text').text(response.rawData);
+        } else {
+            // WIP: This is were we would handle an error response (i.e., display a "Failed to scrape web url")
+        }
+    });
+}

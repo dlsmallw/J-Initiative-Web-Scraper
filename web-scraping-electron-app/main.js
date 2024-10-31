@@ -6,11 +6,17 @@
 const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
 const path = require('node:path');
 
+const { stopPyBackend, pingBackend, scrapeRequest } = require('./js-api.js');
+
+// This will be needed when packaging the python code base as an executable (i.e., WIP)
+// const PROD_API_PATH = path.join(process.resourcesPath, "")
+const DEV_API_PATH = path.join(__dirname, "./backend/backend_api.py");
+const fileExecutor = require("child_process").execFile;
+
 // Determine if the operating system is macOS
 const isMac = process.platform === 'darwin';
-
 // Determine if we are in development mode or production mode
-const isDev = process.env.NODE_ENV !== 'production';
+const isDev = !app.isPackaged;
 
 // Reference for the main application window
 let mainWin;
@@ -24,9 +30,7 @@ function createMainWindow() {
         minWidth: isDev ? 1200 : 800, // Set minimum width to prevent shrinking beyond a set size
         minHeight: 600, // Set minimum height
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js'), // Load the preload script
-            nodeIntegration: false, // Disallow Node.js integration in renderer for security
-            contextIsolation: true, // Isolate context to improve security
+            preload: path.join(__dirname, 'preload.js'),
         }
     });
 
@@ -41,36 +45,6 @@ function createMainWindow() {
     // Load the main HTML file for the renderer process
     mainWin.loadFile('./renderer/index.html');
 }
-
-// Set the default theme to dark mode
-nativeTheme.themeSource = 'dark';
-
-// When the application is ready, create the main window
-app.whenReady().then(() => {
-    createMainWindow();
-
-    // macOS specific behavior to recreate window when the dock icon is clicked
-    app.on('activate', () => {
-        // Only create a new window if none are open
-        if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
-    });
-});
-
-// When all windows are closed, quit the app unless running on macOS
-app.on('window-all-closed', () => {
-    if (!isMac) app.quit(); // macOS apps typically stay open until explicitly quit
-});
-
-// Listen for 'open-url' event from renderer to open a new window with the provided URL
-ipcMain.on('open-url', (event, url) => {
-    try {
-        createURLWindow(url); // Attempt to create a new URL window
-    } catch (error) {
-        // Log error if URL cannot be opened and notify the renderer process
-        console.error(`Error opening URL window: ${error.message}`);
-        event.sender.send('open-url-error', error.message);
-    }
-});
 
 // Function to create a new window to display the provided URL
 function createURLWindow(url) {
@@ -108,3 +82,70 @@ function createURLWindow(url) {
     });
 }
 
+if (isDev) {
+    PythonShell.run(DEV_API_PATH, function(err, res) {
+        if (err) {
+            console.log(err);
+        } else {
+            
+        }
+    });
+} else {
+    // fileExecutor(PROD_API_PATH, {
+    // WIP
+    // });
+}
+
+// Used to check if the backend is up
+var failedPingCount = 0;
+var pingIntervalTest = setInterval(function() {
+    pingBackend()
+            .then(response => {
+                console.log(response.data.message);
+                clearInterval(pingIntervalTest);
+            })
+            .catch(err => {
+                failedPingCount += 1;
+                console.log("Attempted to ping the backend (attempt: " + failedPingCount + ")");
+            });
+}, 5000);
+
+// When the application is ready, create the main window
+app.whenReady().then(() => {
+    createMainWindow();
+
+    // macOS specific behavior to recreate window when the dock icon is clicked
+    app.on('activate', () => {
+        // Only create a new window if none are open
+        if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
+    });
+});
+
+// When all windows are closed, quit the app unless running on macOS
+app.on('window-all-closed', () => {
+    if (!isMac) app.quit(); // macOS apps typically stay open until explicitly quit
+});
+
+// Listen for 'open-url' event from renderer to open a new window with the provided URL
+ipcMain.on('open-url', (event, url) => {
+    try {
+        createURLWindow(url); // Attempt to create a new URL window
+    } catch (error) {
+        // Log error if URL cannot be opened and notify the renderer process
+        console.error(`Error opening URL window: ${error.message}`);
+        event.sender.send('open-url-error', error.message);
+    }
+});
+
+// Kills child processes when closing the app
+app.on("before-quit", () => {
+    stopPyBackend()
+        .then(res => {
+            console.log(res.data.message);
+        });
+});
+
+
+ipcMain.handle('scrape:request', async (event, arg) => {
+    return JSON.stringify((await scrapeRequest(arg)).data);
+});
