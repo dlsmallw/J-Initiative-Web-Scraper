@@ -3,6 +3,16 @@
   "version": "1.0.0",
   "description": "A web scraping application that is to be used for assisting in NLP model training",
   "main": "main.js",
+  "build": {
+    "appId": "com.electron.python",
+    "extraResources": [
+      "backend_api.exe",
+      "backend_api.spec"
+    ],
+    "win": {
+      "target": "nsis"
+    }
+  },
   "scripts": {
     "dev": "npx electronmon .",
     "start": "electron .",
