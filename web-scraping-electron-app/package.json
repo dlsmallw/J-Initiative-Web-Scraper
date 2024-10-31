@@ -8,13 +8,15 @@
     "start": "electron .",
     "build:node": "yarn install",
     "build:py": "chmod +x build.sh && ./scripts/build.sh",
-    "build": "yarn run build:node && yarn run build:py"
+    "build": "yarn run build:node && yarn run build:py",
+    "package": "electron-builder "
   },
   "author": "ASU Capstone 2024 Group 8",
   "license": "UNLICENSED",
   "devDependencies": {
     "axios": "^1.7.7",
-    "electron": "^33.0.0"
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
