@@ -1,26 +1,21 @@
 import asyncio
 import uvicorn
-from fastapi import FastAPI, requests
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import HTTPException
 from webscrape_test import Scraper
 from JSON_Models import *
 
-loop = None
-HOST = "127.0.0.1"
-PORT = 7777
-
 app = FastAPI()
 scraper = Scraper()
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  #replace with specific origins in production
+    allow_origins=["*"],  # Update to your frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Handles a scrape request
 @app.post("/url")
 async def scrape_request(request: ScrapeRequest):
     url = request.url
@@ -31,17 +26,8 @@ async def scrape_request(request: ScrapeRequest):
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal Server Error")
-    
-# Responds to a ping message
-@app.get("/ping")
-async def ping_backend():
-    return pingResp()
 
-# Handles a shutdown request
-@app.get("/kill")
-async def shutdown():
-    loop.stop()
-    return shutdownResp()
+# Other endpoints...
 
 if __name__ == "__main__":
     uvicorn.run(app, host=HOST, port=PORT)
