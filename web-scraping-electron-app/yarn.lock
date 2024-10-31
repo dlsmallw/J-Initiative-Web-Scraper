@@ -702,7 +702,7 @@ universalify@^0.1.0:
     electron-store "^10.0.0"
     jquery "^3.7.1"
     python-shell "^5.0.0"
-    web-scraping-electron-app "file:../../../../AppData/Local/Yarn/Cache/v6/npm-web-scraping-electron-app-1.0.0-6535c77a-06d8-404a-b86c-1ff28399c9d9-1730365715448/node_modules/web-scraping-electron-app"
+    web-scraping-electron-app "file:../../../../AppData/Local/Yarn/Cache/v6/npm-web-scraping-electron-app-1.0.0-2b00c515-04af-4634-a1e5-304352d96b2e-1730365928655/node_modules/web-scraping-electron-app"
 
 when-exit@^2.1.1:
   version "2.1.3"
