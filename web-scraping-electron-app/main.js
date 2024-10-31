@@ -6,6 +6,7 @@
 const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
 const path = require('node:path');
 
+const { PythonShell } = require('python-shell');
 const { stopPyBackend, pingBackend, scrapeRequest } = require('./js-api.js');
 
 // This will be needed when packaging the python code base as an executable (i.e., WIP)

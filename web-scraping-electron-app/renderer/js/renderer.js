@@ -9,15 +9,15 @@ const ipcRenderer = window.electronAPI;
 const Pages = {
     Home: {
         name: "home",
-        state: null
+        id: '#home-container'
     },
     Scrape: {
         name: "scrape",
-        state: null
+        id: '#scrape-container'
     },
     About: {
         name: "about",
-        state: null
+        id: '#about-container'
     }
 };
 
@@ -55,15 +55,17 @@ async function initPages() {
 
     // Set default page to Home and display its content
     currentPage = getPage("home");
-    $('#d_content').html(Pages.Home.state);
+    $('#d_content')
+        .append(await $.get("components/home.html"))
+        .append(await $.get("components/scrape.html"))
+        .append(await $.get("components/about.html"));
+
+    $('#node-version').html(versions.node());
+    $('#chrome-version').html(versions.chrome());
+    $('#electron-version').html(versions.electron());
 
     // Attach event listeners specific to the initial page
     attachPageEventListeners();
-}
-
-// Updates the current state of the current page to keep track of changes
-function updatePageState() {
-    currentPage.state = $('#d_content').html();
 }
 
 // Returns the corresponding Page object based on the page name
@@ -79,9 +81,13 @@ function changePage(event) {
 
     // Only switch pages if the new page is different from the current page
     if (currentPage.name !== newPage.name) {
-        updatePageState(); // Save the current page state before switching
-        $('#d_content').html(newPage.state); // Update the content area with the new page
+        Object.keys(Pages).forEach(page => {
+            $(Pages[page].id).hide();
+        });
+
+        $(newPage.id).show();
         currentPage = newPage;
+
         console.log("Page Changed To " + pageName);
 
         // Attach event listeners specific to the new page
@@ -94,7 +100,7 @@ function changePage(event) {
 // Attach event listeners specific to the current page (e.g., buttons, input fields)
 function attachPageEventListeners() {
     if (currentPage.name === 'scrape') {
-        const submitButton = document.getElementById('button-addon2');
+        const submitButton = document.getElementById('submitURLBtn');
         const urlInput = document.getElementById('url-input');
 
         // Event listener for the "Submit" button on the Scrape page
@@ -141,8 +147,20 @@ function submitBtnPressed() {
         ipcRenderer.send('open-url', url);
 
         // Update the results container to display the submitted URL
-        document.getElementById('staticURL').value = url;
+        $('#staticURL').val(url);
+        $('#results-container').show();
         document.getElementById('results-container').style.display = 'block';
+
+        // var response = JSON.parse(await window.jsapi.invoke('scrape:request', $('#url-input').val()));
+        
+        // if (response.ok) {
+        //     $('#staticURL').val(response.url);
+        //     $('#results-container').show();
+        //     $('#formatted-data-text').text(response.formattedData);
+        //     $('#raw-data-text').text(response.rawData);
+        // } else {
+        //     // WIP: This is were we would handle an error response (i.e., display a "Failed to scrape web url")
+        // }
     } else {
         alert('Please enter a URL.'); // Alert the user if no URL is entered
     }
@@ -189,28 +207,4 @@ function changeTheme() {
 
     // Save the selected theme to localStorage so it persists across sessions
     localStorage.setItem('theme', theme);
-}
-
-// Populates the version info on the About page
-if ($.get('#about-container') !== null) {
-    $('#node-version').html(versions.node());
-    $('#chrome-version').html(versions.chrome());
-    $('#electron-version').html(versions.electron());
-}
-
-if ($.get('#scrape-container') !== null) {
-    var submitBtn = $("#button-addon2");
-
-    $("#button-addon2").on('click', async () => {
-        var response = JSON.parse(await window.jsapi.invoke('scrape:request', $('#url-input').val()));
-        
-        if (response.ok) {
-            $('#staticURL').val(response.url);
-            $('#results-container').show();
-            $('#formatted-data-text').text(response.formattedData);
-            $('#raw-data-text').text(response.rawData);
-        } else {
-            // WIP: This is were we would handle an error response (i.e., display a "Failed to scrape web url")
-        }
-    });
 }
