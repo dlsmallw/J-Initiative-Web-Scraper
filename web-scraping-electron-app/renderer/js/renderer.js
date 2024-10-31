@@ -34,25 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#home-nav').on('click', changePage);
     $('#scrape-nav').on('click', changePage);
     $('#about-nav').on('click', changePage);
-
-    // Event listener for the "Exit" navigation link
-    $('#exit-nav').on('click', () => {
-        window.jsapi.exitSignal();
-    });
-
-    // Listen for errors from main process related to URL opening
-    ipcRenderer.receive('open-url-error', (errorMessage) => {
-        alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
-    });
 });
 
 // Initializes all the pages by loading their HTML content and setting the default page to Home
 async function initPages() {
-    // Load HTML content for each page using jQuery
-    Pages.Home.state = await $.get("components/home.html");
-    Pages.Scrape.state = await $.get("components/scrape.html");
-    Pages.About.state = await $.get("components/about.html");
-
     // Set default page to Home and display its content
     currentPage = getPage("home");
     $('#d_content')
@@ -64,7 +49,7 @@ async function initPages() {
     $('#chrome-version').html(versions.chrome());
     $('#electron-version').html(versions.electron());
 
-    // Attach event listeners specific to the initial page
+    // Attach event listeners
     attachPageEventListeners();
 }
 
@@ -89,9 +74,6 @@ function changePage(event) {
         currentPage = newPage;
 
         console.log("Page Changed To " + pageName);
-
-        // Attach event listeners specific to the new page
-        attachPageEventListeners();
     } else {
         console.log("Page Not Changed");
     }
@@ -99,36 +81,33 @@ function changePage(event) {
 
 // Attach event listeners specific to the current page (e.g., buttons, input fields)
 function attachPageEventListeners() {
-    if (currentPage.name === 'scrape') {
-        const submitButton = document.getElementById('submitURLBtn');
-        const urlInput = document.getElementById('url-input');
+    // Event listener for the "Submit" button on the Scrape page
+    $('#submitURLBtn').on('click', () => {
+        submitBtnPressed();
+    });
 
-        // Event listener for the "Submit" button on the Scrape page
-        if (submitButton) {
-            submitButton.addEventListener('click', submitBtnPressed);
-        } else {
-            console.error('Submit button not found.');
+    // Event listener for the "Enter" key press in the input field
+    $('#url-input').on('keypress', (event) => {
+        if (event.key === 'Enter') {
+            submitBtnPressed();     // Call the submit function
         }
+    });
+    
+    // Event listener for the "Exit" navigation link
+    $('#exit-nav').on('click', () => {
+        window.jsapi.exitSignal();
+    });
 
-        // Event listener for the "Enter" key press in the input field
-        if (urlInput) {
-            urlInput.addEventListener('keypress', function (event) {
-                if (event.key === 'Enter') {
-                    event.preventDefault(); // Prevent the default form submission
-                    submitBtnPressed();     // Call the submit function
-                }
-            });
-        } else {
-            console.error('URL input field not found.');
-        }
-    }
+    // Listen for errors from main process related to URL opening
+    ipcRenderer.receive('open-url-error', (errorMessage) => {
+        alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
+    });
 }
 
 // Function to handle the "Submit" button click on the Scrape page
 function submitBtnPressed() {
     console.log('Submit button pressed');
-    const urlInput = document.getElementById('url-input');
-    let url = urlInput.value.trim();
+    let url = $('#url-input').val();
 
     // Check if a URL was entered
     if (url) {
@@ -148,7 +127,7 @@ function submitBtnPressed() {
 
         // Update the results container to display the submitted URL
         $('#staticURL').val(url);
-        $('#results-container').show();
+
         document.getElementById('results-container').style.display = 'block';
 
         // var response = JSON.parse(await window.jsapi.invoke('scrape:request', $('#url-input').val()));
@@ -208,3 +187,4 @@ function changeTheme() {
     // Save the selected theme to localStorage so it persists across sessions
     localStorage.setItem('theme', theme);
 }
+
