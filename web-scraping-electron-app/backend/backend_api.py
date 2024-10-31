@@ -1,30 +1,37 @@
-from fastapi import FastAPI
-
 import asyncio
 import uvicorn
+from fastapi import FastAPI
 
-app = FastAPI()
+from webscrape_test import Scraper
+from JSON_Models import *
 
 loop = None
-
 HOST = "127.0.0.1"
 PORT = 7777
 
-# Testing API calls between JS and Python with this test function
-@app.get("/")
-async def testFunc():
-    return {
-        "message": "Hello JS from Python!",
-        "formattedData": "FORMATTED TEST DATA",
-        "rawData": "RAW TEST DATA"
-    }
+app = FastAPI()
+scraper = Scraper()
 
+# Handles a scrape request
+@app.post("/url")
+async def scrape_request(request: ScrapeRequest):
+    url = request.url
+    
+    try:
+        return scrapeSuccessResp(scraper.scrape_url(url))
+    except:
+        return scrapeFailResp()
+    
+# Responds to a ping message
+@app.get("/ping")
+async def ping_backend():
+    return pingResp()
+
+# Handles a shutdown request
 @app.get("/kill")
 async def shutdown():
     loop.stop()
-    return {
-        "message": "Backend Successfully Shutdown!"
-    }
+    return shutdownResp()
 
 if __name__ == "__main__":
     loop = asyncio.new_event_loop()
