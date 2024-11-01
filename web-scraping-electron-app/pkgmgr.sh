@@ -24,10 +24,6 @@ clean() {
     then
         rm -rf ./node_modules
     fi
-
-    rm -rf package-lock.json
-    rm -rf yarn.lock
-    rm -rf Pipfile.lock
 }
 
 # Cleans and then builds the project
