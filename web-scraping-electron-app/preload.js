@@ -16,13 +16,6 @@ contextBridge.exposeInMainWorld(
     }
 );
 
-contextBridge.exposeInMainWorld(
-    'jsapi', {
-        invoke: (channel, data) => ipcRenderer.invoke(channel, data),
-        exitSignal: () => ipcRenderer.send('exit:request')
-    }
-);
-
 // Expose a safe API for IPC communication between renderer and main processes
 contextBridge.exposeInMainWorld(
     'electronAPI', {    // Expose a safe API for IPC communication between renderer and main processes
@@ -43,6 +36,14 @@ contextBridge.exposeInMainWorld(
             if (validChannels.includes(channel)) {
                 ipcRenderer.on(channel, (event, ...args) => func(...args));
             }
+        },
+        // Method for performing a 2-way conversation in a single call
+        invoke: (channel, data) => {
+            ipcRenderer.invoke(channel, data);
+        },
+        // Method for sending a signal to Main to explicitly close the application
+        exitSignal: () => {
+            ipcRenderer.send('exit:request');
         }
     }
 );

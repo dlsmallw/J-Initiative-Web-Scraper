@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event listener for the "Exit" navigation link
     $('#exit-nav').on('click', () => {
-        window.jsapi.exitSignal();
+        ipcRenderer.exitSignal();
     });
 
     // Listen for errors from main process related to URL opening
@@ -151,7 +151,7 @@ function submitBtnPressed() {
         $('#results-container').show();
         document.getElementById('results-container').style.display = 'block';
 
-        // var response = JSON.parse(await window.jsapi.invoke('scrape:request', $('#url-input').val()));
+        // var response = JSON.parse(await ipcRenderer.invoke('scrape:request', $('#url-input').val()));
         
         // if (response.ok) {
         //     $('#staticURL').val(response.url);
@@ -200,7 +200,7 @@ function initializeTheme() {
 
 // Changes the theme based on user selection and saves the choice to localStorage
 function changeTheme() {
-    const theme = document.getElementById('theme-select').value;
+    const theme = $('#theme-select').val();
 
     // Set the selected theme class on the HTML element
     document.documentElement.className = theme;
