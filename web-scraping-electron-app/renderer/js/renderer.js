@@ -176,6 +176,16 @@ function isValidURL(url) {
     }
 }
 
+// Scrape parsed data into the proper locations
+function moveData() {
+
+}
+
+// build data mover button
+function buildDataMoverBtn() {
+    
+}
+
 // Initializes the theme based on the user's saved preference or defaults to light theme
 function initializeTheme() {
     const themeSelect = document.getElementById('theme-select');
