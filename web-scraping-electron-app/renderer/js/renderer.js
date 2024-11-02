@@ -181,10 +181,18 @@ function moveData() {
 
 }
 
-// build data mover button
-function buildDataMoverBtn() {
-    
+// build data mover menu
+function buildDataMoverMenu() {
+    console.log("Right click detected!"); 
 }
+
+document.addEventListener('contextmenu', function(event) {
+  // Prevent the default context menu from appearing
+  event.preventDefault();
+
+  // Do something here, e.g., display a custom context menu
+  
+});
 
 // Initializes the theme based on the user's saved preference or defaults to light theme
 function initializeTheme() {
