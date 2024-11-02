@@ -22,7 +22,9 @@ const isDev = !app.isPackaged;
 // Reference for the main application window
 let mainWin;
 
-// Function to create the main application window
+/**
+ * Function to create the main application window.
+ */
 function createMainWindow() {
     // Create the BrowserWindow instance with specific options
     mainWin = new BrowserWindow({
@@ -47,7 +49,10 @@ function createMainWindow() {
     mainWin.loadFile('./renderer/index.html');
 }
 
-// Function to create a new window to display the provided URL
+/**
+ * Function to create a new window to display the provided URL
+ * @param {*} url       The URL.
+ */
 function createURLWindow(url) {
     // Validate that the provided string is a valid URL
     try {
@@ -83,13 +88,12 @@ function createURLWindow(url) {
     });
 }
 
+// Initializes the application depending on if in a dev or production environment.
 if (isDev) {
     PythonShell.run(DEV_API_PATH, function(err, res) {
         if (err) {
             console.log(err);
-        } else {
-            
-        }
+        } 
     });
 } else {
     // fileExecutor(PROD_API_PATH, {
@@ -146,11 +150,12 @@ app.on("before-quit", () => {
         });
 });
 
-
+// Handles a scrape request
 ipcMain.handle('scrape:request', async (event, arg) => {
     return JSON.stringify((await scrapeRequest(arg)).data);
 });
 
+// Handles closing the application
 ipcMain.on('exit:request', () => {
-    mainWin.close();
+    app.quit();
 })
