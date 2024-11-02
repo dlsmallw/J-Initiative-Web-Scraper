@@ -8,6 +8,10 @@ const opts = {
     }
 };
 
+/**
+ * Method for pinging the Python backend server to validate it is up.
+ * @returns JSON        A JSON object containing information about the success or failure.
+ */
 function pingBackend() {
     return new Promise((resolve, reject) => {
         axios.get(HOST_URL + "ping")
@@ -15,11 +19,19 @@ function pingBackend() {
                 resolve(res);
             })
             .catch((err) => {
-                console.log(err);
+                reject({
+                    ok: false,
+                    stacktrace: err,
+                    message: "Failed to ping the backend API"
+                });
             });
     });
 }
 
+/**
+ * Method for sending a shutdown signal to the backend.
+ * @returns JSON        A JSON object containing information about the success or failure.
+ */
 function stopPyBackend() {
     return new Promise((resolve, reject) => {
         axios.get(HOST_URL + "kill")
@@ -27,11 +39,20 @@ function stopPyBackend() {
                 resolve(res);
             })
             .catch((err) => {
-                console.log(err);
+                reject({
+                    ok: false,
+                    stacktrace: err,
+                    message: "Failed to send request to backend API"
+                });
             });
     });
 }
 
+/**
+ * Method for sending a scrape request to the backend.
+ * @param {*} urlToScrape   The URL to be scraped.
+ * @returns JSON            A JSON object containing information about the success or failure.
+ */
 function scrapeRequest(urlToScrape) {
     console.log("Scrape Request Made");
 
@@ -43,7 +64,11 @@ function scrapeRequest(urlToScrape) {
         ).then(function(res) {
                 resolve(res);
             }).catch(err => {
-                console.log(err);
+                reject({
+                    ok: false,
+                    stacktrace: err,
+                    message: "Failed to send scrape request to backend API"
+                });
             })
     });
 }

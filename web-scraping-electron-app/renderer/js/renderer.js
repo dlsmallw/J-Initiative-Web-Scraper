@@ -30,13 +30,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize pages by loading their content
     initPages();
 
-    // Listen for errors from main process related to URL opening
-    ipcRenderer.receive('open-url-error', (errorMessage) => {
-        alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
-    });
+    // Initializes 2-way renderer-main IPC listeners
+    initIPCEventListeners();
 });
 
-// Initializes all the pages by loading their HTML content and setting the default page to Home
+/**
+ * Initializes all the pages by loading their HTML content and setting the default page to Home
+ */
 async function initPages() {
     // Set default page to Home and display its content
     currentPage = getPage("home");
@@ -54,12 +54,10 @@ async function initPages() {
     attachPageEventListeners();
 }
 
-// Returns the corresponding Page object based on the page name
-function getPage(value) {
-    return Pages[Object.keys(Pages).find(e => Pages[e].name === value)];
-}
-
-// Handles changing the page when a navigation link is clicked
+/**
+ * Handles changing the page when a navigation link is clicked
+ * @param {*} event     The event corresponding to a page change.
+ */
 function changePage(event) {
     event.preventDefault(); // Prevent default link behavior
     const pageName = this.id.split('-')[0]; // Extract page name from element ID
@@ -80,7 +78,9 @@ function changePage(event) {
     }
 }
 
-// Attach event listeners specific to the current page (e.g., buttons, input fields)
+/**
+ * Attach event listeners specific to the current page (e.g., buttons, input fields)
+ */
 function attachPageEventListeners() {
     // Add event listeners for navigation buttons to change pages
     $('#home-nav').on('click', changePage);
@@ -110,9 +110,23 @@ function attachPageEventListeners() {
     });
 }
 
-// Function to handle the "Submit" button click on the Scrape page
+/**
+ * Initializes any atypical IPC communication listeners.
+ * NOTE: Separated for organization purposes.
+ */
+function initIPCEventListeners() {
+    // Listen for errors from main process related to URL opening
+    ipcRenderer.receive('open-url-error', (errorMessage) => {
+        alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
+    });
+}
+
+/**
+ * Function to handle the "Submit" button click on the Scrape page.
+ */
 function submitBtnPressed() {
     console.log('Submit button pressed');
+
     let url = $('#url-input').val();
 
     // Check if a URL was entered
@@ -134,10 +148,10 @@ function submitBtnPressed() {
         // Update the results container to display the submitted URL
         $('#staticURL').val(url);
 
-        document.getElementById('results-container').style.display = 'block';
+        $('#results-container').css('display', 'block');
 
+        // This is the necessary code for performing a basic web scrape using the webscrape_test.py file
         // var response = JSON.parse(await ipcRenderer.invoke('scrape:request', $('#url-input').val()));
-        
         // if (response.ok) {
         //     $('#staticURL').val(response.url);
         //     $('#results-container').show();
@@ -151,7 +165,11 @@ function submitBtnPressed() {
     }
 }
 
-// URL validation function to check if the URL is valid
+/**
+ * URL validation function to check if the URL is valid.
+ * @param {*} url       The URL to validate.
+ * @returns Bool        A boolean corresponding to if it is valid or not.
+ */
 function isValidURL(url) {
     try {
         new URL(url);
@@ -161,9 +179,11 @@ function isValidURL(url) {
     }
 }
 
-// Initializes the theme based on the user's saved preference or defaults to light theme
+/**
+ * Initializes the theme based on the user's saved preference or defaults to light theme.
+ */
 function initializeTheme() {
-    const themeSelect = document.getElementById('theme-select');
+    const themeSelect = $('#theme-select');
 
     // Load the saved theme from localStorage if it exists
     const savedTheme = localStorage.getItem('theme');
@@ -176,14 +196,16 @@ function initializeTheme() {
 
     if (themeSelect) {
         // Set the dropdown to the saved value if available
-        themeSelect.value = savedTheme || 'light-theme';
+        themeSelect.val(savedTheme || 'light-theme');
 
         // Add an event listener to change the theme whenever the user selects a new option
-        themeSelect.addEventListener('change', changeTheme);
+        themeSelect.on('change', changeTheme);
     }
 }
 
-// Changes the theme based on user selection and saves the choice to localStorage
+/**
+ * Changes the theme based on user selection and saves the choice to localStorage.
+ */
 function changeTheme() {
     const theme = $('#theme-select').val();
 
@@ -194,3 +216,11 @@ function changeTheme() {
     localStorage.setItem('theme', theme);
 }
 
+/**
+ * Returns the corresponding Page object based on the page name.
+ * @param {*} value     The page name to be searched for.
+ * @returns Page        The page.
+ */
+function getPage(value) {
+    return Pages[Object.keys(Pages).find(e => Pages[e].name === value)];
+}
