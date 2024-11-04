@@ -310,6 +310,23 @@ body {
 }
 
 /*=======================================================================
+    Highlighted Text grabber button positioning
+=======================================================================*/
+#highlightForm {
+    float: right;
+    width: fit-content;
+}
+
+
+#highlightForm button {
+    height: 50px;
+}
+
+#scrape-container h1 {
+    width: fit-content;
+}
+
+/*=======================================================================
     Responsive Utilities for Modern Design
 =======================================================================*/
 @media (max-width: 768px) {
@@ -330,3 +347,5 @@ body {
 input[readonly].default-cursor {
     cursor: default;
 }
+
+

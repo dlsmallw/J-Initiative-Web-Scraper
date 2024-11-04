@@ -102,6 +102,9 @@ function attachPageEventListeners() {
     if (currentPage.name === 'scrape') {
         const submitButton = document.getElementById('submitURLBtn');
         const urlInput = document.getElementById('url-input');
+        const highlightedButton = document.getElementById('highlightedBtn');
+
+
 
         // Event listener for the "Submit" button on the Scrape page
         if (submitButton) {
@@ -120,6 +123,13 @@ function attachPageEventListeners() {
             });
         } else {
             console.error('URL input field not found.');
+        }
+
+        // Event listener for the "Get Highlighted Text" button on the Scrape page
+        if (highlightedButton) {
+            highlightedButton.addEventListener('click', highlightBtnPressed);
+        } else {
+            console.error('Highlight button not found.');
         }
     }
 }
@@ -177,13 +187,13 @@ function isValidURL(url) {
 }
 
 // Scrape parsed data into the proper locations
+// I need the data to be scraped for this to work
 function moveData() {
 
 }
 
-// build data mover menu
-function buildDataMoverMenu() {
-    console.log("Right click detected!"); 
+function highlightBtnPressed() {
+    console.log(getSelectionText());
 }
 
 // On call, retrieves whatever text the user has highlighted.
@@ -208,10 +218,10 @@ function getSelectionText() {
 // Adds the getSelectionText to replace the default right click menu from appearing
 document.addEventListener('contextmenu', function(event) {
   // Prevent the default context menu from appearing
-  event.preventDefault();
+  //event.preventDefault();
 
   // Do something here, e.g., display a custom context menu
-  console.log(getSelectionText());
+  highlightBtnPressed();
 });
 
 // Initializes the theme based on the user's saved preference or defaults to light theme
