@@ -186,12 +186,32 @@ function buildDataMoverMenu() {
     console.log("Right click detected!"); 
 }
 
+// On call, retrieves whatever text the user has highlighted.
+function getSelectionText() {
+    let text = "";
+    const activeEl = document.activeElement;
+    const activeElTagName = activeEl ? activeEl.tagName.toLowerCase() : null;
+
+    if (
+      (activeElTagName == "textarea") || (activeElTagName == "input" &&
+      /^(?:text|search|password|tel|url)$/i.test(activeEl.type)) &&
+      (typeof activeEl.selectionStart == "number")
+    ) {
+        text = activeEl.value.slice(activeEl.selectionStart, activeEl.selectionEnd);
+    } else if (window.getSelection) {
+        text = window.getSelection().toString();
+    }
+
+    return text;
+}
+
+// Adds the getSelectionText to replace the default right click menu from appearing
 document.addEventListener('contextmenu', function(event) {
   // Prevent the default context menu from appearing
   event.preventDefault();
 
   // Do something here, e.g., display a custom context menu
-  
+  console.log(getSelectionText());
 });
 
 // Initializes the theme based on the user's saved preference or defaults to light theme
