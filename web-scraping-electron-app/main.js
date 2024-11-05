@@ -5,6 +5,10 @@ const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
 // const pyshell = require('python-shell');
 const { PythonShell } = require('python-shell');
 const path = require('node:path');
+const log = require('electron-log');
+
+log.transports.file.level = 'info';
+log.transports.console.level = 'debug';
 
 const { testCommWithPyAPI, stopPyBackend } = require('./js-api.js');
 
@@ -54,6 +58,8 @@ function createMainWindow() {
     mainWin.setMenu(null);
 
     mainWin.loadFile('./renderer/index.html');
+    // Log when the window is created
+  log.info('Main window created');
 }
 
 // This is a current placeholder for seeting the color mode of the app window to dark theme
@@ -62,11 +68,12 @@ nativeTheme.themeSource = 'dark';
 // Waits for the app to be initialized before creating/displaying the main window
 app.whenReady().then(() => {
     createMainWindow();
-
+    log.info('Application is ready');
     // Opens the main window if now windows currently open
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
     })
+
 });
 
 // Kills child processes when closing the app
@@ -83,7 +90,8 @@ app.on("before-quit", () => {
 
 // Exits upon all windows being closed
 app.on('window-all-closed', () => {
-    if (!isMac) app.quit();
+  if (process.platform !== 'darwin') app.quit();
+  log.info('All windows closed, quitting application');
 });
 
 ipcMain.on('scrape:request', () => {
@@ -91,6 +99,14 @@ ipcMain.on('scrape:request', () => {
         .then(function(data) {
             mainWin.webContents.send('scrape:result', data);
         });
+});
+// Handle log messages from renderer
+ipcMain.on('log-info', (event, message) => {
+  log.info(`[Renderer] ${message}`);
+});
+
+ipcMain.on('log-error', (event, message) => {
+  log.error(`[Renderer] ${message}`);
 });
 
 ipcMain.on('exit:request', () => {

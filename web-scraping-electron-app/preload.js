@@ -16,3 +16,10 @@ contextBridge.exposeInMainWorld('jsapi', {
     send: (channel, data) => ipcRenderer.send(channel, data),
     on: (channel, func) => ipcRenderer.on(channel, (event, ...args) => func(...args))
 });
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  log: {
+    info: (message) => ipcRenderer.send('log-info', message),
+    error: (message) => ipcRenderer.send('log-error', message),
+  },
+});
