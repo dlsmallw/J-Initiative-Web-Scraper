@@ -316,6 +316,11 @@ body {
     min-width: 900px;
 }
 
+.embedded-content {
+    width: 100%;
+    border: lightgray solid thin;
+}
+
 /*=======================================================================
     Responsive Utilities for Modern Design
 =======================================================================*/
