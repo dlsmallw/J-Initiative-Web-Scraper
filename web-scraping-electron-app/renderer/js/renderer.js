@@ -2,6 +2,11 @@
  * This script runs on every HTML file to handle theme switching and other processes.
  */
 
+ // Ensure jQuery is loaded
+
+
+
+
 // Wait until the DOM content is loaded
 document.addEventListener('DOMContentLoaded', () => {
     // Determine the currently opened file
@@ -12,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (filename === 'about.html') {
         populateVersionInfo();
     }
+    // Log that the renderer process has loaded
+    window.electronAPI.log.info('Renderer process DOM content loaded');
 
     // Initialize theme based on saved preference or default
     initializeTheme();
@@ -52,6 +59,8 @@ function changeTheme() {
 
     // Save the selected theme to localStorage so it persists across sessions
     localStorage.setItem('theme', theme);
+
+    window.electronAPI.log.info(`Theme changed to: ${theme}`);
 }
 
 // Populates the version info on the About page

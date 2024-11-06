@@ -5,10 +5,13 @@ const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
 // const pyshell = require('python-shell');
 const { PythonShell } = require('python-shell');
 const path = require('node:path');
-const log = require('electron-log');
 
-log.transports.file.level = 'info';
-log.transports.console.level = 'debug';
+
+const log = require('./logger');
+
+// Configure logging levels
+log.transports.file.level = 'info';    // Log level for file output
+log.transports.console.level = 'debug'; // Log level for console output
 
 const { testCommWithPyAPI, stopPyBackend } = require('./js-api.js');
 
@@ -58,6 +61,7 @@ function createMainWindow() {
     mainWin.setMenu(null);
 
     mainWin.loadFile('./renderer/index.html');
+
     // Log when the window is created
   log.info('Main window created');
 }
@@ -72,6 +76,7 @@ app.whenReady().then(() => {
     // Opens the main window if now windows currently open
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
+         log.info('Application activated');
     })
 
 });
@@ -100,6 +105,8 @@ ipcMain.on('scrape:request', () => {
             mainWin.webContents.send('scrape:result', data);
         });
 });
+
+
 // Handle log messages from renderer
 ipcMain.on('log-info', (event, message) => {
   log.info(`[Renderer] ${message}`);
@@ -110,5 +117,6 @@ ipcMain.on('log-error', (event, message) => {
 });
 
 ipcMain.on('exit:request', () => {
+    log.info('Exiting application as per renderer request');
     mainWin.close();
 })

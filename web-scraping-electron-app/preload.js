@@ -17,9 +17,10 @@ contextBridge.exposeInMainWorld('jsapi', {
     on: (channel, func) => ipcRenderer.on(channel, (event, ...args) => func(...args))
 });
 
+// Expose APIs to the renderer process without requiring electron-log
 contextBridge.exposeInMainWorld('electronAPI', {
   log: {
     info: (message) => ipcRenderer.send('log-info', message),
-    error: (message) => ipcRenderer.send('log-error', message),
-  },
+    error: (message) => ipcRenderer.send('log-error', message)
+    }
 });
