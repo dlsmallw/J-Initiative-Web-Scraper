@@ -98,6 +98,15 @@ function attachPageEventListeners() {
         submitBtnPressed();
     });
 
+    // Fade in/out animation for button on annotation page
+    $('#annotation-container')
+        .on('mouseenter', function() {
+            $('#ext-win-btn');
+            $('#ext-win-btn').stop( true, true ).fadeTo(500, 0.2)
+        }).on('mouseleave', function() {
+            $('#ext-win-btn').stop( true, true ).fadeOut(500);
+        });
+
     // Event listener for the "Enter" key press in the input field
     $('#url-input').on('keypress', (event) => {
         if (event.key === 'Enter') {

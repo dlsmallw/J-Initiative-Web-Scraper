@@ -320,14 +320,14 @@ body {
     width: 100%;
     border: lightgray solid thin;
     background-color: white;
+    z-index: -1;
 }
 
 #ext-win-btn {
+    opacity: 0;
     color: black;
-    opacity: 20%;
     cursor: pointer;
     transform: translateY(-50%) translateX(-20%);
-    z-index: 1;
 }
 
 /*=======================================================================
