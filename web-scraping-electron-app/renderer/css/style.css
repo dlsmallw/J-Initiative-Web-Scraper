@@ -310,7 +310,7 @@ body {
 }
 
 /*=======================================================================
-    Component-Specific Styling
+    Annotation Page Styling
 =======================================================================*/
 #annotation-container {
     min-width: 900px;
@@ -319,6 +319,15 @@ body {
 .embedded-content {
     width: 100%;
     border: lightgray solid thin;
+    background-color: white;
+}
+
+#ext-win-btn {
+    color: black;
+    opacity: 20%;
+    cursor: pointer;
+    transform: translateY(-50%) translateX(-20%);
+    z-index: 1;
 }
 
 /*=======================================================================
