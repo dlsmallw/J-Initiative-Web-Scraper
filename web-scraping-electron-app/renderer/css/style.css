@@ -1,0 +1,332 @@
+/*=======================================================================
+    General CSS Variables for Easy Customization
+    - These variables serve as the default values.
+    - They can be overridden by theme-specific variables.
+=======================================================================*/
+:root {
+    /* Base Colors */
+    --primary-bg: #f8f9fa;        /* Default background color */
+    --secondary-bg: #e9ecef;      /* Secondary background color */
+    --accent-bg: #dee2e6;         /* Accent elements background */
+    --primary-color: #000000;     /* Primary text color */
+    --secondary-color: #6c757d;   /* Secondary text color */
+    --hover-color: #495057;       /* Hover state color */
+
+    /* Fonts and Borders */
+    --font-family: 'Poppins', sans-serif;
+    --border-color: #ced4da;
+
+    /* Navbar and Links */
+    --navbar-bg: var(--secondary-bg);
+    --navbar-link-color: var(--primary-color);
+    --link-color: #007bff;        /* Default link color */
+
+    /* Buttons */
+    --button-bg: var(--accent-bg);
+    --button-color: var(--primary-color);
+
+    /* Content Area */
+    --content-bg: var(--primary-bg);
+    --text-color: var(--primary-color);
+}
+
+/*=======================================================================
+    Light Theme
+    - A clean and minimalistic theme with light colors.
+=======================================================================*/
+html.light-theme {
+    --primary-bg: #ffffff;
+    --secondary-bg: #f8f9fa;
+    --accent-bg: #e9ecef;
+    --primary-color: #212529;
+    --secondary-color: #6c757d;
+    --hover-color: #adb5bd;
+    --navbar-bg: #f8f9fa;
+    --content-bg: #ffffff;
+    --link-color: #007bff;
+}
+
+/*=======================================================================
+    Dark Theme
+    - A modern theme with dark backgrounds and light text.
+=======================================================================*/
+html.dark-theme {
+    --primary-bg: #121212;
+    --secondary-bg: #1e1e1e;
+    --accent-bg: #2c2c2c;
+    --primary-color: #f8f9fa;
+    --secondary-color: #ced4da;
+    --hover-color: #495057;
+    --navbar-bg: #1e1e1e;
+    --content-bg: #121212;
+    --link-color: #66b2ff;
+}
+
+/*=======================================================================
+    Blue Theme
+    - A calm theme with shades of blue.
+=======================================================================*/
+html.blue-theme {
+    --primary-bg: #e3f2fd;
+    --secondary-bg: #bbdefb;
+    --accent-bg: #90caf9;
+    --primary-color: #0d47a1;
+    --secondary-color: #1976d2;
+    --hover-color: #1565c0;
+    --navbar-bg: #bbdefb;
+    --content-bg: #e3f2fd;
+    --link-color: #0d47a1;
+}
+
+/*=======================================================================
+    Disco Theme
+    - Party time.
+=======================================================================*/
+html.disco-theme {
+    --primary-bg: #FF00FF;
+    --secondary-bg: #00CED1;
+    --accent-bg: #c8bca7;
+    --primary-color: #4B0082;
+    --secondary-color: #8d6e63;
+    --hover-color: #6d4c41;
+    --navbar-bg: #7FFF00;
+    --content-bg: #00CED1;
+    --link-color: #5d4037;
+}
+
+/*=======================================================================
+    General Page Settings
+=======================================================================*/
+body {
+    font-family: var(--font-family);
+    background-color: var(--primary-bg);
+    color: var(--primary-color);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/*=======================================================================
+    Navbar Styling
+=======================================================================*/
+.navbar {
+    display: flex;
+    justify-content: space-between; /* Space between brand and nav items */
+    align-items: center; /* Vertically align navbar items */
+    background-color: var(--navbar-bg);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    transition: background-color 0.3s ease-in-out;
+}
+
+/* Flexbox container for nav links */
+.navbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem; /* Space between nav items */
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Navbar links styling */
+.navbar .nav-link {
+    color: var(--navbar-link-color);
+    font-weight: 500;
+    text-decoration: none; /* Remove underline */
+    padding: 0.5rem 0.75rem; /* Add padding for clickable area */
+    transition: color 0.3s ease, background-color 0.3s ease; /* Transition for smoother hover effect */
+}
+
+/* Specific hover effect for all nav links */
+.navbar .nav-link:hover {
+    color: var(--hover-color);
+    background-color: var(--accent-bg); /* Add subtle background change on hover */
+    border-radius: 4px; /* Add rounded corners for better UI */
+}
+
+/* Navbar Brand Styling */
+.navbar-brand {
+    font-weight: 600;
+    color: var(--primary-color);
+    text-decoration: none;
+    padding: 0.5rem 1rem; /* Add padding to balance with other links */
+}
+
+/* Prevent hover effect on navbar brand */
+.navbar-brand:hover {
+    color: var(--primary-color); /* Keep color the same on hover */
+}
+/*=======================================================================
+    Specific Link Colors for Navbar
+    - Customize individual link colors if needed.
+=======================================================================*/
+#home-nav,
+#scrape-nav,
+#about-nav,
+#exit-nav {
+    color: var(--navbar-link-color);
+    cursor: pointer; /* Indicate clickable items */
+    transition: color 0.3s ease, background-color 0.3s ease;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px; /* Match the rounded corners for consistency */
+}
+
+/* Hover effect for ID-linked navbar items */
+#home-nav:hover,
+#scrape-nav:hover,
+#about-nav:hover,
+#exit-nav:hover {
+    color: var(--hover-color);
+    background-color: var(--accent-bg);
+}
+
+/* Custom style for Theme Select dropdown to keep a constant size and theme consistency */
+#theme-select {
+    background-color: var(--primary-bg); /* Use the current theme's background */
+    color: var(--primary-color); /* Use the current theme's text color */
+    border: 2px solid var(--border-color); /* Match the border color with the current theme */
+    border-radius: 4px; /* Rounded corners for a better look */
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; /* Smooth transitions for color changes */
+}
+
+/* Change hover behavior for dropdown to match the theme */
+#theme-select:hover {
+    background-color: var(--accent-bg); /* Use accent color for a hover effect */
+    color: var(--primary-color); /* Keep text color consistent */
+}
+/*=======================================================================
+    Content Area Styling
+=======================================================================*/
+#d_content {
+    background-color: var(--content-bg);
+    padding: 40px;
+    max-width: 1200px;
+    margin: auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease-in-out;
+}
+
+/*=======================================================================
+    Button Styling
+=======================================================================*/
+.btn-outline-secondary {
+    border: 2px solid var(--secondary-color);
+    color: var(--secondary-color);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    background-color: transparent;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--accent-bg);
+    color: var(--primary-color);
+}
+
+/*=======================================================================
+    Form Styling
+=======================================================================*/
+.form-label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--primary-color);
+}
+
+.input-group {
+    max-width: 600px;
+}
+
+/*=======================================================================
+    Accordion Styling
+=======================================================================*/
+.accordion-item {
+    border: none;
+    margin-bottom: 1rem;
+}
+
+.accordion-header .accordion-button {
+    background-color: var(--secondary-bg);
+    color: var(--primary-color);
+    border: none;
+    border-radius: 4px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.accordion-button.collapsed {
+    background-color: var(--accent-bg);
+    color: var(--primary-color);
+}
+
+.accordion-button::after {
+    filter: brightness(0) invert(1);
+}
+
+.accordion-body {
+    background-color: var(--primary-bg);
+    padding: 20px;
+    border-top: 2px solid var(--border-color);
+}
+
+/*=======================================================================
+    Container and Layout Adjustments
+=======================================================================*/
+.container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+.container-fluid {
+    padding: 0 20px;
+}
+
+/*=======================================================================
+    Footer Styling (if applicable)
+=======================================================================*/
+.footer {
+    background-color: var(--secondary-bg);
+    color: var(--primary-color);
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+}
+
+.footer a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/*=======================================================================
+    Responsive Utilities for Modern Design
+=======================================================================*/
+@media (max-width: 768px) {
+    #d_content {
+        padding: 20px;
+        max-width: 90%;
+    }
+
+    .btn-outline-secondary {
+        padding: 8px 15px;
+    }
+
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
+}
+
+input[readonly].default-cursor {
+    cursor: default;
+}
