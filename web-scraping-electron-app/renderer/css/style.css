@@ -310,13 +310,20 @@ body {
 }
 
 /*=======================================================================
+    Component-Specific Styling
+=======================================================================*/
+#annotation-container {
+    min-width: 900px;
+}
+
+/*=======================================================================
     Responsive Utilities for Modern Design
 =======================================================================*/
 @media (max-width: 768px) {
-    #d_content {
+    /*#d_content {
         padding: 20px;
         max-width: 90%;
-    }
+    }*/
 
     .btn-outline-secondary {
         padding: 8px 15px;
