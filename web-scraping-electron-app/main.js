@@ -1,122 +1,102 @@
 /**
  * This file will be used as the primary entry point for the application.
  */
+
 const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
-// const pyshell = require('python-shell');
 const { PythonShell } = require('python-shell');
 const path = require('node:path');
-
-
 const log = require('./logger');
-
-// Configure logging levels
-log.transports.file.level = 'info';    // Log level for file output
-log.transports.console.level = 'debug'; // Log level for console output
-
 const { testCommWithPyAPI, stopPyBackend } = require('./js-api.js');
 
-// This will be needed when packaging the python code base as an executable (i.e., WIP)
-// const PROD_API_PATH = path.join(process.resourcesPath, "")
 const DEV_API_PATH = path.join(__dirname, "./backend/backend_api.py");
 const fileExecutor = require("child_process").execFile;
-
-const isMac = process.platform === 'darwin';
+//const isMac = process.platform === 'darwin';
 const isDev = process.env.NODE_ENV !== 'production';
 
 let mainWin;
 
+// Start Python backend if in development mode
 if (isDev) {
-    console.log("Python FastAPI server started")
-    
-    PythonShell.run(DEV_API_PATH, function(err, res) {
-        if (err) {
-            console.log(err);
-        }
+    log.info("Starting Python FastAPI server...");
+    PythonShell.run(DEV_API_PATH, (err) => {
+        if (err) log.error('Error starting Python server:', err);
     });
-} else {
-    // fileExecutor(PROD_API_PATH, {
-    // WIP
-    // });
 }
 
+/**
+ * Creates and configures the main application window.
+ */
 function createMainWindow() {
     mainWin = new BrowserWindow({
         width: isDev ? 1200 : 800,
         height: 600,
-        "minWidth": isDev ? 1200 : 800,
-        "minHeight": 600,
+        minWidth: 800,
+        minHeight: 600,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
-            nodeIntegration: true,
             contextIsolation: true,
+            nodeIntegration: false,
         }
     });
 
-    // Displays dev tools if in a dev environment
-    if (isDev) {
-        mainWin.webContents.openDevTools();
-    }
+    if (isDev) mainWin.webContents.openDevTools();
 
-    // Gets rid of the default toolbar (in favor of bootstrap navbar)
     mainWin.setMenu(null);
-
     mainWin.loadFile('./renderer/index.html');
 
-    // Log when the window is created
-  log.info('Main window created');
+    log.info('Main window created');
 }
 
-// This is a current placeholder for seeting the color mode of the app window to dark theme
+// This is a current placeholder for setting the color mode of the app window to dark theme
 nativeTheme.themeSource = 'dark';
 
-// Waits for the app to be initialized before creating/displaying the main window
+// Handle app ready state
 app.whenReady().then(() => {
     createMainWindow();
     log.info('Application is ready');
-    // Opens the main window if now windows currently open
+
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
-         log.info('Application activated');
-    })
-
+    });
 });
 
 // Kills child processes when closing the app
-app.on("before-quit", () => {
-    if (!isDev) {
-        fileExecutor.kill('SIGINT');
-    } else {
-        stopPyBackend()
-            .then(res => {
-                console.log(res.message);
-            })
-    }
-});
-
-// Exits upon all windows being closed
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
-  log.info('All windows closed, quitting application');
-});
-
-ipcMain.on('scrape:request', () => {
-    testCommWithPyAPI()
-        .then(function(data) {
-            mainWin.webContents.send('scrape:result', data);
+app.on('before-quit', () => {
+    if (isDev) {
+        stopPyBackend().then(res => {
+            log.info('Python backend stopped:', res.message);
+        }).catch(err => {
+            log.error('Error stopping Python backend:', err);
         });
+    }
+    log.info('Application quitting...');
 });
 
+// Exit the app when all windows are closed
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') app.quit();
+});
 
-// Handle log messages from renderer
+// Handle log-info events from the renderer
 ipcMain.on('log-info', (event, message) => {
-  log.info(`[Renderer] ${message}`);
+    //console.log(`[INFO] ${message}`); // Logs to the terminal console
+    log.info(message); // Also logs to the file if needed
 });
 
 ipcMain.on('log-error', (event, message) => {
-  log.error(`[Renderer] ${message}`);
+    //console.error(`[ERROR] ${message}`); // Logs to the terminal console
+    log.error(message); // Also logs to the file if needed
 });
 
+// Handle scrape requests from renderer
+ipcMain.on('scrape:request', () => {
+    testCommWithPyAPI().then(data => {
+        mainWin.webContents.send('scrape:result', data);
+    }).catch(err => log.error('Error processing scrape request:', err));
+});
+
+// Handle exit request from renderer
 ipcMain.on('exit:request', () => {
-    log.info('Exiting application as per renderer request');
+    log.info('Exit request received from renderer');
     mainWin.close();
-})
+});
