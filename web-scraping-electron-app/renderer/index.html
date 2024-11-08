@@ -7,13 +7,25 @@
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'">
     <title>J-Initiative Web Scraper</title>
 
+    <!-- Content Security Policy  -->
+    <!--<meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self';
+        connect-src 'self';
+        img-src 'self' data:;
+        style-src 'self' 'unsafe-inline';">-->
+
     <!-- CSS Stylesheets -->
     <link rel='stylesheet' type='text/css' media='screen' href='../node_modules/bootstrap/dist/css/bootstrap.css'>
     <link rel='stylesheet' type='text/css' media='screen' href='../renderer/css/style.css'>
     <!-- jQuery -->
     <script src='../node_modules/jquery/dist/jquery.js'></script>
 
+    <!-- Include renderer.js -->
+    <script src="../renderer/js/renderer.js"></script>
+
     <script>
+        /* // Pages is already defined in renderer.js
         const Pages = {
             Home: {
                 name: "home",
@@ -33,8 +45,9 @@
             }
 
         };
-        var currentPage;
 
+        var currentPage;
+        */
         // Initializes all the pages by loading their HTML content and setting the default page to Home.
         async function initPages() {
             Pages.Home.state = await $.get("components/home.html");
@@ -141,7 +154,7 @@
                         <a class="nav-link" id="about-nav" onclick="changePage(this)" href="#">About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="log-nav" onclick="changePage(this)" href="#">Logs</a>
+                        <a class="nav-link" id="logs-nav" onclick="changePage(this)" href="#">Logs</a>
                     </li>
                     
                 </ul>

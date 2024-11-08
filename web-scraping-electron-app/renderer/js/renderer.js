@@ -18,6 +18,10 @@ const Pages = {
     About: {
         name: "about",
         id: '#about-container'
+    },
+    Logs: {
+        name: "logs",
+        id: '#logs-container'
     }
 };
 
@@ -60,13 +64,20 @@ async function initPages() {
  * @param {*} event     The event corresponding to a page change.
  */
 function changePage(event) {
-    event.preventDefault(); // Prevent default link behavior
+    try {
+        event.preventDefault(); // Prevent default link behavior
+    }
+    catch(e) {
+        console.log("preventDefault() failed. Most likely cause: Event target " + event.target + " does not have preventDefault() as a method.");
+    }
+    
     const pageName = this.id.split('-')[0]; // Extract page name from element ID
     const newPage = getPage(pageName);
 
     // Only switch pages if the new page is different from the current page
     if (currentPage.name !== newPage.name) {
         Object.keys(Pages).forEach(page => {
+
             $(Pages[page].id).hide();
         });
 
@@ -87,7 +98,7 @@ function attachPageEventListeners() {
     $('#home-nav').on('click', changePage);
     $('#scrape-nav').on('click', changePage);
     $('#about-nav').on('click', changePage);
-    $('#log-nav').on('click', changePage);
+    $('#logs-nav').on('click', changePage);
 
     // Event listener for the "Submit" button on the Scrape page
     $('#submitURLBtn').on('click', () => {
