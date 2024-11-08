@@ -1,3 +1,4 @@
+// main.js
 /**
  * This file will be used as the primary entry point for the application.
  */
@@ -18,9 +19,12 @@ const fileExecutor = require("child_process").execFile;
 const isMac = process.platform === 'darwin';
 // Determine if we are in development mode or production mode
 const isDev = !app.isPackaged;
+const fs = require('fs');
+const log = require('electron-log');
 
 // Reference for the main application window
 let mainWin;
+
 
 /**
  * Function to create the main application window.
@@ -48,6 +52,23 @@ function createMainWindow() {
     // Load the main HTML file for the renderer process
     mainWin.loadFile('./renderer/index.html');
 }
+
+ipcMain.on('log-info', (event, message) => {
+    log.info(`Renderer: ${message}`);
+});
+
+ipcMain.handle('get-logs', async () => {
+  const logFilePath = log.transports.file.getFile().path;
+   console.log('Log file path:', logFilePath); // Debugging statement
+  try {
+    const data = fs.readFileSync(logFilePath, 'utf8');
+    console.log('Log data read:', data); // Debugging statement
+    return data; // Return the log data to the renderer process
+  } catch (error) {
+    console.error('Error reading log file:', error);
+    return ''; // Return empty string on error
+  }
+});
 
 /**
  * Function to create a new window to display the provided URL
@@ -93,7 +114,7 @@ if (isDev) {
     PythonShell.run(DEV_API_PATH, function(err, res) {
         if (err) {
             console.log(err);
-        } 
+        }
     });
 } else {
     // fileExecutor(PROD_API_PATH, {
@@ -118,6 +139,7 @@ var pingIntervalTest = setInterval(function() {
 // When the application is ready, create the main window
 app.whenReady().then(() => {
     createMainWindow();
+    log.info('Application is ready');
 
     // macOS specific behavior to recreate window when the dock icon is clicked
     app.on('activate', () => {

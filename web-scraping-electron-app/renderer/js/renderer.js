@@ -1,9 +1,7 @@
- /**
- * This script runs on every HTML file to handle theme switching and other processes.
- */
+ //renderer.js
 
-// Use the IPC methods exposed by the preload script
 const ipcRenderer = window.electronAPI;
+let logLines = []; // Store logs for filtering
 
 // Pages object to manage different sections of the application
 const Pages = {
@@ -19,9 +17,9 @@ const Pages = {
         name: "about",
         id: '#about-container'
     },
-    Logs: {
+    Logs: { // Add the Logs page
         name: "logs",
-        id: '#logs-container'
+        id: '#log-container'
     }
 };
 
@@ -85,6 +83,11 @@ function changePage(event) {
         currentPage = newPage;
 
         console.log("Page Changed To " + pageName);
+
+        // Load logs if the current page is the Logs page
+        if (currentPage.name === 'logs') {
+            loadLogs();
+        }
     } else {
         console.log("Page Not Changed");
     }
@@ -94,11 +97,10 @@ function changePage(event) {
  * Attach event listeners specific to the current page (e.g., buttons, input fields)
  */
 function attachPageEventListeners() {
-    // Add event listeners for navigation buttons to change pages
     $('#home-nav').on('click', changePage);
     $('#scrape-nav').on('click', changePage);
     $('#about-nav').on('click', changePage);
-    $('#logs-nav').on('click', changePage);
+    $('#logs-nav').on('click', changePage); // Ensure this is included
 
     // Event listener for the "Submit" button on the Scrape page
     $('#submitURLBtn').on('click', () => {
@@ -111,7 +113,7 @@ function attachPageEventListeners() {
             submitBtnPressed();     // Call the submit function
         }
     });
-    
+
     // Event listener for the "Exit" navigation link
     $('#exit-nav').on('click', () => {
         ipcRenderer.exitSignal();
@@ -237,3 +239,66 @@ function changeTheme() {
 function getPage(value) {
     return Pages[Object.keys(Pages).find(e => Pages[e].name === value)];
 }
+
+// Load and display logs
+async function loadLogs() {
+    try {
+        // Wait for the DOM to be updated
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        const logs = await window.electronAPI.invoke('get-logs');
+        console.log('Logs received:', logs); // Debugging statement
+        if (!logs) {
+            console.error('No logs received');
+            return;
+        }
+        logLines = logs.split('\n').filter(line => line.trim() !== '');
+        displayLogs(logLines);
+
+        // Attach event listener for log filter
+        const logFilter = document.getElementById('log-filter');
+        if (logFilter) {
+            logFilter.addEventListener('change', filterLogs);
+        } else {
+            console.error('Log filter element not found');
+        }
+    } catch (error) {
+        console.error('Error loading logs:', error);
+    }
+}
+
+function displayLogs(logs) {
+    const logOutput = document.getElementById('log-output');
+    if (!logOutput) {
+        console.error('log-output element not found');
+        return;
+    }
+    console.log('Displaying logs:', logs); // Debugging statement
+    logOutput.innerHTML = '';
+
+    logs.forEach(line => {
+        console.log('Adding log line:', line); // Debugging statement
+        const logEntry = document.createElement('div');
+        logEntry.className = 'log-entry';
+        logEntry.textContent = line;
+        logOutput.appendChild(logEntry);
+    });
+}
+
+
+
+function filterLogs() {
+    const logFilter = document.getElementById('log-filter');
+    const filterValue = logFilter ? logFilter.value : 'ALL';
+    let filteredLogs = logLines;
+
+    if (filterValue !== 'ALL') {
+        filteredLogs = logLines.filter(line => line.includes(`[${filterValue}]`));
+    }
+
+    displayLogs(filteredLogs);
+}
+
+
+
+
