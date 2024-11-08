@@ -117,6 +117,14 @@ body {
 /*=======================================================================
     Navbar Styling
 =======================================================================*/
+.draggable {
+    -webkit-app-region: drag;
+}
+
+.not-draggable {
+    -webkit-app-region: no-drag;
+}
+
 .navbar {
     display: flex;
     justify-content: space-between; /* Space between brand and nav items */

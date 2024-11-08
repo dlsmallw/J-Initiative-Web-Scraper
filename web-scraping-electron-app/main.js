@@ -29,6 +29,7 @@ let lsWindow;
 function createMainWindow() {
     // Create the BrowserWindow instance with specific options
     mainWin = new BrowserWindow({
+        frame: false,
         width: isDev ? 1200 : 800, // Set width: larger size for development
         height: 600, // Set height for the window
         minWidth: isDev ? 1200 : 800, // Set minimum width to prevent shrinking beyond a set size
