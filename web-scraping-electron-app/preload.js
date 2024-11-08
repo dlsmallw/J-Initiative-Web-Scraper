@@ -1,26 +1,53 @@
 /**
- * This file is used to bridge separate electron processes together (i.e., for loading various parts of the application
- * prior to starting those processes or pages).
+ * This file is used to bridge separate Electron processes together
  */
 
+// Import necessary modules from Electron
 const { contextBridge, ipcRenderer } = require('electron');
 
-// Effectively makes these available in the applications global scope
-contextBridge.exposeInMainWorld('versions', {
-    node: () => process.versions.node,
-    chrome: () => process.versions.chrome,
-    electron: () => process.versions.electron
-});
-
-contextBridge.exposeInMainWorld('jsapi', {
-    send: (channel, data) => ipcRenderer.send(channel, data),
-    on: (channel, func) => ipcRenderer.on(channel, (event, ...args) => func(...args))
-});
-
-// Expose APIs to the renderer process without requiring electron-log
-contextBridge.exposeInMainWorld('electronAPI', {
-  log: {
-    info: (message) => ipcRenderer.send('log-info', message),
-    error: (message) => ipcRenderer.send('log-error', message)
+contextBridge.exposeInMainWorld(
+    'versions', {       // Expose version information to the renderer process through the context bridge
+        // Method to get the Node.js version
+        node: () => process.versions.node,
+        // Method to get the Chrome version
+        chrome: () => process.versions.chrome,
+        // Method to get the Electron version
+        electron: () => process.versions.electron
     }
-});
+);
+
+// Expose a safe API for IPC communication between renderer and main processes
+contextBridge.exposeInMainWorld(
+    'electronAPI', {    // Expose a safe API for IPC communication between renderer and main processes
+        // Method to send messages from renderer to main process
+        send: (channel, data) => {
+            // Define a list of valid channels to limit communication to safe ones only
+            const validChannels = ['open-url'];
+            // Only send the message if the channel is in the list of valid channels
+            if (validChannels.includes(channel)) {
+                ipcRenderer.send(channel, data);
+            }
+        },
+        // Method to receive messages from the main process in the renderer process
+        receive: (channel, func) => {
+            // Define a list of valid channels that the renderer can listen to
+            const validChannels = ['open-url-error'];
+            // Only attach a listener if the channel is in the list of valid channels
+            if (validChannels.includes(channel)) {
+                ipcRenderer.on(channel, (event, ...args) => func(...args));
+            }
+        },
+        // Method for performing a 2-way conversation in a single call
+        invoke: (channel, data) => {
+            ipcRenderer.invoke(channel, data);
+        },
+        // Method for sending a signal to Main to explicitly close the application
+        exitSignal: () => {
+            ipcRenderer.send('exit:request');
+        },
+        log: {
+            info: (message) => ipcRenderer.send('log-info', message),
+            error: (message) => ipcRenderer.send('log-error', message)
+        }
+    }
+);
