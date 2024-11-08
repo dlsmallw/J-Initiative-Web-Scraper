@@ -2,8 +2,10 @@
  * This script runs on every HTML file to handle theme switching and other processes.
  */
 
+
 // Use the IPC methods exposed by the preload script
 const ipcRenderer = window.electronAPI;
+ipcRenderer.initialize();
 
 // Pages object to manage different sections of the application
 const Pages = {
@@ -38,7 +40,14 @@ document.addEventListener('DOMContentLoaded', () => {
     initIPCEventListeners();
 
     // Log that the renderer process has loaded
-    ipcRenderer.log.info('Renderer process DOM content loaded');
+    try {
+        ipcRenderer.log.info('Renderer process DOM content loaded');
+    }
+    catch(e) {
+        console.log(typeof ipcRenderer);
+        ipcRenderer.log.info("ipcRenderer logging failed.");
+    }
+    
 });
 
 /**

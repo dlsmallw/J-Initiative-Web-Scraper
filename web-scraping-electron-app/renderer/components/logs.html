@@ -2,7 +2,22 @@
 <div>
     <div id="logs-container" class="my-5 container">
         <h1 class="display-4">Logs</h1>
-        <p>Logs will be displayed here!</p>
+        <!-- Filter Dropdown -->
+        <div class="mb-3">
+            <label for="log-filter" class="form-label">Filter Logs:</label>
+             <select id="log-filter" class="form-select">
+                <option value="ALL">All</option>
+                <option value="INFO">Info</option>
+                <option value="ERROR">Error</option>
+                <option value="DEBUG">Debug</option>
+            </select>
+
+        </div>
+
+        <!-- Log Output Section -->
+        <pre id="log-output" class="bg-dark text-white p-3 rounded" style="max-height: 400px; overflow-y: auto;">
+            <!-- Log entries will be dynamically added here -->
+        </pre>
     </div>
 </div>
 <!--<script src="../renderer/js/renderer.js"></script>-->
