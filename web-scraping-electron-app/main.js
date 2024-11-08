@@ -1,3 +1,4 @@
+// main.js
 /**
  * This file will be used as the primary entry point for the application.
  */
@@ -5,11 +6,6 @@
 // Import necessary modules from Electron and Node.js
 const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
 const path = require('node:path');
-const log = require('./logger');
-
-// Configure logging levels
-log.transports.file.level = 'info';    // Log level for file output
-log.transports.console.level = 'debug'; // Log level for console output
 
 const { PythonShell } = require('python-shell');
 const { stopPyBackend, pingBackend, scrapeRequest } = require('./js-api.js');
@@ -23,9 +19,12 @@ const fileExecutor = require("child_process").execFile;
 const isMac = process.platform === 'darwin';
 // Determine if we are in development mode or production mode
 const isDev = !app.isPackaged;
+const fs = require('fs');
+const log = require('electron-log');
 
 // Reference for the main application window
 let mainWin;
+
 
 /**
  * Function to create the main application window.
@@ -53,6 +52,23 @@ function createMainWindow() {
     // Load the main HTML file for the renderer process
     mainWin.loadFile('./renderer/index.html');
 }
+
+ipcMain.on('log-info', (event, message) => {
+    log.info(`Renderer: ${message}`);
+});
+
+ipcMain.handle('get-logs', async () => {
+  const logFilePath = log.transports.file.getFile().path;
+   console.log('Log file path:', logFilePath); // Debugging statement
+  try {
+    const data = fs.readFileSync(logFilePath, 'utf8');
+    console.log('Log data read:', data); // Debugging statement
+    return data; // Return the log data to the renderer process
+  } catch (error) {
+    console.error('Error reading log file:', error);
+    return ''; // Return empty string on error
+  }
+});
 
 /**
  * Function to create a new window to display the provided URL
@@ -98,7 +114,7 @@ if (isDev) {
     PythonShell.run(DEV_API_PATH, function(err, res) {
         if (err) {
             console.log(err);
-        } 
+        }
     });
 } else {
     // fileExecutor(PROD_API_PATH, {
@@ -124,11 +140,11 @@ var pingIntervalTest = setInterval(function() {
 app.whenReady().then(() => {
     createMainWindow();
     log.info('Application is ready');
+
     // macOS specific behavior to recreate window when the dock icon is clicked
     app.on('activate', () => {
         // Only create a new window if none are open
         if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
-        log.info('Application activated');
     });
 });
 
@@ -155,14 +171,6 @@ app.on("before-quit", () => {
             console.log(res.data.message);
         });
 });
-
-    ipcMain.on('log-info', (event, message) => {
-        log.info(`[Renderer] ${message}`);
-    });
-  
-  ipcMain.on('log-error', (event, message) => {
-    log.error(`[Renderer] ${message}`);
-  });
 
 // Handles a scrape request
 ipcMain.handle('scrape:request', async (event, arg) => {

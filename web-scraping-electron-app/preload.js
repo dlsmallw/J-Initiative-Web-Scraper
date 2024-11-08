@@ -1,3 +1,4 @@
+//preload.js
 /**
  * This file is used to bridge separate Electron processes together
  */
@@ -22,7 +23,7 @@ contextBridge.exposeInMainWorld(
         // Method to send messages from renderer to main process
         send: (channel, data) => {
             // Define a list of valid channels to limit communication to safe ones only
-            const validChannels = ['open-url'];
+            const validChannels = ['open-url', 'exit:request', 'log-info'];
             // Only send the message if the channel is in the list of valid channels
             if (validChannels.includes(channel)) {
                 ipcRenderer.send(channel, data);
@@ -39,15 +40,19 @@ contextBridge.exposeInMainWorld(
         },
         // Method for performing a 2-way conversation in a single call
         invoke: (channel, data) => {
-            ipcRenderer.invoke(channel, data);
+            const validChannels = ['get-logs'];
+            if (validChannels.includes(channel)) {
+                return ipcRenderer.invoke(channel, data);
+            } else {
+                console.warn(`Channel ${channel} is not in validChannels`);
+            }
         },
         // Method for sending a signal to Main to explicitly close the application
         exitSignal: () => {
             ipcRenderer.send('exit:request');
         },
-        log: {
-            info: (message) => ipcRenderer.send('log-info', message),
-            error: (message) => ipcRenderer.send('log-error', message)
+        logInfo: (message) => {
+        ipcRenderer.send('log-info', message);
         }
     }
 );

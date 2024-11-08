@@ -246,9 +246,9 @@ dot-prop@^9.0.0:
   dependencies:
     type-fest "^4.18.2"
 
-electron-log@^4.4.7:
+electron-log@^4.4.8:
   version "4.4.8"
-  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.4.8.tgz#fcb9f714dbcaefb6ac7984c4683912c74730248a"
+  resolved "https://registry.npmjs.org/electron-log/-/electron-log-4.4.8.tgz"
   integrity sha512-QQ4GvrXO+HkgqqEOYbi+DHL7hj5JM+nHi/j+qrN9zeeXVKy8ZABgbu4CnG+BBqDZ2+tbeq9tUC4DZfIWFU5AZA==
 
 electron-store@^10.0.0:
@@ -704,11 +704,11 @@ universalify@^0.1.0:
     "@popperjs/core" "^2.11.8"
     axios "^1.7.7"
     bootstrap "^5.3.3"
-    electron-log "^4.4.7"
+    electron-log "^4.4.8"
     electron-store "^10.0.0"
     jquery "^3.7.1"
     python-shell "^5.0.0"
-    web-scraping-electron-app "file:../../../../AppData/Local/Yarn/Cache/v6/npm-web-scraping-electron-app-1.0.0-b1b5a5f9-f7e5-4b69-969f-0b2c991306a5-1731033949271/node_modules/web-scraping-electron-app"
+    web-scraping-electron-app "file:../../../../Users/david/AppData/Local/Yarn/Cache/v6/npm-web-scraping-electron-app-1.0.0-c7941ee9-354a-402d-a395-8176c8bbc779-1731082127816/node_modules/web-scraping-electron-app"
 
 when-exit@^2.1.1:
   version "2.1.3"

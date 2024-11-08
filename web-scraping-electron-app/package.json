@@ -20,8 +20,8 @@
     "@popperjs/core": "^2.11.8",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
+    "electron-log": "^4.4.8",
     "electron-store": "^10.0.0",
-    "electron-log": "^4.4.7",
     "jquery": "^3.7.1",
     "python-shell": "^5.0.0",
     "web-scraping-electron-app": "file:"
