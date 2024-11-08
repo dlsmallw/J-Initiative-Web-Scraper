@@ -5,6 +5,11 @@
 // Import necessary modules from Electron and Node.js
 const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
 const path = require('node:path');
+const log = require('./logger');
+
+// Configure logging levels
+log.transports.file.level = 'info';    // Log level for file output
+log.transports.console.level = 'debug'; // Log level for console output
 
 const { PythonShell } = require('python-shell');
 const { stopPyBackend, pingBackend, scrapeRequest } = require('./js-api.js');
