@@ -101,8 +101,7 @@ function attachPageEventListeners() {
     // Fade in/out animation for button on annotation page
     $('#annotation-container')
         .on('mouseenter', function() {
-            $('#ext-win-btn');
-            $('#ext-win-btn').stop( true, true ).fadeTo(500, 0.2)
+            $('#ext-win-btn').stop( true, true ).fadeTo(500, 0.2);
         }).on('mouseleave', function() {
             $('#ext-win-btn').stop( true, true ).fadeOut(500);
         });
@@ -112,6 +111,10 @@ function attachPageEventListeners() {
         if (event.key === 'Enter') {
             submitBtnPressed();     // Call the submit function
         }
+    });
+
+    $('#ext-win-btn').on('click', () => {
+        ipcRenderer.openLSExternal();
     });
     
     // Event listener for the "Exit" navigation link

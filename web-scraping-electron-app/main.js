@@ -21,6 +21,7 @@ const isDev = !app.isPackaged;
 
 // Reference for the main application window
 let mainWin;
+let lsWindow;
 
 /**
  * Function to create the main application window.
@@ -150,6 +151,39 @@ app.on("before-quit", () => {
         });
 });
 
+function createLSExternal() {
+    // Create the BrowserWindow instance with specific options
+    lsWindow = new BrowserWindow({
+        width: 800, // Set width: larger size for development
+        height: 600, // Set height for the window
+        minWidth: 800, // Set minimum width to prevent shrinking beyond a set size
+        minHeight: 600, // Set minimum height
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+        }
+    });
+
+    // Disable the default application menu
+    // lsWindow.setMenu(null);
+
+    // Load the main HTML file for the renderer process
+    lsWindow.loadURL('https://dlsmallw-test.hf.space/');
+
+    lsWindow.on('close', () => {
+        // tell renderer to redisplay embbedded content
+        console.log("TEST2")
+    });
+
+    // Prevent the window from opening any new windows (e.g., pop-ups)
+    lsWindow.webContents.setWindowOpenHandler(() => {
+        return { action: 'deny' }; // Deny any requests to open new windows
+    });
+}
+
+ipcMain.on('openLSExternal:request', async () => {
+    createLSExternal();
+});
+
 // Handles a scrape request
 ipcMain.handle('scrape:request', async (event, arg) => {
     return JSON.stringify((await scrapeRequest(arg)).data);
@@ -158,4 +192,5 @@ ipcMain.handle('scrape:request', async (event, arg) => {
 // Handles closing the application
 ipcMain.on('exit:request', () => {
     app.quit();
-})
+});
+
