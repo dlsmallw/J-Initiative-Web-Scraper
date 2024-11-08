@@ -31,7 +31,7 @@ contextBridge.exposeInMainWorld(
         // Method to receive messages from the main process in the renderer process
         receive: (channel, func) => {
             // Define a list of valid channels that the renderer can listen to
-            const validChannels = ['open-url-error'];
+            const validChannels = ['open-url-error', 'openLSExternal-close'];
             // Only attach a listener if the channel is in the list of valid channels
             if (validChannels.includes(channel)) {
                 ipcRenderer.on(channel, (event, ...args) => func(...args));
@@ -46,7 +46,6 @@ contextBridge.exposeInMainWorld(
             ipcRenderer.send('exit:request');
         },
         openLSExternal: () => {
-            console.log("TEST");
             ipcRenderer.send('openLSExternal:request');
         }
     }

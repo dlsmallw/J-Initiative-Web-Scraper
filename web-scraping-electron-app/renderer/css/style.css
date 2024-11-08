@@ -44,6 +44,7 @@ html.light-theme {
     --navbar-bg: #f8f9fa;
     --content-bg: #ffffff;
     --link-color: #007bff;
+    --border-style: lightgray solid thin;
 }
 
 /*=======================================================================
@@ -60,6 +61,7 @@ html.dark-theme {
     --navbar-bg: #1e1e1e;
     --content-bg: #121212;
     --link-color: #66b2ff;
+    --border-style: none;
 }
 
 /*=======================================================================
@@ -76,6 +78,7 @@ html.blue-theme {
     --navbar-bg: #bbdefb;
     --content-bg: #e3f2fd;
     --link-color: #0d47a1;
+    --border-style: lightgray solid thin;
 }
 
 /*=======================================================================
@@ -92,6 +95,7 @@ html.disco-theme {
     --navbar-bg: #7FFF00;
     --content-bg: #00CED1;
     --link-color: #5d4037;
+    --border-style: none;
 }
 
 /*=======================================================================
@@ -314,12 +318,14 @@ body {
 =======================================================================*/
 #annotation-container {
     min-width: 900px;
+    height: 75vh;
 }
 
 .embedded-content {
     width: 100%;
-    border: lightgray solid thin;
-    background-color: white;
+    height: 100%;
+    border: var(--border-style);
+    background-color: var(--primary-bg);
     z-index: -1;
 }
 
@@ -327,7 +333,23 @@ body {
     opacity: 0;
     color: black;
     cursor: pointer;
-    transform: translateY(-50%) translateX(-20%);
+    transform: translateY(-25%) translateX(-20%);
+}
+
+#ls-embedded, #ls-external {
+    height: 100%;
+}
+
+#ls-external {
+    display: flex;
+    justify-content: center;
+
+    #ls-external-text {
+        align-self: center;
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: xx-large;
+        opacity: 0.5;
+    }
 }
 
 /*=======================================================================

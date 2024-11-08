@@ -114,7 +114,14 @@ function attachPageEventListeners() {
     });
 
     $('#ext-win-btn').on('click', () => {
+        $('#ls-embedded').hide();
+        $('#ls-external').show();
         ipcRenderer.openLSExternal();
+    });
+
+    ipcRenderer.receive('openLSExternal-close', () => {
+        $('#ls-external').hide();
+        $('#ls-embedded').show();
     });
     
     // Event listener for the "Exit" navigation link

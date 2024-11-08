@@ -3,7 +3,7 @@
  */
 
 // Import necessary modules from Electron and Node.js
-const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('node:path');
 
 const { PythonShell } = require('python-shell');
@@ -167,11 +167,12 @@ function createLSExternal() {
     // lsWindow.setMenu(null);
 
     // Load the main HTML file for the renderer process
+    console.log(mainWin.webContents.execute)
     lsWindow.loadURL('https://dlsmallw-test.hf.space/');
 
     lsWindow.on('close', () => {
         // tell renderer to redisplay embbedded content
-        console.log("TEST2")
+        mainWin.webContents.send('openLSExternal-close');
     });
 
     // Prevent the window from opening any new windows (e.g., pop-ups)
