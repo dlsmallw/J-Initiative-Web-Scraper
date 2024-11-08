@@ -3,17 +3,17 @@
  */
 
 // Import necessary modules from Electron and Node.js
-const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
+const {app, BrowserWindow, nativeTheme, ipcMain} = require('electron');
 const path = require('node:path');
 
-const { PythonShell } = require('python-shell');
-const { stopPyBackend, pingBackend, scrapeRequest } = require('./js-api.js');
+const {PythonShell} = require('python-shell');
+const {stopPyBackend, pingBackend, scrapeRequest} = require('./js-api.js');
 
 // This will be needed when packaging the python code base as an executable (i.e., WIP)
 // const PROD_API_PATH = path.join(process.resourcesPath, "")
 const DEV_API_PATH = path.join(__dirname, "./backend/backend_api.py");
 const fileExecutor = require("child_process").execFile;
-
+const { dialog } = require('electron')
 // Determine if the operating system is macOS
 const isMac = process.platform === 'darwin';
 // Determine if we are in development mode or production mode
@@ -46,7 +46,7 @@ function createMainWindow() {
     mainWin.setMenu(null);
 
     // Load the main HTML file for the renderer process
-    mainWin.loadFile('./renderer/index.html');
+    mainWin.loadFile('./renderer/index.html').then(r => "success");
 }
 
 /**
@@ -72,8 +72,29 @@ function createURLWindow(url) {
         }
     });
 
-    // Load the specified URL in the window
-    urlWindow.loadURL(url);
+    const loadingWindow = new BrowserWindow( {
+        width: 1200, // Set width of the URL window
+        height: 800,
+        webPreferences: {
+            nodeIntegration: false, // Disable Node.js integration for security
+            contextIsolation: true, // Isolate context for securitya
+        }
+    });
+
+    loadingWindow.loadFile("loadingscreen.html").then(r => console.log("loading screen opened successfully"))
+
+    urlWindow.hide()
+
+    // Load the specified URL in the window, catch invalid url
+    urlWindow.loadURL(url).then(r => {
+        urlWindow.show()
+        loadingWindow.close()
+    }).catch((Typeerror) => {
+            console.error(`Invalid URL: ${url}`); // Log error if URL is invalid
+            urlWindow.close()
+            dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!')
+            loadingWindow.close()
+    });
 
     // Prevent the window from navigating away from the original URL
     urlWindow.webContents.on('will-navigate', (event, navigateUrl) => {
@@ -84,17 +105,18 @@ function createURLWindow(url) {
 
     // Prevent the window from opening any new windows (e.g., pop-ups)
     urlWindow.webContents.setWindowOpenHandler(() => {
-        return { action: 'deny' }; // Deny any requests to open new windows
+        return {action: 'deny'}; // Deny any requests to open new windows
     });
 }
 
+
 // Initializes the application depending on if in a dev or production environment.
 if (isDev) {
-    PythonShell.run(DEV_API_PATH, function(err, res) {
+    PythonShell.run(DEV_API_PATH, function (err, res) {
         if (err) {
             console.log(err);
-        } 
-    });
+        }
+    }).then(r => "success");
 } else {
     // fileExecutor(PROD_API_PATH, {
     // WIP
@@ -103,16 +125,16 @@ if (isDev) {
 
 // Used to check if the backend is up
 var failedPingCount = 0;
-var pingIntervalTest = setInterval(function() {
+var pingIntervalTest = setInterval(function () {
     pingBackend()
-            .then(response => {
-                console.log(response.data.message);
-                clearInterval(pingIntervalTest);
-            })
-            .catch(err => {
-                failedPingCount += 1;
-                console.log("Attempted to ping the backend (attempt: " + failedPingCount + ")");
-            });
+        .then(response => {
+            console.log(response.data.message);
+            clearInterval(pingIntervalTest);
+        })
+        .catch(err => {
+            failedPingCount += 1;
+            console.log("Attempted to ping the backend (attempt: " + failedPingCount + ")");
+        });
 }, 5000);
 
 // When the application is ready, create the main window
@@ -134,9 +156,10 @@ app.on('window-all-closed', () => {
 // Listen for 'open-url' event from renderer to open a new window with the provided URL
 ipcMain.on('open-url', (event, url) => {
     try {
-        createURLWindow(url); // Attempt to create a new URL window
+        createURLWindow(url)
     } catch (error) {
         // Log error if URL cannot be opened and notify the renderer process
+
         console.error(`Error opening URL window: ${error.message}`);
         event.sender.send('open-url-error', error.message);
     }
