@@ -204,8 +204,8 @@ body {
 =======================================================================*/
 #d_content {
     background-color: var(--content-bg);
-    padding: 40px;
-    max-width: 1200px;
+    padding: 1%;
+    max-width: 90%;
     margin: auto;
     flex-direction: column;
     align-items: center;
