@@ -47,7 +47,7 @@ async function initPages() {
         .append(await $.get("components/home.html"))
         .append(await $.get("components/scrape.html"))
         .append(await $.get("components/about.html"))
-        .append(await $.get("components/log.html")); // Load log.html
+        .append(await $.get("components/logs.html"));
 
     $('#node-version').html(versions.node());
     $('#chrome-version').html(versions.chrome());
@@ -62,13 +62,20 @@ async function initPages() {
  * @param {*} event     The event corresponding to a page change.
  */
 function changePage(event) {
-    event.preventDefault(); // Prevent default link behavior
+    try {
+        event.preventDefault(); // Prevent default link behavior
+    }
+    catch(e) {
+        console.log("preventDefault() failed. Most likely cause: Event target " + event.target + " does not have preventDefault() as a method.");
+    }
+    
     const pageName = this.id.split('-')[0]; // Extract page name from element ID
     const newPage = getPage(pageName);
 
     // Only switch pages if the new page is different from the current page
     if (currentPage.name !== newPage.name) {
         Object.keys(Pages).forEach(page => {
+
             $(Pages[page].id).hide();
         });
 
