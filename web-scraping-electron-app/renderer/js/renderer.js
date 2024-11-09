@@ -39,16 +39,21 @@ document.addEventListener('DOMContentLoaded', () => {
     initIPCEventListeners();
 
     // Log that the renderer process has loaded
-    try {
-        ipcRenderer.log.info('Renderer process DOM content loaded');
-    }
-    catch(e) {
+    /*try {
+        console.log(Object.getOwnPropertyNames(ipcRenderer));
+        ipcRenderer.invoke("INFO", 'Renderer process DOM content loaded');
         
-        const log = require("../../main");
-        console.log(typeof log);
-        window.log.info("Test");
-        ipcRenderer.log.info("ipcRenderer logging failed.");
     }
+    catch(e) {*/
+        //console.log(Object.getOwnPropertyNames(ipcRenderer));
+        try {
+            ipcRenderer.send("INFO", 'Renderer process DOM content loaded');
+        }
+        catch(e) {
+            console.log("Could not send to logger.");
+        }
+        
+    /*}*/
     
 });
 
@@ -252,4 +257,42 @@ function changeTheme() {
  */
 function getPage(value) {
     return Pages[Object.keys(Pages).find(e => Pages[e].name === value)];
+}
+
+/**
+ * Sets a display in the Logs page to display the selected log information.
+ * @param src           The source HTML object (presumably, the select dropdown)
+ * @returns             No return value
+ */
+function setLogs(src) {
+    // TO DO: 
+    let logDump = "";
+    try {
+        switch(src.value) {
+        case "SELECT":
+
+            break;
+        case "INFO":
+        case "ERROR":
+        case "DEBUG":
+            logDump = ipcRenderer.receive(src.value);
+            break;
+        case "ALL": 
+            logDump = ipcRenderer.receive("INFO") + ipcRenderer.receive("ERROR") + 
+                ipcRenderer.receive("DEBUG");
+            break;
+        default: 
+            logDump = "Could not determine log type.";
+        }
+        if(typeof logDump === 'undefined') {
+            logDump = "IPC Renderer failed to return a proper value.";
+        }
+    }
+    catch(e) {
+        //console.log("Could not call main.log");
+
+        logDump = "Could not retrieve logs from requested source.";
+    }
+
+    document.getElementById("log-output").innerHTML = logDump;
 }
