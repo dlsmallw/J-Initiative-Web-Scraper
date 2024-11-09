@@ -1,4 +1,4 @@
- //renderer.js
+ // renderer.js
 
 const ipcRenderer = window.electronAPI;
 let logLines = []; // Store logs for filtering
@@ -17,7 +17,7 @@ const Pages = {
         name: "about",
         id: '#about-container'
     },
-    Logs: { // Add the Logs page
+    Logs: {
         name: "logs",
         id: '#log-container'
     }
@@ -32,8 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize pages by loading their content
     initPages();
 
-    // Initializes 2-way renderer-main IPC listeners
+    // Initializes IPC event listeners
     initIPCEventListeners();
+
+    // Log that the renderer process is ready
+    logInfo('Renderer process is ready.');
 });
 
 /**
@@ -43,18 +46,24 @@ async function initPages() {
     // Set default page to Home and display its content
     currentPage = getPage("home");
 
-    $('#d_content')
-        .append(await $.get("components/home.html"))
-        .append(await $.get("components/scrape.html"))
-        .append(await $.get("components/about.html"))
-        .append(await $.get("components/log.html")); // Load log.html
+    try {
+        $('#d_content')
+            .append(await $.get("components/home.html"))
+            .append(await $.get("components/scrape.html"))
+            .append(await $.get("components/about.html"))
+            .append(await $.get("components/log.html")); // Load log.html
 
-    $('#node-version').html(versions.node());
-    $('#chrome-version').html(versions.chrome());
-    $('#electron-version').html(versions.electron());
+        $('#node-version').html(versions.node());
+        $('#chrome-version').html(versions.chrome());
+        $('#electron-version').html(versions.electron());
 
-    // Attach event listeners
-    attachPageEventListeners();
+        // Attach event listeners
+        attachPageEventListeners();
+
+        logInfo('Pages initialized successfully.');
+    } catch (error) {
+        logError(`Error initializing pages: ${error}`);
+    }
 }
 
 /**
@@ -75,14 +84,14 @@ function changePage(event) {
         $(newPage.id).show();
         currentPage = newPage;
 
-        console.log("Page Changed To " + pageName);
+        logInfo(`Page changed to ${pageName}.`);
 
         // Load logs if the current page is the Logs page
         if (currentPage.name === 'logs') {
             loadLogs();
         }
     } else {
-        console.log("Page Not Changed");
+        logDebug(`Page not changed. Already on ${pageName}.`);
     }
 }
 
@@ -93,7 +102,7 @@ function attachPageEventListeners() {
     $('#home-nav').on('click', changePage);
     $('#scrape-nav').on('click', changePage);
     $('#about-nav').on('click', changePage);
-    $('#logs-nav').on('click', changePage); // Ensure this is included
+    $('#logs-nav').on('click', changePage);
 
     // Event listener for the "Submit" button on the Scrape page
     $('#submitURLBtn').on('click', () => {
@@ -115,25 +124,23 @@ function attachPageEventListeners() {
     // Listen for errors from main process related to URL opening
     ipcRenderer.receive('open-url-error', (errorMessage) => {
         alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
+        logError(`Failed to open URL: ${errorMessage}`);
     });
 }
 
 /**
- * Initializes any atypical IPC communication listeners.
- * NOTE: Separated for organization purposes.
+ * Initializes IPC communication listeners.
  */
 function initIPCEventListeners() {
-    // Listen for errors from main process related to URL opening
-    ipcRenderer.receive('open-url-error', (errorMessage) => {
-        alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
-    });
+    // Already handled in attachPageEventListeners
+    // Kept here if additional IPC listeners are needed in the future
 }
 
 /**
  * Function to handle the "Submit" button click on the Scrape page.
  */
 function submitBtnPressed() {
-    console.log('Submit button pressed');
+    logDebug('Submit button pressed.');
 
     let url = $('#url-input').val();
 
@@ -147,29 +154,23 @@ function submitBtnPressed() {
         // Validate the URL format before sending
         if (!isValidURL(url)) {
             alert('Please enter a valid URL.');
+            logWarn('Invalid URL entered.');
             return;
         }
 
         // Send the URL to the main process to open it
         ipcRenderer.send('open-url', url);
+        logInfo(`Requested to open URL: ${url}`);
 
         // Update the results container to display the submitted URL
         $('#staticURL').val(url);
-
         $('#results-container').css('display', 'block');
 
-        // This is the necessary code for performing a basic web scrape using the webscrape_test.py file
-        // var response = JSON.parse(await ipcRenderer.invoke('scrape:request', $('#url-input').val()));
-        // if (response.ok) {
-        //     $('#staticURL').val(response.url);
-        //     $('#results-container').show();
-        //     $('#formatted-data-text').text(response.formattedData);
-        //     $('#raw-data-text').text(response.rawData);
-        // } else {
-        //     // WIP: This is were we would handle an error response (i.e., display a "Failed to scrape web url")
-        // }
+        // Additional code for scraping (if needed)
+        // ...
     } else {
         alert('Please enter a URL.'); // Alert the user if no URL is entered
+        logWarn('No URL entered.');
     }
 }
 
@@ -182,7 +183,7 @@ function isValidURL(url) {
     try {
         new URL(url);
         return true;
-    } catch (_) {
+    } catch (error) {
         return false;
     }
 }
@@ -197,9 +198,11 @@ function initializeTheme() {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
         document.documentElement.className = savedTheme; // Apply saved theme to the document
+        logDebug(`Applied saved theme: ${savedTheme}`);
     } else {
         // Set default theme if none is saved
         document.documentElement.className = 'light-theme';
+        logDebug('Applied default theme: light-theme');
     }
 
     if (themeSelect) {
@@ -208,6 +211,8 @@ function initializeTheme() {
 
         // Add an event listener to change the theme whenever the user selects a new option
         themeSelect.on('change', changeTheme);
+    } else {
+        logWarn('Theme select element not found.');
     }
 }
 
@@ -222,6 +227,8 @@ function changeTheme() {
 
     // Save the selected theme to localStorage so it persists across sessions
     localStorage.setItem('theme', theme);
+
+    logInfo(`Theme changed to: ${theme}`);
 }
 
 /**
@@ -233,16 +240,18 @@ function getPage(value) {
     return Pages[Object.keys(Pages).find(e => Pages[e].name === value)];
 }
 
-// Load and display logs
+/**
+ * Load and display logs.
+ */
 async function loadLogs() {
     try {
         // Wait for the DOM to be updated
         await new Promise(resolve => setTimeout(resolve, 50));
 
-        const logs = await window.electronAPI.invoke('get-logs');
-        console.log('Logs received:', logs); // Debugging statement
+        const logs = await ipcRenderer.invoke('get-logs');
+        logDebug('Logs received from main process.');
         if (!logs) {
-            console.error('No logs received');
+            logWarn('No logs received from main process.');
             return;
         }
         logLines = logs.split('\n').filter(line => line.trim() !== '');
@@ -252,45 +261,99 @@ async function loadLogs() {
         const logFilter = document.getElementById('log-filter');
         if (logFilter) {
             logFilter.addEventListener('change', filterLogs);
+            logDebug('Log filter event listener attached.');
         } else {
-            console.error('Log filter element not found');
+            logWarn('Log filter element not found.');
         }
     } catch (error) {
-        console.error('Error loading logs:', error);
+        logError(`Error loading logs: ${error}`);
     }
 }
 
+/**
+ * Display logs in the UI.
+ * @param {Array} logs - Array of log lines to display.
+ */
 function displayLogs(logs) {
     const logOutput = document.getElementById('log-output');
     if (!logOutput) {
-        console.error('log-output element not found');
+        logError('log-output element not found.');
         return;
     }
-    console.log('Displaying logs:', logs); // Debugging statement
     logOutput.innerHTML = '';
 
     logs.forEach(line => {
-        console.log('Adding log line:', line); // Debugging statement
         const logEntry = document.createElement('div');
         logEntry.className = 'log-entry';
         logEntry.textContent = line;
         logOutput.appendChild(logEntry);
     });
+
+    logDebug('Logs displayed in UI.');
 }
 
-
-
+/**
+ * Filter logs based on selected log level.
+ */
 function filterLogs() {
     const logFilter = document.getElementById('log-filter');
     const filterValue = logFilter ? logFilter.value : 'ALL';
     let filteredLogs = logLines;
 
     if (filterValue !== 'ALL') {
-        filteredLogs = logLines.filter(line => line.includes(`[${filterValue}]`));
+        // Split the filterValue into an array of levels
+        const levels = filterValue.toLowerCase().split(',').map(s => s.trim());
+        filteredLogs = logLines.filter(line => {
+            // Extract the log level using regex
+            const regex = /\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}\] \[(\w+)\]/;
+            const match = line.match(regex);
+            if (match && match[1]) {
+                const logLevel = match[1].toLowerCase();
+                return levels.includes(logLevel);
+            }
+            return false;
+        });
+        logInfo(`Logs filtered by level: ${filterValue}`);
+    } else {
+        logInfo('Log filter reset to show all logs.');
     }
 
     displayLogs(filteredLogs);
 }
+
+/**
+ * Send an info log message to the main process.
+ * @param {string} message - The message to log.
+ */
+function logInfo(message) {
+    ipcRenderer.send('log-info', message);
+}
+
+/**
+ * Send a debug log message to the main process.
+ * @param {string} message - The message to log.
+ */
+function logDebug(message) {
+    ipcRenderer.send('log-debug', message);
+}
+
+/**
+ * Send a warning log message to the main process.
+ * @param {string} message - The message to log.
+ */
+function logWarn(message) {
+    ipcRenderer.send('log-warn', message);
+}
+
+/**
+ * Send an error log message to the main process.
+ * @param {string} message - The message to log.
+ */
+function logError(message) {
+    ipcRenderer.send('log-error', message);
+}
+
+
 
 
 

@@ -23,7 +23,7 @@ contextBridge.exposeInMainWorld(
         // Method to send messages from renderer to main process
         send: (channel, data) => {
             // Define a list of valid channels to limit communication to safe ones only
-            const validChannels = ['open-url', 'exit:request', 'log-info'];
+            const validChannels = ['open-url', 'exit:request', 'log-info', 'log-debug', 'log-warn', 'log-error'];
             // Only send the message if the channel is in the list of valid channels
             if (validChannels.includes(channel)) {
                 ipcRenderer.send(channel, data);
@@ -51,8 +51,18 @@ contextBridge.exposeInMainWorld(
         exitSignal: () => {
             ipcRenderer.send('exit:request');
         },
+         // Methods for logging
         logInfo: (message) => {
-        ipcRenderer.send('log-info', message);
+            ipcRenderer.send('log-info', message);
+        },
+        logDebug: (message) => {
+            ipcRenderer.send('log-debug', message);
+        },
+        logWarn: (message) => {
+            ipcRenderer.send('log-warn', message);
+        },
+        logError: (message) => {
+            ipcRenderer.send('log-error', message);
         }
     }
 );

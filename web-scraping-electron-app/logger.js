@@ -3,7 +3,9 @@ const log = require('electron-log');
 
 // Configure log transport settings
 log.transports.file.level = 'info'; // Set the base level for file logging
-log.transports.console.level = 'debug'; // Allow console to show more levels if needed
+log.transports.file.level = 'debug';
+log.transports.file.level = 'warn';
+log.transports.file.level = 'error';
 log.transports.file.format = '{y}-{m}-{d} {h}:{i}:{s} [{level}] {text}';
 log.transports.console.format = '{h}:{i}:{s} [{level}] {text}';
 
