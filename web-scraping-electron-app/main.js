@@ -97,6 +97,7 @@ function createURLWindow(url) {
 if (isDev) {
     PythonShell.run(DEV_API_PATH, function(err, res) {
         if (err) {
+            log.invoke("ERROR", err);
             console.log(err);
         } 
     });
@@ -111,11 +112,13 @@ var failedPingCount = 0;
 var pingIntervalTest = setInterval(function() {
     pingBackend()
             .then(response => {
+                log.invoke("INFO", "Pinged backend successfully.");
                 console.log(response.data.message);
                 clearInterval(pingIntervalTest);
             })
             .catch(err => {
                 failedPingCount += 1;
+                log.invoke("ERROR", "Attempted to ping the backend (attempt: " + failedPingCount + ")");
                 console.log("Attempted to ping the backend (attempt: " + failedPingCount + ")");
             });
 }, 5000);
@@ -151,6 +154,7 @@ ipcMain.on('open-url', (event, url) => {
 app.on("before-quit", () => {
     stopPyBackend()
         .then(res => {
+            log.invoke("INFO", res.data.message);
             console.log(res.data.message);
         });
 });
