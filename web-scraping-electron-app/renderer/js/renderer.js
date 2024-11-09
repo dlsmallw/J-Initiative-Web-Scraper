@@ -39,21 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initIPCEventListeners();
 
     // Log that the renderer process has loaded
-    /*try {
-        console.log(Object.getOwnPropertyNames(ipcRenderer));
-        ipcRenderer.invoke("INFO", 'Renderer process DOM content loaded');
-        
-    }
-    catch(e) {*/
-        //console.log(Object.getOwnPropertyNames(ipcRenderer));
-        try {
-            ipcRenderer.send("INFO", 'Renderer process DOM content loaded');
-        }
-        catch(e) {
-            console.log("Could not send to logger.");
-        }
-        
-    /*}*/
+    log("INFO", 'Renderer process DOM content loaded');
     
 });
 
@@ -87,7 +73,7 @@ function changePage(event) {
         event.preventDefault(); // Prevent default link behavior
     }
     catch(e) {
-        console.log("preventDefault() failed. Most likely cause: Event target " + event.target + " does not have preventDefault() as a method.");
+        log("ERROR", "preventDefault() failed. Most likely cause: Event target " + event.target + " does not have preventDefault() as a method.");
     }
     
     const pageName = this.id.split('-')[0]; // Extract page name from element ID
@@ -103,9 +89,9 @@ function changePage(event) {
         $(newPage.id).show();
         currentPage = newPage;
 
-        console.log("Page Changed To " + pageName);
+        log("DEBUG", "Page Changed To " + pageName);
     } else {
-        console.log("Page Not Changed");
+        log("DEBUG", "Page Not Changed");
     }
 }
 
@@ -157,7 +143,7 @@ function initIPCEventListeners() {
  * Function to handle the "Submit" button click on the Scrape page.
  */
 function submitBtnPressed() {
-    console.log('Submit button pressed');
+    log("DEBUG", 'Submit button pressed');
 
     let url = $('#url-input').val();
 
@@ -269,22 +255,22 @@ function setLogs(src) {
     let logDump = "";
     try {
         switch(src.value) {
-        case "SELECT":
+            case "SELECT":
 
-            break;
-        case "INFO":
-        case "ERROR":
-        case "DEBUG":
-            logDump = ipcRenderer.receive(src.value);
-            break;
-        case "ALL": 
-            logDump = ipcRenderer.receive("INFO") + ipcRenderer.receive("ERROR") + 
-                ipcRenderer.receive("DEBUG");
-            break;
-        default: 
-            logDump = "Could not determine log type.";
+                break;
+            case "INFO":
+            case "ERROR":
+            case "DEBUG":
+                logDump = ipcRenderer.receive(src.value);
+                break;
+            case "ALL": 
+                logDump = ipcRenderer.receive("INFO") + ipcRenderer.receive("ERROR") + 
+                    ipcRenderer.receive("DEBUG");
+                break;
+            default: 
+                logDump = "Could not determine log type.";
         }
-        if(typeof logDump === 'undefined') {
+        if((typeof logDump === 'undefined') || isNaN(logDump)) {
             logDump = "IPC Renderer failed to return a proper value.";
         }
     }
@@ -295,4 +281,23 @@ function setLogs(src) {
     }
 
     document.getElementById("log-output").innerHTML = logDump;
+}
+
+function log(logType, msg) {
+    try {
+        switch(logType) {
+            case "INFO":
+            case "ERROR":
+            case "DEBUG":
+                logDump = ipcRenderer.send(logType, msg);
+                break;
+            default: 
+                ipcRenderer.send("ERROR", "Unknown log type: " + logType + ". msg: " + msg);
+        }
+    }
+    catch(e) {
+        console.log("Logger not operational at this time.");
+    }
+    
+
 }
