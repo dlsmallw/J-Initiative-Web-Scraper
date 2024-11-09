@@ -5,7 +5,6 @@
 
 // Use the IPC methods exposed by the preload script
 const ipcRenderer = window.electronAPI;
-ipcRenderer.initialize();
 
 // Pages object to manage different sections of the application
 const Pages = {
@@ -44,7 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ipcRenderer.log.info('Renderer process DOM content loaded');
     }
     catch(e) {
-        console.log(typeof ipcRenderer);
+        
+        const log = require("../../main");
+        console.log(typeof log);
+        window.log.info("Test");
         ipcRenderer.log.info("ipcRenderer logging failed.");
     }
     
