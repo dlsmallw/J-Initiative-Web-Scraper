@@ -29,5 +29,3 @@ jobs:
         cache: 'yarn'
     - run: yarn install --frozen-lockfile
       working-directory: './web-scraping-electron-app'
-    - run: yarn run build:node --if-present
-      working-directory: './web-scraping-electron-app'
