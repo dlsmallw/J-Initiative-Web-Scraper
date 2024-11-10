@@ -693,8 +693,9 @@ universalify@^0.1.0:
   resolved "https://registry.npmjs.org/universalify/-/universalify-0.1.2.tgz"
   integrity sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg==
 
-"web-scraping-electron-app@file:.":
+"web-scraping-electron-app@file:":
   version "1.0.0"
+  resolved "file:"
   dependencies:
     "@popperjs/core" "^2.11.8"
     axios "^1.7.7"
