@@ -121,49 +121,33 @@ function initIPCEventListeners() {
     });
 }
 
-/**
- * Function to handle the "Submit" button click on the Scrape page.
- */
 function submitBtnPressed() {
     console.log('Submit button pressed');
 
     let url = $('#url-input').val();
+    console.log('URL before prepending protocol:', url);
 
-    // Check if a URL was entered
-    if (url) {
-        // Prepend 'https://' if no protocol is specified
-        if (!url.match(/^https?:\/\//i)) {
-            url = 'https://' + url;
-        }
-
-        // Validate the URL format before sending
-        if (!isValidURL(url)) {
-            alert('Please enter a valid URL.');
-            return;
-        }
-
-        // Send the URL to the main process to open it
-        ipcRenderer.send('open-url', url);
-
-        // Update the results container to display the submitted URL
-        $('#staticURL').val(url);
-
-        $('#results-container').css('display', 'block');
-
-        // This is the necessary code for performing a basic web scrape using the webscrape_test.py file
-        // var response = JSON.parse(await ipcRenderer.invoke('scrape:request', $('#url-input').val()));
-        // if (response.ok) {
-        //     $('#staticURL').val(response.url);
-        //     $('#results-container').show();
-        //     $('#formatted-data-text').text(response.formattedData);
-        //     $('#raw-data-text').text(response.rawData);
-        // } else {
-        //     // WIP: This is were we would handle an error response (i.e., display a "Failed to scrape web url")
-        // }
-    } else {
-        alert('Please enter a URL.'); // Alert the user if no URL is entered
+    // Prepend 'https://' if no protocol is specified
+    if (!url.match(/^https?:\/\//i)) {
+        url = 'https://' + url;
     }
+
+    console.log('URL after prepending protocol if needed:', url);
+
+    // Validate the URL format before sending
+    if (!isValidURL(url)) {
+        alert('Please enter a valid URL.');
+        return;
+    }
+
+    // Send the URL to the main process to open it
+    ipcRenderer.send('open-url', url);
+
+    // Update the results container to display the submitted URL
+    $('#staticURL').val(url);
+    $('#results-container').css('display', 'block');
 }
+
 
 /**
  * URL validation function to check if the URL is valid.
@@ -224,3 +208,39 @@ function changeTheme() {
 function getPage(value) {
     return Pages[Object.keys(Pages).find(e => Pages[e].name === value)];
 }
+
+// Attach event listener for the import data button
+$('#importDataButton').on('click', () => {
+    const editedText = $('#editedText').val();
+    const sourceType = $('#sourceType').val();
+    const domainOwner = $('#domainOwner').val();
+
+    // Send the data to the main process
+    ipcRenderer.send('import-data', {
+        text: editedText,
+        sourceType: sourceType,
+        domainOwner: domainOwner,
+    });
+});
+
+// Attach event listener for the export data button
+$('#exportDataButton').on('click', () => {
+    const dataToExport = {
+        text: $('#editedText').val(),
+        sourceType: $('#sourceType').val(),
+        domainOwner: $('#domainOwner').val(),
+    };
+
+    ipcRenderer.send('export-data', dataToExport);
+});
+
+// Receive selected text from main process
+ipcRenderer.on('display-selected-text', (event, text) => {
+    // Display the selected text
+    $('#selectedTextDisplay').val(text);
+    // Populate the edited text field with the selected text
+    $('#editedText').val(text);
+
+    // Show the results container
+    $('#results-container').show();
+});

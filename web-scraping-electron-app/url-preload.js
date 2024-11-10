@@ -1,0 +1,16 @@
+// url-preload.js
+
+const { contextBridge, ipcRenderer } = require('electron');
+
+// Expose a safe API to the web page
+contextBridge.exposeInMainWorld('electronAPI', {
+    sendSelectedText: (text) => ipcRenderer.send('selected-text', text),
+});
+
+// Listen for mouseup events to capture text selection
+window.addEventListener('mouseup', () => {
+    const selectedText = window.getSelection().toString().trim();
+    if (selectedText) {
+        window.electronAPI.sendSelectedText(selectedText);
+    }
+});

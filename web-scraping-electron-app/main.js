@@ -54,61 +54,76 @@ function createMainWindow() {
  * @param {*} url       The URL.
  */
 function createURLWindow(url) {
-    // Validate that the provided string is a valid URL
-    try {
-        new URL(url);
-    } catch (err) {
-        console.error(`Invalid URL: ${url}`); // Log error if URL is invalid
+    console.log('URL received in createURLWindow:', url);
+
+    if (!isValidURL(url)) {
+        console.error(`Invalid URL in createURLWindow: ${url}`);
+        dialog.showErrorBox('Invalid URL', 'The URL you entered is invalid.');
         return;
     }
 
-    // Create a new BrowserWindow instance for the URL
     const urlWindow = new BrowserWindow({
-        width: 1200, // Set width of the URL window
-        height: 800, // Set height of the URL window
-        webPreferences: {
-            nodeIntegration: false, // Disable Node.js integration for security
-            contextIsolation: true, // Isolate context for security
-        }
-    });
-
-    const loadingWindow = new BrowserWindow( {
-        width: 1200, // Set width of the URL window
+        width: 1200,
         height: 800,
         webPreferences: {
-            nodeIntegration: false, // Disable Node.js integration for security
-            contextIsolation: true, // Isolate context for securitya
+            nodeIntegration: false,
+            contextIsolation: true,
+            preload: path.join(__dirname, 'url-preload.js'),
         }
     });
 
-    loadingWindow.loadFile("./renderer/assets/html/loadingscreen.html").then(r => console.log("loading screen opened successfully"))
-
-    urlWindow.hide()
-
-    // Load the specified URL in the window, catch invalid url
-    urlWindow.loadURL(url).then(r => {
-        urlWindow.show()
-        loadingWindow.close()
-    }).catch((Typeerror) => {
-            console.error(`Invalid URL: ${url}`); // Log error if URL is invalid
-            urlWindow.close()
-            dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!')
-            loadingWindow.close()
+    const loadingWindow = new BrowserWindow({
+        width: 400,
+        height: 300,
+        frame: false,
+        transparent: true,
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+        }
     });
 
-    // Prevent the window from navigating away from the original URL
+    loadingWindow.loadFile(path.join(__dirname, 'renderer', 'assets', 'html', 'loadingscreen.html'))
+        .then(() => console.log("Loading screen opened successfully"))
+        .catch((error) => {
+            console.error('Error loading loading screen:', error);
+            loadingWindow.close();
+        });
+
+    urlWindow.hide();
+
+    urlWindow.loadURL(url)
+        .then(() => {
+            urlWindow.show();
+            loadingWindow.close();
+        })
+        .catch((error) => {
+            console.error(`Error loading URL: ${url}`, error);
+            urlWindow.close();
+            loadingWindow.close();
+            dialog.showErrorBox('Error', 'Failed to load the URL.');
+        });
+
+    // Prevent navigation to external URLs
     urlWindow.webContents.on('will-navigate', (event, navigateUrl) => {
         if (navigateUrl !== url) {
-            event.preventDefault(); // Cancel any navigation to external URLs
+            event.preventDefault();
         }
     });
 
-    // Prevent the window from opening any new windows (e.g., pop-ups)
+    // Prevent opening new windows
     urlWindow.webContents.setWindowOpenHandler(() => {
-        return {action: 'deny'}; // Deny any requests to open new windows
+        return { action: 'deny' };
     });
 }
-
+function isValidURL(url) {
+    try {
+        new URL(url);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
 
 // Initializes the application depending on if in a dev or production environment.
 if (isDev) {
@@ -155,15 +170,15 @@ app.on('window-all-closed', () => {
 
 // Listen for 'open-url' event from renderer to open a new window with the provided URL
 ipcMain.on('open-url', (event, url) => {
+    console.log('Received URL in main process:', url);
     try {
-        createURLWindow(url)
+        createURLWindow(url);
     } catch (error) {
-        // Log error if URL cannot be opened and notify the renderer process
-
         console.error(`Error opening URL window: ${error.message}`);
         event.sender.send('open-url-error', error.message);
     }
 });
+
 
 // Kills child processes when closing the app
 app.on("before-quit", () => {
@@ -177,6 +192,34 @@ app.on("before-quit", () => {
 ipcMain.handle('scrape:request', async (event, arg) => {
     return JSON.stringify((await scrapeRequest(arg)).data);
 });
+
+ipcMain.on('selected-text', (event, text) => {
+    // Forward the selected text to the primary window
+    mainWin.webContents.send('display-selected-text', text);
+});
+
+ipcMain.on('import-data', (event, data) => {
+    // Handle the imported data
+    console.log('Imported Data:', data);
+
+    // Optionally, store the data or update the primary window
+    // You can send a confirmation back to the renderer
+    event.sender.send('data-imported', 'Data imported successfully!');
+});
+
+ipcMain.on('export-data', async (event, data) => {
+    try {
+        // Implement your database export logic here
+        await exportDataToDatabase(data);
+
+        // Notify the renderer of success
+        event.sender.send('export-success', 'Data exported successfully!');
+    } catch (error) {
+        console.error('Export Error:', error);
+        event.sender.send('export-error', 'Failed to export data.');
+    }
+});
+
 
 // Handles closing the application
 ipcMain.on('exit:request', () => {
