@@ -12,7 +12,7 @@ log.transports.file.level = 'info';    // Log level for file output
 log.transports.console.level = 'debug'; // Log level for console output
 
 const { PythonShell } = require('python-shell');
-const { stopPyBackend, pingBackend, scrapeRequest } = require('./js-api.js');
+const { stopPyBackend, pingBackend, scrapeRequest } = require('./js/js-api.js');
 
 // This will be needed when packaging the python code base as an executable (i.e., WIP)
 // const PROD_API_PATH = path.join(process.resourcesPath, "")
