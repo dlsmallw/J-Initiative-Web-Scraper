@@ -2,6 +2,7 @@
  * This script runs on every HTML file to handle theme switching and other processes.
  */
 
+
 // Use the IPC methods exposed by the preload script
 const ipcRenderer = window.electronAPI;
 
@@ -25,6 +26,7 @@ const Pages = {
     }
 };
 
+
 let currentPage;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -36,6 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initializes 2-way renderer-main IPC listeners
     initIPCEventListeners();
+
+    // Log that the renderer process has loaded
+    ipcRenderer.log.info('Renderer process DOM content loaded');
 });
 
 /**
@@ -227,6 +232,8 @@ function changeTheme() {
 
     // Save the selected theme to localStorage so it persists across sessions
     localStorage.setItem('theme', theme);
+
+    window.electronAPI.log.info(`Theme changed to: ${theme}`);
 }
 
 /**

@@ -5,9 +5,14 @@
 // Import necessary modules from Electron and Node.js
 const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
 const path = require('node:path');
+const log = require('./logger');
+
+// Configure logging levels
+log.transports.file.level = 'info';    // Log level for file output
+log.transports.console.level = 'debug'; // Log level for console output
 
 const { PythonShell } = require('python-shell');
-const { stopPyBackend, pingBackend, scrapeRequest } = require('./js-api.js');
+const { stopPyBackend, pingBackend, scrapeRequest } = require('./js/js-api.js');
 
 // This will be needed when packaging the python code base as an executable (i.e., WIP)
 // const PROD_API_PATH = path.join(process.resourcesPath, "")
@@ -118,11 +123,12 @@ var pingIntervalTest = setInterval(function() {
 // When the application is ready, create the main window
 app.whenReady().then(() => {
     createMainWindow();
-
+    log.info('Application is ready');
     // macOS specific behavior to recreate window when the dock icon is clicked
     app.on('activate', () => {
         // Only create a new window if none are open
         if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
+        log.info('Application activated');
     });
 });
 
@@ -149,6 +155,14 @@ app.on("before-quit", () => {
             console.log(res.data.message);
         });
 });
+
+    ipcMain.on('log-info', (event, message) => {
+        log.info(`[Renderer] ${message}`);
+    });
+  
+  ipcMain.on('log-error', (event, message) => {
+    log.error(`[Renderer] ${message}`);
+  });
 
 // Handles a scrape request
 ipcMain.handle('scrape:request', async (event, arg) => {

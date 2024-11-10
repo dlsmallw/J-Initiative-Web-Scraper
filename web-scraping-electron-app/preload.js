@@ -44,7 +44,10 @@ contextBridge.exposeInMainWorld(
         // Method for sending a signal to Main to explicitly close the application
         exitSignal: () => {
             ipcRenderer.send('exit:request');
+        },
+        log: {
+            info: (message) => ipcRenderer.send('log-info', message),
+            error: (message) => ipcRenderer.send('log-error', message)
         }
     }
 );
-
