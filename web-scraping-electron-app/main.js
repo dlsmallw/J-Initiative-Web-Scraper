@@ -81,7 +81,7 @@ function createURLWindow(url) {
         }
     });
 
-    loadingWindow.loadFile("loadingscreen.html").then(r => console.log("loading screen opened successfully"))
+    loadingWindow.loadFile("./renderer/assets/html/loadingscreen.html").then(r => console.log("loading screen opened successfully"))
 
     urlWindow.hide()
 
