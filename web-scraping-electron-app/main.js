@@ -152,7 +152,7 @@ app.on("before-quit", () => {
         });
 });
 
-function createLSExternal() {
+function createLSExternal(url) {
     // Create the BrowserWindow instance with specific options
     lsWindow = new BrowserWindow({
         width: 800, // Set width: larger size for development
@@ -167,23 +167,30 @@ function createLSExternal() {
     // Disable the default application menu
     // lsWindow.setMenu(null);
 
-    // Load the main HTML file for the renderer process
-    console.log(mainWin.webContents.execute)
-    lsWindow.loadURL('https://dlsmallw-test.hf.space/');
+    try {
+        lsWindow.loadURL(url);
 
-    lsWindow.on('close', () => {
+        lsWindow.on('close', () => {
+            // tell renderer to redisplay embbedded content
+            mainWin.webContents.send('openLSExternal-close');
+        });
+    
+        // Prevent the window from opening any new windows (e.g., pop-ups)
+        lsWindow.webContents.setWindowOpenHandler(() => {
+            return { action: 'deny' }; // Deny any requests to open new windows
+        });
+    } catch (err) {
+        lsWindow.close();
         // tell renderer to redisplay embbedded content
         mainWin.webContents.send('openLSExternal-close');
-    });
+    }
+    
 
-    // Prevent the window from opening any new windows (e.g., pop-ups)
-    lsWindow.webContents.setWindowOpenHandler(() => {
-        return { action: 'deny' }; // Deny any requests to open new windows
-    });
+    
 }
 
-ipcMain.on('openLSExternal:request', async () => {
-    createLSExternal();
+ipcMain.on('openLSExternal:request', (event, url) => {
+    createLSExternal(url);
 });
 
 // Handles a scrape request

@@ -22,7 +22,7 @@ contextBridge.exposeInMainWorld(
         // Method to send messages from renderer to main process
         send: (channel, data) => {
             // Define a list of valid channels to limit communication to safe ones only
-            const validChannels = ['open-url'];
+            const validChannels = ['open-url', 'openLSExternal:request'];
             // Only send the message if the channel is in the list of valid channels
             if (validChannels.includes(channel)) {
                 ipcRenderer.send(channel, data);
@@ -45,8 +45,8 @@ contextBridge.exposeInMainWorld(
         exitSignal: () => {
             ipcRenderer.send('exit:request');
         },
-        openLSExternal: () => {
-            ipcRenderer.send('openLSExternal:request');
+        openLSExternal: (url) => {
+            ipcRenderer.send('openLSExternal:request', url);
         }
     }
 );

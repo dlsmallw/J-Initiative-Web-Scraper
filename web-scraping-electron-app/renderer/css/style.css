@@ -344,7 +344,7 @@ body {
     transform: translateY(-25%) translateX(-20%);
 }
 
-#ls-embedded, #ls-external {
+#ls-embedded, #ls-external, #ls-set, #ls-not-set {
     height: 100%;
 }
 

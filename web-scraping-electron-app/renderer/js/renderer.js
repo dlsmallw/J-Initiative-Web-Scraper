@@ -98,15 +98,15 @@ function attachPageEventListeners() {
     $('#about-nav').on('click', changePage);
     $('#annotation-nav').on('click', changePage);
 
-    // Event listener for the "Submit" button on the Scrape page
-    $('#submitURLBtn').on('click', () => {
-        submitBtnPressed();
-    });
-
     // Fade in/out animation for button on annotation page
     $('#annotation-container')
         .on('mouseenter', function() { $('#ext-win-btn').stop( true, true ).fadeTo(500, 0.2); })
         .on('mouseleave', function() { $('#ext-win-btn').stop( true, true ).fadeOut(500); });
+
+    // Event listener for the "Submit" button on the Scrape page
+    $('#submitURLBtn').on('click', () => {
+        submitBtnPressed();
+    });
 
     // Event listener for the "Enter" key press in the input field
     $('#url-input').on('keypress', (event) => {
@@ -115,30 +115,19 @@ function attachPageEventListeners() {
         }
     });
 
-    $('#submitLSURLBtn').on('click', () => {
-        var urlInput = $('#ls-link-input').val();
+    $('#submitLSURLBtn').on('click', lsURLSubmitted());
 
-        if (checkLSURL(urlInput)) {
-            console.log("TEST1")
-            var req = new XMLHttpRequest();
-            req.open('GET', urlInput, true);
-            req.onreadystatechange = function() {
-                console.log("TEST2")
-                if (req.readyState === 4) {
-                    if (req.status === 404) {
-                        alert("URL '" + urlInput + "' does not exist");
-                    }
-                }
-            }
-            req.send();
+    $('#ls-link-input').on('keypress', (event) => {
+        if (event.key === 'Enter') {
+            lsURLSubmitted();
         }
-        
     });
 
     $('#ext-win-btn').on('click', () => {
         $('#ls-embedded').hide();
         $('#ls-external').show();
-        ipcRenderer.openLSExternal();
+        var url = $('#annotation-iframe').attr('src');
+        ipcRenderer.openLSExternal(url);
     });
 
     ipcRenderer.receive('openLSExternal-close', () => {
@@ -303,5 +292,33 @@ function checkLSURL(url) {
         return false;
     }
 
+    var req = new XMLHttpRequest();
+    req.open('GET', url, true);
+    req.onreadystatechange = function() {
+        if (req.readyState === 4) {
+            if (req.status === 404) {
+                return false;
+            }
+        }
+    }
+    req.send();
+
     return true;
+}
+
+function lsURLSubmitted() {
+    var urlInput = $('#ls-link-input').val();
+
+    if (urlInput !== '') {
+        if (checkLSURL(urlInput)) {
+            localStorage.setItem('lsURL', urlInput);
+
+            $('#annotation-iframe').attr('src', urlInput);
+            $('#ls-not-set').hide();
+            $('#ls-set').show();
+        } else {
+            alert("The URL '" + urlInput + "' is not valid");
+            $('#ls-link-input').val('')
+        }
+    }
 }
