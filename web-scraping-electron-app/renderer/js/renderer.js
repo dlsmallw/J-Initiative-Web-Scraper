@@ -115,7 +115,9 @@ function attachPageEventListeners() {
         }
     });
 
-    $('#submitLSURLBtn').on('click', lsURLSubmitted());
+    $('#submitLSURLBtn').on('click', () => {
+        lsURLSubmitted();
+    });
 
     $('#ls-link-input').on('keypress', (event) => {
         if (event.key === 'Enter') {
@@ -128,6 +130,14 @@ function attachPageEventListeners() {
         $('#ls-external').show();
         var url = $('#annotation-iframe').attr('src');
         ipcRenderer.openLSExternal(url);
+    });
+
+    $('#clearLSLinkBtn').on('click', () => {
+        localStorage.removeItem('lsURL');
+        $('#ls-set').hide();
+        $('#clearLSLinkBtn').hide();
+        $('#ls-not-set').show();
+        setLSLink(null);
     });
 
     ipcRenderer.receive('openLSExternal-close', () => {
@@ -311,14 +321,23 @@ function lsURLSubmitted() {
 
     if (urlInput !== '') {
         if (checkLSURL(urlInput)) {
-            localStorage.setItem('lsURL', urlInput);
-
-            $('#annotation-iframe').attr('src', urlInput);
+            setLSLink(urlInput);
             $('#ls-not-set').hide();
             $('#ls-set').show();
+            $('#clearLSLinkBtn').show();
         } else {
             alert("The URL '" + urlInput + "' is not valid");
             $('#ls-link-input').val('')
         }
+    }
+}
+
+function setLSLink(url) {
+    if (url) {
+        localStorage.setItem('lsURL', url);
+        $('#annotation-iframe').attr('src', url);
+    } else {
+        localStorage.removeItem('lsURL');
+        $('#annotation-iframe').attr('src', "");
     }
 }
