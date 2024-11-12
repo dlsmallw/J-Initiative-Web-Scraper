@@ -34,6 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize pages by loading their content
     initPages();
 
+    
+
     // Initializes 2-way renderer-main IPC listeners
     initIPCEventListeners();
 });
@@ -54,6 +56,9 @@ async function initPages() {
     $('#node-version').html(versions.node());
     $('#chrome-version').html(versions.chrome());
     $('#electron-version').html(versions.electron());
+
+    // Initializes embedded content
+    initEmbeddedContent();
 
     // Attach event listeners
     attachPageEventListeners();
@@ -100,17 +105,34 @@ function attachPageEventListeners() {
 
     // Fade in/out animation for button on annotation page
     $('#annotation-container')
-        .on('mouseenter', function() {
-            $('#ext-win-btn').stop( true, true ).fadeTo(500, 0.2);
-        }).on('mouseleave', function() {
-            $('#ext-win-btn').stop( true, true ).fadeOut(500);
-        });
+        .on('mouseenter', function() { $('#ext-win-btn').stop( true, true ).fadeTo(500, 0.2); })
+        .on('mouseleave', function() { $('#ext-win-btn').stop( true, true ).fadeOut(500); });
 
     // Event listener for the "Enter" key press in the input field
     $('#url-input').on('keypress', (event) => {
         if (event.key === 'Enter') {
             submitBtnPressed();     // Call the submit function
         }
+    });
+
+    $('#submitLSURLBtn').on('click', () => {
+        var urlInput = $('#ls-link-input').val();
+
+        if (checkLSURL(urlInput)) {
+            console.log("TEST1")
+            var req = new XMLHttpRequest();
+            req.open('GET', urlInput, true);
+            req.onreadystatechange = function() {
+                console.log("TEST2")
+                if (req.readyState === 4) {
+                    if (req.status === 404) {
+                        alert("URL '" + urlInput + "' does not exist");
+                    }
+                }
+            }
+            req.send();
+        }
+        
     });
 
     $('#ext-win-btn').on('click', () => {
@@ -248,4 +270,38 @@ function changeTheme() {
  */
 function getPage(value) {
     return Pages[Object.keys(Pages).find(e => Pages[e].name === value)];
+}
+
+function initEmbeddedContent() {
+    const ls_url = localStorage.getItem('lsURL');
+
+    if (ls_url) {   // Label Studio project linked
+        $('#annotation-iframe').attr('src', ls_url);
+        $('#ls-not-set').hide();
+    } else {        // No Label Studio project linked
+        $('#ls-set').hide();
+    }
+}
+
+function checkLSURL(url) {
+    let lsURL;
+
+    try {  
+        lsURL = new URL(url);
+    } catch (err) {
+        return false;
+    }
+
+    if (lsURL.protocol !== "https:") {
+        return false;
+    } 
+    
+    var host = lsURL.host;
+    var strArr = host.split('.');
+    
+    if (!strArr.find(st => st === 'hf')) {
+        return false;
+    }
+
+    return true;
 }
