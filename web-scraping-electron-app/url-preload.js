@@ -1,6 +1,7 @@
 // url-preload.js
 
 const { contextBridge, ipcRenderer } = require('electron');
+console.log('url-preload.js loaded');
 
 // Expose a safe API to the web page
 contextBridge.exposeInMainWorld('electronAPI', {

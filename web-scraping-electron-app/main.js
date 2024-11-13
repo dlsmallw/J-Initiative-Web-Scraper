@@ -34,7 +34,9 @@ function createMainWindow() {
         minHeight: 600, // Set minimum height
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
-        }
+            contextIsolation: true,
+            nodeIntegration: false,
+        },
     });
 
     // Open developer tools automatically if in development mode
@@ -104,18 +106,15 @@ function createURLWindow(url) {
             dialog.showErrorBox('Error', 'Failed to load the URL.');
         });
 
-    // Prevent navigation to external URLs
     urlWindow.webContents.on('will-navigate', (event, navigateUrl) => {
         if (navigateUrl !== url) {
             event.preventDefault();
         }
     });
 
-    // Prevent opening new windows
-    urlWindow.webContents.setWindowOpenHandler(() => {
-        return { action: 'deny' };
-    });
+    urlWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
 }
+
 function isValidURL(url) {
     try {
         new URL(url);
@@ -153,16 +152,13 @@ var pingIntervalTest = setInterval(function () {
 }, 5000);
 
 // When the application is ready, create the main window
-app.whenReady().then(() => {
-    createMainWindow();
-
-    // macOS specific behavior to recreate window when the dock icon is clicked
-    app.on('activate', () => {
-        // Only create a new window if none are open
-        if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
+app.whenReady()
+    .then(createMainWindow)
+    .then(() => {
+        app.on('activate', () => {
+            if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
+        });
     });
-});
-
 // When all windows are closed, quit the app unless running on macOS
 app.on('window-all-closed', () => {
     if (!isMac) app.quit(); // macOS apps typically stay open until explicitly quit
@@ -194,29 +190,44 @@ ipcMain.handle('scrape:request', async (event, arg) => {
 });
 
 ipcMain.on('selected-text', (event, text) => {
-    // Forward the selected text to the primary window
-    mainWin.webContents.send('display-selected-text', text);
+    if (mainWin) {
+        mainWin.webContents.send('display-selected-text', text);
+    } else {
+        console.error("Main window is not available to receive selected text.");
+    }
 });
 
 ipcMain.on('import-data', (event, data) => {
     // Handle the imported data
     console.log('Imported Data:', data);
-
-    // Optionally, store the data or update the primary window
-    // You can send a confirmation back to the renderer
     event.sender.send('data-imported', 'Data imported successfully!');
 });
 
 ipcMain.on('export-data', async (event, data) => {
     try {
-        // Implement your database export logic here
         await exportDataToDatabase(data);
-
-        // Notify the renderer of success
         event.sender.send('export-success', 'Data exported successfully!');
     } catch (error) {
         console.error('Export Error:', error);
         event.sender.send('export-error', 'Failed to export data.');
+    }
+});
+
+async function exportDataToDatabase(data) {
+    return new Promise((resolve) => setTimeout(resolve, 1000));
+}
+
+ipcMain.handle('scrape-url', async (event, url) => {
+    try {
+        const response = await axios.post('http://127.0.0.1:7777/url', { url });
+        if (response.data.ok) {
+            return response.data;
+        } else {
+            throw new Error(response.data.message);
+        }
+    } catch (error) {
+        console.error('Error communicating with backend:', error);
+        throw error;
     }
 });
 

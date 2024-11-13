@@ -2,6 +2,12 @@
  * This script runs on every HTML file to handle theme switching and other processes.
  */
 
+/**
+ * ========================
+ * Initialization and Setup
+ * ========================
+ */
+
 // Use the IPC methods exposed by the preload script
 const ipcRenderer = window.electronAPI;
 
@@ -33,6 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initializes 2-way renderer-main IPC listeners
     initIPCEventListeners();
 });
+
+/**
+ * ========================
+ * Page and UI Initialization
+ * ========================
+ */
 
 /**
  * Initializes all the pages by loading their HTML content and setting the default page to Home
@@ -79,6 +91,12 @@ function changePage(event) {
 }
 
 /**
+ * ========================
+ * IPC Event Listeners
+ * ========================
+ */
+
+/**
  * Attach event listeners specific to the current page (e.g., buttons, input fields)
  */
 function attachPageEventListeners() {
@@ -98,7 +116,7 @@ function attachPageEventListeners() {
             submitBtnPressed();     // Call the submit function
         }
     });
-    
+
     // Event listener for the "Exit" navigation link
     $('#exit-nav').on('click', () => {
         ipcRenderer.exitSignal();
@@ -110,58 +128,117 @@ function attachPageEventListeners() {
     });
 }
 
-/**
- * Initializes any atypical IPC communication listeners.
- * NOTE: Separated for organization purposes.
- */
 function initIPCEventListeners() {
-    // Listen for errors from main process related to URL opening
+    // Sending Data to Main Process
+
+    // Submit URL to open in main process
+    $('#submitURLBtn').on('click', submitBtnPressed);
+
+    // Import data to main process
+    $('#importDataButton').on('click', () => {
+        const editedText = $('#editedText').val();
+        const sourceType = $('#sourceType').val();
+        const domainOwner = $('#domainOwner').val();
+
+        ipcRenderer.send('import-data', {
+            text: editedText,
+            sourceType: sourceType,
+            domainOwner: domainOwner,
+        });
+    });
+
+    // Receiving Data from Main Process
+
+    // Listen for errors related to URL opening
     ipcRenderer.receive('open-url-error', (errorMessage) => {
-        alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
+        alert(`Failed to open URL: ${errorMessage}`);
+    });
+
+    // Display selected text sent from main process
+    ipcRenderer.receive('display-selected-text', (text) => {
+        $('#selectedTextDisplay').val(text);
+        $('#editedText').val(text);
+        $('#results-container').show();
+    });
+
+    // Receive confirmation for data import
+    ipcRenderer.receive('data-imported', (confirmationMessage) => {
+        alert(confirmationMessage);
+    });
+
+    // Export data success/failure messages
+    ipcRenderer.receive('export-success', (successMessage) => {
+        alert(successMessage);
+    });
+
+    ipcRenderer.receive('export-error', (errorMessage) => {
+        alert(errorMessage);
     });
 }
 
+
+/**
+ * ========================
+ * Main Functions
+ * ========================
+ */
+
+
+// Function to handle the "Submit" button click
 function submitBtnPressed() {
     console.log('Submit button pressed');
 
     let url = $('#url-input').val();
-    console.log('URL before prepending protocol:', url);
 
-    // Prepend 'https://' if no protocol is specified
-    if (!url.match(/^https?:\/\//i)) {
-        url = 'https://' + url;
+    // Check if a URL was entered
+    if (url) {
+        // Prepend 'https://' if no protocol is specified
+        if (!url.match(/^https?:\/\//i)) {
+            url = 'https://' + url;
+        }
+
+        // Validate the URL format before sending
+        if (!isValidURL(url)) {
+            alert('Please enter a valid URL.');
+            return;
+        }
+
+        // Send the URL to the main process to open it
+        ipcRenderer.send('open-url', url);
+
+        // Update the results container to display the submitted URL
+        $('#staticURL').val(url);
+        $('#results-container').css('display', 'block');
+    } else {
+        alert('Please enter a URL.'); // Alert the user if no URL is entered
     }
-
-    console.log('URL after prepending protocol if needed:', url);
-
-    // Validate the URL format before sending
-    if (!isValidURL(url)) {
-        alert('Please enter a valid URL.');
-        return;
-    }
-
-    // Send the URL to the main process to open it
-    ipcRenderer.send('open-url', url);
-
-    // Update the results container to display the submitted URL
-    $('#staticURL').val(url);
-    $('#results-container').css('display', 'block');
 }
 
+// Listen for the 'url-loaded' event from the main process before making the scrape request
+ipcRenderer.receive('url-loaded', async (url) => {
+    try {
+        console.log('URL fully loaded, initiating scrape request');
+        const response = JSON.parse(await ipcRenderer.invoke('scrape:request', url));
+
+        if (response.ok) {
+            $('#staticURL').val(response.url);
+            $('#results-container').show();
+            $('#formatted-data-text').text(response.formattedData);
+            $('#raw-data-text').text(response.rawData);
+        } else {
+            alert("Failed to scrape the URL.");
+        }
+    } catch (error) {
+        console.error('Error during scraping:', error);
+        alert('Failed to scrape the URL.');
+    }
+});
 
 /**
- * URL validation function to check if the URL is valid.
- * @param {*} url       The URL to validate.
- * @returns Bool        A boolean corresponding to if it is valid or not.
+ * ========================
+ * Helper Functions
+ * ========================
  */
-function isValidURL(url) {
-    try {
-        new URL(url);
-        return true;
-    } catch (_) {
-        return false;
-    }
-}
 
 /**
  * Initializes the theme based on the user's saved preference or defaults to light theme.
@@ -209,38 +286,16 @@ function getPage(value) {
     return Pages[Object.keys(Pages).find(e => Pages[e].name === value)];
 }
 
-// Attach event listener for the import data button
-$('#importDataButton').on('click', () => {
-    const editedText = $('#editedText').val();
-    const sourceType = $('#sourceType').val();
-    const domainOwner = $('#domainOwner').val();
-
-    // Send the data to the main process
-    ipcRenderer.send('import-data', {
-        text: editedText,
-        sourceType: sourceType,
-        domainOwner: domainOwner,
-    });
-});
-
-// Attach event listener for the export data button
-$('#exportDataButton').on('click', () => {
-    const dataToExport = {
-        text: $('#editedText').val(),
-        sourceType: $('#sourceType').val(),
-        domainOwner: $('#domainOwner').val(),
-    };
-
-    ipcRenderer.send('export-data', dataToExport);
-});
-
-// Receive selected text from main process
-ipcRenderer.on('display-selected-text', (event, text) => {
-    // Display the selected text
-    $('#selectedTextDisplay').val(text);
-    // Populate the edited text field with the selected text
-    $('#editedText').val(text);
-
-    // Show the results container
-    $('#results-container').show();
-});
+/**
+ * URL validation function to check if the URL is valid.
+ * @param {*} url       The URL to validate.
+ * @returns Bool        A boolean corresponding to if it is valid or not.
+ */
+function isValidURL(url) {
+    try {
+        new URL(url);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
