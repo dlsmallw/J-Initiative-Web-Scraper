@@ -26,6 +26,7 @@ const Pages = {
 let currentPage;
 
 document.addEventListener('DOMContentLoaded', () => {
+    logDebug('DOM loaded, initializing initial dynamic content.');
     // Initialize theme when the document is fully loaded
     initializeTheme();
 
@@ -71,6 +72,7 @@ async function initPages() {
  * @param {*} event     The event corresponding to a page change.
  */
 function changePage(event) {
+    logDebug("Attempting to change page due to " + event.type);
     event.preventDefault(); // Prevent default link behavior
     const pageName = this.id.split('-')[0]; // Extract page name from element ID
     const newPage = getPage(pageName);
@@ -165,6 +167,8 @@ function submitBtnPressed() {
         // Update the results container to display the submitted URL
         $('#staticURL').val(url);
         $('#results-container').css('display', 'block');
+
+        logInfo(`Opened URL successfully.`);
 
         // Additional code for scraping (if needed)
         // ...
