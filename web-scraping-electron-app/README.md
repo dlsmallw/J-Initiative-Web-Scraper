@@ -28,6 +28,11 @@ The following are required for developing and building the project:
     node -v
     yarn --version
     ```
+ - `electron-log`
+    - Run the following command to get electron-log:
+    ```
+    npm install electron-log
+    ```
 
 ### Building the project
 First, you will need to setup the Python venv by following the steps provided at 

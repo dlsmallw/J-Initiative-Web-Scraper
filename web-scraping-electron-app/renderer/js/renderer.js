@@ -19,7 +19,7 @@ const Pages = {
     },
     Logs: {
         name: "logs",
-        id: '#log-container'
+        id: '#logs-container'
     }
 };
 
@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initializes IPC event listeners
     initIPCEventListeners();
 
-    // Log that the renderer process is ready
-    logInfo('Renderer process is ready.');
+    // Log that the renderer process has loaded
+    log("INFO", 'Renderer process DOM content loaded');
 });
 
 /**
@@ -71,13 +71,20 @@ async function initPages() {
  * @param {*} event     The event corresponding to a page change.
  */
 function changePage(event) {
-    event.preventDefault(); // Prevent default link behavior
+    try {
+        event.preventDefault(); // Prevent default link behavior
+    }
+    catch(e) {
+        log("ERROR", "preventDefault() failed. Most likely cause: Event target " + event.target + " does not have preventDefault() as a method.");
+    }
+    
     const pageName = this.id.split('-')[0]; // Extract page name from element ID
     const newPage = getPage(pageName);
 
     // Only switch pages if the new page is different from the current page
     if (currentPage.name !== newPage.name) {
         Object.keys(Pages).forEach(page => {
+
             $(Pages[page].id).hide();
         });
 
@@ -352,9 +359,3 @@ function logWarn(message) {
 function logError(message) {
     ipcRenderer.send('log-error', message);
 }
-
-
-
-
-
-

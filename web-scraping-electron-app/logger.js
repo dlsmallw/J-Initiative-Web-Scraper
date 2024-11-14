@@ -12,5 +12,5 @@ log.transports.console.format = '{h}:{i}:{s} [{level}] {text}';
 // Optional: Limit the size of log files
 log.transports.file.maxSize = 5 * 1024 * 1024; // 5 MB
 
-// Export the configured logger
+// Export the logger for use in other modules
 module.exports = log;

@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'">
     <title>J-Initiative Web Scraper</title>
 
-     <!-- Content Security Policy  -->
-    <meta http-equiv="Content-Security-Policy" content="
+    <!-- Content Security Policy  -->
+    <!--<meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self';
         connect-src 'self';
         img-src 'self' data:;
-        style-src 'self' 'unsafe-inline';">
+        style-src 'self' 'unsafe-inline';">-->
 
     <!-- CSS Stylesheets -->
     <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
@@ -22,30 +24,30 @@
     <nav class="navbar navbar-expand-sm navbar-dark">
         <div class="container-fluid">
             <span class="navbar-brand mb-0 h1">Web Scraper</span>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <!-- Navigation Links -->
+                <!-- Navigation Links for Home, Scraper, About, and Exit -->
                 <ul class="navbar-nav mb-0">
                     <li class="nav-item">
-                        <a class="nav-link" id="home-nav" href="#">Home</a>
+                        <a class="nav-link" id="home-nav" onclick="changePage(this)" href="#">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="scrape-nav" href="#">Scraper</a>
+                        <a class="nav-link" id="scrape-nav" onclick="changePage(this)" href="#">Scraper</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="about-nav" href="#">About</a>
+                        <a class="nav-link" id="about-nav" onclick="changePage(this)" href="#">About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="logs-nav" href="#">Logs</a>
+                        <a class="nav-link" id="logs-nav" onclick="changePage(this)" href="#">Logs</a>
                     </li>
                 </ul>
 
-                <!-- Theme Selector and Exit aligned to the right -->
+                <!-- Theme Selector Dropdown aligned to the far right -->
                 <ul class="navbar-nav ms-auto mb-0">
                     <li class="nav-item">
-                        <select id="theme-select" class="form-select form-select-sm">
+                        <select id="theme-select" class="form-select form-select-sm" onchange="changeTheme()">
                             <option value="light-theme">Light Theme</option>
                             <option value="dark-theme">Dark Theme</option>
                             <option value="blue-theme">Blue Theme</option>
@@ -60,15 +62,10 @@
         </div>
     </nav>
     <div id="d_content" class="container-fluid mt-4">
-        <!-- Each of the pages are loaded as individual components to separate the html -->
+        <!-- The home component loads by default -->
     </div>
-     <!-- jQuery -->
-    <script src="../node_modules/jquery/dist/jquery.js"></script>
     <!-- Bootstrap JS Bundle -->
-    <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
-    <!-- Include renderer.js -->
-    <script src="../renderer/js/renderer.js"></script>
-    <script src="../renderer/js/logPage.js"></script>
+    <script src='../node_modules/bootstrap/dist/js/bootstrap.bundle.js'></script>
 </body>
-</html>
 
+</html>
