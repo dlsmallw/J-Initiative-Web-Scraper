@@ -35,7 +35,7 @@
             // Method to receive messages from the main process in the renderer process
             receive: (channel, func) => {
                 // Define a list of valid channels that the renderer can listen to
-                const validChannels = ['open-url-error', 'display-selected-text', 'data-imported', 'export-success', 'export-error', 'url-loaded'];
+                const validChannels = ['open-url', 'display-selected-text', 'data-imported', 'export-success', 'export-error', 'url-loaded','open-url-error'];
                 // Only attach a listener if the channel is in the list of valid channels
                 if (validChannels.includes(channel)) {
                     ipcRenderer.on(channel, (event, ...args) => func(...args));

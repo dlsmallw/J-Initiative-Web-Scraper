@@ -11,6 +11,7 @@
                     <input id="url-input" type="text" class="form-control" placeholder="Enter the URL here" aria-label="URL" aria-describedby="button-addon2">
                     <button class="btn btn-outline-secondary" type="button" id="submitURLBtn">Submit</button>
                 </div>
+                <small id="url-error" class="form-text text-danger" style="display: none;">Invalid URL. Please try again.</small>
             </div>
         </form>
     </div>
@@ -44,20 +45,25 @@
                     <select id="sourceType" class="form-select">
                         <option value="socialMedia">Social Media</option>
                         <option value="newsArticle">News Article</option>
-                        <!-- Add more options as needed -->
+                        <option value="blogPost">Blog Post</option>
                     </select>
                 </div>
                 <div class="mb-3">
                     <label for="domainOwner" class="form-label">Domain Owner/Organization</label>
-                    <input type="text" id="domainOwner" class="form-control">
+                    <input type="text" id="domainOwner" class="form-control" placeholder="Enter the domain owner or organization">
                 </div>
                 <button type="button" id="importDataButton" class="btn btn-primary">Import Data</button>
+                <small id="import-success" class="form-text text-success" style="display: none;">Data imported successfully!</small>
+                <small id="import-error" class="form-text text-danger" style="display: none;">Failed to import data. Please try again.</small>
             </form>
         </div>
 
         <!-- Export Data Button -->
         <div class="mt-3">
             <button type="button" id="exportDataButton" class="btn btn-success">Export Data to Remote Database</button>
+            <small id="export-success" class="form-text text-success" style="display: none;">Data exported successfully!</small>
+            <small id="export-error" class="form-text text-danger" style="display: none;">Failed to export data. Please try again.</small>
         </div>
     </div>
 </div>
+

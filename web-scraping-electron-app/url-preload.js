@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 // Listen for mouseup events to capture text selection
 window.addEventListener('mouseup', () => {
     const selectedText = window.getSelection().toString().trim();
+    console.log('Text Selected:', selectedText);
     if (selectedText) {
         window.electronAPI.sendSelectedText(selectedText);
     }

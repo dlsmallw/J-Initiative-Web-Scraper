@@ -23,15 +23,16 @@ const isDev = !app.isPackaged;
 let mainWin;
 
 /**
- * Function to create the main application window.
+ * Create the main application window.
  */
 function createMainWindow() {
-    // Create the BrowserWindow instance with specific options
+    console.log('Creating main application window');
+
     mainWin = new BrowserWindow({
-        width: isDev ? 1200 : 800, // Set width: larger size for development
-        height: 600, // Set height for the window
-        minWidth: isDev ? 1200 : 800, // Set minimum width to prevent shrinking beyond a set size
-        minHeight: 600, // Set minimum height
+        width: isDev ? 1200 : 800,
+        height: 600,
+        minWidth: isDev ? 1200 : 800,
+        minHeight: 600,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
@@ -39,27 +40,27 @@ function createMainWindow() {
         },
     });
 
-    // Open developer tools automatically if in development mode
-    if (isDev) {
-        mainWin.webContents.openDevTools();
-    }
+    mainWin.on('focus', () => console.log('Main window focused'));
+    mainWin.on('blur', () => console.log('Main window lost focus'));
 
-    // Disable the default application menu
+    if (isDev) mainWin.webContents.openDevTools();
+
     mainWin.setMenu(null);
 
-    // Load the main HTML file for the renderer process
-    mainWin.loadFile('./renderer/index.html').then(r => "success");
+    mainWin.loadFile('./renderer/index.html')
+        .then(() => console.log('Main window loaded successfully'))
+        .catch(error => console.error('Error loading main window:', error));
 }
 
 /**
- * Function to create a new window to display the provided URL
- * @param {*} url       The URL.
+ * Create a new window to display the provided URL.
+ * @param {string} url The URL to open in the new window.
  */
 function createURLWindow(url) {
-    console.log('URL received in createURLWindow:', url);
+    console.log('Received URL to open:', url);
 
     if (!isValidURL(url)) {
-        console.error(`Invalid URL in createURLWindow: ${url}`);
+        console.error(`Invalid URL: ${url}`);
         dialog.showErrorBox('Invalid URL', 'The URL you entered is invalid.');
         return;
     }
@@ -67,172 +68,161 @@ function createURLWindow(url) {
     const urlWindow = new BrowserWindow({
         width: 1200,
         height: 800,
+
+        alwaysOnTop: true,
         webPreferences: {
-            nodeIntegration: false,
-            contextIsolation: true,
             preload: path.join(__dirname, 'url-preload.js'),
-        }
-    });
-
-    const loadingWindow = new BrowserWindow({
-        width: 400,
-        height: 300,
-        frame: false,
-        transparent: true,
-        webPreferences: {
-            nodeIntegration: false,
             contextIsolation: true,
-        }
+            nodeIntegration: false,
+        },
     });
 
-    loadingWindow.loadFile(path.join(__dirname, 'renderer', 'assets', 'html', 'loadingscreen.html'))
-        .then(() => console.log("Loading screen opened successfully"))
-        .catch((error) => {
-            console.error('Error loading loading screen:', error);
-            loadingWindow.close();
-        });
-
-    urlWindow.hide();
+    console.log('URL window created');
 
     urlWindow.loadURL(url)
         .then(() => {
+            console.log('URL loaded successfully:', url);
             urlWindow.show();
-            loadingWindow.close();
         })
-        .catch((error) => {
-            console.error(`Error loading URL: ${url}`, error);
-            urlWindow.close();
-            loadingWindow.close();
+        .catch(error => {
+            console.error('Error loading URL:', error);
             dialog.showErrorBox('Error', 'Failed to load the URL.');
+            urlWindow.close();
         });
 
-    urlWindow.webContents.on('will-navigate', (event, navigateUrl) => {
-        if (navigateUrl !== url) {
-            event.preventDefault();
-        }
-    });
-
-    urlWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+    urlWindow.on('closed', () => console.log('URL window closed'));
 }
 
+/**
+ * Validate if a string is a valid URL.
+ * @param {string} url The URL to validate.
+ * @returns {boolean} True if valid, otherwise false.
+ */
 function isValidURL(url) {
     try {
         new URL(url);
+        console.log('Valid URL:', url);
         return true;
-    } catch (error) {
+    } catch {
+        console.error('Invalid URL:', url);
         return false;
     }
 }
 
-// Initializes the application depending on if in a dev or production environment.
-if (isDev) {
-    PythonShell.run(DEV_API_PATH, function (err, res) {
-        if (err) {
-            console.log(err);
-        }
-    }).then(r => "success");
-} else {
-    // fileExecutor(PROD_API_PATH, {
-    // WIP
-    // });
-}
-
-// Used to check if the backend is up
-var failedPingCount = 0;
-var pingIntervalTest = setInterval(function () {
-    pingBackend()
-        .then(response => {
-            console.log(response.data.message);
-            clearInterval(pingIntervalTest);
-        })
-        .catch(err => {
-            failedPingCount += 1;
-            console.log("Attempted to ping the backend (attempt: " + failedPingCount + ")");
-        });
-}, 5000);
-
-// When the application is ready, create the main window
-app.whenReady()
-    .then(createMainWindow)
-    .then(() => {
-        app.on('activate', () => {
-            if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
-        });
-    });
-// When all windows are closed, quit the app unless running on macOS
-app.on('window-all-closed', () => {
-    if (!isMac) app.quit(); // macOS apps typically stay open until explicitly quit
-});
-
-// Listen for 'open-url' event from renderer to open a new window with the provided URL
-ipcMain.on('open-url', (event, url) => {
-    console.log('Received URL in main process:', url);
-    try {
-        createURLWindow(url);
-    } catch (error) {
-        console.error(`Error opening URL window: ${error.message}`);
-        event.sender.send('open-url-error', error.message);
-    }
-});
-
-
-// Kills child processes when closing the app
-app.on("before-quit", () => {
-    stopPyBackend()
-        .then(res => {
-            console.log(res.data.message);
-        });
-});
-
-// Handles a scrape request
-ipcMain.handle('scrape:request', async (event, arg) => {
-    return JSON.stringify((await scrapeRequest(arg)).data);
-});
-
-ipcMain.on('selected-text', (event, text) => {
-    if (mainWin) {
-        mainWin.webContents.send('display-selected-text', text);
-    } else {
-        console.error("Main window is not available to receive selected text.");
-    }
-});
-
-ipcMain.on('import-data', (event, data) => {
-    // Handle the imported data
-    console.log('Imported Data:', data);
-    event.sender.send('data-imported', 'Data imported successfully!');
-});
-
-ipcMain.on('export-data', async (event, data) => {
-    try {
-        await exportDataToDatabase(data);
-        event.sender.send('export-success', 'Data exported successfully!');
-    } catch (error) {
-        console.error('Export Error:', error);
-        event.sender.send('export-error', 'Failed to export data.');
-    }
-});
-
+/**
+ * Export data to a database (simulated).
+ * @param {any} data Data to export.
+ */
 async function exportDataToDatabase(data) {
-    return new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log('Simulating data export:', data);
+    return new Promise(resolve => setTimeout(resolve, 1000));
 }
 
-ipcMain.handle('scrape-url', async (event, url) => {
-    try {
-        const response = await axios.post('http://127.0.0.1:7777/url', { url });
-        if (response.data.ok) {
-            return response.data;
-        } else {
-            throw new Error(response.data.message);
+/**
+ * Set up IPC handlers and listeners.
+ */
+function setupIPCHandlers() {
+    ipcMain.on('open-url', (event, url) => {
+        console.log('IPC Event: open-url with URL:', url);
+        try {
+            createURLWindow(url);
+        } catch (error) {
+            console.error('Error handling open-url:', error);
+            event.sender.send('open-url-error', error.message);
         }
-    } catch (error) {
-        console.error('Error communicating with backend:', error);
-        throw error;
+    });
+
+    ipcMain.on('selected-text', (event, text) => {
+        console.log('IPC Event: selected-text with text:', text);
+        if (mainWin) {
+            mainWin.webContents.send('display-selected-text', text);
+        } else {
+            console.error('Main window is not available to receive selected text');
+        }
+    });
+
+    ipcMain.on('import-data', (event, data) => {
+        console.log('IPC Event: import-data with data:', data);
+        event.sender.send('data-imported', 'Data imported successfully!');
+    });
+
+    ipcMain.on('export-data', async (event, data) => {
+        console.log('IPC Event: export-data with data:', data);
+        try {
+            await exportDataToDatabase(data);
+            event.sender.send('export-success', 'Data exported successfully!');
+        } catch (error) {
+            console.error('Export Error:', error);
+            event.sender.send('export-error', 'Failed to export data.');
+        }
+    });
+
+    ipcMain.handle('scrape:request', async (event, arg) => {
+        console.log('IPC Handle: scrape:request with arg:', arg);
+        try {
+            const response = await scrapeRequest(arg);
+            return JSON.stringify(response.data);
+        } catch (error) {
+            console.error('Error in scrape:request:', error);
+            throw error;
+        }
+    });
+}
+
+/**
+ * Initialize the application.
+ */
+function initializeApp() {
+    app.whenReady()
+        .then(() => {
+            console.log('Application ready');
+            createMainWindow();
+            setupIPCHandlers();
+        })
+        .catch(error => console.error('Error initializing app:', error));
+
+    app.on('activate', () => {
+        if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
+    });
+
+    app.on('window-all-closed', () => {
+        if (!isMac) app.quit();
+    });
+
+    app.on('before-quit', () => {
+        console.log('Application quitting');
+        stopPyBackend()
+            .then(res => console.log('Backend stopped:', res.data.message))
+            .catch(error => console.error('Error stopping backend:', error));
+    });
+}
+
+/**
+ * Start backend and monitor its status.
+ */
+function startBackend() {
+    const backendPath = isDev ? DEV_API_PATH : ''; // Adjust as necessary for production
+    if (isDev) {
+        console.log('Starting backend in development mode');
+        PythonShell.run(backendPath, (err) => {
+            if (err) console.error('Error starting backend:', err);
+        });
     }
-});
 
+    let failedPingCount = 0;
+    const pingInterval = setInterval(() => {
+        pingBackend()
+            .then(response => {
+                console.log('Backend ping success:', response.data.message);
+                clearInterval(pingInterval);
+            })
+            .catch(() => {
+                failedPingCount += 1;
+                console.warn(`Failed backend ping attempt ${failedPingCount}`);
+            });
+    }, 5000);
+}
 
-// Handles closing the application
-ipcMain.on('exit:request', () => {
-    app.quit();
-})
+// Start the application and backend
+initializeApp();
+startBackend();
