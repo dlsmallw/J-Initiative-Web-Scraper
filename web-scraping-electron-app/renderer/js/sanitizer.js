@@ -2,9 +2,15 @@
  * Expected usage: create a Sanitizer object with your input stored in it,
  * along with a SanitizeProtocol object that describes how to transform the text to sanitize it.
  * 
+ * How to use:
+ * var sanitizer = new Sanitizer([text], new SanitizeProtocol([regex string], {[character]: [replacement], [character]: [replacement]}), {[expression]: [replacement], [expression]: [replacement],...});
+ * return sanitizer.sanitize();
+ * 
+ * ex.
+ * var s = new Sanitizer('<li class="%toggle %"\'ESCAPE^>', new SanitizeProtocol(), {"ESCAPE": "escape", "toggle": "TOGGLE"});
  * */
 class Sanitizer {
-	constructor(input, sanitizeProtocol, expressionMap = new Map()) {
+	constructor(input, sanitizeProtocol, expressionMap = {}) {
 		// If any structures need initializing, do that here
 		this.input = input;
 		if (sanitizeProtocol == null) {
@@ -26,24 +32,62 @@ class Sanitizer {
 		return this.sanitizeProtocol;
 	}
 
-	setProtocol(newProtocol) {
-		this.sanitizeProtocol = newProtocol;
+	setProtocol(sanitizeProtocol) {
+		this.sanitizeProtocol = sanitizeProtocol;
 	}
 
-	addToMap(key, value) {
-		this.expressionMap.set(key, value);
+	getExpressionMap() {
+		return this.expressionMap;
+	}
+
+	setExpressionMap(expressionMap) {
+		this.expressionMap = expressionMap;
+	}
+
+	htmlMode() {
+		this.sanitizeProtocol = new SanitizeProtocol("[&<>\"'/“”‘’]", 
+			{
+		      '&': '&amp;',
+		      '<': '&lt;',
+		      '>': '&gt;',
+		      '"': '&quot;',
+		      "'": '&#x27;',
+		      "/": '&#x2F;',
+		      "“": '&quot;',
+		      "”": '&quot;',
+		      "‘": '&#x27;',
+		      "’": '&#x27;',
+			});
+		expressionMap = {};
+	}
+
+	sqlMode() {
+		const sqlMap = {
+	      '%': '&#x25;',
+	      '_': '-',
+	      '^': '&#x2191;',
+	      "'": '&#x27;',
+	      "/": '&#x2F;',
+	      "[": '(',
+	      "]": ')',
+		};
+		this.sanitizeProtocol = new SanitizeProtocol("[%_^\'\/\[\]]", sqlMap);
+		this.expressionMap = {'ESCAPE': 'escape'};
 	}
 
 	sanitize() {
-		var regexTransformed = this.sanitizeProtocol.sanitizeOnMap(this.input);
-		
+		var regexTransformed = this.sanitizeProtocol.sanitize(this.input);
+		/*
+		// Unused, as the expressionMap is now an object literal, not a Map object.
 		const iterator = this.expressionMap.keys();
-
 		for(var i = 0; i < this.expressionMap.size; ++i) {
 			var key = iterator.next().value;
 			console.log("Key: " + key + ", value: " + this.expressionMap.get(key));
 
 			regexTransformed = regexTransformed.replaceAll(key,this.expressionMap.get(key));
+		}*/
+		for(var key in this.expressionMap) {
+			regexTransformed = regexTransformed.replaceAll(key, this.expressionMap[key]);
 		}
 
 		return regexTransformed;
@@ -65,7 +109,7 @@ class Sanitizer {
 		};
 		var sqlProtocol = new SanitizeProtocol("[%_^\'\/]", sqlMap);
 
-		var firstPass = sqlProtocol.sanitizeOnMap(this.input);
+		var firstPass = sqlProtocol.sanitize(this.input);
 		return firstPass.replaceAll('ESCAPE', 'escape');
 	}
 
@@ -114,7 +158,7 @@ class SanitizeProtocol {
 
 	}
 
-	sanitizeOnMap(textToSanitize) {
+	sanitize(textToSanitize) {
 		const reg = new RegExp(this.regexString, "ig");
 		return textToSanitize.replace(reg, (match)=>(this.sanitizationMapping[match]));
 	}
@@ -122,6 +166,9 @@ class SanitizeProtocol {
 
 
 
-const t = new Sanitizer('<li class="%toggle %"\'ESCAPE^>', new SanitizeProtocol());
-t.addToMap("ESCAPE", "escape");
+//const t = new Sanitizer('<li class="%toggle %"\'ESCAPE^>', new SanitizeProtocol(), new Map([["ESCAPE", "escape"], ["toggle", "TOGGLE"]]));
+
+//t.addToMap("ESCAPE", "escape");
+const t = new Sanitizer('<li class="%toggle()\]\[ %"\'ESCAPE^>', new SanitizeProtocol(), {"ESCAPE": "escape", "toggle": "TOGGLE"});
+t.sqlMode();
 console.log(t.sanitize());
