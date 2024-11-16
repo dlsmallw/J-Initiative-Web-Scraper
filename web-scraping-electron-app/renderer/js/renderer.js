@@ -34,8 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize pages by loading their content
     initPages();
 
-    
-
     // Initializes 2-way renderer-main IPC listeners
     initIPCEventListeners();
 });
@@ -52,6 +50,8 @@ async function initPages() {
         .append(await $.get("components/scrape.html"))
         .append(await $.get("components/about.html"))
         .append(await $.get("components/annotation.html"));
+
+    $(`#${currentPage.name}`).addClass('active-nav-item');
 
     $('#node-version').html(versions.node());
     $('#chrome-version').html(versions.chrome());
@@ -75,12 +75,13 @@ function changePage(event) {
 
     // Only switch pages if the new page is different from the current page
     if (currentPage.name !== newPage.name) {
-        Object.keys(Pages).forEach(page => {
-            $(Pages[page].id).hide();
-        });
+        $(currentPage.id).hide();
+        $(`#${currentPage.name}`).removeClass('active-nav-item');
+
+        currentPage = newPage;
 
         $(newPage.id).show();
-        currentPage = newPage;
+        $(`#${currentPage.name}`).addClass('active-nav-item');
 
         console.log("Page Changed To " + pageName);
     } else {
@@ -277,8 +278,10 @@ function initEmbeddedContent() {
     if (ls_url) {   // Label Studio project linked
         $('#annotation-iframe').attr('src', ls_url);
         $('#ls-not-set').hide();
+        $('#ext-win-btn').show();
     } else {        // No Label Studio project linked
         $('#ls-set').hide();
+        $('#clearLSLinkBtn').hide();
     }
 }
 
@@ -327,7 +330,7 @@ function lsURLSubmitted() {
             $('#clearLSLinkBtn').show();
         } else {
             alert("The URL '" + urlInput + "' is not valid");
-            $('#ls-link-input').val('')
+            $('#ls-link-input').val('');
         }
     }
 }

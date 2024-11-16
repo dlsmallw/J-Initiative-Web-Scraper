@@ -173,6 +173,11 @@ body {
 .navbar-brand:hover {
     color: var(--primary-color); /* Keep color the same on hover */
 }
+
+/* Maintains the current page highlighted */
+.active-nav-item {
+    background-color: var(--accent-bg);
+}
 /*=======================================================================
     Specific Link Colors for Navbar
     - Customize individual link colors if needed.
@@ -326,7 +331,7 @@ body {
 =======================================================================*/
 #annotation-container {
     min-width: 900px;
-    height: 75vh;
+    height: 60vh;
 }
 
 .embedded-content {
@@ -341,23 +346,37 @@ body {
     opacity: 0;
     color: black;
     cursor: pointer;
-    transform: translateY(-25%) translateX(-20%);
+    transform: translateY(-45%) translateX(-20%);
 }
 
 #ls-embedded, #ls-external, #ls-set, #ls-not-set {
     height: 100%;
 }
 
+#ls-not-set {
+    display: flex;
+}
+
+#ls-set {
+    padding-bottom: 10px;
+}
+
 #ls-external {
     display: flex;
     justify-content: center;
+}
 
-    #ls-external-text {
-        align-self: center;
-        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        font-size: xx-large;
-        opacity: 0.5;
-    }
+#ls-external-text {
+    align-self: center;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: xx-large;
+    opacity: 0.5;
+}
+
+#ls-form {
+    width: 80vw;
+    max-width: 750px;
+    min-width: 405px;
 }
 
 /*=======================================================================
