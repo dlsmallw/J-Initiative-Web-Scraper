@@ -101,10 +101,42 @@ function attachPageEventListeners() {
     $('#about-nav').on('click', changePage);
     $('#annotation-nav').on('click', changePage);
 
-    // Fade in/out animation for button on annotation page
-    $('#annotation-container')
-        .on('mouseenter', function() { $('#ext-win-btn').stop( true, true ).fadeTo(500, 0.2); })
-        .on('mouseleave', function() { $('#ext-win-btn').stop( true, true ).fadeOut(500); });
+    initScrapePageListeners();
+    initAnnotationPageListeners();
+    
+    // Event listener for the "Exit" navigation link
+    $('#exit-nav').on('click', () => {
+        ipcRenderer.exitSignal();
+    });
+
+    // Listen for errors from main process related to URL opening
+    ipcRenderer.receive('open-url-error', (errorMessage) => {
+        alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
+    });
+}
+
+function initScrapePageListeners() {
+    // WIP trying to get popover to work
+    // $(function () {
+    //     $('[data-toggle="popover"]').popover({
+    //         container: 'body'
+    //     });
+    
+    //     $('[data-toggle="popover"]').on("mouseenter", function() {
+    //         console.log($(this))
+    //         $(this).popover('show');
+    //     });
+        
+    //     $('body').on('click', function(e) {
+    //         $('[data-toggle="popover"]').each(function() {
+    //             if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+    //                 $(this).popover('hide');
+    //             }
+    //         });
+    //     });
+    // })
+
+    $('#scrape-mode-toggle').popover();
 
     $('#scrape-mode-toggle').on('click', () => {
         let curr = $('#scrape-mode-toggle').html();
@@ -147,6 +179,19 @@ function attachPageEventListeners() {
         }
     });
 
+    // Submit button pressed while in Manual Data Entry Mode
+    $('#manual-submit-btn').on('click', () => {
+        let data = $('#manual-scrape-textarea').val();
+        console.log(data);
+    });
+}
+
+function initAnnotationPageListeners() {
+    // Fade in/out animation for button on annotation page
+    $('#annotation-container')
+        .on('mouseenter', function() { $('#ext-win-btn').stop( true, true ).fadeTo(500, 0.2); })
+        .on('mouseleave', function() { $('#ext-win-btn').stop( true, true ).fadeOut(500); });
+
     $('#ext-win-btn').on('click', () => {
         $('#ls-embedded').hide();
         $('#ls-external').show();
@@ -165,16 +210,6 @@ function attachPageEventListeners() {
     ipcRenderer.receive('openLSExternal-close', () => {
         $('#ls-external').hide();
         $('#ls-embedded').show();
-    });
-    
-    // Event listener for the "Exit" navigation link
-    $('#exit-nav').on('click', () => {
-        ipcRenderer.exitSignal();
-    });
-
-    // Listen for errors from main process related to URL opening
-    ipcRenderer.receive('open-url-error', (errorMessage) => {
-        alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
     });
 }
 

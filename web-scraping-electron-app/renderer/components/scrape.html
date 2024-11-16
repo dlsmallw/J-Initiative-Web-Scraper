@@ -1,7 +1,22 @@
 <!-- scrape.html -->
 <div id="scrape-container" class="my-5 container position-relative" style="display: none;">
     <h1 class="display-4">Web Scraper</h1>
-    <button class="btn btn-outline-secondary btn-sm position-absolute top-0 end-0" type="button" id="scrape-mode-toggle">Manual Mode</button>
+    <button 
+        class="
+            btn 
+            btn-outline-secondary 
+            btn-sm 
+            position-absolute 
+            top-0 
+            end-0
+            " 
+        type="button" 
+        id="scrape-mode-toggle"
+        data-content="Popover with data-trigger" 
+        rel="popover" 
+        data-placement="bottom"
+        data-original-title="Title" 
+        data-trigger="hover">Manual Mode</button>
     
     <div id="url-scrape-container">
         <h4>URL Mode</h4>
@@ -61,5 +76,11 @@
 
     <div id="manual-scrape-container">
         <h4>Manual Mode</h4>
+
+        <div class="form-group">
+            <label for="manual-scrape-textarea">Manual Data Entry Field</label>
+            <textarea class="form-control" id="manual-scrape-textarea" rows="3"></textarea>
+            <button class="btn btn-outline-secondary" type="button" id="manual-submit-btn">Submit</button>
+        </div>
     </div>
 </div>
