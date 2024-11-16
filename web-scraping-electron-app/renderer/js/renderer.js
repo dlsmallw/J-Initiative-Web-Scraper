@@ -53,6 +53,8 @@ async function initPages() {
 
     $(`#${currentPage.name}`).addClass('active-nav-item');
 
+    $('#manual-scrape-container').hide();
+
     $('#node-version').html(versions.node());
     $('#chrome-version').html(versions.chrome());
     $('#electron-version').html(versions.electron());
@@ -103,6 +105,25 @@ function attachPageEventListeners() {
     $('#annotation-container')
         .on('mouseenter', function() { $('#ext-win-btn').stop( true, true ).fadeTo(500, 0.2); })
         .on('mouseleave', function() { $('#ext-win-btn').stop( true, true ).fadeOut(500); });
+
+    $('#scrape-mode-toggle').on('click', () => {
+        let curr = $('#scrape-mode-toggle').html();
+        let next;
+
+        if (curr === 'Manual Mode') {
+            next = 'URL Mode';
+
+            $('#url-scrape-container').hide();
+            $('#manual-scrape-container').show();
+        } else {
+            next = 'Manual Mode';
+
+            $('#manual-scrape-container').hide();
+            $('#url-scrape-container').show();
+        }
+
+        $('#scrape-mode-toggle').html(next);
+    });
 
     // Event listener for the "Submit" button on the Scrape page
     $('#submitURLBtn').on('click', () => {
