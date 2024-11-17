@@ -3,6 +3,8 @@
  */
 
 // Import necessary modules from Electron and Node.js
+console.log('Renderer process loaded at', new Date().toISOString());
+
 const {app, BrowserWindow, nativeTheme, ipcMain} = require('electron');
 const path = require('node:path');
 
@@ -40,8 +42,33 @@ function createMainWindow() {
         },
     });
 
-    mainWin.on('focus', () => console.log('Main window focused'));
-    mainWin.on('blur', () => console.log('Main window lost focus'));
+    mainWin.on('focus', () => {
+        console.log('Main window regained focus at', new Date().toISOString());
+        mainWin.webContents.send('main-window-focus');
+    });
+
+    mainWin.on('blur', () => {
+    console.log('Main window lost focus at', new Date().toISOString());
+
+    const allWindows = BrowserWindow.getAllWindows();
+    console.log('All windows:', allWindows.map(win => win.getTitle()));
+
+    const focusedWindows = allWindows.filter(win => win.isFocused());
+    console.log('Currently focused windows:', focusedWindows.map(win => win.getTitle()));
+
+    console.log('Main window state:', {
+        isVisible: mainWin.isVisible(),
+        isMinimized: mainWin.isMinimized(),
+        isFocused: mainWin.isFocused(),
+    });
+
+    // Refocus main window if no other windows are focused
+    if (focusedWindows.length === 0 && !mainWin.isMinimized() && mainWin.isVisible()) {
+        console.log('No focused windows detected. Refocusing main window.');
+        mainWin.focus();
+    }
+});
+
 
     if (isDev) mainWin.webContents.openDevTools();
 
@@ -59,17 +86,18 @@ function createMainWindow() {
 function createURLWindow(url) {
     console.log('Received URL to open:', url);
 
+    // Validate the URL
     if (!isValidURL(url)) {
         console.error(`Invalid URL: ${url}`);
         dialog.showErrorBox('Invalid URL', 'The URL you entered is invalid.');
         return;
     }
 
+    // Create the URL window
     const urlWindow = new BrowserWindow({
         width: 1200,
         height: 800,
-
-        alwaysOnTop: true,
+        alwaysOnTop: true, // Keeps the window on top
         webPreferences: {
             preload: path.join(__dirname, 'url-preload.js'),
             contextIsolation: true,
@@ -79,6 +107,23 @@ function createURLWindow(url) {
 
     console.log('URL window created');
 
+   urlWindow.on('blur', () => {
+        console.log('urlWindow lost focus');
+        if (mainWin && !mainWin.isMinimized() && !mainWin.isDestroyed()) {
+            console.log('Refocusing main window from urlWindow blur');
+            mainWin.focus();
+        }
+    });
+
+    urlWindow.once('closed', () => {
+    console.log('urlWindow closed at', new Date().toISOString());
+        if (mainWin && !mainWin.isMinimized() && !mainWin.isDestroyed()) {
+            console.log('Refocusing main window');
+            mainWin.focus();
+        }
+    });
+
+    // Load the URL and show the window
     urlWindow.loadURL(url)
         .then(() => {
             console.log('URL loaded successfully:', url);
@@ -89,9 +134,8 @@ function createURLWindow(url) {
             dialog.showErrorBox('Error', 'Failed to load the URL.');
             urlWindow.close();
         });
-
-    urlWindow.on('closed', () => console.log('URL window closed'));
 }
+
 
 /**
  * Validate if a string is a valid URL.
@@ -222,6 +266,31 @@ function startBackend() {
             });
     }, 5000);
 }
+
+ipcMain.on('log-message', (event, { level, message }) => {
+    const timestamp = new Date().toISOString();
+    if (level === 'error') {
+        console.error(`[${timestamp}] [ERROR]: ${message}`);
+    } else {
+        console.log(`[${timestamp}] [INFO]: ${message}`);
+    }
+});
+// Refocus main window programmatically
+ipcMain.on('refocus-main-window', () => {
+    console.log('Refocusing main window programmatically');
+    if (mainWin && !mainWin.isFocused()) {
+        mainWin.focus();
+    }
+});
+
+setInterval(() => {
+    const focusedWindows = BrowserWindow.getAllWindows().filter(win => win.isFocused());
+    if (focusedWindows.length === 0 && mainWin && !mainWin.isMinimized()) {
+        console.log('No focused windows detected. Refocusing main window.');
+        mainWin.focus();
+    }
+}, 5000); // Check every 5 seconds
+
 
 // Start the application and backend
 initializeApp();

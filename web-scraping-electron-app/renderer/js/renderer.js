@@ -71,21 +71,27 @@ async function initPages() {
  * @param {*} event     The event corresponding to a page change.
  */
 function changePage(event) {
-    console.log('changePage triggered:', event);
+    logToMain('changePage triggered');
+     console.log('changePage triggered by:', event.type);
+    if (event.type !== 'click') {
+        console.log('Ignoring non-click event for changePage');
+        return;
+    }
     event.preventDefault();
 
     const pageName = event.target.id.split('-')[0];
     const newPage = getPage(pageName);
 
     if (currentPage.name !== newPage.name) {
+        logToMain(`Switching to tab: ${pageName}`);
         Object.values(Pages).forEach(page => $(page.id).hide());
         $(newPage.id).show();
         currentPage = newPage;
-        console.log("Page Changed To:", pageName);
     } else {
-        console.log("Page Not Changed, already on:", pageName);
+        logToMain(`Already on tab: ${pageName}`);
     }
 }
+
 
 /**
  * ========================
@@ -123,22 +129,35 @@ function displaySelectedText(text) {
  * Submit Button and URL Validation
  */
 function submitBtnPressed() {
-    console.log('Submit button pressed');
+    logToMain('Submit button pressed');
     let url = $('#url-input').val();
 
     if (url) {
         url = !url.match(/^https?:\/\//i) ? `https://${url}` : url;
         if (!isValidURL(url)) {
+            logToMain('Invalid URL entered', 'error');
             alert('Please enter a valid URL.');
             return;
         }
         ipcRenderer.send('open-url', url);
+        logToMain(`Valid URL submitted: ${url}`);
         $('#staticURL').val(url);
         $('#results-container').css('display', 'block');
     } else {
+        logToMain('No URL entered', 'error');
         alert('Please enter a URL.');
     }
 }
+
+function lockActiveTab(tabName) {
+    console.log(`Locking tab: ${tabName}`);
+    currentPage = getPage(tabName);
+    Object.keys(Pages).forEach(page => $(Pages[page].id).hide());
+    $(currentPage.id).show();
+    console.log(`Currently locked on tab: ${currentPage.name}`);
+}
+
+
 
 /**
  * ========================
@@ -165,14 +184,13 @@ function getPage(value) {
 function isValidURL(url) {
     try {
         new URL(url);
-        console.log('Valid URL:', url);
+        logToMain(`Valid URL: ${url}`);
         return true;
     } catch (error) {
-        console.error('Invalid URL:', url);
+        logToMain(`Invalid URL: ${url}`, 'error');
         return false;
     }
 }
-
 /**
  * Attach Event Listeners for Page Navigation and UI interactions
  */
@@ -185,21 +203,12 @@ function attachPageEventListeners() {
         if (event.key === 'Enter') submitBtnPressed();
     });
 }
-
-// Explicitly set the Scraper tab as active and prevent unintended tab switches
-function lockActiveTab(tabName) {
-    currentPage = getPage(tabName);
-    Object.keys(Pages).forEach(page => $(Pages[page].id).hide());
-    $(currentPage.id).show();
-    console.log(`Locked on ${tabName} tab`);
-}
-
 /**
  * IPC Event: Handle open-url event
  */
 ipcRenderer.receive('open-url', (url) => {
-    console.log('Received open-url event, opening URL in Scraper tab');
-    lockActiveTab('scrape'); // Lock the tab immediately when URL is opened
+    logToMain(`Received open-url event with URL: ${url}`);
+    lockActiveTab('scrape');
 });
 
 /**
@@ -207,20 +216,43 @@ ipcRenderer.receive('open-url', (url) => {
  */
 ipcRenderer.receive('url-loaded', async (url) => {
     try {
-        console.log('URL fully loaded, initiating scrape request');
-        lockActiveTab('scrape'); // Ensure we're still on Scraper tab if needed
+        logToMain(`URL loaded: ${url}. Initiating scrape request.`);
+        lockActiveTab('scrape');
 
         const response = JSON.parse(await ipcRenderer.invoke('scrape:request', url));
         if (response.ok) {
+            logToMain(`Scrape request successful for URL: ${url}`);
             $('#staticURL').val(response.url);
             $('#results-container').show();
             $('#formatted-data-text').text(response.formattedData);
             $('#raw-data-text').text(response.rawData);
         } else {
+            logToMain(`Scrape request failed for URL: ${url}`, 'error');
             alert("Failed to scrape the URL.");
         }
     } catch (error) {
-        console.error('Error during scraping:', error);
+        logToMain(`Error during scraping: ${error.message}`, 'error');
         alert('Failed to scrape the URL.');
     }
 });
+
+function logToMain(message, level = 'info') {
+    ipcRenderer.send('log-message', { level, message });
+}
+function logCurrentTab() {
+    console.log(`Current active tab: ${currentPage.name}`);
+}
+
+ipcRenderer.receive('main-window-focus', () => {
+    console.log('Main window regained focus in renderer');
+    lockActiveTab('scrape'); // Ensure the Scraper tab remains active
+});
+
+ipcRenderer.receive('main-window-blur', () => {
+    console.log('Main window lost focus in renderer');
+    setTimeout(() => {
+        console.log('Attempting to refocus main window...');
+        ipcRenderer.send('refocus-main-window');
+    }, 100); // Slight delay to handle transient focus shifts
+});
+

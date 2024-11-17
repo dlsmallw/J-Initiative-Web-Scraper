@@ -23,7 +23,7 @@
             // Method to send messages from renderer to main process
             send: (channel, data) => {
                 // Define a list of valid channels to limit communication to safe ones only
-                const validChannels = ['open-url', 'import-data', 'export-data', 'exit:request'];
+                const validChannels = ['open-url', 'import-data', 'export-data', 'exit:request', 'log-message', 'main-window-blur'];
                 // Only send the message if the channel is in the list of valid channels
                 if (validChannels.includes(channel)) {
                     ipcRenderer.send(channel, data);
@@ -35,7 +35,8 @@
             // Method to receive messages from the main process in the renderer process
             receive: (channel, func) => {
                 // Define a list of valid channels that the renderer can listen to
-                const validChannels = ['open-url', 'display-selected-text', 'data-imported', 'export-success', 'export-error', 'url-loaded','open-url-error'];
+                const validChannels = ['open-url', 'main-window-focus', 'display-selected-text', 'data-imported',
+                'export-success', 'export-error', 'url-loaded','open-url-error', 'main-window-blur'];
                 // Only attach a listener if the channel is in the list of valid channels
                 if (validChannels.includes(channel)) {
                     ipcRenderer.on(channel, (event, ...args) => func(...args));
