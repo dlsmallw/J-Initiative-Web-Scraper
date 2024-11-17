@@ -101,6 +101,7 @@ function attachPageEventListeners() {
     $('#about-nav').on('click', changePage);
     $('#annotation-nav').on('click', changePage);
 
+    // initializes listeners on these pages (large number of listeners)
     initScrapePageListeners();
     initAnnotationPageListeners();
     
@@ -119,28 +120,7 @@ function attachPageEventListeners() {
  * Initializes any event listeners for the Scrape page.
  */
 function initScrapePageListeners() {
-    // WIP trying to get popover to work
-    // $(function () {
-    //     $('[data-toggle="popover"]').popover({
-    //         container: 'body'
-    //     });
-    
-    //     $('[data-toggle="popover"]').on("mouseenter", function() {
-    //         console.log($(this))
-    //         $(this).popover('show');
-    //     });
-        
-    //     $('body').on('click', function(e) {
-    //         $('[data-toggle="popover"]').each(function() {
-    //             if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
-    //                 $(this).popover('hide');
-    //             }
-    //         });
-    //     });
-    // })
-
-    $('#scrape-mode-toggle').popover();
-
+    // Toggles a manual mode or a URL entry mode (URL entry is default)
     $('#scrape-mode-toggle').on('click', () => {
         let curr = $('#scrape-mode-toggle').html();
         let next;
@@ -172,16 +152,6 @@ function initScrapePageListeners() {
         }
     });
 
-    $('#submitLSURLBtn').on('click', () => {
-        lsURLSubmitted();
-    });
-
-    $('#ls-link-input').on('keypress', (event) => {
-        if (event.key === 'Enter') {
-            lsURLSubmitted();
-        }
-    });
-
     // Submit button pressed while in Manual Data Entry Mode
     $('#manual-submit-btn').on('click', () => {
         let data = $('#manual-scrape-textarea').val();
@@ -198,6 +168,7 @@ function initAnnotationPageListeners() {
         .on('mouseenter', function() { $('#ext-win-btn').stop( true, true ).fadeTo(500, 0.2); })
         .on('mouseleave', function() { $('#ext-win-btn').stop( true, true ).fadeOut(500); });
 
+    // Handles openning the LS app in an external window
     $('#ext-win-btn').on('click', () => {
         $('#ls-embedded').hide();
         $('#ls-external').show();
@@ -205,12 +176,25 @@ function initAnnotationPageListeners() {
         ipcRenderer.openLSExternal(url);
     });
 
+    // Handles when clicking the "Clear Linked Project" button
     $('#clearLSLinkBtn').on('click', () => {
         localStorage.removeItem('lsURL');
         $('#ls-set').hide();
         $('#clearLSLinkBtn').hide();
         $('#ls-not-set').show();
         setLSLink(null);
+    });
+
+    // Handles submission of new LS URL by submit button
+    $('#submitLSURLBtn').on('click', () => {
+        lsURLSubmitted();
+    });
+
+    // Handles submission of new LS URL by hitting enter
+    $('#ls-link-input').on('keypress', (event) => {
+        if (event.key === 'Enter') {
+            lsURLSubmitted();
+        }
     });
 
     ipcRenderer.receive('openLSExternal-close', () => {
@@ -258,17 +242,6 @@ function submitBtnPressed() {
         $('#staticURL').val(url);
 
         $('#results-container').css('display', 'block');
-
-        // This is the necessary code for performing a basic web scrape using the webscrape_test.py file
-        // var response = JSON.parse(await ipcRenderer.invoke('scrape:request', $('#url-input').val()));
-        // if (response.ok) {
-        //     $('#staticURL').val(response.url);
-        //     $('#results-container').show();
-        //     $('#formatted-data-text').text(response.formattedData);
-        //     $('#raw-data-text').text(response.rawData);
-        // } else {
-        //     // WIP: This is were we would handle an error response (i.e., display a "Failed to scrape web url")
-        // }
     } else {
         alert('Please enter a URL.'); // Alert the user if no URL is entered
     }
@@ -334,6 +307,9 @@ function getPage(value) {
     return Pages[Object.keys(Pages).find(e => Pages[e].name === value)];
 }
 
+/**
+ * Initializes any embedded content.
+ */
 function initEmbeddedContent() {
     const ls_url = localStorage.getItem('lsURL');
 
@@ -347,6 +323,11 @@ function initEmbeddedContent() {
     }
 }
 
+/**
+ * Method used to validate that the URL entered for linking a LS project is valid.
+ * @param {*} url       The URL.
+ * @returns             A boolean indicating if it is valid or not.
+ */
 function checkLSURL(url) {
     let lsURL;
 
@@ -381,6 +362,9 @@ function checkLSURL(url) {
     return true;
 }
 
+/**
+ * Function for handling the event where a LS URL is entered and submitted.
+ */
 function lsURLSubmitted() {
     var urlInput = $('#ls-link-input').val();
 
@@ -397,6 +381,10 @@ function lsURLSubmitted() {
     }
 }
 
+/**
+ * Function for setting the LS project URL within local storage.
+ * @param {*} url 
+ */
 function setLSLink(url) {
     if (url) {
         localStorage.setItem('lsURL', url);

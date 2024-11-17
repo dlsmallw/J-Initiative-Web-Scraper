@@ -45,9 +45,11 @@ contextBridge.exposeInMainWorld(
         exitSignal: () => {
             ipcRenderer.send('exit:request');
         },
+        // Used for openning an instance of the LS project in a separate window
         openLSExternal: (url) => {
             ipcRenderer.send('openLSExternal:request', url);
         },
+        // Used for exporting scraped data to a linked LS project
         exportScrapedData: (data) => {
             ipcRenderer.send('exportData:request', data);
         }
