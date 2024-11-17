@@ -8,6 +8,7 @@ const path = require('node:path');
 
 const { PythonShell } = require('python-shell');
 const { stopPyBackend, pingBackend, scrapeRequest } = require('./js/js-api.js');
+const { exportDataToLS } = require('./js/label-studio-api.js');
 
 // This will be needed when packaging the python code base as an executable (i.e., WIP)
 // const PROD_API_PATH = path.join(process.resourcesPath, "")
@@ -184,10 +185,14 @@ function createLSExternal(url) {
         // tell renderer to redisplay embbedded content
         mainWin.webContents.send('openLSExternal-close');
     }
-    
-
-    
 }
+
+ipcMain.on('exportData:request', (event, data) => {
+    exportDataToLS(data)
+        .then(response => {
+            console.log(response);
+        });
+});
 
 ipcMain.on('openLSExternal:request', (event, url) => {
     createLSExternal(url);

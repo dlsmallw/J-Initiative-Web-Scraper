@@ -47,6 +47,9 @@ contextBridge.exposeInMainWorld(
         },
         openLSExternal: (url) => {
             ipcRenderer.send('openLSExternal:request', url);
+        },
+        exportScrapedData: (data) => {
+            ipcRenderer.send('exportData:request', data);
         }
     }
 );

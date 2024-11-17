@@ -115,6 +115,9 @@ function attachPageEventListeners() {
     });
 }
 
+/**
+ * Initializes any event listeners for the Scrape page.
+ */
 function initScrapePageListeners() {
     // WIP trying to get popover to work
     // $(function () {
@@ -182,10 +185,13 @@ function initScrapePageListeners() {
     // Submit button pressed while in Manual Data Entry Mode
     $('#manual-submit-btn').on('click', () => {
         let data = $('#manual-scrape-textarea').val();
-        console.log(data);
+        ipcRenderer.exportScrapedData(data);
     });
 }
 
+/**
+ * Initializes any event listeners for the Annotation page.
+ */
 function initAnnotationPageListeners() {
     // Fade in/out animation for button on annotation page
     $('#annotation-container')
