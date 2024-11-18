@@ -147,7 +147,7 @@ function submitBtnPressed() {
         }
 
         // Send the URL to the main process to open it
-        ipcRenderer.send('open-url', url);
+        //ipcRenderer.send('open-url', url);
 
         // Update the results container to display the submitted URL
         $('#staticURL').val(url);
