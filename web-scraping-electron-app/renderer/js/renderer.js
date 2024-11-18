@@ -92,6 +92,10 @@ function attachPageEventListeners() {
         submitBtnPressed();
     });
 
+    $('#submitScrapeBtn').on('click', () => {
+        scrapeBtnPressed();
+    });
+
     // Event listener for the "Enter" key press in the input field
     $('#url-input').on('keypress', (event) => {
         if (event.key === 'Enter') {
@@ -223,4 +227,32 @@ function changeTheme() {
  */
 function getPage(value) {
     return Pages[Object.keys(Pages).find(e => Pages[e].name === value)];
+}
+
+
+/**
+ * Function to handle the "Scrape" button click on the Scrape page.
+ */
+ function scrapeBtnPressed() {
+    var t = getSelectionText();
+    alert(t);
+ }
+
+ // On call, retrieves whatever text the user has highlighted.
+function getSelectionText() {
+    let text = "";
+    const activeEl = document.activeElement;
+    const activeElTagName = activeEl ? activeEl.tagName.toLowerCase() : null;
+
+    if (
+      (activeElTagName == "textarea") || (activeElTagName == "input" &&
+      /^(?:text|search|password|tel|url)$/i.test(activeEl.type)) &&
+      (typeof activeEl.selectionStart == "number")
+    ) {
+        text = activeEl.value.slice(activeEl.selectionStart, activeEl.selectionEnd);
+    } else if (window.getSelection) {
+        text = window.getSelection().toString();
+    }
+
+    return text;
 }
