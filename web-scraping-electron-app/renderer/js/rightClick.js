@@ -1,7 +1,14 @@
+//const ipcRenderer = window.electronAPI;
+
+
 function highlightBtnPressed() {
   console.log("test");
-  console.log(getSelectionText());
-  alert("Test!");
+  //console.log(getSelectionText());
+  //alert("Test!");
+
+  
+  ipcRenderer.send('show-context-menu');
+  console.log("test-2");
 }
 
 // On call, retrieves whatever text the user has highlighted.

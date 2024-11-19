@@ -182,3 +182,9 @@ ipcMain.handle('scrape:request', async (event, arg) => {
 ipcMain.on('exit:request', () => {
     app.quit();
 })
+
+
+ipcMain.on('context-menu-command', (e, command) => {
+  console.log("Context menu");
+  alert("Context menu received!");
+})

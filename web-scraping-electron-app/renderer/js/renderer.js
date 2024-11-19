@@ -259,3 +259,9 @@ function getSelectionText() {
 
     return text;
 }
+
+
+window.addEventListener('contextmenu', (e) => {
+  e.preventDefault()
+  ipcRenderer.send('context-menu-command')
+})
