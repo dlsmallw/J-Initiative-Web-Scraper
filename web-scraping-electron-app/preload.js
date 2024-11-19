@@ -31,7 +31,7 @@ contextBridge.exposeInMainWorld(
         // Method to receive messages from the main process in the renderer process
         receive: (channel, func) => {
             // Define a list of valid channels that the renderer can listen to
-            const validChannels = ['open-url-error', 'openLSExternal-close'];
+            const validChannels = ['open-url-error', 'openLSExternal-close', 'updateToProjectList'];
             // Only attach a listener if the channel is in the list of valid channels
             if (validChannels.includes(channel)) {
                 ipcRenderer.on(channel, (event, ...args) => func(...args));
@@ -52,6 +52,9 @@ contextBridge.exposeInMainWorld(
         // Used for exporting scraped data to a linked LS project
         exportScrapedData: (data) => {
             ipcRenderer.send('exportData:request', data);
+        },
+        initLSVariables: (url, token) => {
+            ipcRenderer.send('initLSVariables:request', url, token);
         },
         // Used to update the URL for the linked LS project
         updateLinkedLSProject: (url) => {

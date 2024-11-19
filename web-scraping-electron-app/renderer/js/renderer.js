@@ -105,6 +105,13 @@ function attachPageEventListeners() {
     initScrapePageListeners();
     initAnnotationPageListeners();
     
+
+    // Handles receipt of updated project list
+    ipcRenderer.receive('updateToProjectList', (data) => {
+        var newProjectList = JSON.parse(data);
+        console.log(newProjectList);
+    });
+
     // Event listener for the "Exit" navigation link
     $('#exit-nav').on('click', () => {
         ipcRenderer.exitSignal();

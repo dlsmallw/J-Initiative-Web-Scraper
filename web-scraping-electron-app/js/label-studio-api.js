@@ -19,6 +19,68 @@ function requestHeader() {
     }
 }
 
+function formatProjectData(response) {
+    var numProjects = response.count;
+    var results = response.results;
+    var formattedResults = [];
+    var index = 0;
+
+    results.forEach(project => {
+        formattedResults[index] = {
+            id: project.id,
+            project_name: project.title
+        };
+
+        index += 1;
+    });
+    
+    return formattedResults;
+}
+
+function getProjects() {
+    if (APITOKEN === '') {
+        return;
+    }
+
+    try {
+        var request = {
+            method: 'get',
+            url: `${BASEURL}/api/projects`,
+            headers: requestHeader()
+        }
+
+        return new Promise((resolve, reject) => {
+            axios(request).then(function(res) {
+                if (res.status >= 200 && res.status < 300) {
+
+                    resolve({
+                        ok: true,
+                        message: "Project List Successfully Retrieved from Label Studio",
+                        results: formatProjectData(res.data)
+                    });
+                } else {
+                    reject({
+                        ok: false,
+                        message: "Error Attempting to Retrieve Project List from Label Studio"
+                    });
+                }
+            }).catch(err => {
+                reject({
+                    ok: false,
+                    stacktrace: err,
+                    message: "Error Attempting to Retrieve Project List from Label Studio"
+                });
+            })
+        });
+    } catch (err) {
+        return {
+            ok: false,
+            stacktrace: err,
+            message: "Error Attempting to Retrieve Project List from Label Studio"
+        }
+    }
+}
+
 /**
  * Formats raw string data by splitting it into an array of individual sentences.
  * @param {*} rawData       The data to be formatted.
@@ -115,10 +177,12 @@ function exportDataToLS(rawData) {
 
 function updateLinkedLSProject(url) {
     BASEURL = url;
+    APITOKEN = '';
 }
 
 function updatedAPIToken(token) {
     APITOKEN = token;
+    return getProjects();
 }
 
 function clearLinkedLSProject() {

@@ -128,6 +128,10 @@ app.on("before-quit", () => {
         });
 });
 
+/**
+ * Opens the LS project app in a separate window.
+ * @param {*} url       The url of the LS project.
+ */
 function createLSExternal(url) {
     // Create the BrowserWindow instance with specific options
     lsWindow = new BrowserWindow({
@@ -162,6 +166,7 @@ function createLSExternal(url) {
     }
 }
 
+// Handles exporting data to the linked LS project
 ipcMain.on('exportData:request', (event, data) => {
     exportDataToLS(data)
         .then(response => {
@@ -169,20 +174,42 @@ ipcMain.on('exportData:request', (event, data) => {
         });
 });
 
+// Handles openning the LS project in an external window
 ipcMain.on('openLSExternal:request', (event, url) => {
     createLSExternal(url);
 });
 
+// Handles updating the linked LS project URL
+ipcMain.on('initLSVariables:request', (event, url, token) => {
+    updateLinkedLSProject(url);
+    updatedAPIToken(token)
+        .then(result => {
+            if (result.ok) {
+                mainWin.webContents.send('updateToProjectList', JSON.stringify(result.results));
+            }
+        }).catch(err => {
+            console.log(err);
+        }); 
+});
+
+// Handles updating the linked LS project URL
 ipcMain.on('updateLinkedLS:request', (event, url) => {
     updateLinkedLSProject(url);
-    console.log(`URL: ${url}`)
 });
 
+// Handles updating the linked LS project API Token
 ipcMain.on('updateAPIToken:request', (event, token) => {
-    updatedAPIToken(token);
-    console.log(`Token: ${token}`)
+    updatedAPIToken(token)
+        .then(result => {
+            if (result.ok) {
+                mainWin.webContents.send('updateToProjectList', JSON.stringify(result.results));
+            }
+        }).catch(err => {
+            console.log(err);
+        }); 
 });
 
+// Handles clearing the linked LS project (URL and API)
 ipcMain.on('clearLinkedLS:request', () => {
     clearLinkedLSProject();
 });
