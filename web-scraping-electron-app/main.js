@@ -22,6 +22,10 @@ const isDev = !app.isPackaged;
 // Reference for the main application window
 let mainWin;
 
+//import {app, BrowserWindow} from 'electron';
+//import contextMenu from 'electron-context-menu';
+const contextMenu = (...args) => import('electron-context-menu').then(({default: fetch}) => fetch(...args));
+
 /**
  * Function to create the main application window.
  */
@@ -188,3 +192,7 @@ ipcMain.on('context-menu-command', (e, command) => {
   console.log("Context menu");
   alert("Context menu received!");
 })
+
+contextMenu({
+    showSaveImageAs: true
+});
