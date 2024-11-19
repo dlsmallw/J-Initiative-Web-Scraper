@@ -4,9 +4,9 @@
 
 const axios = require('axios').default;
 
-const APITOKEN = 'fd75d39be50497efc2992ba209a83c390c8688c5';
-const URL = 'https://dlsmallw-test.hf.space'
-const PROJECTID = '1';
+var APITOKEN = '';
+var BASEURL = ''
+var PROJECTID = '1';
 
 /**
  * Generates a request header for making requests to a specified Label Studio project.
@@ -65,7 +65,7 @@ function requestJSON(rawData) {
     if (textData !== null) {
         return {
             method: 'post',
-            url: `${URL}/api/projects/${PROJECTID}/import`,
+            url: `${BASEURL}/api/projects/${PROJECTID}/import`,
             headers: requestHeader(),
             data: textData
         }
@@ -113,4 +113,17 @@ function exportDataToLS(rawData) {
     }
 }
 
-module.exports= { exportDataToLS };
+function updateLinkedLSProject(url) {
+    BASEURL = url;
+}
+
+function updatedAPIToken(token) {
+    APITOKEN = token;
+}
+
+function clearLinkedLSProject() {
+    BASEURL = '';
+    APITOKEN = '';
+}
+
+module.exports= { exportDataToLS, updateLinkedLSProject, updatedAPIToken, clearLinkedLSProject };

@@ -178,23 +178,27 @@ function initAnnotationPageListeners() {
 
     // Handles when clicking the "Clear Linked Project" button
     $('#clearLSLinkBtn').on('click', () => {
-        localStorage.removeItem('lsURL');
-        $('#ls-set').hide();
-        $('#clearLSLinkBtn').hide();
-        $('#ls-not-set').show();
-        setLSLink(null);
+        clearLinkedLSProject();
     });
 
     // Handles submission of new LS URL by submit button
     $('#submitLSURLBtn').on('click', () => {
-        lsURLSubmitted();
+        initLSURL();
     });
 
     // Handles submission of new LS URL by hitting enter
     $('#ls-link-input').on('keypress', (event) => {
         if (event.key === 'Enter') {
-            lsURLSubmitted();
+            initLSURL();
         }
+    });
+
+    $('#update-ls-link-btn').on('click', () => {
+        updateLSURL();
+    });
+
+    $('#update-api-token-btn').on('click', () => {
+        updateLSAPIToken();
     });
 
     ipcRenderer.receive('openLSExternal-close', () => {
@@ -202,6 +206,8 @@ function initAnnotationPageListeners() {
         $('#ls-embedded').show();
     });
 }
+
+
 
 /**
  * Initializes any atypical IPC communication listeners.
@@ -312,14 +318,21 @@ function getPage(value) {
  */
 function initEmbeddedContent() {
     const ls_url = localStorage.getItem('lsURL');
+    const api_token = localStorage.getItem('apiToken');
 
     if (ls_url) {   // Label Studio project linked
         $('#annotation-iframe').attr('src', ls_url);
-        $('#ls-not-set').hide();
-        $('#ext-win-btn').show();
+        showLSEmbeddedFrame();
+
+        $('#ls-link-option').val(ls_url);
+        ipcRenderer.updateLinkedLSProject(ls_url);
+
+        if (api_token) {
+            $('#ls-api-token-option').val(api_token);
+            ipcRenderer.updateLSAPIToken(api_token);
+        }
     } else {        // No Label Studio project linked
-        $('#ls-set').hide();
-        $('#clearLSLinkBtn').hide();
+        hideLSEmbeddedFrame();
     }
 }
 
@@ -365,15 +378,13 @@ function checkLSURL(url) {
 /**
  * Function for handling the event where a LS URL is entered and submitted.
  */
-function lsURLSubmitted() {
+function initLSURL() {
     var urlInput = $('#ls-link-input').val();
 
     if (urlInput !== '') {
         if (checkLSURL(urlInput)) {
-            setLSLink(urlInput);
-            $('#ls-not-set').hide();
-            $('#ls-set').show();
-            $('#clearLSLinkBtn').show();
+            setLSURL(urlInput);
+            showLSEmbeddedFrame();
         } else {
             alert("The URL '" + urlInput + "' is not valid");
             $('#ls-link-input').val('');
@@ -382,15 +393,99 @@ function lsURLSubmitted() {
 }
 
 /**
+ * Function for updating the LS URL using the URL field within the LS Config Menu.
+ */
+function updateLSURL() {
+    var currURL = localStorage.getItem('lsURL');
+    var urlInput = $('#ls-link-option').val();
+
+    if (checkLSURL(urlInput)) {
+        setLSURL(urlInput);
+    } else {
+        alert("The URL '" + urlInput + "' is not valid");
+        $('#ls-link-option').val(currURL);
+    }
+}
+
+
+/**
  * Function for setting the LS project URL within local storage.
  * @param {*} url 
  */
-function setLSLink(url) {
+function setLSURL(url) {
     if (url) {
         localStorage.setItem('lsURL', url);
+        $('#ls-link-option').val(url);
         $('#annotation-iframe').attr('src', url);
-    } else {
-        localStorage.removeItem('lsURL');
-        $('#annotation-iframe').attr('src', "");
+        ipcRenderer.updateLinkedLSProject(url);
     }
+}
+
+/**
+ * Function for updating the API Token when using the API Field in the LS Config Menu.
+ */
+function updateLSAPIToken() {
+    let regex = /^[A-Za-z0-9]+$/g;
+
+    var tokenVal = $('#ls-api-token-option').val();
+    var currToken = localStorage.getItem('apiToken');
+
+    if (regex.test(tokenVal)) {
+        localStorage.setItem('apiToken', tokenVal);
+        setLSAPIToken(tokenVal)
+    } else {
+        alert('Invalid API Token');
+
+        if (currToken) {
+            $('#ls-api-token-option').val(currToken);
+        }
+    }
+}
+
+/**
+ * Handles the logic for changing the stored API Token value.
+ * @param {*} token         The new API Token.
+ */
+function setLSAPIToken(token) {
+    if (token) {
+        localStorage.setItem('apiToken', token);
+        $('#ls-api-token-option').val(token);
+        ipcRenderer.updateLSAPIToken(token);
+    } 
+}
+
+/**
+ * Function for handling clearing the linked LS project when clicking the "Clear Linked Project" button
+ * in the LS Config Menu.
+ */
+function clearLinkedLSProject() {
+    hideLSEmbeddedFrame();
+
+    localStorage.removeItem('lsURL');
+    $('#ls-link-option').val('');
+    $('#annotation-iframe').attr('src', "");
+
+    localStorage.removeItem('apiToken');
+    $('#ls-api-token-option').val('');
+    
+    ipcRenderer.clearLinkedLSProject();
+}
+
+/**
+ * Handles showing the LS embedded window (project linked).
+ */
+function showLSEmbeddedFrame() {
+    $('#ls-not-set').hide();
+    $('#ls-set').show();
+    $('#ls-config-accordion').show();
+}
+
+/**
+ * Handles hiding the LS Embedded window (project not linked) and showing the form
+ * for taking a new URL.
+ */
+function hideLSEmbeddedFrame() {
+    $('#ls-set').hide();
+    $('#ls-config-accordion').hide();
+    $('#ls-not-set').show();
 }

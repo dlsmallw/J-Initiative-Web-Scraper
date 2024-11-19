@@ -8,7 +8,7 @@ const path = require('node:path');
 
 const { PythonShell } = require('python-shell');
 const { stopPyBackend, pingBackend, scrapeRequest } = require('./js/js-api.js');
-const { exportDataToLS } = require('./js/label-studio-api.js');
+const { exportDataToLS, updateLinkedLSProject, updatedAPIToken, clearLinkedLSProject } = require('./js/label-studio-api.js');
 
 // This will be needed when packaging the python code base as an executable (i.e., WIP)
 // const PROD_API_PATH = path.join(process.resourcesPath, "")
@@ -91,32 +91,7 @@ function createURLWindow(url) {
     });
 }
 
-// Initializes the application depending on if in a dev or production environment.
-if (isDev) {
-    PythonShell.run(DEV_API_PATH, function(err, res) {
-        if (err) {
-            console.log(err);
-        } 
-    });
-} else {
-    // fileExecutor(PROD_API_PATH, {
-    // WIP
-    // });
-}
 
-// Used to check if the backend is up
-var failedPingCount = 0;
-var pingIntervalTest = setInterval(function() {
-    pingBackend()
-            .then(response => {
-                console.log(response.data.message);
-                clearInterval(pingIntervalTest);
-            })
-            .catch(err => {
-                failedPingCount += 1;
-                console.log("Attempted to ping the backend (attempt: " + failedPingCount + ")");
-            });
-}, 5000);
 
 // When the application is ready, create the main window
 app.whenReady().then(() => {
@@ -198,6 +173,20 @@ ipcMain.on('openLSExternal:request', (event, url) => {
     createLSExternal(url);
 });
 
+ipcMain.on('updateLinkedLS:request', (event, url) => {
+    updateLinkedLSProject(url);
+    console.log(`URL: ${url}`)
+});
+
+ipcMain.on('updateAPIToken:request', (event, token) => {
+    updatedAPIToken(token);
+    console.log(`Token: ${token}`)
+});
+
+ipcMain.on('clearLinkedLS:request', () => {
+    clearLinkedLSProject();
+});
+
 // Handles a scrape request
 ipcMain.handle('scrape:request', async (event, arg) => {
     return JSON.stringify((await scrapeRequest(arg)).data);
@@ -208,3 +197,32 @@ ipcMain.on('exit:request', () => {
     app.quit();
 });
 
+//===============================================================================================================
+// Logic to be removed
+//===============================================================================================================
+// Initializes the application depending on if in a dev or production environment.
+// if (isDev) {
+//     PythonShell.run(DEV_API_PATH, function(err, res) {
+//         if (err) {
+//             console.log(err);
+//         } 
+//     });
+// } else {
+//     // fileExecutor(PROD_API_PATH, {
+//     // WIP
+//     // });
+// }
+
+// // Used to check if the backend is up
+// var failedPingCount = 0;
+// var pingIntervalTest = setInterval(function() {
+//     pingBackend()
+//             .then(response => {
+//                 console.log(response.data.message);
+//                 clearInterval(pingIntervalTest);
+//             })
+//             .catch(err => {
+//                 failedPingCount += 1;
+//                 console.log("Attempted to ping the backend (attempt: " + failedPingCount + ")");
+//             });
+// }, 5000);

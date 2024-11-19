@@ -52,6 +52,18 @@ contextBridge.exposeInMainWorld(
         // Used for exporting scraped data to a linked LS project
         exportScrapedData: (data) => {
             ipcRenderer.send('exportData:request', data);
+        },
+        // Used to update the URL for the linked LS project
+        updateLinkedLSProject: (url) => {
+            ipcRenderer.send('updateLinkedLS:request', url);
+        },
+        // Used to update the API Token for the linked LS Project
+        updateLSAPIToken: (token) => {
+            ipcRenderer.send('updateAPIToken:request', token);
+        },
+        // Used to clear the linked LS Project (clears URL and API Token)
+        clearLinkedLSProject: () => {
+            ipcRenderer.send('clearLinkedLS:request');
         }
     }
 );
