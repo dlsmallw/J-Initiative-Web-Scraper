@@ -147,7 +147,10 @@ function submitBtnPressed() {
         }
 
         // Send the URL to the main process to open it
+        document.getElementById('iFrameResults').src = url;
+        // Turning this off to try something else
         //ipcRenderer.send('open-url', url);
+
 
         // Update the results container to display the submitted URL
         $('#staticURL').val(url);
