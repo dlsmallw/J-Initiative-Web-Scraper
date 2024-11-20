@@ -34,6 +34,9 @@ function createMainWindow() {
         minHeight: 600, // Set minimum height
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
+            contextIsolation: true, // Enable context isolation for security
+            nodeIntegration: false,  // Disable Node.js integration in the renderer process
+            webviewTag: true,        // Enable the <webview> tag
         }
     });
 
@@ -48,6 +51,7 @@ function createMainWindow() {
     // Load the main HTML file for the renderer process
     mainWin.loadFile('./renderer/index.html').then(r => "success");
 }
+
 
 /**
  * Function to create a new window to display the provided URL
@@ -174,8 +178,39 @@ app.on("before-quit", () => {
 });
 
 // Handles a scrape request
-ipcMain.handle('scrape:request', async (event, arg) => {
-    return JSON.stringify((await scrapeRequest(arg)).data);
+ipcMain.handle('scrape:request', async (event, url) => {
+    try {
+        const scraperPath = path.join(__dirname, 'backend', 'webscrape_test.py');
+        const options = {
+            mode: 'text',
+            pythonOptions: ['-u'], // unbuffered output
+            args: [url],
+            encoding: 'utf8',
+        };
+        const result = await new Promise((resolve, reject) => {
+            PythonShell.run(scraperPath, options, (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    console.log('[ipcMain] Python script results:', results);
+                    resolve(results);
+                }
+            });
+        });
+        if (!result || result.length === 0) {
+            throw new Error('No output received from Python script');
+        }
+        const parsedResult = JSON.parse(result[result.length - 1]); // Get the last line of output
+        return parsedResult;
+    } catch (error) {
+        console.error('[ipcMain] Error during scraping:', error);
+        return { ok: false, error: error.message };
+    }
+});
+
+ipcMain.on('selected-text', (event, selectedText) => {
+    console.log('Received selected text:', selectedText);
+    // Handle the selected text as needed
 });
 
 // Handles closing the application

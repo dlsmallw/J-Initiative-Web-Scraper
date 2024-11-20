@@ -4,7 +4,6 @@
 
 // Use the IPC methods exposed by the preload script
 const ipcRenderer = window.electronAPI;
-
 // Pages object to manage different sections of the application
 const Pages = {
     Home: {
@@ -33,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initializes 2-way renderer-main IPC listeners
     initIPCEventListeners();
 });
+
 
 /**
  * Initializes all the pages by loading their HTML content and setting the default page to Home
@@ -124,46 +124,31 @@ function initIPCEventListeners() {
 /**
  * Function to handle the "Submit" button click on the Scrape page.
  */
-function submitBtnPressed() {
-    console.log('Submit button pressed');
+async function submitBtnPressed() {
+    console.log('[submitBtnPressed] Function triggered');
 
-    let url = $('#url-input').val();
+    const url = $('#url-input').val().trim();
+    console.log('[submitBtnPressed] Sending scraping request for URL:', url);
 
-    // Check if a URL was entered
-    if (url) {
-        // Prepend 'https://' if no protocol is specified
-        if (!url.match(/^https?:\/\//i)) {
-            url = 'https://' + url;
+    try {
+        const response = await ipcRenderer.invoke('scrape:request', url);
+        console.log('[submitBtnPressed] Received response:', response);
+
+        if (response.ok) {
+            $('#staticURL').val(response.url);
+            $('#results-container').show();
+            $('#formatted-data-text').text(response.formattedData);
+            $('#raw-data-text').text(response.rawData);
+        } else {
+            console.error('[submitBtnPressed] Scrape failed:', response.error);
+            alert(`Failed to scrape the URL. Error: ${response.error}`);
         }
-
-        // Validate the URL format before sending
-        if (!isValidURL(url)) {
-            alert('Please enter a valid URL.');
-            return;
-        }
-
-        // Send the URL to the main process to open it
-        ipcRenderer.send('open-url', url);
-
-        // Update the results container to display the submitted URL
-        $('#staticURL').val(url);
-
-        $('#results-container').css('display', 'block');
-
-        // This is the necessary code for performing a basic web scrape using the webscrape_test.py file
-        // var response = JSON.parse(await ipcRenderer.invoke('scrape:request', $('#url-input').val()));
-        // if (response.ok) {
-        //     $('#staticURL').val(response.url);
-        //     $('#results-container').show();
-        //     $('#formatted-data-text').text(response.formattedData);
-        //     $('#raw-data-text').text(response.rawData);
-        // } else {
-        //     // WIP: This is were we would handle an error response (i.e., display a "Failed to scrape web url")
-        // }
-    } else {
-        alert('Please enter a URL.'); // Alert the user if no URL is entered
+    } catch (error) {
+        console.error('[submitBtnPressed] Error during scraping request:', error);
     }
 }
+
+
 
 /**
  * URL validation function to check if the URL is valid.
@@ -224,3 +209,34 @@ function changeTheme() {
 function getPage(value) {
     return Pages[Object.keys(Pages).find(e => Pages[e].name === value)];
 }
+
+
+// Handle navigation when "Go" button is clicked
+document.getElementById('navigate-btn').addEventListener('click', () => {
+    const url = document.getElementById('url-input').value.trim();
+    const webview = document.getElementById('webview');
+    if (url) {
+        webview.loadURL(url);
+    } else {
+        alert('Please enter a valid URL.');
+    }
+});
+
+// Handle capturing selected text when "Capture Selected Text" button is clicked
+document.getElementById('capture-btn').addEventListener('click', () => {
+    const webview = document.getElementById('webview');
+
+    webview.executeJavaScript('window.getSelection().toString();', true)
+        .then(selectedText => {
+            console.log('Selected text:', selectedText);
+            // Display the selected text in the UI
+            document.getElementById('selected-text').innerText = selectedText;
+
+            // Send the selected text to the main process for further processing
+            window.electronAPI.send('selected-text', selectedText);
+        })
+        .catch(error => {
+            console.error('Error getting selected text:', error);
+            alert('An error occurred while capturing the selected text.');
+        });
+});
