@@ -129,6 +129,10 @@ function attachPageEventListeners() {
     });
 }
 
+/**
+ * Updates the list of available projects to export to on the manual scrape page.
+ * @param {*} projects      The returned list of available projects.
+ */
 function updateProjectOptions(projects) {
     $('#projectSelect').empty();
 
@@ -203,6 +207,11 @@ function initScrapePageListeners() {
     });
 }
 
+/**
+ * Handles displaying an alert message for specific situations (error or otherwise).
+ * @param {*} alertMsg          Message to display.
+ * @param {*} cause             Cause if an error.
+ */
 function postAlert(alertMsg, cause) {
     if (cause === undefined) {
         alert(alertMsg);
@@ -212,15 +221,7 @@ function postAlert(alertMsg, cause) {
     
 }
 
-function disableManualScrape() {
-    $('#manual-submit-btn').prop('disabled', true);
-    $('#manual-scrape-textarea').prop('disabled', true);
-}
 
-function enableManualScrape() {
-    $('#manual-submit-btn').removeAttr('disabled');
-    $('#manual-scrape-textarea').removeAttr('disabled');
-}
 
 /**
  * Initializes any event listeners for the Annotation page.
@@ -269,8 +270,6 @@ function initAnnotationPageListeners() {
         $('#ls-embedded').show();
     });
 }
-
-
 
 /**
  * Initializes any atypical IPC communication listeners.
@@ -534,6 +533,10 @@ function clearLinkedLSProject() {
     ipcRenderer.clearLinkedLSProject();
 }
 
+//===========================================================================================================
+// Methods that directly change the UI
+//===========================================================================================================
+
 /**
  * Handles showing the LS embedded window (project linked).
  */
@@ -551,4 +554,20 @@ function hideLSEmbeddedFrame() {
     $('#ls-set').hide();
     $('#ls-config-accordion').hide();
     $('#ls-not-set').show();
+}
+
+/**
+ * Method for disabling the input field and button while handling a request.
+ */
+function disableManualScrape() {
+    $('#manual-submit-btn').prop('disabled', true);
+    $('#manual-scrape-textarea').prop('disabled', true);
+}
+
+/**
+ * Method for re-enabling the input field and button after handling a request.
+ */
+function enableManualScrape() {
+    $('#manual-submit-btn').removeAttr('disabled');
+    $('#manual-scrape-textarea').removeAttr('disabled');
 }
