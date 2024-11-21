@@ -107,9 +107,15 @@ function attachPageEventListeners() {
     
 
     // Handles receipt of updated project list
-    ipcRenderer.receive('updateToProjectList', (data) => {
-        var newProjectList = JSON.parse(data);
-        updateProjectOptions(newProjectList);
+    ipcRenderer.receive('updateToProjectList', (res) => {
+        var response = JSON.parse(res);
+
+        if (response.ok) {
+            updateProjectOptions(response.data);
+        } else {
+            postAlert(response.resMsg, response.errType);
+        }
+        
     });
 
     // Event listener for the "Exit" navigation link
@@ -175,19 +181,45 @@ function initScrapePageListeners() {
         let data = $('#manual-scrape-textarea').val();
         let projID = $('#projectSelect').val();
 
-        ipcRenderer.exportScrapedData(data, projID);
-        ipcRenderer.receive('exportData:response', (response) => {
-            var res = JSON.parse(response);
+        if (data === '') {
+            postAlert('Data Field Cannot Be Empty!', 'Empty String');
+        } else {
+            ipcRenderer.exportScrapedData(data, projID);
+            disableManualScrape();
 
-            if (res.ok) {
-                console.log('Data Successfully Exported');
-            } else {
-                console.log('Data Failed to be Exported');
-            }
+            ipcRenderer.receive('exportData:response', (res) => {
+                var response = JSON.parse(res);
+        
+                if (response.ok) {
+                    postAlert(response.resMsg);
+                    $('#manual-scrape-textarea').val('');
+                } else {
+                    postAlert(response.resMsg, response.errType);
+                }
 
-            $('#manual-scrape-textarea').val('');
-        })
+                enableManualScrape();
+            });
+        }
     });
+}
+
+function postAlert(alertMsg, cause) {
+    if (cause === undefined) {
+        alert(alertMsg);
+    } else {
+        alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+    }
+    
+}
+
+function disableManualScrape() {
+    $('#manual-submit-btn').prop('disabled', true);
+    $('#manual-scrape-textarea').prop('disabled', true);
+}
+
+function enableManualScrape() {
+    $('#manual-submit-btn').removeAttr('disabled');
+    $('#manual-scrape-textarea').removeAttr('disabled');
 }
 
 /**

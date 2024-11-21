@@ -6,14 +6,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('node:path');
 
-const { PythonShell } = require('python-shell');
-const { stopPyBackend, pingBackend, scrapeRequest } = require('./js/js-api.js');
-const { exportDataToLS, updateLinkedLSProject, updatedAPIToken, clearLinkedLSProject } = require('./js/label-studio-api.js');
-
-// This will be needed when packaging the python code base as an executable (i.e., WIP)
-// const PROD_API_PATH = path.join(process.resourcesPath, "")
-const DEV_API_PATH = path.join(__dirname, "./backend/backend_api.py");
-const fileExecutor = require("child_process").execFile;
+const { exportDataToLS, updateLinkedLSProject, updateAPIToken: updateAPIToken, clearLinkedLSProject } = require('./js/label-studio-api.js');
 
 // Determine if the operating system is macOS
 const isMac = process.platform === 'darwin';
@@ -91,8 +84,6 @@ function createURLWindow(url) {
     });
 }
 
-
-
 // When the application is ready, create the main window
 app.whenReady().then(() => {
     createMainWindow();
@@ -120,13 +111,13 @@ ipcMain.on('open-url', (event, url) => {
     }
 });
 
-// Kills child processes when closing the app
-app.on("before-quit", () => {
-    stopPyBackend()
-        .then(res => {
-            console.log(res.data.message);
-        });
-});
+// // Kills child processes when closing the app
+// app.on("before-quit", () => {
+//     stopPyBackend()
+//         .then(res => {
+//             console.log(res.data.message);
+//         });
+// });
 
 /**
  * Opens the LS project app in a separate window.
@@ -170,6 +161,7 @@ function createLSExternal(url) {
 ipcMain.on('exportData:request', async (event, data, projectID) => {
     exportDataToLS(data, projectID)
         .then(response => {
+            console.log(response)
             mainWin.webContents.send('exportData:response', JSON.stringify(response));
         });
 });
@@ -182,11 +174,9 @@ ipcMain.on('openLSExternal:request', (event, url) => {
 // Handles updating the linked LS project URL
 ipcMain.on('initLSVariables:request', (event, url, token) => {
     updateLinkedLSProject(url);
-    updatedAPIToken(token)
+    updateAPIToken(token)
         .then(result => {
-            if (result.ok) {
-                mainWin.webContents.send('updateToProjectList', JSON.stringify(result.results));
-            }
+            mainWin.webContents.send('updateToProjectList', JSON.stringify(result));
         }).catch(err => {
             console.log(err);
         }); 
@@ -199,11 +189,9 @@ ipcMain.on('updateLinkedLS:request', (event, url) => {
 
 // Handles updating the linked LS project API Token
 ipcMain.on('updateAPIToken:request', (event, token) => {
-    updatedAPIToken(token)
+    updateAPIToken(token)
         .then(result => {
-            if (result.ok) {
-                mainWin.webContents.send('updateToProjectList', JSON.stringify(result.results));
-            }
+            mainWin.webContents.send('updateToProjectList', JSON.stringify(result));
         }).catch(err => {
             console.log(err);
         }); 
@@ -214,11 +202,6 @@ ipcMain.on('clearLinkedLS:request', () => {
     clearLinkedLSProject();
 });
 
-// Handles a scrape request
-ipcMain.handle('scrape:request', async (event, arg) => {
-    return JSON.stringify((await scrapeRequest(arg)).data);
-});
-
 // Handles closing the application
 ipcMain.on('exit:request', () => {
     app.quit();
@@ -227,7 +210,15 @@ ipcMain.on('exit:request', () => {
 //===============================================================================================================
 // Logic to be removed
 //===============================================================================================================
-// Initializes the application depending on if in a dev or production environment.
+// const { stopPyBackend, pingBackend, scrapeRequest } = require('./js/js-api.js');
+// 
+// const { PythonShell } = require('python-shell');
+// // This will be needed when packaging the python code base as an executable (i.e., WIP)
+// // const PROD_API_PATH = path.join(process.resourcesPath, "")
+// const DEV_API_PATH = path.join(__dirname, "./backend/backend_api.py");
+// const fileExecutor = require("child_process").execFile;
+// 
+// // Initializes the application depending on if in a dev or production environment.
 // if (isDev) {
 //     PythonShell.run(DEV_API_PATH, function(err, res) {
 //         if (err) {
@@ -253,3 +244,7 @@ ipcMain.on('exit:request', () => {
 //                 console.log("Attempted to ping the backend (attempt: " + failedPingCount + ")");
 //             });
 // }, 5000);
+// 
+// ipcMain.handle('scrape:request', async (event, arg) => {
+//     return JSON.stringify((await scrapeRequest(arg)).data);
+// });

@@ -7,6 +7,21 @@ const axios = require('axios').default;
 var APITOKEN = '';
 var BASEURL = '';
 
+const RequestType = {
+    GetProjects: {
+        id: 0,
+        name: 'GetProjects',
+        successMsg: 'Project List Successfully Retrieved from Label Studio',
+        failMsg: 'Failed to Retrieve Project List from Label Studio'
+    },
+    ExportTasks: {
+        id: 1,
+        name: 'ExportTasks',
+        successMsg: 'Data Successfully Exported to Label Studio',
+        failMsg: 'Error Exporting Scraped Data to Label Studio'
+    }
+}
+
 /**
  * Generates a request header for making requests to a specified Label Studio project.
  * @returns JSON        The request header.
@@ -32,52 +47,67 @@ function formatProjectData(response) {
 
         index -= 1;
     });
+    console.log(formattedResults)
 
     return formattedResults;
 }
 
 function getProjects() {
-    if (APITOKEN === '') {
-        return;
+    var request = {
+        method: 'get',
+        url: `${BASEURL}/api/projects`,
+        headers: requestHeader()
     }
 
-    try {
-        var request = {
-            method: 'get',
-            url: `${BASEURL}/api/projects`,
-            headers: requestHeader()
-        }
+    return makeRequestToLS(request, RequestType.GetProjects);
+}
 
-        return new Promise((resolve, reject) => {
-            axios(request).then(function(res) {
-                if (res.status >= 200 && res.status < 300) {
+function makeRequestToLS(requestJSON, requestType) {
+    // Used to define an informative response to be sent back to the renderer
+    let jsonOBJ = {
+        ok: null,
+        requestType: requestType.name,
+        data: null,
+        resMsg: null,
+        errType: null
+    }
 
-                    resolve({
-                        ok: true,
-                        message: "Project List Successfully Retrieved from Label Studio",
-                        results: formatProjectData(res.data)
-                    });
+    return new Promise((resolve) => {
+        if (APITOKEN === '' || BASEURL === '') {
+            jsonOBJ.ok = false;
+            jsonOBJ.resMsg = requestType.failMsg;
+            jsonOBJ.errType = 'Token/URL Missing';
+
+            resolve(jsonOBJ);
+        } else {
+            axios(requestJSON).then(function(res) {
+                var status = res.status;
+                var statusText = res.statusText;
+    
+                if (status >= 200 && status < 300) {
+                    jsonOBJ.ok = true;
+                    jsonOBJ.resMsg = requestType.successMsg;
+                    jsonOBJ.errType = 'NONE';
+
+                    if (requestType === RequestType.GetProjects) {
+                        jsonOBJ.data = formatProjectData(res.data);
+                    }
                 } else {
-                    reject({
-                        ok: false,
-                        message: "Error Attempting to Retrieve Project List from Label Studio"
-                    });
+                    jsonOBJ.ok = false;
+                    jsonOBJ.resMsg = requestType.failMsg;
+                    jsonOBJ.errType = statusText;
                 }
+    
+                resolve(jsonOBJ);
             }).catch(err => {
-                reject({
-                    ok: false,
-                    stacktrace: err,
-                    message: "Error Attempting to Retrieve Project List from Label Studio"
-                });
-            })
-        });
-    } catch (err) {
-        return {
-            ok: false,
-            stacktrace: err,
-            message: "Error Attempting to Retrieve Project List from Label Studio"
+                jsonOBJ.ok = false;
+                jsonOBJ.errType = 'Request Failure';
+                jsonOBJ.resMsg = 'Error Encountered Making Request to Label Studio Project';
+    
+                resolve(jsonOBJ);
+            });
         }
-    }
+    });
 }
 
 /**
@@ -136,12 +166,6 @@ function requestJSON(rawData, projectID) {
 }
 
 /**
- * Makes a post request to export data to the linked LS project.
- * @param {*} rawData       The data to be exported.
- * @returns JSON            Object indicating success or failure.
- */
-
-/**
 * Makes a post request to export data to the linked LS project.
  * @param {*} rawData       The data to be exported.
  * @param {*} projectID     The ID of the project to export to.
@@ -151,33 +175,16 @@ function exportDataToLS(rawData, projectID) {
     try {
         var request = requestJSON(rawData, projectID);
 
-        return new Promise((resolve, reject) => {
-            axios(request).then(function(res) {
-                if (res.status >= 200 && res.status < 300) {
-                    resolve({
-                        ok: true,
-                        message: "Data Successfully Exported to Label Studio"
-                    });
-                } else {
-                    reject({
-                        ok: false,
-                        message: "Error Exporting Scraped Data to Label Studio"
-                    });
-                }
-            }).catch(err => {
-                reject({
-                    ok: false,
-                    stacktrace: err,
-                    message: "Error Attempting to Export Scraped Data to Label Studio"
-                });
-            })
-        });
+        return makeRequestToLS(request, RequestType.ExportTasks);
     } catch (err) {
-        return {
-            ok: false,
-            stacktrace: err,
-            message: "Error Attempting to Export Scraped Data to Label Studio"
-        }
+        return new Promise(resolve => {
+            resolve({
+                ok: false,
+                requestType: RequestType.ExportTasks,
+                resMsg: RequestType.ExportTasks.failMsg,
+                errType: err
+            });
+        });  
     }
 }
 
@@ -186,7 +193,7 @@ function updateLinkedLSProject(url) {
     APITOKEN = '';
 }
 
-function updatedAPIToken(token) {
+function updateAPIToken(token) {
     APITOKEN = token;
     return getProjects();
 }
@@ -196,4 +203,4 @@ function clearLinkedLSProject() {
     APITOKEN = '';
 }
 
-module.exports= { exportDataToLS, updateLinkedLSProject, updatedAPIToken, clearLinkedLSProject };
+module.exports= { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject };
