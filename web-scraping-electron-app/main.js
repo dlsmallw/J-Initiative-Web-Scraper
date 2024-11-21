@@ -25,6 +25,11 @@ let mainWin;
 //import {app, BrowserWindow} from 'electron';
 //import contextMenu from 'electron-context-menu';
 const contextMenu = (...args) => import('electron-context-menu').then(({default: fetch}) => fetch(...args));
+const {temp, Menu} = require('electron');
+let rightClickMenu = require('electron');
+rightClickMenu = new Menu();
+
+
 
 /**
  * Function to create the main application window.

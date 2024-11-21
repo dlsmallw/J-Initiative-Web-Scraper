@@ -1,5 +1,6 @@
 //const ipcRenderer = window.electronAPI;
 
+console.log(typeof rightClickMenu);
 
 function highlightBtnPressed() {
   console.log("test");
