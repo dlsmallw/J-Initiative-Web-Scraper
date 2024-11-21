@@ -18,7 +18,11 @@ const Pages = {
     About: {
         name: "about",
         id: '#about-container'
-    }
+    },
+   Database: {
+    name: "database",
+    id: '#database-container'
+  }
 };
 
 let currentPage;
@@ -44,7 +48,8 @@ async function initPages() {
     $('#d_content')
         .append(await $.get("components/home.html"))
         .append(await $.get("components/scrape.html"))
-        .append(await $.get("components/about.html"));
+        .append(await $.get("components/about.html"))
+        .append(await $.get("components/database.html"));
 
     $('#node-version').html(versions.node());
     $('#chrome-version').html(versions.chrome());
@@ -86,6 +91,7 @@ function attachPageEventListeners() {
     $('#home-nav').on('click', changePage);
     $('#scrape-nav').on('click', changePage);
     $('#about-nav').on('click', changePage);
+    $('#database-nav').on('click', changePage);
 
     // Event listener for the "Submit" button on the Scrape page
     $('#submitURLBtn').on('click', () => {
