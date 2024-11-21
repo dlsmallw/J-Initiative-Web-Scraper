@@ -109,7 +109,7 @@ function attachPageEventListeners() {
     // Handles receipt of updated project list
     ipcRenderer.receive('updateToProjectList', (data) => {
         var newProjectList = JSON.parse(data);
-        console.log(newProjectList);
+        updateProjectOptions(newProjectList);
     });
 
     // Event listener for the "Exit" navigation link
@@ -122,6 +122,17 @@ function attachPageEventListeners() {
         alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
     });
 }
+
+function updateProjectOptions(projects) {
+    $('#projectSelect').empty();
+
+    $.each(projects, function(i, project) {
+        $('#projectSelect').append($('<option>', {
+            value: project.id,
+            text: `${project.id} - ${project.project_name}`
+        }));
+    });
+} 
 
 /**
  * Initializes any event listeners for the Scrape page.
@@ -160,9 +171,22 @@ function initScrapePageListeners() {
     });
 
     // Submit button pressed while in Manual Data Entry Mode
-    $('#manual-submit-btn').on('click', () => {
+    $('#manual-submit-btn').on('click', async () => {
         let data = $('#manual-scrape-textarea').val();
-        ipcRenderer.exportScrapedData(data);
+        let projID = $('#projectSelect').val();
+
+        ipcRenderer.exportScrapedData(data, projID);
+        ipcRenderer.receive('exportData:response', (response) => {
+            var res = JSON.parse(response);
+
+            if (res.ok) {
+                console.log('Data Successfully Exported');
+            } else {
+                console.log('Data Failed to be Exported');
+            }
+
+            $('#manual-scrape-textarea').val('');
+        })
     });
 }
 

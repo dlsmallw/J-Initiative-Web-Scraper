@@ -5,8 +5,7 @@
 const axios = require('axios').default;
 
 var APITOKEN = '';
-var BASEURL = ''
-var PROJECTID = '1';
+var BASEURL = '';
 
 /**
  * Generates a request header for making requests to a specified Label Studio project.
@@ -23,7 +22,7 @@ function formatProjectData(response) {
     var numProjects = response.count;
     var results = response.results;
     var formattedResults = [];
-    var index = 0;
+    var index = numProjects - 1;
 
     results.forEach(project => {
         formattedResults[index] = {
@@ -31,9 +30,9 @@ function formatProjectData(response) {
             project_name: project.title
         };
 
-        index += 1;
+        index -= 1;
     });
-    
+
     return formattedResults;
 }
 
@@ -121,13 +120,13 @@ function formatRawData(rawData) {
  * @param {*} rawData       The data to be exported.
  * @returns JSON            The request object.
  */
-function requestJSON(rawData) {
+function requestJSON(rawData, projectID) {
     var textData = formatRawData(rawData);
 
     if (textData !== null) {
         return {
             method: 'post',
-            url: `${BASEURL}/api/projects/${PROJECTID}/import`,
+            url: `${BASEURL}/api/projects/${projectID}/import`,
             headers: requestHeader(),
             data: textData
         }
@@ -141,9 +140,16 @@ function requestJSON(rawData) {
  * @param {*} rawData       The data to be exported.
  * @returns JSON            Object indicating success or failure.
  */
-function exportDataToLS(rawData) {
+
+/**
+* Makes a post request to export data to the linked LS project.
+ * @param {*} rawData       The data to be exported.
+ * @param {*} projectID     The ID of the project to export to.
+ * @returns JSON            Object indicating success or failure.
+ */
+function exportDataToLS(rawData, projectID) {
     try {
-        var request = requestJSON(rawData);
+        var request = requestJSON(rawData, projectID);
 
         return new Promise((resolve, reject) => {
             axios(request).then(function(res) {

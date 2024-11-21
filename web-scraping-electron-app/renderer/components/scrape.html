@@ -77,9 +77,21 @@
     <div id="manual-scrape-container">
         <h4>Manual Mode</h4>
 
-        <div class="form-group">
-            <label for="manual-scrape-textarea">Manual Data Entry Field</label>
-            <textarea class="form-control" id="manual-scrape-textarea" rows="3"></textarea>
+        <div class="form">
+
+            <div class="form-group mb-3">
+                <label for="projectSelect">Project to Export To</label>
+                <select id="projectSelect" class="form-control">
+                    <option selected></option>
+                    <!--Options will be dynamically added-->
+                </select>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="manual-scrape-textarea">Manual Data Entry Field</label>
+                <textarea class="form-control" id="manual-scrape-textarea" rows="3"></textarea>
+            </div>
+        
             <button class="btn btn-outline-secondary" type="button" id="manual-submit-btn">Submit</button>
         </div>
     </div>

@@ -167,10 +167,10 @@ function createLSExternal(url) {
 }
 
 // Handles exporting data to the linked LS project
-ipcMain.on('exportData:request', (event, data) => {
-    exportDataToLS(data)
+ipcMain.on('exportData:request', async (event, data, projectID) => {
+    exportDataToLS(data, projectID)
         .then(response => {
-            console.log(response);
+            mainWin.webContents.send('exportData:response', JSON.stringify(response));
         });
 });
 
