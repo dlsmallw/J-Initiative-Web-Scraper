@@ -1,8 +1,16 @@
 //const ipcRenderer = window.electronAPI;
-
+/*console.log(testVar);
 console.log(typeof rightClickMenu);
 
+rightClickMenu.append(new MenuItem({
+            label: 'MenuItem1',
+            click() { 
+               console.log('item 1 clicked')
+            }
+         }))*/
+
 function highlightBtnPressed() {
+  
   console.log("test");
   //console.log(getSelectionText());
   //alert("Test!");
@@ -10,6 +18,13 @@ function highlightBtnPressed() {
   
   ipcRenderer.send('show-context-menu');
   console.log("test-2");
+
+  /*
+   window.addEventListener('contextmenu', (e) => {
+            e.preventDefault()
+            rightClickMenu.popup(remote.getCurrentWindow())
+         }, false)
+         */
 }
 
 // On call, retrieves whatever text the user has highlighted.
@@ -31,11 +46,14 @@ function getSelectionText() {
     return text;
 }
 
-
-document.addEventListener('contextmenu', function(event) {
+/*
+window.addEventListener('contextmenu', function(event) {
   // Prevent the default context menu from appearing
-  //event.preventDefault();
+  event.preventDefault();
+
+  ipcRenderer.send('show-context-menu');
 
   // Do something here, e.g., display a custom context menu
   highlightBtnPressed();
 });
+*/

@@ -25,10 +25,18 @@ let mainWin;
 //import {app, BrowserWindow} from 'electron';
 //import contextMenu from 'electron-context-menu';
 const contextMenu = (...args) => import('electron-context-menu').then(({default: fetch}) => fetch(...args));
-const {temp, Menu} = require('electron');
-let rightClickMenu = require('electron');
-rightClickMenu = new Menu();
+const {remote} = require('electron');
+const {Menu, MenuItem} = require('electron');
+const rightClickMenu = new Menu();
 
+const testVar = 1;
+
+rightClickMenu.append(new MenuItem({
+            label: 'MenuItem1',
+            click() { 
+               console.log('item 1 clicked')
+            }
+         }))
 
 
 /**
@@ -201,3 +209,23 @@ ipcMain.on('context-menu-command', (e, command) => {
 contextMenu({
     showSaveImageAs: true
 });
+
+ipcMain.on('show-context-menu', (e) => {
+
+
+        console.log("testing testing");
+        alert("in ipc main");
+        rightClickMenu.popup(remote.getCurrentWindow())
+
+        const template = [
+        {
+          label: 'Menu Item 1',
+          click: () => { event.sender.send('context-menu-command', 'menu-item-1') }
+        },
+        { type: 'separator' },
+        { label: 'Menu Item 2', type: 'checkbox', checked: true }
+      ]
+    const menu = Menu.buildFromTemplate(template)
+    menu.popup(BrowserWindow.fromWebContents(e.sender))
+
+    })

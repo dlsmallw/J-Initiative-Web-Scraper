@@ -263,5 +263,11 @@ function getSelectionText() {
 
 window.addEventListener('contextmenu', (e) => {
   e.preventDefault()
+  console.log("in renderer");
   ipcRenderer.send('context-menu-command')
+
+  const menu = Menu.buildFromTemplate(template)
+    menu.popup(BrowserWindow.fromWebContents(e.sender))
 })
+
+
