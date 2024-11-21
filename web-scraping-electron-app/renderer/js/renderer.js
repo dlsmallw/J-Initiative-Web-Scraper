@@ -67,9 +67,6 @@ async function initPages() {
         $('#chrome-version').html(versions.chrome());
         $('#electron-version').html(versions.electron());
 
-        // Attach event listeners
-        attachPageEventListeners();
-
         // Initializes embedded content
         initEmbeddedContent();
 
