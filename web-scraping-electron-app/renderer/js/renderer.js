@@ -263,7 +263,7 @@ function getSelectionText() {
 function rightClickMenuUse() {
     console.log(storedHighlightedText);
     // TODO: Send the stored variable to the relevant process
-    
+
 }
 
 // On call, retrieves whatever text the user has highlighted.
@@ -302,7 +302,7 @@ window.addEventListener('contextmenu', function(event) {
     storedHighlightedText = temp;
   }
   
-  console.log(storedHighlightedText);
+  //console.log(storedHighlightedText);
   });
 
 window.addEventListener('click', function(event) {
