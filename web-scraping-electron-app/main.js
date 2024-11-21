@@ -4,7 +4,7 @@
  */
 
 // Import necessary modules from Electron and Node.js
-const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
+const {app, BrowserWindow, nativeTheme, ipcMain} = require('electron');
 const path = require('node:path');
 
 const { PythonShell } = require('python-shell');
@@ -14,7 +14,7 @@ const { stopPyBackend, pingBackend, scrapeRequest } = require('./js/js-api.js');
 // const PROD_API_PATH = path.join(process.resourcesPath, "")
 const DEV_API_PATH = path.join(__dirname, "./backend/backend_api.py");
 const fileExecutor = require("child_process").execFile;
-
+const { dialog } = require('electron')
 // Determine if the operating system is macOS
 const isMac = process.platform === 'darwin';
 // Determine if we are in development mode or production mode
@@ -118,11 +118,28 @@ function createURLWindow(url) {
         }
     });
 
-    // Load the specified URL in the window
-    urlWindow.loadURL(url).then(() => {
-        log.info(`URL window loaded: ${url}`);
-    }).catch((error) => {
-        log.error(`Failed to load URL: ${error}`);
+    const loadingWindow = new BrowserWindow( {
+        width: 1200, // Set width of the URL window
+        height: 800,
+        webPreferences: {
+            nodeIntegration: false, // Disable Node.js integration for security
+            contextIsolation: true, // Isolate context for securitya
+        }
+    });
+
+    loadingWindow.loadFile("./renderer/assets/html/loadingscreen.html").then(r => console.log("loading screen opened successfully"))
+
+    urlWindow.hide()
+
+    // Load the specified URL in the window, catch invalid url
+    urlWindow.loadURL(url).then(r => {
+        urlWindow.show()
+        loadingWindow.close()
+    }).catch((Typeerror) => {
+            console.error(`Invalid URL: ${url}`); // Log error if URL is invalid
+            urlWindow.close()
+            dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!')
+            loadingWindow.close()
     });
 
     // Prevent the window from navigating away from the original URL
@@ -139,6 +156,7 @@ function createURLWindow(url) {
         return { action: 'deny' }; // Deny any requests to open new windows
     });
 }
+
 
 // Initializes the application depending on if in a dev or production environment.
 if (isDev) {
@@ -207,7 +225,7 @@ app.on('window-all-closed', () => {
 ipcMain.on('open-url', (event, url) => {
     log.debug(`Received 'open-url' event for URL: ${url}`);
     try {
-        createURLWindow(url); // Attempt to create a new URL window
+        createURLWindow(url)
     } catch (error) {
         // Log error if URL cannot be opened and notify the renderer process
         log.error(`Error opening URL window: ${error.message}`);
