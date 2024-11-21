@@ -87,6 +87,8 @@ function attachPageEventListeners() {
     $('#scrape-nav').on('click', changePage);
     $('#about-nav').on('click', changePage);
 
+    $('#rightClickMenu').on('click', rightClickMenuUse);
+
     // Event listener for the "Submit" button on the Scrape page
     $('#submitURLBtn').on('click', () => {
         submitBtnPressed();
@@ -147,9 +149,7 @@ function submitBtnPressed() {
         }
 
         // Send the URL to the main process to open it
-        document.getElementById('iFrameResults').src = url;
-        // Turning this off to try something else
-        //ipcRenderer.send('open-url', url);
+        ipcRenderer.send('open-url', url);
 
 
         // Update the results container to display the submitted URL
@@ -260,14 +260,51 @@ function getSelectionText() {
     return text;
 }
 
+function rightClickMenuUse() {
+    console.log(storedHighlightedText);
+    // TODO: Send the stored variable to the relevant process
+    
+}
 
-window.addEventListener('contextmenu', (e) => {
-  e.preventDefault()
-  console.log("in renderer");
-  ipcRenderer.send('context-menu-command')
+// On call, retrieves whatever text the user has highlighted.
+function getSelectionText() {
+    let text = "";
+    const activeEl = document.activeElement;
+    const activeElTagName = activeEl ? activeEl.tagName.toLowerCase() : null;
 
-  const menu = Menu.buildFromTemplate(template)
-    menu.popup(BrowserWindow.fromWebContents(e.sender))
-})
+    if (
+      (activeElTagName == "textarea") || (activeElTagName == "input" &&
+      /^(?:text|search|password|tel|url)$/i.test(activeEl.type)) &&
+      (typeof activeEl.selectionStart == "number")
+    ) {
+        text = activeEl.value.slice(activeEl.selectionStart, activeEl.selectionEnd);
+    } else if (window.getSelection) {
+        text = window.getSelection().toString();
+    }
 
+    return text;
+}
 
+let storedHighlightedText = "";
+
+window.addEventListener('contextmenu', function(event) {
+  // Prevent the default context menu from appearing
+  event.preventDefault();
+
+  ipcRenderer.send('show-context-menu');
+
+  document.getElementById("rightClickMenu").className = "showMenu";
+  document.getElementById("rightClickMenu").style.top = (event.pageY - 10) + 'px';
+  document.getElementById("rightClickMenu").style.left = (event.pageX  - 10) + 'px';
+
+  let temp = getSelectionText();
+  if(temp !== "") {
+    storedHighlightedText = temp;
+  }
+  
+  console.log(storedHighlightedText);
+  });
+
+window.addEventListener('click', function(event) {
+  document.getElementById("rightClickMenu").className = "hideMenu";
+});

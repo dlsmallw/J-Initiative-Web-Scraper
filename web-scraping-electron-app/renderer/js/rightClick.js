@@ -9,15 +9,17 @@ rightClickMenu.append(new MenuItem({
             }
          }))*/
 
-function highlightBtnPressed() {
+function highlightBtnPressed(event) {
   
-  console.log("test");
   //console.log(getSelectionText());
   //alert("Test!");
 
   
-  ipcRenderer.send('show-context-menu');
-  console.log("test-2");
+  //ipcRenderer.send('show-context-menu');
+
+  document.getElementById("rightClickMenu").className = "showMenu";
+  document.getElementById("rightClickMenu").style.top = event.pageY + 'px';
+  document.getElementById("rightClickMenu").style.left = event.pageX + 'px';
 
   /*
    window.addEventListener('contextmenu', (e) => {
@@ -52,8 +54,13 @@ window.addEventListener('contextmenu', function(event) {
   event.preventDefault();
 
   ipcRenderer.send('show-context-menu');
+  //ipcRenderer.send('context-menu-command');
 
   // Do something here, e.g., display a custom context menu
-  highlightBtnPressed();
+  highlightBtnPressed(event);
 });
-*/
+
+window.addEventListener('click', function(event) {
+  console.log("test");
+  document.getElementById("rightClickMenu").className = "hideMenu";
+});*/
