@@ -23,7 +23,7 @@ contextBridge.exposeInMainWorld(
         // Method to send messages from renderer to main process
         send: (channel, data) => {
             // Define a list of valid channels to limit communication to safe ones only
-            const validChannels = ['open-url', 'exit:request', 'log-info', 'log-debug', 'log-warn', 'log-error'];
+            const validChannels = ['open-url', 'openLSExternal:request', 'exit:request', 'log-info', 'log-debug', 'log-warn', 'log-error'];
             // Only send the message if the channel is in the list of valid channels
             if (validChannels.includes(channel)) {
                 ipcRenderer.send(channel, data);
@@ -32,7 +32,7 @@ contextBridge.exposeInMainWorld(
         // Method to receive messages from the main process in the renderer process
         receive: (channel, func) => {
             // Define a list of valid channels that the renderer can listen to
-            const validChannels = ['open-url-error'];
+            const validChannels = ['open-url-error', 'openLSExternal-close', 'updateToProjectList', 'exportData:response'];
             // Only attach a listener if the channel is in the list of valid channels
             if (validChannels.includes(channel)) {
                 ipcRenderer.on(channel, (event, ...args) => func(...args));
@@ -63,6 +63,29 @@ contextBridge.exposeInMainWorld(
         },
         logError: (message) => {
             ipcRenderer.send('log-error', message);
+        },
+        // Used for openning an instance of the LS project in a separate window
+        openLSExternal: (url) => {
+            ipcRenderer.send('openLSExternal:request', url);
+        },
+        // Used for exporting scraped data to a linked LS project
+        exportScrapedData: (data, projectID) => {
+            ipcRenderer.send('exportData:request', data, projectID);
+        },
+        initLSVariables: (url, token) => {
+            ipcRenderer.send('initLSVariables:request', url, token);
+        },
+        // Used to update the URL for the linked LS project
+        updateLinkedLSProject: (url) => {
+            ipcRenderer.send('updateLinkedLS:request', url);
+        },
+        // Used to update the API Token for the linked LS Project
+        updateLSAPIToken: (token) => {
+            ipcRenderer.send('updateAPIToken:request', token);
+        },
+        // Used to clear the linked LS Project (clears URL and API Token)
+        clearLinkedLSProject: () => {
+            ipcRenderer.send('clearLinkedLS:request');
         }
     }
 );
