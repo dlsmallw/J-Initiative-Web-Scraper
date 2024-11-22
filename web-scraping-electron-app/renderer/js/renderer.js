@@ -285,6 +285,12 @@ function getSelectionText() {
     return text;
 }
 
+function onIPCpass(text) {
+    storedHighlightedText = text;
+    // TODO: pass this along as needed
+}
+
+// global variable, used to store highlighted text as needed
 let storedHighlightedText = "";
 
 window.addEventListener('contextmenu', function(event) {
