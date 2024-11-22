@@ -65,11 +65,18 @@ function createURLWindow(url) {
         webPreferences: {
             nodeIntegration: false, // Disable Node.js integration for security
             contextIsolation: true, // Isolate context for security
+            preload: path.join(__dirname, 'preload.js'),
+            webviewTag: true
         }
     });
 
     // Load the specified URL in the window
-    urlWindow.loadURL(url);
+    // urlWindow.loadURL(url);
+
+    urlWindow.loadFile('./renderer/webview_window.html')
+        .then(() => {
+            urlWindow.webContents.send('setUrl', url);
+        });
 
     // Prevent the window from navigating away from the original URL
     urlWindow.webContents.on('will-navigate', (event, navigateUrl) => {
