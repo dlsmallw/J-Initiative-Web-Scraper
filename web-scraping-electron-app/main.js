@@ -34,9 +34,6 @@ function createMainWindow() {
         minHeight: 600, // Set minimum height
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
-            contextIsolation: true, // Enable context isolation for security
-            nodeIntegration: false,  // Disable Node.js integration in the renderer process
-            webviewTag: true,        // Enable the <webview> tag
         }
     });
 
@@ -52,6 +49,33 @@ function createMainWindow() {
     mainWin.loadFile('./renderer/index.html').then(r => "success");
 }
 
+/**
+ * Function to create the main application window.
+ */
+function createMainWindow() {
+    // Create the BrowserWindow instance with specific options
+    mainWin = new BrowserWindow({
+        frame: false,
+        width: isDev ? 1200 : 800, // Set width: larger size for development
+        height: 600, // Set height for the window
+        minWidth: isDev ? 1200 : 800, // Set minimum width to prevent shrinking beyond a set size
+        minHeight: 600, // Set minimum height
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+        }
+    });
+
+    // Open developer tools automatically if in development mode
+    if (isDev) {
+        mainWin.webContents.openDevTools();
+    }
+
+    // Disable the default application menu
+    mainWin.setMenu(null);
+
+    // Load the main HTML file for the renderer process
+    mainWin.loadFile('./renderer/index.html');
+}
 
 /**
  * Function to create a new window to display the provided URL
@@ -73,43 +97,33 @@ function createURLWindow(url) {
         webPreferences: {
             nodeIntegration: false, // Disable Node.js integration for security
             contextIsolation: true, // Isolate context for security
+            preload: path.join(__dirname, 'preload.js'),
+            webviewTag: true
         }
     });
 
-    const loadingWindow = new BrowserWindow( {
-        width: 1200, // Set width of the URL window
-        height: 800,
-        webPreferences: {
-            nodeIntegration: false, // Disable Node.js integration for security
-            contextIsolation: true, // Isolate context for securitya
-        }
+     urlWindow.loadFile('./renderer/webview_window.html')
+        .then(() => {
+            urlWindow.webContents.send('setUrl', url);
+        })
+        .catch((err) => {
+            console.error(`Failed to load webview window: ${err.message}`);
+        });
+
+    // Monitor navigation errors
+    urlWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+        console.error(`Navigation failed for ${validatedURL}: ${errorDescription} (Code: ${errorCode})`);
     });
 
-    loadingWindow.loadFile("./renderer/assets/html/loadingscreen.html").then(r => console.log("loading screen opened successfully"))
-
-    urlWindow.hide()
-
-    // Load the specified URL in the window, catch invalid url
-    urlWindow.loadURL(url).then(r => {
-        urlWindow.show()
-        loadingWindow.close()
-    }).catch((Typeerror) => {
-            console.error(`Invalid URL: ${url}`); // Log error if URL is invalid
-            urlWindow.close()
-            dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!')
-            loadingWindow.close()
-    });
-
-    // Prevent the window from navigating away from the original URL
     urlWindow.webContents.on('will-navigate', (event, navigateUrl) => {
         if (navigateUrl !== url) {
-            event.preventDefault(); // Cancel any navigation to external URLs
+            event.preventDefault();
+            console.log(`Navigation blocked to ${navigateUrl}`);
         }
     });
 
-    // Prevent the window from opening any new windows (e.g., pop-ups)
     urlWindow.webContents.setWindowOpenHandler(() => {
-        return {action: 'deny'}; // Deny any requests to open new windows
+        return { action: 'deny' };
     });
 }
 
@@ -177,43 +191,19 @@ app.on("before-quit", () => {
         });
 });
 
-// Handles a scrape request
-ipcMain.handle('scrape:request', async (event, url) => {
-    try {
-        const scraperPath = path.join(__dirname, 'backend', 'webscrape_test.py');
-        const options = {
-            mode: 'text',
-            pythonOptions: ['-u'], // unbuffered output
-            args: [url],
-            encoding: 'utf8',
-        };
-        const result = await new Promise((resolve, reject) => {
-            PythonShell.run(scraperPath, options, (err, results) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    console.log('[ipcMain] Python script results:', results);
-                    resolve(results);
-                }
-            });
-        });
-        if (!result || result.length === 0) {
-            throw new Error('No output received from Python script');
-        }
-        const parsedResult = JSON.parse(result[result.length - 1]); // Get the last line of output
-        return parsedResult;
-    } catch (error) {
-        console.error('[ipcMain] Error during scraping:', error);
-        return { ok: false, error: error.message };
-    }
-});
+ipcMain.on('scrapedData:export', (event, data) => {
+    console.log('Main process received scraped data:', data);
 
-ipcMain.on('selected-text', (event, selectedText) => {
-    console.log('Received selected text:', selectedText);
-    // Handle the selected text as needed
+    if (mainWin) {
+        mainWin.webContents.send('scrapedData:update', data);
+        console.log('Forwarded scraped data to renderer.');
+    } else {
+        console.error('Main window is not available to forward scraped data.');
+    }
 });
 
 // Handles closing the application
 ipcMain.on('exit:request', () => {
     app.quit();
 })
+

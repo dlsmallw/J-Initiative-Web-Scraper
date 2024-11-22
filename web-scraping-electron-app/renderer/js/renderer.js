@@ -31,6 +31,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initializes 2-way renderer-main IPC listeners
     initIPCEventListeners();
+
+     ipcRenderer.receive('scrapedData:update', (data) => {
+        console.log('Updating scrape.html with imported data:', data);
+
+        // Update the Formatted Data container
+        $('#formatted-data-text').html(`<p>${data.formattedData}</p>`);
+
+        // Update the Raw Data container
+        $('#raw-data-text').html(`<p>${data.rawData}</p>`);
+
+        // Ensure the results container is visible
+        $('#results-container').show();
+    });
 });
 
 
@@ -45,6 +58,11 @@ async function initPages() {
         .append(await $.get("components/home.html"))
         .append(await $.get("components/scrape.html"))
         .append(await $.get("components/about.html"));
+
+    $(`#${currentPage.name}`).addClass('active-nav-item');
+
+    $('#manual-scrape-container').hide();
+
 
     $('#node-version').html(versions.node());
     $('#chrome-version').html(versions.chrome());
@@ -65,12 +83,13 @@ function changePage(event) {
 
     // Only switch pages if the new page is different from the current page
     if (currentPage.name !== newPage.name) {
-        Object.keys(Pages).forEach(page => {
-            $(Pages[page].id).hide();
-        });
+        $(currentPage.id).hide();
+        $(`#${currentPage.name}`).removeClass('active-nav-item');
+
+        currentPage = newPage;
 
         $(newPage.id).show();
-        currentPage = newPage;
+        $(`#${currentPage.name}`).addClass('active-nav-item');
 
         console.log("Page Changed To " + pageName);
     } else {
@@ -86,6 +105,72 @@ function attachPageEventListeners() {
     $('#home-nav').on('click', changePage);
     $('#scrape-nav').on('click', changePage);
     $('#about-nav').on('click', changePage);
+    $('#annotation-nav').on('click', changePage);
+
+    // initializes listeners on these pages (large number of listeners)
+    initScrapePageListeners();
+
+    // Handles receipt of updated project list
+    ipcRenderer.receive('updateToProjectList', (res) => {
+        var response = JSON.parse(res);
+
+        if (response.ok) {
+            updateProjectOptions(response.data);
+        } else {
+            postAlert(response.resMsg, response.errType);
+        }
+
+    });
+
+    // Event listener for the "Exit" navigation link
+    $('#exit-nav').on('click', () => {
+        ipcRenderer.exitSignal();
+    });
+
+    // Listen for errors from main process related to URL opening
+    ipcRenderer.receive('open-url-error', (errorMessage) => {
+        alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
+    });
+}
+
+/**
+ * Updates the list of available projects to export to on the manual scrape page.
+ * @param {*} projects      The returned list of available projects.
+ */
+function updateProjectOptions(projects) {
+    $('#projectSelect').empty();
+
+    $.each(projects, function(i, project) {
+        $('#projectSelect').append($('<option>', {
+            value: project.id,
+            text: `${project.id} - ${project.project_name}`
+        }));
+    });
+}
+
+/**
+ * Initializes any event listeners for the Scrape page.
+ */
+function initScrapePageListeners() {
+    // Toggles a manual mode or a URL entry mode (URL entry is default)
+    $('#scrape-mode-toggle').on('click', () => {
+        let curr = $('#scrape-mode-toggle').html();
+        let next;
+
+        if (curr === 'Manual Mode') {
+            next = 'URL Mode';
+
+            $('#url-scrape-container').hide();
+            $('#manual-scrape-container').show();
+        } else {
+            next = 'Manual Mode';
+
+            $('#manual-scrape-container').hide();
+            $('#url-scrape-container').show();
+        }
+
+        $('#scrape-mode-toggle').html(next);
+    });
 
     // Event listener for the "Submit" button on the Scrape page
     $('#submitURLBtn').on('click', () => {
@@ -98,17 +183,34 @@ function attachPageEventListeners() {
             submitBtnPressed();     // Call the submit function
         }
     });
-    
-    // Event listener for the "Exit" navigation link
-    $('#exit-nav').on('click', () => {
-        ipcRenderer.exitSignal();
-    });
 
-    // Listen for errors from main process related to URL opening
-    ipcRenderer.receive('open-url-error', (errorMessage) => {
-        alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
+    // Submit button pressed while in Manual Data Entry Mode
+    $('#manual-submit-btn').on('click', async () => {
+        let data = $('#manual-scrape-textarea').val();
+        let projID = $('#projectSelect').val();
+
+        if (data === '') {
+            postAlert('Data Field Cannot Be Empty!', 'Empty String');
+        } else {
+            ipcRenderer.exportScrapedData(data, projID);
+            disableManualScrape();
+
+            ipcRenderer.receive('exportData:response', (res) => {
+                var response = JSON.parse(res);
+
+                if (response.ok) {
+                    postAlert(response.resMsg);
+                    $('#manual-scrape-textarea').val('');
+                } else {
+                    postAlert(response.resMsg, response.errType);
+                }
+
+                enableManualScrape();
+            });
+        }
     });
 }
+
 
 /**
  * Initializes any atypical IPC communication listeners.
@@ -124,31 +226,35 @@ function initIPCEventListeners() {
 /**
  * Function to handle the "Submit" button click on the Scrape page.
  */
-async function submitBtnPressed() {
-    console.log('[submitBtnPressed] Function triggered');
+function submitBtnPressed() {
+    console.log('Submit button pressed');
 
-    const url = $('#url-input').val().trim();
-    console.log('[submitBtnPressed] Sending scraping request for URL:', url);
+    let url = $('#url-input').val();
 
-    try {
-        const response = await ipcRenderer.invoke('scrape:request', url);
-        console.log('[submitBtnPressed] Received response:', response);
-
-        if (response.ok) {
-            $('#staticURL').val(response.url);
-            $('#results-container').show();
-            $('#formatted-data-text').text(response.formattedData);
-            $('#raw-data-text').text(response.rawData);
-        } else {
-            console.error('[submitBtnPressed] Scrape failed:', response.error);
-            alert(`Failed to scrape the URL. Error: ${response.error}`);
+    // Check if a URL was entered
+    if (url) {
+        // Prepend 'https://' if no protocol is specified
+        if (!url.match(/^https?:\/\//i)) {
+            url = 'https://' + url;
         }
-    } catch (error) {
-        console.error('[submitBtnPressed] Error during scraping request:', error);
+
+        // Validate the URL format before sending
+        if (!isValidURL(url)) {
+            alert('Please enter a valid URL.');
+            return;
+        }
+
+        // Send the URL to the main process to open it
+        ipcRenderer.send('open-url', url);
+
+        // Update the results container to display the submitted URL
+        $('#staticURL').val(url);
+
+        $('#results-container').css('display', 'block');
+    } else {
+        alert('Please enter a URL.'); // Alert the user if no URL is entered
     }
 }
-
-
 
 /**
  * URL validation function to check if the URL is valid.
@@ -211,32 +317,18 @@ function getPage(value) {
 }
 
 
-// Handle navigation when "Go" button is clicked
-document.getElementById('navigate-btn').addEventListener('click', () => {
-    const url = document.getElementById('url-input').value.trim();
-    const webview = document.getElementById('webview');
-    if (url) {
-        webview.loadURL(url);
-    } else {
-        alert('Please enter a valid URL.');
-    }
-});
+/**
+ * Method for disabling the input field and button while handling a request.
+ */
+function disableManualScrape() {
+    $('#manual-submit-btn').prop('disabled', true);
+    $('#manual-scrape-textarea').prop('disabled', true);
+}
 
-// Handle capturing selected text when "Capture Selected Text" button is clicked
-document.getElementById('capture-btn').addEventListener('click', () => {
-    const webview = document.getElementById('webview');
-
-    webview.executeJavaScript('window.getSelection().toString();', true)
-        .then(selectedText => {
-            console.log('Selected text:', selectedText);
-            // Display the selected text in the UI
-            document.getElementById('selected-text').innerText = selectedText;
-
-            // Send the selected text to the main process for further processing
-            window.electronAPI.send('selected-text', selectedText);
-        })
-        .catch(error => {
-            console.error('Error getting selected text:', error);
-            alert('An error occurred while capturing the selected text.');
-        });
-});
+/**
+ * Method for re-enabling the input field and button after handling a request.
+ */
+function enableManualScrape() {
+    $('#manual-submit-btn').removeAttr('disabled');
+    $('#manual-scrape-textarea').removeAttr('disabled');
+}

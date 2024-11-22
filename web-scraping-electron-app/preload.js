@@ -22,7 +22,7 @@ contextBridge.exposeInMainWorld(
         // Method to send messages from renderer to main process
         send: (channel, data) => {
             // Define a list of valid channels to limit communication to safe ones only
-            const validChannels = ['open-url', 'selected-text'];
+             const validChannels = ['open-url','scrapedData:export'];
             // Only send the message if the channel is in the list of valid channels
             if (validChannels.includes(channel)) {
                 ipcRenderer.send(channel, data);
@@ -31,7 +31,7 @@ contextBridge.exposeInMainWorld(
         // Method to receive messages from the main process in the renderer process
         receive: (channel, func) => {
             // Define a list of valid channels that the renderer can listen to
-            const validChannels = ['open-url-error', 'fromMain'];
+             const validChannels = ['open-url-error', 'updateToProjectList', 'scrapedData:update'];
             // Only attach a listener if the channel is in the list of valid channels
             if (validChannels.includes(channel)) {
                 ipcRenderer.on(channel, (event, ...args) => func(...args));
@@ -47,4 +47,19 @@ contextBridge.exposeInMainWorld(
         }
     }
 );
+
+contextBridge.exposeInMainWorld('urlScrape', {
+    send: (channel, data) => {
+        const validChannels = ['scrapedData:export'];
+        if (validChannels.includes(channel)) {
+            ipcRenderer.send(channel, data);
+        }
+    },
+    receive: (channel, func) => {
+        const validChannels = ['setUrl'];
+        if (validChannels.includes(channel)) {
+            ipcRenderer.on(channel, (event, ...args) => func(...args));
+        }
+    }
+});
 
