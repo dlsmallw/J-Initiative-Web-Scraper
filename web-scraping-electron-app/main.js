@@ -201,6 +201,8 @@ ipcMain.on('exit:request', () => {
 })
 
 
+// This code here does not work. It doesn't cause errors, but doesn't seem to work
+/*
 ipcMain.on('context-menu-command', (e, command) => {
   console.log("Context menu");
   alert("Context menu received!");
@@ -229,3 +231,4 @@ ipcMain.on('show-context-menu', (e) => {
     menu.popup(BrowserWindow.fromWebContents(e.sender))
 
     })
+    */
