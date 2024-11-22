@@ -315,3 +315,20 @@ window.addEventListener('contextmenu', function(event) {
 window.addEventListener('click', function(event) {
   document.getElementById("rightClickMenu").className = "hideMenu";
 });
+
+/*
+onload = () => {
+    const webview = document.querySelector('webview')
+    const indicator = document.querySelector('.indicator')
+
+    const loadstart = () => {
+      indicator.innerText = 'loading...'
+    }
+
+    const loadstop = () => {
+      indicator.innerText = ''
+    }
+
+    webview.addEventListener('did-start-loading', loadstart)
+    webview.addEventListener('did-stop-loading', loadstop)
+  }*/
