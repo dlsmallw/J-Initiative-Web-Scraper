@@ -6,7 +6,7 @@ from sys import maxsize
 from sqlalchemy import *
 
 """
-@author Natel Whitaker
+@author Natel Whitaker, Jackson Woodside
 Python program to create and initialize database with tables, followed by filling the tables with contents to represent future usage with scraped data.
 """
 
@@ -19,6 +19,17 @@ class StatusEnum(enum.Enum):
     offline = 2
     error = 3
 
+def query_database_table(tableName):
+    """
+    returns a select query to whichever table is specified
+    args:
+    tableName - the name of the table to query, can only be one of the three tables defined below
+    """
+    if tableName != "website_data" and tableName != "web_pages" and tableName != "scraped_data":
+        return
+
+    result = select(tableName)
+    return result
 
 def insert_website_data(site_url, site_name, site_status):
     """
@@ -99,5 +110,10 @@ if __name__ == '__main__':
     conn.execute(insert_website_data('example url', 'Example website', StatusEnum.online))
     conn.execute(insert_web_pages(1, 'example title', 'example content', 'example url', datetime.now()))
     conn.execute(insert_scraped_data(1, 'example data'))
+
+    #example querying of database tables
+    conn.execute(query_database_table('website_data'))
+    conn.execute(query_database_table('web_pages'))
+    conn.execute(query_database_table('scraped_data'))
 
     conn.commit()
