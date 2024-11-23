@@ -3,7 +3,7 @@
 # Creastes the environment and installs all dependencies
 build() {
     clean 
-    yarn run build:node
+    yarn install
 
     python -m venv .venv
     source .venv/Scripts/activate
@@ -14,6 +14,8 @@ build() {
 
 # Cleans the project directory of unnecessary files
 clean() {
+    rm -rf package-lock.json
+
     if [ -d ./.venv ]; 
     then
         deactivate
