@@ -69,6 +69,8 @@ function createURLWindow(url) {
         webPreferences: {
             nodeIntegration: false, // Disable Node.js integration for security
             contextIsolation: true, // Isolate context for security
+            preload: path.join(__dirname, 'preload.js'),
+            webviewTag: true
         }
     });
 
@@ -81,14 +83,18 @@ function createURLWindow(url) {
         }
     });
 
-    loadingWindow.loadFile("./renderer/assets/html/loadingscreen.html").then(r => console.log("loading screen opened successfully"))
+    loadingWindow.loadFile('./renderer/assets/html/loadingscreen.html')
+    .then(() => console.log("Loading screen opened successfully"))
+    .catch((err) => console.error(`Failed to open loading screen: ${err.message}`));
 
     urlWindow.hide()
 
     // Load the specified URL in the window, catch invalid url
-    urlWindow.loadURL(url).then(r => {
-        urlWindow.show()
-        loadingWindow.close()
+    urlWindow.loadFile('./renderer/webview_window.html')
+        .then(() => {
+            urlWindow.webContents.send('setUrl', url);
+            urlWindow.show();
+            loadingWindow.close();
     }).catch((Typeerror) => {
             console.error(`Invalid URL: ${url}`); // Log error if URL is invalid
             urlWindow.close()
@@ -96,10 +102,15 @@ function createURLWindow(url) {
             loadingWindow.close()
     });
 
+    urlWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+        console.error(`Navigation failed for ${validatedURL}: ${errorDescription} (Code: ${errorCode})`);
+    });
+
     // Prevent the window from navigating away from the original URL
     urlWindow.webContents.on('will-navigate', (event, navigateUrl) => {
         if (navigateUrl !== url) {
             event.preventDefault(); // Cancel any navigation to external URLs
+            console.log(`Navigation blocked to ${navigateUrl}`);
         }
     });
 
@@ -176,6 +187,17 @@ app.on("before-quit", () => {
 // Handles a scrape request
 ipcMain.handle('scrape:request', async (event, arg) => {
     return JSON.stringify((await scrapeRequest(arg)).data);
+});
+
+ipcMain.on('scrapedData:export', (event, data) => {
+    console.log('Main process received scraped data:', data);
+
+    if (mainWin) {
+        mainWin.webContents.send('scrapedData:update', data);
+        console.log('Forwarded scraped data to renderer.');
+    } else {
+        console.error('Main window is not available to forward scraped data.');
+    }
 });
 
 // Handles closing the application

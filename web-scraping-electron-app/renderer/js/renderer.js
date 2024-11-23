@@ -32,6 +32,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initializes 2-way renderer-main IPC listeners
     initIPCEventListeners();
+
+    ipcRenderer.receive('scrapedData:update', (data) => {
+        console.log('Updating scrape.html with imported data:', data);
+
+        // Update the Formatted Data container
+        $('#formatted-data-text').html(`<p>${data.formattedData}</p>`);
+
+        // Update the Raw Data container
+        $('#raw-data-text').html(`<p>${data.rawData}</p>`);
+
+        // Ensure the results container is visible
+        $('#results-container').show();
+    });
 });
 
 /**

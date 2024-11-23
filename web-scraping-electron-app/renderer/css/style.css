@@ -330,3 +330,7 @@ body {
 input[readonly].default-cursor {
     cursor: default;
 }
+
+#ext-url-window {
+    height: 70vh;
+}
