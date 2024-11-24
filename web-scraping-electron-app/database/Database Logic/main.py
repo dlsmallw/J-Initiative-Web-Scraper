@@ -10,7 +10,6 @@ from sqlalchemy import *
 Python program to create and initialize database with tables, followed by filling the tables with contents to represent future usage with scraped data.
 """
 
-
 class StatusEnum(enum.Enum):
     """
     enum for the status of the websites added to website data
@@ -19,16 +18,16 @@ class StatusEnum(enum.Enum):
     offline = 2
     error = 3
 
-def query_database_table(tableName):
+def query_database_table(table_name):
     """
     returns a select query to whichever table is specified
     args:
-    tableName - the name of the table to query, can only be one of the three tables defined below
+    tableName - the name of the table to query, can only be one of the three tables defined below or otherwise returns nothing
     """
-    if tableName != "website_data" and tableName != "web_pages" and tableName != "scraped_data":
+    if table_name.lower() != "website_data" and table_name.lower() != "web_pages" and table_name.lower() != "scraped_data":
         return
 
-    result = select(tableName)
+    result = select(table_name)
     return result
 
 def insert_website_data(site_url, site_name, site_status):
@@ -55,7 +54,6 @@ def insert_web_pages(page_website_id, page_title, page_content, page_url, page_l
     return Web_Pages.insert().values(website_id=page_website_id, title=page_title, content=page_content, url=page_url,
                                      last_scraped=page_last_scraped)
 
-
 def insert_scraped_data(scraped_page_id, scraped_data):
     """
        returns an executable sql statement to insert entries into the scraped data table
@@ -64,7 +62,6 @@ def insert_scraped_data(scraped_page_id, scraped_data):
        scraped_data - scraped data from the page
        """
     return Scraped_Data.insert().values(page_id=scraped_page_id, data=scraped_data)
-
 
 if __name__ == '__main__':
     databaseCreated = os.path.isfile('NLPDatabase.db')
@@ -115,5 +112,8 @@ if __name__ == '__main__':
     conn.execute(query_database_table('website_data'))
     conn.execute(query_database_table('web_pages'))
     conn.execute(query_database_table('scraped_data'))
+
+    #example of a non-table request not breaking the program
+    conn.execute(query_database_table('i_am_not_a_table'))
 
     conn.commit()
