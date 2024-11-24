@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     var webview = document.getElementById('ext-url-window');
+    webview.executeJavaScript("alert('test');");
     //webview.getSettings().setJavaScriptEnabled(true);
 
     $('#importSelectedBtn').on('click', () => {
