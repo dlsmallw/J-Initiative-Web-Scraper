@@ -55,29 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#importSelectedBtn').on('click', () => {
         webview.send('getSelected');
     });
-    /*
-    webview.addEventListener('contextmenu', function(event) {
-        // Prevent the default context menu from appearing
-        event.preventDefault();
 
-        showMenu(event);
-    });
-
-    webview.addEventListener(('click', function(event) => {
-        var menu = document.getElementById("importedRightClickMenu");
-        // check if the click was in the expected region of the menu.
-        const menuDims = menu.getBoundingClientRect();
-        if((event.pageX >= menuDims.left) && (event.pageX <= menuDims.right) &&
-            (event.pageY >= menuDims.top) && (event.pageY <= menuDims.bottom)) {
-            importText();
-
-        }
-        else {
-            hideMenu();
-        }
-
-    });
-    */
     webview.addEventListener('ipc-message', function(event, selection) {
         $('#imported_textarea').val(event.args[0]);
     });
