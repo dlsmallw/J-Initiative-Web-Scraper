@@ -52,29 +52,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     var webview = document.getElementById('ext-url-window');
+    //webview.getSettings().setJavaScriptEnabled(true);
 
     $('#importSelectedBtn').on('click', () => {
         webview.send('getSelected');
     });
 
     webview.addEventListener('ipc-message', function(event, selection) {
+        alert("ipc  message");
         $('#imported_textarea').val(event.args[0]);
     });
 
-    webview.addEventListener('contextmenu', function(event) {
-        alert("test");
+    document.getElementById('ext-url-window').contentWindow.addEventListener('contextmenu', function(event) {
+        //alert("test");
         // Prevent the default context menu from appearing
         //  event.preventDefault();
-        webview.console.log("Test");
+        //webview.console.log("Test");
         showMenu(event);
         console.log("click");
     });
 
 
-    webview.addEventListener('click', function(event) {
-        alert("test");
-        webview.console.log("click");
-        console.log("click");
+    document.getElementById('ext-url-window').contentWindow.addEventListener('click', function(event) {
+        //alert("test");
+        //console.log(document.getElementById('ext-url-window').contentWindow.constructor.name);
+        //document.getElementById('ext-url-window')
+        //var t = Object.getOwnPropertyNames(document.getElementById('ext-url-window').contentWindow);
+        //console.log(t.toString());
+        //webview.console.log("click");
+        //console.log("click");
         
         var menu = document.getElementById("importedRightClickMenu");
         // check if the click was in the expected region of the menu.
@@ -82,10 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if((event.pageX >= menuDims.left) && (event.pageX <= menuDims.right) &&
             (event.pageY >= menuDims.top) && (event.pageY <= menuDims.bottom)) {
             importText();
-
+            console.log("imported");
         }
         else {
             hideMenu();
+            console.log("hidden");
         }
 
     });
