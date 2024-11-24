@@ -1,12 +1,14 @@
 const ipcRenderer = window.urlScrape;
 
+let menuVisible = false;
+
 function createRightClickMenu() {
     
     var menu = document.createElement('div');
     menu.id = "importedRightClickMenu";
     menu.style.zIndex = 1000;
     menu.style.position = "absolute";
-    menu.style.display = "none";
+    menu.style.display = "block";
     menu.style.border = "1px solid black";
     menu.style.borderRadius = "4px";
     menu.style.padding = "2px";
@@ -21,11 +23,33 @@ function createRightClickMenu() {
     menu.appendChild(textNode);
 
     document.body.appendChild(menu);
-    
 
 }
 
+function createTopLayer() {
+    var layer = document.createElement('div');
+    layer.id = "topLayer";
+    layer.style.zIndex = 999;
+    layer.style.position = "absolute";
+    layer.style.display = "block";
+    layer.style.minWidth = window.innerWidth + "px";
+    layer.style.minHeight = window.innerHeight + "px";
+    //layer.style.backgroundColor = "#ff0000";
+
+    layer.addEventListener('click', catchClick(event));
+    layer.addEventListener('contextmenu', function(event) {
+        catchRightClick(event);
+    });
+    //layer.addEventListener('contextmenu', catchRightClick(event));
+    document.body.appendChild(layer);
+}
+
+function catchRightClick(event) {
+    showMenu(event);
+}
+
 function catchClick(event) {
+    //alert("catch click: " + event.srcElement);
     var menu = document.getElementById("importedRightClickMenu");
     // check if the click was in the expected region of the menu.
     const menuDims = menu.getBoundingClientRect();
@@ -50,17 +74,22 @@ function showMenu(event) {
 
     menu.style.top = (event.pageY - 10) + 'px';
     menu.style.left = (event.pageX  - 10) + 'px';
+
+    menuVisible = true;
 }
 
 function hideMenu() {
     var menu = document.getElementById("importedRightClickMenu");
-    menu.style.display = "none";
+
+    menuVisible = false;
+    //menu.style.display = "none";
 }
 
 
 document.addEventListener('DOMContentLoaded', () => {
     
     createRightClickMenu();
+    createTopLayer();
 
     ipcRenderer.receive('setUrl', (url) => {
         $('#ext-url-window').attr('src', url);
@@ -76,21 +105,25 @@ document.addEventListener('DOMContentLoaded', () => {
     //webview.executeJavaScript("alert('test');");
     //webview.getSettings().setJavaScriptEnabled(true);
 
+    webview.contentWindow.addEventListener('click', catchClick(event));
+
+
     $('#importSelectedBtn').on('click', () => {
         webview.send('getSelected');
 
-        document.addEventListener('click', catchClick(event));
+        document.getElementById('ext-url-window').addEventListener('click', catchClick(event));
         alert("add");
     });
 
     webview.addEventListener('ipc-message', function(event, selection) {
         $('#imported_textarea').val(event.args[0]);
-        document.getElementById('ext-url-window').addEventListener('click', catchClick(event));
+        //document.getElementById('ext-url-window').addEventListener('click', catchClick(event));
         alert("added");
     });
 
+    document.addEventListener('click', () => {alert("click")});
 
-
+    /*
     document.getElementById('ext-url-window').contentWindow.addEventListener('contextmenu', function(event) {
         //alert("test");
         // Prevent the default context menu from appearing
@@ -99,8 +132,9 @@ document.addEventListener('DOMContentLoaded', () => {
         showMenu(event);
         console.log("click");
     });
+    */
 
-    document.addEventListener('click', catchClick(event));
+    //document.addEventListener('click', catchClick(event));
 
     document.getElementById('ext-url-window').contentWindow.addEventListener('click', function(event) {
         //alert("test");
@@ -111,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
         //webview.console.log("click");
         //console.log("click");
         
-        catchClick(event);
+        //catchClick(event);
 
     });
 });
