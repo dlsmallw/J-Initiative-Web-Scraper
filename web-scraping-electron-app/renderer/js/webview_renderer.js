@@ -25,6 +25,21 @@ function createRightClickMenu() {
 
 }
 
+function catchClick(event) {
+    var menu = document.getElementById("importedRightClickMenu");
+    // check if the click was in the expected region of the menu.
+    const menuDims = menu.getBoundingClientRect();
+    if((event.pageX >= menuDims.left) && (event.pageX <= menuDims.right) &&
+        (event.pageY >= menuDims.top) && (event.pageY <= menuDims.bottom)) {
+        importText();
+        console.log("imported");
+    }
+    else {
+        hideMenu();
+        console.log("hidden");
+    }
+}
+
 function importText() {
     webview.send('getSelected');
 }
@@ -49,20 +64,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     ipcRenderer.receive('setUrl', (url) => {
         $('#ext-url-window').attr('src', url);
+
+
+        //document.getElementById('ext-url-window').addEventListener('click', catchClick(event));
+
+        //alert("added");
+
     });
 
     var webview = document.getElementById('ext-url-window');
-    webview.executeJavaScript("alert('test');");
+    //webview.executeJavaScript("alert('test');");
     //webview.getSettings().setJavaScriptEnabled(true);
 
     $('#importSelectedBtn').on('click', () => {
         webview.send('getSelected');
+
+        document.addEventListener('click', catchClick(event));
+        alert("add");
     });
 
     webview.addEventListener('ipc-message', function(event, selection) {
-        alert("ipc  message");
         $('#imported_textarea').val(event.args[0]);
+        document.getElementById('ext-url-window').addEventListener('click', catchClick(event));
+        alert("added");
     });
+
+
 
     document.getElementById('ext-url-window').contentWindow.addEventListener('contextmenu', function(event) {
         //alert("test");
@@ -73,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("click");
     });
 
+    document.addEventListener('click', catchClick(event));
 
     document.getElementById('ext-url-window').contentWindow.addEventListener('click', function(event) {
         //alert("test");
@@ -83,18 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         //webview.console.log("click");
         //console.log("click");
         
-        var menu = document.getElementById("importedRightClickMenu");
-        // check if the click was in the expected region of the menu.
-        const menuDims = menu.getBoundingClientRect();
-        if((event.pageX >= menuDims.left) && (event.pageX <= menuDims.right) &&
-            (event.pageY >= menuDims.top) && (event.pageY <= menuDims.bottom)) {
-            importText();
-            console.log("imported");
-        }
-        else {
-            hideMenu();
-            console.log("hidden");
-        }
+        catchClick(event);
 
     });
 });
