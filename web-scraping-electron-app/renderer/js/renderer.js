@@ -30,21 +30,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize pages by loading their content
     initPages();
 
+    // Initialize the listener for scraped data updates
+    initScrapedDataListener();
+
     // Log that the renderer process is ready
     logInfo('Renderer process is ready.');
 
-    ipcRenderer.receive('scrapedData:update', (data) => {
-        console.log('Updating scrape.html with imported data:', data);
 
-        // Update the Formatted Data container
-        $('#formatted-data-text').html(`<p>${data.formattedData}</p>`);
-
-        // Update the Raw Data container
-        $('#raw-data-text').html(`<p>${data.rawData}</p>`);
-
-        // Ensure the results container is visible
-        $('#results-container').show();
-   });
 });
 
 //============================================================================================================================
@@ -104,6 +96,28 @@ function attachPageEventListeners() {
         alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
     });
 }
+
+/**
+ * Initializes the listener for scraped data updates.
+ * Handles incoming data and updates the scrape.html view dynamically.
+ */
+function initScrapedDataListener() {
+    ipcRenderer.receive('scrapedData:update', (data) => {
+        console.log('Updating scrape.html with imported data:', data);
+
+        // Update the Formatted Data container
+        $('#formatted-data-text').html(`<p>${data.formattedData}</p>`);
+
+        // Update the Raw Data container
+        $('#raw-data-text').html(`<p>${data.rawData}</p>`);
+
+        // Ensure the results container is visible
+        $('#results-container').show();
+    });
+
+    logDebug('Initialized listener for scraped data updates.');
+}
+
 
 //============================================================================================================================
 // Methods for handling changing the page
