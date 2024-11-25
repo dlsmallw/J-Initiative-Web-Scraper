@@ -15,14 +15,19 @@ const Pages = {
         name: "scrape",
         id: '#scrape-container'
     },
-    About: {
-        name: "about",
-        id: '#about-container'
-    },
     LabelStudio: {
         name: "annotation",
         id: '#annotation-container'
+    },
+    Database: {
+        name: "database",
+        id: '#database-container'
+    },
+    About: {
+        name: "about",
+        id: '#about-container'
     }
+    
 };
 
 let currentPage;
@@ -49,6 +54,7 @@ async function initPages() {
         .append(await $.get("components/home.html"))
         .append(await $.get("components/scrape.html"))
         .append(await $.get("components/about.html"))
+        .append(await $.get("components/database.html"))
         .append(await $.get("components/annotation.html"));
 
     $(`#${currentPage.name}`).addClass('active-nav-item');
@@ -100,6 +106,7 @@ function attachPageEventListeners() {
     $('#scrape-nav').on('click', changePage);
     $('#about-nav').on('click', changePage);
     $('#annotation-nav').on('click', changePage);
+    $('#database-nav').on('click', changePage);
 
     // initializes listeners on these pages (large number of listeners)
     initScrapePageListeners();
