@@ -114,11 +114,27 @@ function createURLWindow(url) {
         }
     });
 
-    // Load the specified URL in the window
-    urlWindow.loadURL(url).then(() => {
+    const loadingWindow = new BrowserWindow( {
+        width: 1200, // Set width of the URL window
+        height: 800,
+        webPreferences: {
+            nodeIntegration: false, // Disable Node.js integration for security
+            contextIsolation: true, // Isolate context for securitya
+        }
+    });
+
+    loadingWindow.loadFile("loadingscreen.html").then(r => log.info("loading screen opened successfully"));
+
+    // Load the specified URL in the window, catch invalid url
+    urlWindow.loadURL(url).then(r => {
+        urlWindow.show();
+        loadingWindow.close();
         log.info(`URL window loaded: ${url}`);
     }).catch((error) => {
-        log.error(`Failed to load URL: ${error}`);
+            urlWindow.close();
+            dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!');
+            log.error(`Failed to load URL: ${error}`);
+            loadingWindow.close();
     });
 
     // Prevent the window from navigating away from the original URL
@@ -167,7 +183,7 @@ app.on('window-all-closed', () => {
 ipcMain.on('open-url', (event, url) => {
     log.debug(`Received 'open-url' event for URL: ${url}`);
     try {
-        createURLWindow(url); // Attempt to create a new URL window
+        createURLWindow(url)
     } catch (error) {
         // Log error if URL cannot be opened and notify the renderer process
         log.error(`Error opening URL window: ${error.message}`);
