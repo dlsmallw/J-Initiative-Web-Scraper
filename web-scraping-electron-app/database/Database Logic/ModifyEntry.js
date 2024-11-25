@@ -1,0 +1,52 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { collection, addDoc, getDocs, where, deleteDoc, query, updateDoc} from "firebase/firestore";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAhqRcDSUGoTiEka890A53u7cjS0J1IH48",
+  authDomain: "ser-401-group8-firebase.firebaseapp.com",
+  projectId: "ser-401-group8-firebase",
+  storageBucket: "ser-401-group8-firebase.firebasestorage.app",
+  messagingSenderId: "346387119771",
+  appId: "1:346387119771:web:71d09aec636a6b1c06503e",
+  measurementId: "G-QX3095X9GX"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+// Initialize Cloud Firestore and get a reference to the service
+const db = getFirestore(app);
+
+try {
+
+  const querySnapshot = await getDocs(query(
+    collection(db, "TestWebsite1"),
+    where("url", "==", "website1.com")
+  ));
+  const docRef = querySnapshot.docs[0].ref;
+  await updateDoc(docRef, {
+    url: "website2.com",
+    status: "offline",
+  });
+
+
+  const querySnapshot2 = await getDocs(query(
+    collection(db, "TestWebsite1"),
+    where("title", "==", "title of a page in website1")
+  ));
+  const docRef2 = querySnapshot2.docs[0].ref;
+  await updateDoc(docRef2, {
+    title: "title 2",
+    scraped_data: "scraped data from website2",
+  });
+
+  console.log("Documents edited");
+} catch (e) {
+  console.error("Error adding document: ", e);
+}
+process.exit(0);

@@ -9,7 +9,8 @@
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self';
-        connect-src 'self';
+        connect-src 'self' * 'unsafe-inline' 'unsafe-eval';
+        frame-src * 'unsafe-inline' 'unsafe-eval';
         img-src 'self' data:;
         style-src 'self' 'unsafe-inline';">
 
@@ -22,22 +23,28 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-sm navbar-dark">
+    <nav class="navbar navbar-expand-sm navbar-dark fixed-top draggable">
         <div class="container-fluid">
             <span class="navbar-brand mb-0 h1">Web Scraper</span>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+            <button class="navbar-toggler not-draggable" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <!-- Navigation Links -->
-                <ul class="navbar-nav mb-0">
-                    <li class="nav-item">
+                <ul class="navbar-nav mb-0 not-draggable">
+                    <li class="nav-item" id="home">
                         <a class="nav-link" id="home-nav" href="#">Home</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" id="scrape">
                         <a class="nav-link" id="scrape-nav" href="#">Scraper</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" id="annotation">
+                        <a class="nav-link" id="annotation-nav" href="#">Annotation</a>
+                    </li>
+                    <li class="nav-item" id="database">
+                        <a class="nav-link" id="database-nav" href="#">Database</a>
+                    </li>
+                    <li class="nav-item" id="about">
                         <a class="nav-link" id="about-nav" href="#">About</a>
                     </li>
                     <li class="nav-item">
@@ -46,7 +53,7 @@
                 </ul>
 
                 <!-- Theme Selector and Exit aligned to the right -->
-                <ul class="navbar-nav ms-auto mb-0">
+                <ul class="navbar-nav ms-auto mb-0 not-draggable">
                     <li class="nav-item">
                         <select id="theme-select" class="form-select form-select-sm">
                             <option value="light-theme">Light Theme</option>

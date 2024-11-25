@@ -4,16 +4,10 @@
  */
 
 // Import necessary modules from Electron and Node.js
-const { app, BrowserWindow, nativeTheme, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('node:path');
 
-const { PythonShell } = require('python-shell');
-const { stopPyBackend, pingBackend, scrapeRequest } = require('./js/js-api.js');
-
-// This will be needed when packaging the python code base as an executable (i.e., WIP)
-// const PROD_API_PATH = path.join(process.resourcesPath, "")
-const DEV_API_PATH = path.join(__dirname, "./backend/backend_api.py");
-const fileExecutor = require("child_process").execFile;
+const { exportDataToLS, updateLinkedLSProject, updateAPIToken: updateAPIToken, clearLinkedLSProject } = require('./js/label-studio-api.js');
 
 // Determine if the operating system is macOS
 const isMac = process.platform === 'darwin';
@@ -24,6 +18,7 @@ const log = require('electron-log');
 
 // Reference for the main application window
 let mainWin;
+let lsWindow;
 
 
 /**
@@ -34,6 +29,7 @@ function createMainWindow() {
 
     // Create the BrowserWindow instance with specific options
     mainWin = new BrowserWindow({
+        frame: false,
         width: isDev ? 1200 : 800, // Set width: larger size for development
         height: 600, // Set height for the window
         minWidth: isDev ? 1200 : 800, // Set minimum width to prevent shrinking beyond a set size
@@ -140,42 +136,6 @@ function createURLWindow(url) {
     });
 }
 
-// Initializes the application depending on if in a dev or production environment.
-if (isDev) {
-    log.debug('Running backend Python script in development mode.');
-    PythonShell.run(DEV_API_PATH, function(err, res) {
-        if (err) {
-            log.error(`PythonShell error: ${err}`);
-        } else {
-            log.debug('PythonShell ran successfully.');
-        }
-    });
-} else {
-    // fileExecutor(PROD_API_PATH, {
-    // WIP
-    // });
-}
-
-// Used to check if the backend is up
-var failedPingCount = 0;
-var maxPingAttempts = 5;
-var pingIntervalTest = setInterval(function() {
-    pingBackend()
-        .then(response => {
-            log.info(`Backend ping successful: ${response.data.message}`);
-            clearInterval(pingIntervalTest);
-        })
-        .catch(err => {
-            failedPingCount += 1;
-            log.warn(`Attempted to ping the backend (attempt: ${failedPingCount})`);
-            if (failedPingCount >= maxPingAttempts) {
-                log.error('Backend failed to respond after maximum attempts.');
-                clearInterval(pingIntervalTest);
-                // Handle the failure accordingly
-            }
-        });
-}, 5000);
-
 // When the application is ready, create the main window
 app.whenReady().then(() => {
     createMainWindow();
@@ -215,29 +175,95 @@ ipcMain.on('open-url', (event, url) => {
     }
 });
 
-// Kills child processes when closing the app
-app.on("before-quit", () => {
-    log.info('Application is quitting. Attempting to stop backend.');
-    stopPyBackend()
-        .then(res => {
-            log.info(`Backend stopped: ${res.data.message}`);
-        })
-        .catch(err => {
-            log.error(`Error stopping backend: ${err}`);
+// // Kills child processes when closing the app
+// app.on("before-quit", () => {
+//     stopPyBackend()
+//         .then(res => {
+//             console.log(res.data.message);
+//         });
+// });
+
+/**
+ * Opens the LS project app in a separate window.
+ * @param {*} url       The url of the LS project.
+ */
+function createLSExternal(url) {
+    // Create the BrowserWindow instance with specific options
+    lsWindow = new BrowserWindow({
+        width: 800, // Set width: larger size for development
+        height: 600, // Set height for the window
+        minWidth: 800, // Set minimum width to prevent shrinking beyond a set size
+        minHeight: 600, // Set minimum height
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+        }
+    });
+
+    // Disable the default application menu
+    // lsWindow.setMenu(null);
+
+    try {
+        lsWindow.loadURL(url);
+
+        lsWindow.on('close', () => {
+            // tell renderer to redisplay embbedded content
+            mainWin.webContents.send('openLSExternal-close');
+        });
+    
+        // Prevent the window from opening any new windows (e.g., pop-ups)
+        lsWindow.webContents.setWindowOpenHandler(() => {
+            return { action: 'deny' }; // Deny any requests to open new windows
+        });
+    } catch (err) {
+        lsWindow.close();
+        // tell renderer to redisplay embbedded content
+        mainWin.webContents.send('openLSExternal-close');
+    }
+}
+
+// Handles exporting data to the linked LS project
+ipcMain.on('exportData:request', async (event, data, projectID) => {
+    exportDataToLS(data, projectID)
+        .then(response => {
+            console.log(response)
+            mainWin.webContents.send('exportData:response', JSON.stringify(response));
         });
 });
 
-// Handles a scrape request
-ipcMain.handle('scrape:request', async (event, arg) => {
-    log.debug(`Received 'scrape:request' with argument: ${JSON.stringify(arg)}`);
-    try {
-        const response = await scrapeRequest(arg);
-        log.debug('Scrape request successful.');
-        return JSON.stringify(response.data);
-    } catch (error) {
-        log.error(`Scrape request failed: ${error}`);
-        throw error;
-    }
+// Handles openning the LS project in an external window
+ipcMain.on('openLSExternal:request', (event, url) => {
+    createLSExternal(url);
+});
+
+// Handles updating the linked LS project URL
+ipcMain.on('initLSVariables:request', (event, url, token) => {
+    updateLinkedLSProject(url);
+    updateAPIToken(token)
+        .then(result => {
+            mainWin.webContents.send('updateToProjectList', JSON.stringify(result));
+        }).catch(err => {
+            console.log(err);
+        }); 
+});
+
+// Handles updating the linked LS project URL
+ipcMain.on('updateLinkedLS:request', (event, url) => {
+    updateLinkedLSProject(url);
+});
+
+// Handles updating the linked LS project API Token
+ipcMain.on('updateAPIToken:request', (event, token) => {
+    updateAPIToken(token)
+        .then(result => {
+            mainWin.webContents.send('updateToProjectList', JSON.stringify(result));
+        }).catch(err => {
+            console.log(err);
+        }); 
+});
+
+// Handles clearing the linked LS project (URL and API)
+ipcMain.on('clearLinkedLS:request', () => {
+    clearLinkedLSProject();
 });
 
 // Handles closing the application
@@ -245,3 +271,45 @@ ipcMain.on('exit:request', () => {
     log.info('Received exit request from renderer.');
     app.quit();
 });
+
+//===============================================================================================================
+// Logic to be removed
+//===============================================================================================================
+// const { stopPyBackend, pingBackend, scrapeRequest } = require('./js/js-api.js');
+// 
+// const { PythonShell } = require('python-shell');
+// // This will be needed when packaging the python code base as an executable (i.e., WIP)
+// // const PROD_API_PATH = path.join(process.resourcesPath, "")
+// const DEV_API_PATH = path.join(__dirname, "./backend/backend_api.py");
+// const fileExecutor = require("child_process").execFile;
+// 
+// // Initializes the application depending on if in a dev or production environment.
+// if (isDev) {
+//     PythonShell.run(DEV_API_PATH, function(err, res) {
+//         if (err) {
+//             console.log(err);
+//         } 
+//     });
+// } else {
+//     // fileExecutor(PROD_API_PATH, {
+//     // WIP
+//     // });
+// }
+
+// // Used to check if the backend is up
+// var failedPingCount = 0;
+// var pingIntervalTest = setInterval(function() {
+//     pingBackend()
+//             .then(response => {
+//                 console.log(response.data.message);
+//                 clearInterval(pingIntervalTest);
+//             })
+//             .catch(err => {
+//                 failedPingCount += 1;
+//                 console.log("Attempted to ping the backend (attempt: " + failedPingCount + ")");
+//             });
+// }, 5000);
+// 
+// ipcMain.handle('scrape:request', async (event, arg) => {
+//     return JSON.stringify((await scrapeRequest(arg)).data);
+// });
