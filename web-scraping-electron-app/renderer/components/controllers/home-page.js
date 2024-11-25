@@ -61,7 +61,7 @@ export class HomePageController {
      * Method for initializing the pages event listeners.
      */
     initPageListeners() {
-        
+        // Insert code for listeners here
     }
 
     /**

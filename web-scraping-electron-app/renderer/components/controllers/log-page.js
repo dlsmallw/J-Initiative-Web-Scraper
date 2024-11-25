@@ -53,7 +53,16 @@ export class LogPageController {
         }
 
         insertElement().then(() => {
-            // Put page listeners in here
+            this.initPageListeners();
+        });
+    }
+
+    /**
+     * Method for initializing the pages event listeners.
+     */
+    initPageListeners() {
+        $('#log-filter').on('change', () => {
+            this.filterLogs()
         });
     }
 
@@ -185,12 +194,12 @@ export class LogPageController {
     filterLogs() {
         const logFilter = document.getElementById('log-filter');
         const filterValue = logFilter ? logFilter.value : 'ALL';
-        let filteredLogs = logLines;
+        let filteredLogs = this.logLines;
 
         if (filterValue !== 'ALL') {
             // Split the filterValue into an array of levels
             const levels = filterValue.toLowerCase().split(',').map(s => s.trim());
-            filteredLogs = logLines.filter(line => {
+            filteredLogs = this.logLines.filter(line => {
                 // Extract the log level using regex
                 const regex = /\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}\] \[(\w+)\]/;
                 const match = line.match(regex);

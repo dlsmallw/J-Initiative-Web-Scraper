@@ -44,3 +44,7 @@ run() {
             ;;
     esac
 }
+
+package() {
+    yarn run electron-forge package
+}
