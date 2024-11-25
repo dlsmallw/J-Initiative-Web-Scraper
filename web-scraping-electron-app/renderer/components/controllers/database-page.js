@@ -1,7 +1,9 @@
 export class DatabasePageController {
-    htmlFilePath = '../database.html';  // Filepath to HTML component
+    htmlFilePath = './components/database.html';  // Filepath to HTML component
     name = 'database';                  // Page name
     compID = '#database-container';     // Page component container ID
+
+    ipcRenderer = window.electronAPI;
 
     /**
      * Returns the pages component html filepath.
@@ -28,18 +30,59 @@ export class DatabasePageController {
     }
 
     /**
+     * Generates the navbar name for the specific page.
+     * @returns String          The navbar name.
+     */
+    navbarName() {
+        return this.name.charAt(0).toUpperCase() + this.name.slice(1);
+    }
+
+    /**
      * Method for intitializing the page in the application.
      */
-    async initPage() {
-        $('#d_content').append(await $.get(this.getHtmlCompPath));
+    initPage() {
+        var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
+        var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
+
+        $('#navbar-ul-1').append(navbarItem);
+
+        const insertElement = async () => {
+            $('#d_content').append( await $.get(this.htmlFilePath));
+        }
+
+        insertElement().then(() => {
+            
+
+            this.initPageListeners();
+        });
     }
 
     /**
      * Method for initializing the pages event listeners.
      */
     initPageListeners() {
-
+        
     }
+
+    /**
+     * Sets the page active (visible).
+     */
+    setPageActive() {
+        $(`#${this.name}`).addClass('active-nav-item');
+        $(this.compID).show();
+    }
+
+    /**
+     * Sets the page inactive (hidden).
+     */
+    setPageInactive() {
+        $(this.compID).hide();
+        $(`#${this.name}`).removeClass('active-nav-item');
+    }
+
+    //============================================================================================================================
+    // Logging Helpers (WIP - Plan to move to a separate class that is imported)
+    //============================================================================================================================
 
     /**
      * Handles displaying an alert message for specific situations (error or otherwise).
@@ -53,4 +96,40 @@ export class DatabasePageController {
             alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
         }
     }
+
+    /**
+     * Send an info log message to the main process.
+     * @param {string} message - The message to log.
+     */
+    logInfo(message) {
+        this.ipcRenderer.send('log-info', message);
+    }
+
+    /**
+     * Send a debug log message to the main process.
+     * @param {string} message - The message to log.
+     */
+    logDebug(message) {
+        this.ipcRenderer.send('log-debug', message);
+    }
+
+    /**
+     * Send a warning log message to the main process.
+     * @param {string} message - The message to log.
+     */
+    logWarn(message) {
+        this.ipcRenderer.send('log-warn', message);
+    }
+
+    /**
+     * Send an error log message to the main process.
+     * @param {string} message - The message to log.
+     */
+    logError(message) {
+        this.ipcRenderer.send('log-error', message);
+    }
+
+    //============================================================================================================================
+    // Page Specific Methods
+    //============================================================================================================================
 }
