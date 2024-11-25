@@ -7,27 +7,33 @@ let logLines = []; // Store logs for filtering
 const Pages = {
     Home: {
         name: "home",
-        id: '#home-container'
+        id: '#home-container',
+        pageObj: null
     },
     Scrape: {
         name: "scrape",
-        id: '#scrape-container'
+        id: '#scrape-container',
+        pageObj: null
     },
     LabelStudio: {
         name: "annotation",
-        id: '#annotation-container'
+        id: '#annotation-container',
+        pageObj: null
     },
     Database: {
         name: "database",
-        id: '#database-container'
+        id: '#database-container',
+        pageObj: null
     },
     About: {
         name: "about",
-        id: '#about-container'
+        id: '#about-container',
+        pageObj: null
     },
     Logs: {
         name: "logs",
-        id: '#log-container'
+        id: '#log-container',
+        pageObj: null
     }
     
 };
@@ -244,7 +250,6 @@ function postAlert(alertMsg, cause) {
     } else {
         alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
     }
-    
 }
 
 
