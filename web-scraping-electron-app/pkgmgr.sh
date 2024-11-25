@@ -4,12 +4,6 @@
 build() {
     clean 
     yarn install
-
-    python -m venv .venv
-    source .venv/Scripts/activate
-
-    pip install pipenv
-    pipenv install
 }
 
 # Cleans the project directory of unnecessary files
@@ -20,6 +14,8 @@ clean() {
     then
         deactivate
         rm -rf ./.venv
+        rm -rf ./Pipfile
+        rm -rf Pipfile.lock
     fi
 
     if [ -d ./node_modules ]; 
