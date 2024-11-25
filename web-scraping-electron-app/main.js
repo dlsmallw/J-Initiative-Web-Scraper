@@ -110,6 +110,8 @@ function createURLWindow(url) {
         webPreferences: {
             nodeIntegration: false, // Disable Node.js integration for security
             contextIsolation: true, // Isolate context for security
+            preload: path.join(__dirname, 'preload.js'),
+            webviewTag: true
         }
     });
 
@@ -126,16 +128,18 @@ function createURLWindow(url) {
 
     urlWindow.hide();
 
-    // Load the specified URL in the window, catch invalid url
-    urlWindow.loadURL(url).then(() => {
-        urlWindow.show();
-        loadingWindow.close();
-        log.info(`URL window loaded: ${url}`);
+     // Load the specified URL in the window, catch invalid url
+    urlWindow.loadFile('./renderer/webview_window.html')
+        .then(() => {
+            urlWindow.webContents.send('setUrl', url);
+            urlWindow.show();
+            loadingWindow.close();
+            log.info(`URL window loaded: ${url}`);
     }).catch((error) => {
-        urlWindow.close();
-        loadingWindow.close();
-        log.error(`Failed to load URL: ${error}`);
-        dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!');
+            urlWindow.close()
+            loadingWindow.close()
+            log.error(`Failed to load URL: ${error}`);
+            dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!');
     });
 
     // Prevent the window from navigating away from the original URL
@@ -273,6 +277,18 @@ ipcMain.on('updateAPIToken:request', (event, token) => {
 // Handles clearing the linked LS project (URL and API)
 ipcMain.on('clearLinkedLS:request', () => {
     clearLinkedLSProject();
+});
+
+// Handles a scrape request
+ipcMain.on('scrapedData:export', (event, data) => {
+    console.log('Main process received scraped data:', data);
+
+    if (mainWin) {
+        mainWin.webContents.send('scrapedData:update', data);
+        console.log('Forwarded scraped data to renderer.');
+    } else {
+        console.error('Main window is not available to forward scraped data.');
+    }
 });
 
 // Handles closing the application

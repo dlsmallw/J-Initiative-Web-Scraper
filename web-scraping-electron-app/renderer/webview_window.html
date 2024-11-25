@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self';
+        connect-src 'self' * 'unsafe-inline' 'unsafe-eval';
+        frame-src * 'unsafe-inline' 'unsafe-eval';
+        img-src 'self' data:;
+        style-src 'self' 'unsafe-inline';
+    ">
+    <!-- CSS Stylesheets -->
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="../renderer/css/style.css">
+    <!-- jQuery -->
+    <script src="../node_modules/jquery/dist/jquery.js"></script>
+    <!-- Include renderer.js -->
+    <script src="../renderer/js/webview_renderer.js"></script>
+</head>
+<body id="webview_body">
+    <!-- Webview -->
+    <webview id="ext-url-window" preload="./js/webview_preload.js"></webview>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons mt-3">
+        <button class="btn btn-outline-secondary" type="button" id="importSelectedBtn">Import</button>
+        <button class="btn btn-outline-danger" type="button" id="clearBtn">Clear</button> <!-- New Clear Button -->
+        <button class="btn btn-outline-primary" type="button" id="exportBtn">Export</button> <!-- New Export Button -->
+    </div>
+
+    <!-- Scraped Data Display -->
+    <div class="form-group mb-3 mt-3">
+        <label for="imported_textarea">Scraped Data</label>
+        <textarea class="form-control" id="imported_textarea" rows="5" readonly></textarea>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+</body>
+</html>
