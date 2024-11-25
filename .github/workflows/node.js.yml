@@ -27,7 +27,5 @@ jobs:
         cache-dependency-path: 'web-scraping-electron-app/yarn.lock'
         node-version: ${{ matrix.node-version }}
         cache: 'yarn'
-    - run: yarn install --frozen-lockfile
-      working-directory: './web-scraping-electron-app'
-    - run: yarn run build:node --if-present
+    - run: yarn install
       working-directory: './web-scraping-electron-app'

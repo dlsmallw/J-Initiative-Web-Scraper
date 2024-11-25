@@ -1,0 +1,24 @@
+<!-- HTML component used for the log viewer page in the application. -->
+<div id="log-container" class="my-5 container" style="display: none;">
+    <h1 class="display-4">Log Viewer</h1>
+
+    <!-- Filter Dropdown -->
+    <div class="mb-3">
+        <label for="log-filter" class="form-label">Filter Logs:</label>
+         <select id="log-filter" class="form-select">
+             <option value="ALL">All</option>
+             <option value="info">Info</option>
+             <option value="debug">Debug</option>
+             <option value="warn">Warn</option>
+             <option value="error">Error</option>
+
+        </select>
+
+    </div>
+
+    <!-- Log Output Section -->
+    <pre id="log-output" class="bg-dark text-white p-3 rounded" style="max-height: 400px; overflow-y: auto;">
+        <!-- Log entries will be dynamically added here -->
+    </pre>
+</div>
+

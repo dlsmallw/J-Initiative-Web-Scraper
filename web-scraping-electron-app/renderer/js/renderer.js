@@ -1,80 +1,63 @@
- /**
- * This script runs on every HTML file to handle theme switching and other processes.
- */
+// renderer.js
+import { HomePageController } from '../components/controllers/home-page.js';
+import { ScrapePageController } from '../components/controllers/scrape-page.js';
+import { AnnotationPageController } from '../components/controllers/annotation-page.js';
+import { DatabasePageController } from '../components/controllers/database-page.js';
+import { LogPageController } from '../components/controllers/log-page.js';
+import { AboutPageController } from '../components/controllers/about-page.js';
 
-// Use the IPC methods exposed by the preload script
+
 const ipcRenderer = window.electronAPI;
+
 
 // Pages object to manage different sections of the application
 const Pages = {
-    Home: {
-        name: "home",
-        id: '#home-container'
-    },
-    Scrape: {
-        name: "scrape",
-        id: '#scrape-container'
-    },
-    About: {
-        name: "about",
-        id: '#about-container'
-    }
+    Home: new HomePageController(),
+    Scrape: new ScrapePageController(),
+    Annotation: new AnnotationPageController(),
+    Database: new DatabasePageController(),
+    About: new AboutPageController(),
+    Logs: new LogPageController()
 };
 
 let currentPage;
 
 document.addEventListener('DOMContentLoaded', () => {
+    logDebug('DOM loaded, initializing initial dynamic content.');
     // Initialize theme when the document is fully loaded
     initializeTheme();
 
     // Initialize pages by loading their content
     initPages();
 
-    // Initializes 2-way renderer-main IPC listeners
-    initIPCEventListeners();
+    // Log that the renderer process is ready
+    logInfo('Renderer process is ready.');
 });
+
+//============================================================================================================================
+// Methods for handling app initialization
+//============================================================================================================================
 
 /**
  * Initializes all the pages by loading their HTML content and setting the default page to Home
  */
 async function initPages() {
     // Set default page to Home and display its content
-    currentPage = getPage("home");
+    currentPage = Pages.Home;
 
-    $('#d_content')
-        .append(await $.get("components/home.html"))
-        .append(await $.get("components/scrape.html"))
-        .append(await $.get("components/about.html"));
-
-    $('#node-version').html(versions.node());
-    $('#chrome-version').html(versions.chrome());
-    $('#electron-version').html(versions.electron());
-
-    // Attach event listeners
-    attachPageEventListeners();
-}
-
-/**
- * Handles changing the page when a navigation link is clicked
- * @param {*} event     The event corresponding to a page change.
- */
-function changePage(event) {
-    event.preventDefault(); // Prevent default link behavior
-    const pageName = this.id.split('-')[0]; // Extract page name from element ID
-    const newPage = getPage(pageName);
-
-    // Only switch pages if the new page is different from the current page
-    if (currentPage.name !== newPage.name) {
-        Object.keys(Pages).forEach(page => {
-            $(Pages[page].id).hide();
+    try {
+        Object.keys(Pages).forEach(e => {
+            Pages[e].initPage();
         });
 
-        $(newPage.id).show();
-        currentPage = newPage;
+        currentPage.setPageActive();
 
-        console.log("Page Changed To " + pageName);
-    } else {
-        console.log("Page Not Changed");
+        // Attach event listeners
+        attachPageEventListeners();
+
+        logInfo('Pages initialized successfully.');
+    } catch (error) {
+        logError(`Error initializing pages: ${error}`);
     }
 }
 
@@ -82,23 +65,22 @@ function changePage(event) {
  * Attach event listeners specific to the current page (e.g., buttons, input fields)
  */
 function attachPageEventListeners() {
-    // Add event listeners for navigation buttons to change pages
-    $('#home-nav').on('click', changePage);
-    $('#scrape-nav').on('click', changePage);
-    $('#about-nav').on('click', changePage);
-
-    // Event listener for the "Submit" button on the Scrape page
-    $('#submitURLBtn').on('click', () => {
-        submitBtnPressed();
+    Object.keys(Pages).forEach(e => {
+        $(`#${Pages[e].getName()}`).on('click', changePage);
     });
 
-    // Event listener for the "Enter" key press in the input field
-    $('#url-input').on('keypress', (event) => {
-        if (event.key === 'Enter') {
-            submitBtnPressed();     // Call the submit function
+    // Handles receipt of updated project list
+    ipcRenderer.receive('updateToProjectList', (res) => {
+        var response = JSON.parse(res);
+
+        if (response.ok) {
+            updateProjectOptions(response.data);
+        } else {
+            postAlert(response.resMsg, response.errType);
         }
+        
     });
-    
+
     // Event listener for the "Exit" navigation link
     $('#exit-nav').on('click', () => {
         ipcRenderer.exitSignal();
@@ -110,74 +92,68 @@ function attachPageEventListeners() {
     });
 }
 
+//============================================================================================================================
+// Methods for handling changing the page
+//============================================================================================================================
+
 /**
- * Initializes any atypical IPC communication listeners.
- * NOTE: Separated for organization purposes.
+ * Returns the corresponding Page object based on the page name.
+ * @param {*} value     The page name to be searched for.
+ * @returns Page        The page.
  */
-function initIPCEventListeners() {
-    // Listen for errors from main process related to URL opening
-    ipcRenderer.receive('open-url-error', (errorMessage) => {
-        alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
-    });
+function getPage(value) {
+    return Pages[Object.keys(Pages).find(e => Pages[e].getName() === value)];
 }
 
 /**
- * Function to handle the "Submit" button click on the Scrape page.
+ * Handles changing the page when a navigation link is clicked
+ * @param {*} event     The event corresponding to a page change.
  */
-function submitBtnPressed() {
-    console.log('Submit button pressed');
+function changePage(event) {
+    logDebug("Attempting to change page due to " + event.type);
+    event.preventDefault(); // Prevent default link behavior
+    const newPage = getPage(this.id.split('-')[0]);
 
-    let url = $('#url-input').val();
+    // Only switch pages if the new page is different from the current page
+    if (currentPage.name !== newPage.name) {
+        currentPage.setPageInactive();
+        newPage.setPageActive();
 
-    // Check if a URL was entered
-    if (url) {
-        // Prepend 'https://' if no protocol is specified
-        if (!url.match(/^https?:\/\//i)) {
-            url = 'https://' + url;
+        currentPage = newPage;
+
+        logInfo(`Page changed to ${currentPage.getName()}.`);
+
+        // Load logs if the current page is the Logs page
+        if (currentPage.getName() === 'logs') {
+            currentPage.loadLogs();
         }
-
-        // Validate the URL format before sending
-        if (!isValidURL(url)) {
-            alert('Please enter a valid URL.');
-            return;
-        }
-
-        // Send the URL to the main process to open it
-        ipcRenderer.send('open-url', url);
-
-        // Update the results container to display the submitted URL
-        $('#staticURL').val(url);
-
-        $('#results-container').css('display', 'block');
-
-        // This is the necessary code for performing a basic web scrape using the webscrape_test.py file
-        // var response = JSON.parse(await ipcRenderer.invoke('scrape:request', $('#url-input').val()));
-        // if (response.ok) {
-        //     $('#staticURL').val(response.url);
-        //     $('#results-container').show();
-        //     $('#formatted-data-text').text(response.formattedData);
-        //     $('#raw-data-text').text(response.rawData);
-        // } else {
-        //     // WIP: This is were we would handle an error response (i.e., display a "Failed to scrape web url")
-        // }
     } else {
-        alert('Please enter a URL.'); // Alert the user if no URL is entered
+        logDebug(`Page not changed. Already on ${currentPage.getName()}.`);
     }
 }
 
+//============================================================================================================================
+// Helper method(s) for a change in annotation project list
+//============================================================================================================================
+
 /**
- * URL validation function to check if the URL is valid.
- * @param {*} url       The URL to validate.
- * @returns Bool        A boolean corresponding to if it is valid or not.
+ * Updates the list of available projects to export to on the manual scrape page.
+ * @param {*} projects      The returned list of available projects.
  */
-function isValidURL(url) {
-    try {
-        new URL(url);
-        return true;
-    } catch (_) {
-        return false;
-    }
-}
+function updateProjectOptions(projects) {
+    $('#projectSelect').empty();
+
+    $.each(projects, function(i, project) {
+        $('#projectSelect').append($('<option>', {
+            value: project.id,
+            text: `${project.id} - ${project.project_name}`
+        }));
+    });
+} 
+
+//============================================================================================================================
+// Methods for managing initialization and control of app theme
+//============================================================================================================================
 
 /**
  * Initializes the theme based on the user's saved preference or defaults to light theme.
@@ -189,9 +165,11 @@ function initializeTheme() {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
         document.documentElement.className = savedTheme; // Apply saved theme to the document
+        logDebug(`Applied saved theme: ${savedTheme}`);
     } else {
         // Set default theme if none is saved
         document.documentElement.className = 'light-theme';
+        logDebug('Applied default theme: light-theme');
     }
 
     if (themeSelect) {
@@ -200,6 +178,8 @@ function initializeTheme() {
 
         // Add an event listener to change the theme whenever the user selects a new option
         themeSelect.on('change', changeTheme);
+    } else {
+        logWarn('Theme select element not found.');
     }
 }
 
@@ -214,13 +194,55 @@ function changeTheme() {
 
     // Save the selected theme to localStorage so it persists across sessions
     localStorage.setItem('theme', theme);
+
+    logInfo(`Theme changed to: ${theme}`);
+}
+
+//============================================================================================================================
+// Logging Helpers (WIP - Plan to move to a separate class that is imported)
+//============================================================================================================================
+
+/**
+ * Handles displaying an alert message for specific situations (error or otherwise).
+ * @param {*} alertMsg          Message to display.
+ * @param {*} cause             Cause if an error.
+ */
+function postAlert(alertMsg, cause) {
+    if (cause === undefined) {
+        alert(alertMsg);
+    } else {
+        alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+    }
 }
 
 /**
- * Returns the corresponding Page object based on the page name.
- * @param {*} value     The page name to be searched for.
- * @returns Page        The page.
+ * Send an info log message to the main process.
+ * @param {string} message - The message to log.
  */
-function getPage(value) {
-    return Pages[Object.keys(Pages).find(e => Pages[e].name === value)];
+function logInfo(message) {
+    ipcRenderer.send('log-info', message);
+}
+
+/**
+ * Send a debug log message to the main process.
+ * @param {string} message - The message to log.
+ */
+function logDebug(message) {
+    ipcRenderer.send('log-debug', message);
+}
+
+/**
+ * Send a warning log message to the main process.
+ * @param {string} message - The message to log.
+ */
+function logWarn(message) {
+    ipcRenderer.send('log-warn', message);
+}
+
+/**
+ * Send an error log message to the main process.
+ * @param {string} message - The message to log.
+ */
+function logError(message) {
+    ipcRenderer.send('log-error', message);
 }

@@ -3,21 +3,19 @@
 # Creastes the environment and installs all dependencies
 build() {
     clean 
-    yarn run build:node
-
-    python -m venv .venv
-    source .venv/Scripts/activate
-
-    pip install pipenv
-    pipenv install
+    yarn install
 }
 
 # Cleans the project directory of unnecessary files
 clean() {
+    rm -rf package-lock.json
+
     if [ -d ./.venv ]; 
     then
         deactivate
         rm -rf ./.venv
+        rm -rf ./Pipfile
+        rm -rf Pipfile.lock
     fi
 
     if [ -d ./node_modules ]; 
@@ -45,4 +43,8 @@ run() {
             printf "Must specify 'dev' or 'prod'\n"
             ;;
     esac
+}
+
+package() {
+    yarn run electron-forge package
 }
