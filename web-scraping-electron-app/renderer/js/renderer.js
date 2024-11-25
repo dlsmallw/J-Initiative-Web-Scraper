@@ -62,6 +62,7 @@ async function initPages() {
             .append(await $.get("components/scrape.html"))
             .append(await $.get("components/about.html"))
             .append(await $.get("components/database.html"))
+            .append(await $.get("components/log.html"))
             .append(await $.get("components/annotation.html"));
 
         $(`#${currentPage.name}`).addClass('active-nav-item');
