@@ -4,7 +4,7 @@
  */
 
 // Import necessary modules from Electron and Node.js
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('node:path');
 
 const { exportDataToLS, updateLinkedLSProject, updateAPIToken: updateAPIToken, clearLinkedLSProject } = require('./js/label-studio-api.js');
@@ -125,16 +125,18 @@ function createURLWindow(url) {
 
     loadingWindow.loadFile("loadingscreen.html").then(r => log.info("loading screen opened successfully"));
 
+    urlWindow.hide();
+
     // Load the specified URL in the window, catch invalid url
-    urlWindow.loadURL(url).then(r => {
+    urlWindow.loadURL(url).then(() => {
         urlWindow.show();
         loadingWindow.close();
         log.info(`URL window loaded: ${url}`);
     }).catch((error) => {
-            urlWindow.close();
-            dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!');
-            log.error(`Failed to load URL: ${error}`);
-            loadingWindow.close();
+        urlWindow.close();
+        loadingWindow.close();
+        log.error(`Failed to load URL: ${error}`);
+        dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!');
     });
 
     // Prevent the window from navigating away from the original URL
