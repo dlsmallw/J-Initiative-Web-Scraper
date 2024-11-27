@@ -196,6 +196,22 @@ function changeTheme() {
     localStorage.setItem('theme', theme);
 
     logInfo(`Theme changed to: ${theme}`);
+
+    switch (theme) {
+        case 'light-theme':
+            document.getElementById("url-input").style.background = "white"
+            break
+        case 'blue-theme':
+            document.getElementById("url-input").style.background = "blue"
+            break
+        case 'disco-theme':
+            document.getElementById("url-input").style.background = "magenta"
+            break
+        case 'dark-theme':
+        default:
+            document.getElementById("url-input").style.background = "black"
+            break
+    }
 }
 
 //============================================================================================================================
