@@ -201,6 +201,7 @@ function changeTheme() {
 //============================================================================================================================
 // Logging Helpers (WIP - Plan to move to a separate class that is imported)
 //============================================================================================================================
+const logger = window.log;    // Variable created for ease of reading
 
 /**
  * Handles displaying an alert message for specific situations (error or otherwise).
@@ -210,8 +211,10 @@ function changeTheme() {
 function postAlert(alertMsg, cause) {
     if (cause === undefined) {
         alert(alertMsg);
+        logInfo(alertMsg);
     } else {
         alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+        logError(`${alertMsg} Cause: ${cause}`);
     }
 }
 
@@ -220,7 +223,7 @@ function postAlert(alertMsg, cause) {
  * @param {string} message - The message to log.
  */
 function logInfo(message) {
-    ipcRenderer.send('log-info', message);
+    logger.info(message);
 }
 
 /**
@@ -228,7 +231,7 @@ function logInfo(message) {
  * @param {string} message - The message to log.
  */
 function logDebug(message) {
-    ipcRenderer.send('log-debug', message);
+    logger.debug(message);
 }
 
 /**
@@ -236,7 +239,7 @@ function logDebug(message) {
  * @param {string} message - The message to log.
  */
 function logWarn(message) {
-    ipcRenderer.send('log-warn', message);
+    logger.warn(message);
 }
 
 /**
@@ -244,5 +247,5 @@ function logWarn(message) {
  * @param {string} message - The message to log.
  */
 function logError(message) {
-    ipcRenderer.send('log-error', message);
+    logger.error(message);
 }

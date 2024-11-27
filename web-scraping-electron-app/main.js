@@ -216,7 +216,7 @@ function createLSExternal(url) {
 
         lsWindow.on('close', () => {
             // tell renderer to redisplay embbedded content
-            mainWin.webContents.send('openLSExternal-close');
+            mainWin.webContents.send('open-ls-ext:response');
         });
     
         // Prevent the window from opening any new windows (e.g., pop-ups)
@@ -226,52 +226,52 @@ function createLSExternal(url) {
     } catch (err) {
         lsWindow.close();
         // tell renderer to redisplay embbedded content
-        mainWin.webContents.send('openLSExternal-close');
+        mainWin.webContents.send('open-ls-ext:response');
     }
 }
 
 // Handles exporting data to the linked LS project
-ipcMain.on('exportData:request', async (event, data, projectID) => {
+ipcMain.on('export-to-ls:request', async (event, data, projectID) => {
     exportDataToLS(data, projectID)
         .then(response => {
             console.log(response)
-            mainWin.webContents.send('exportData:response', JSON.stringify(response));
+            mainWin.webContents.send('export-to-ls:response', JSON.stringify(response));
         });
 });
 
 // Handles openning the LS project in an external window
-ipcMain.on('openLSExternal:request', (event, url) => {
+ipcMain.on('open-ls-ext:request', (event, url) => {
     createLSExternal(url);
 });
 
 // Handles updating the linked LS project URL
-ipcMain.on('initLSVariables:request', (event, url, token) => {
+ipcMain.on('init-ls-vars:request', (event, url, token) => {
     updateLinkedLSProject(url);
     updateAPIToken(token)
         .then(result => {
-            mainWin.webContents.send('updateToProjectList', JSON.stringify(result));
+            mainWin.webContents.send('ls-projects-update', JSON.stringify(result));
         }).catch(err => {
             console.log(err);
         }); 
 });
 
 // Handles updating the linked LS project URL
-ipcMain.on('updateLinkedLS:request', (event, url) => {
+ipcMain.on('update-linked-ls:request', (event, url) => {
     updateLinkedLSProject(url);
 });
 
 // Handles updating the linked LS project API Token
-ipcMain.on('updateAPIToken:request', (event, token) => {
+ipcMain.on('update-ls-api-token:request', (event, token) => {
     updateAPIToken(token)
         .then(result => {
-            mainWin.webContents.send('updateToProjectList', JSON.stringify(result));
+            mainWin.webContents.send('ls-projects-update', JSON.stringify(result));
         }).catch(err => {
             console.log(err);
         }); 
 });
 
 // Handles clearing the linked LS project (URL and API)
-ipcMain.on('clearLinkedLS:request', () => {
+ipcMain.on('clear-linked-ls:request', () => {
     clearLinkedLSProject();
 });
 

@@ -85,6 +85,7 @@ export class LogPageController {
     //============================================================================================================================
     // Logging Helpers (WIP - Plan to move to a separate class that is imported)
     //============================================================================================================================
+    logger = window.log;    // Variable created for ease of reading
 
     /**
      * Handles displaying an alert message for specific situations (error or otherwise).
@@ -94,8 +95,10 @@ export class LogPageController {
     postAlert(alertMsg, cause) {
         if (cause === undefined) {
             alert(alertMsg);
+            this.logInfo(alertMsg);
         } else {
             alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+            this.logError(`${alertMsg} Cause: ${cause}`);
         }
     }
 
@@ -104,7 +107,7 @@ export class LogPageController {
      * @param {string} message - The message to log.
      */
     logInfo(message) {
-        this.ipcRenderer.send('log-info', message);
+        this.logger.info(message);
     }
 
     /**
@@ -112,7 +115,7 @@ export class LogPageController {
      * @param {string} message - The message to log.
      */
     logDebug(message) {
-        this.ipcRenderer.send('log-debug', message);
+        this.logger.debug(message);
     }
 
     /**
@@ -120,7 +123,7 @@ export class LogPageController {
      * @param {string} message - The message to log.
      */
     logWarn(message) {
-        this.ipcRenderer.send('log-warn', message);
+        this.logger.warn(message);
     }
 
     /**
@@ -128,7 +131,7 @@ export class LogPageController {
      * @param {string} message - The message to log.
      */
     logError(message) {
-        this.ipcRenderer.send('log-error', message);
+        this.logger.error(message);
     }
 
     //============================================================================================================================
