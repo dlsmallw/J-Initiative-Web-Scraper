@@ -40,7 +40,7 @@ export class AnnotationPageController {
     /**
      * Method for intitializing the page in the application.
      */
-    async initPage() {
+    initPage() {
         var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
         var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
 
@@ -59,11 +59,13 @@ export class AnnotationPageController {
                 this.showLSEmbeddedFrame();
 
                 $('#ls-link-option').val(ls_url);
-                this.lsAPI.updateToken(ls_url);
+                
 
                 if (api_token) {
                     $('#ls-api-token-option').val(api_token);
-                    this.lsAPI.updateToken(api_token);
+                    this.lsAPI.initVariables(ls_url, api_token);
+                } else {
+                    this.lsAPI.updateURL(ls_url);
                 }
             } else {        // No Label Studio project linked
                 this.hideLSEmbeddedFrame();
@@ -289,7 +291,7 @@ export class AnnotationPageController {
 
         if (regex.test(tokenVal)) {
             localStorage.setItem('apiToken', tokenVal);
-            this.setLSAPIToken(tokenVal)
+            this.setLSAPIToken(tokenVal);
         } else {
             alert('Invalid API Token');
 

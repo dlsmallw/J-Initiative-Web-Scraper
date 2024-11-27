@@ -3,8 +3,6 @@ export class LogPageController {
     name = 'logs';                  // Page name
     compID = '#log-container';     // Page component container ID
 
-    ipcRenderer = window.electronAPI;
-
     logLines = []; // Store logs for filtering
 
     /**
@@ -55,6 +53,9 @@ export class LogPageController {
         insertElement().then(() => {
             this.initPageListeners();
         });
+
+        this.logInfo("Log Page Initialized");
+        this.requestLogs();
     }
 
     /**
@@ -62,9 +63,20 @@ export class LogPageController {
      */
     initPageListeners() {
         $('#log-filter').on('change', () => {
-            this.filterLogs()
+            this.filterLogs();
         });
         this.logDebug('Log filter event listener attached.');
+
+        this.logger.receiveLogs((res) => {
+            var jsonObj = JSON.parse(res);
+
+            if (jsonObj.ok) {
+                var logs = jsonObj.logs;
+                this.loadLogs(logs);
+            } else {
+                this.logError(jsonObj.message);
+            }
+        });
     }
 
     /**
@@ -135,6 +147,13 @@ export class LogPageController {
         this.logger.error(message);
     }
 
+    /**
+     * Method for making an IPC log request.
+     */
+    requestLogs() {
+        this.logger.requestLogs();
+    }
+
     //============================================================================================================================
     // Page Specific Methods
     //============================================================================================================================
@@ -142,18 +161,13 @@ export class LogPageController {
     /**
      * Load and display logs.
      */
-    async loadLogs() {
+
+    /**
+     * Load and display logs.
+     * @param {*} logs      Logs to be loaded into the window.
+     */
+    async loadLogs(logs) {
         try {
-            // Wait for the DOM to be updated
-            await new Promise(resolve => setTimeout(resolve, 50));
-
-            const logs = await this.ipcRenderer.invoke('get-logs');
-            this.logDebug('Logs received from main process.');
-            if (!logs) {
-                this.logWarn('No logs received from main process.');
-                return;
-            }
-
             this.logLines = logs.split('\n').filter(line => line.trim() !== '');
             this.displayLogs(this.logLines);
         } catch (error) {
@@ -171,10 +185,8 @@ export class LogPageController {
         logs.forEach(line => {
             var $logEntry = $('<div>', {class: "log-entry"});
             $logEntry.text(line);
-            $('#log-output').append($logEntry)
+            $('#log-output').append($logEntry);
         });
-
-        this.logDebug('Logs displayed in UI.');
     }
 
     /**

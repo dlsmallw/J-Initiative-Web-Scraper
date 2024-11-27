@@ -8,6 +8,7 @@ import { AboutPageController } from '../components/controllers/about-page.js';
 
 
 const ipcRenderer = window.electronAPI;
+const lsAPI = window.lsAPI;
 
 
 // Pages object to manage different sections of the application
@@ -70,7 +71,7 @@ function attachPageEventListeners() {
     });
 
     // Handles receipt of updated project list
-    ipcRenderer.receive('updateToProjectList', (res) => {
+    lsAPI.updateToProjectList((res) => {
         var response = JSON.parse(res);
 
         if (response.ok) {
@@ -78,17 +79,11 @@ function attachPageEventListeners() {
         } else {
             postAlert(response.resMsg, response.errType);
         }
-        
     });
 
     // Event listener for the "Exit" navigation link
     $('#exit-nav').on('click', () => {
         ipcRenderer.exitSignal();
-    });
-
-    // Listen for errors from main process related to URL opening
-    ipcRenderer.receive('open-url-error', (errorMessage) => {
-        alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
     });
 }
 
@@ -122,11 +117,6 @@ function changePage(event) {
         currentPage = newPage;
 
         logInfo(`Page changed to ${currentPage.getName()}.`);
-
-        // Load logs if the current page is the Logs page
-        if (currentPage.getName() === 'logs') {
-            currentPage.loadLogs();
-        }
     } else {
         logDebug(`Page not changed. Already on ${currentPage.getName()}.`);
     }

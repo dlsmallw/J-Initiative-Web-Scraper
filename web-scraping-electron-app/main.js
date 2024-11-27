@@ -19,6 +19,7 @@ const log = require('electron-log');
 // Reference for the main application window
 let mainWin;
 let lsWindow;
+let logFilePath;
 
 /**
  * Function to create the main application window.
@@ -58,35 +59,73 @@ function createMainWindow() {
 // Info log handler
 ipcMain.on('log-info', (event, message) => {
     log.info(`Renderer: ${message}`);
+    loadLogs().then((res) => {
+        mainWin.webContents.send('log-update', JSON.stringify(res)); // Return the log data to the renderer process
+    });
 });
 
 // Debug log handler
 ipcMain.on('log-debug', (event, message) => {
     log.debug(`Renderer: ${message}`);
+    loadLogs().then((res) => {
+        mainWin.webContents.send('log-update', JSON.stringify(res)); // Return the log data to the renderer process
+    });
 });
 
 // Warn log handler
 ipcMain.on('log-warn', (event, message) => {
     log.warn(`Renderer: ${message}`);
+    loadLogs().then((res) => {
+        mainWin.webContents.send('log-update', JSON.stringify(res)); // Return the log data to the renderer process
+    });
 });
 
 // Error log handler
 ipcMain.on('log-error', (event, message) => {
     log.error(`Renderer: ${message}`);
+    loadLogs().then((res) => {
+        mainWin.webContents.send('log-update', JSON.stringify(res)); // Return the log data to the renderer process
+    });
 });
 
-ipcMain.handle('get-logs', async () => {
-    const logFilePath = log.transports.file.getFile().path;
-    log.debug(`Log file path: ${logFilePath}`);
-    try {
-        const data = fs.readFileSync(logFilePath, 'utf8');
-        log.debug('Log data read successfully.');
-        return data; // Return the log data to the renderer process
-    } catch (error) {
-        log.error(`Error reading log file: ${error}`);
-        return ''; // Return empty string on error
-    }
+ipcMain.on('get-logs:request', async (event) => {
+    loadLogs().then((res) => {
+        mainWin.webContents.send('log-update', JSON.stringify(res)); // Return the log data to the renderer process
+    })
 });
+
+/**
+ * Method used for loading the log file.
+ * @returns JSON        A response object that is sent to the renderer process.
+ */
+function loadLogs() {
+    return new Promise((resolve) => {
+        if (!logFilePath) {
+            logFilePath = log.transports.file.getFile().path;
+            log.debug(`Log file path: ${logFilePath}`);
+        } 
+
+        var response = {
+            ok: null,
+            message: null,
+            logs: null,
+            errorType: null
+        }
+
+        try {
+            const data = fs.readFileSync(logFilePath, 'utf8');
+            response.ok = true;
+            response.logs = data;
+            resolve(response);
+        } catch (error) {
+            log.error(`Error reading log file: ${error}`);
+            response.ok = false;
+            response.message = 'Error reading log file';
+            response.errorType = error;
+            resolve(response);
+        }
+    });
+}
 
 /**
  * Function to create a new window to display the provided URL
@@ -184,7 +223,7 @@ app.on('window-all-closed', () => {
 ipcMain.on('open-url', (event, url) => {
     log.debug(`Received 'open-url' event for URL: ${url}`);
     try {
-        createURLWindow(url)
+        createURLWindow(url);
     } catch (error) {
         // Log error if URL cannot be opened and notify the renderer process
         log.error(`Error opening URL window: ${error.message}`);

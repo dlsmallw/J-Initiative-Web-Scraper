@@ -3,7 +3,7 @@ export class ScrapePageController {
     name = 'scrape';                  // Page name
     compID = '#scrape-container';     // Page component container ID
 
-    ipcRenderer = window.electronAPI;
+    scrapingAPI = window.scrapingAPI;
     lsAPI = window.lsAPI;
 
     /**
@@ -119,6 +119,11 @@ export class ScrapePageController {
                 });
             }
         });
+
+        // Listen for errors from main process related to URL opening
+        this.scrapingAPI.openURLErr((errorMessage) => {
+            alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
+        });
     }
 
     /**
@@ -216,7 +221,7 @@ export class ScrapePageController {
             }
 
             // Send the URL to the main process to open it
-            this.ipcRenderer.send('open-url', url);
+            this.scrapingAPI.openExternal(url);
             this.logInfo(`Requested to open URL: ${url}`);
 
             // Update the results container to display the submitted URL

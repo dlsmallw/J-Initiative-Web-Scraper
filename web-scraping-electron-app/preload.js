@@ -34,10 +34,10 @@ contextBridge.exposeInMainWorld(
             ipcRenderer.send('log-error', message);
         },
         requestLogs: () => {
-            ipcRenderer.send('get-logs:request');
+            ipcRenderer.send('get-logs');
         },
-        receiveLogs: (func) => {
-            ipcRenderer.on('get-logs:response', (event, ...args) => func(...args));
+        receiveLogs: async (func) => {
+            ipcRenderer.on('log-update', (event, ...args) => func(...args));
         }
     }
 );
@@ -55,7 +55,7 @@ contextBridge.exposeInMainWorld(
         exportData: (data, projectID) => {
             ipcRenderer.send('export-to-ls:request', data, projectID);
         },
-        onExportRes: (func) => {
+        onExportRes: async (func) => {
             ipcRenderer.on('export-to-ls:response', (event, ...args) => func(...args));
         },
         initVariables: (url, token) => {
@@ -73,34 +73,28 @@ contextBridge.exposeInMainWorld(
         clearLinkedProject: () => {
             ipcRenderer.send('clear-linked-ls:request');
         },
-        updateToProjectList: (func) => {
+        updateToProjectList: async (func) => {
             ipcRenderer.on('ls-projects-update', (event, ...args) => func(...args));
         }
     }
 );
 
-
+contextBridge.exposeInMainWorld(
+    'scrapingAPI', {
+        openExternal: (url) => {
+            ipcRenderer.send('open-url', url);
+        },
+        openURLErr: async (func) => {
+            ipcRenderer.on('open-url-error', (event, ...args) => func(...args));
+        }
+    }
+);
 
 // Expose a safe API for IPC communication between renderer and main processes
 contextBridge.exposeInMainWorld(
     'electronAPI', {    // Expose a safe API for IPC communication between renderer and main processes
-        // Method to send messages from renderer to main process
-        send: (channel, data) => {
-            // Define a list of valid channels to limit communication to safe ones only
-            const validChannels = ['open-url', 'exit:request'];
-            // Only send the message if the channel is in the list of valid channels
-            if (validChannels.includes(channel)) {
-                ipcRenderer.send(channel, data);
-            }
-        },
-        // Method to receive messages from the main process in the renderer process
-        receive: (channel, func) => {
-            // Define a list of valid channels that the renderer can listen to
-            const validChannels = ['open-url-error'];
-            // Only attach a listener if the channel is in the list of valid channels
-            if (validChannels.includes(channel)) {
-                ipcRenderer.on(channel, (event, ...args) => func(...args));
-            }
+        exitSignal: () => {
+            ipcRenderer.send('exit:request');
         }
     }
 );
