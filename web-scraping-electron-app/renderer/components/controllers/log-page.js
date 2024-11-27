@@ -40,7 +40,7 @@ export class LogPageController {
     /**
      * Method for intitializing the page in the application.
      */
-    initPage() {
+    async initPage() {
         var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
         var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
 
@@ -50,12 +50,13 @@ export class LogPageController {
             $('#d_content').append( await $.get(this.htmlFilePath));
         }
 
+        await this.loadLogs();
+
         insertElement().then(() => {
             this.initPageListeners();
         });
 
         this.logInfo("Log Page Initialized");
-        this.requestLogs();
     }
 
     /**
@@ -67,15 +68,9 @@ export class LogPageController {
         });
         this.logDebug('Log filter event listener attached.');
 
-        this.logger.receiveLogs((res) => {
-            var jsonObj = JSON.parse(res);
-
-            if (jsonObj.ok) {
-                var logs = jsonObj.logs;
-                this.loadLogs(logs);
-            } else {
-                this.logError(jsonObj.message);
-            }
+        // Listens for new logs being made and then updates the UI for just that log
+        this.logger.logUpdate((data) => {
+            this.addLogLine(data);
         });
     }
 
@@ -161,18 +156,42 @@ export class LogPageController {
     /**
      * Load and display logs.
      */
-
-    /**
-     * Load and display logs.
-     * @param {*} logs      Logs to be loaded into the window.
-     */
-    async loadLogs(logs) {
+    async loadLogs() {
         try {
+            // Wait for the DOM to be updated
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            const logs = await this.logger.requestLogs();
+            this.logDebug('Logs received from main process.');
+            if (!logs) {
+                this.logWarn('No logs received from main process.');
+                return;
+            }
+
             this.logLines = logs.split('\n').filter(line => line.trim() !== '');
             this.displayLogs(this.logLines);
         } catch (error) {
             this.logError(`Error loading logs: ${error}`);
         }
+    }
+
+    /**
+     * Updates the logLines with a new log entry.
+     * @param {*} line          The new log.
+     */
+    addLogLine(line) {
+        this.logLines.push(line);
+        this.filterLogs();
+    }
+
+    /**
+     * Method for appending a new log line into the UI.
+     * @param {*} log       The log to be inserted.
+     */
+    appendLog(log) {
+        var $logEntry = $('<div>', {class: "log-entry"});
+        $logEntry.text(log);
+        $('#log-output').append($logEntry);
     }
 
     /**
@@ -183,9 +202,7 @@ export class LogPageController {
         $('#log-output').empty();
 
         logs.forEach(line => {
-            var $logEntry = $('<div>', {class: "log-entry"});
-            $logEntry.text(line);
-            $('#log-output').append($logEntry);
+            this.appendLog(line);
         });
     }
 
@@ -209,9 +226,6 @@ export class LogPageController {
                 }
                 return false;
             });
-            this.logInfo(`Logs filtered by level: ${filterValue}`);
-        } else {
-            this.logInfo('Log filter reset to show all logs.');
         }
 
         this.displayLogs(filteredLogs);

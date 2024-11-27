@@ -7,6 +7,8 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('node:path');
 
+const Tail = require('tail').Tail;
+
 const { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject } = require('./js/label-studio-api.js');
 
 // Determine if the operating system is macOS
@@ -19,7 +21,7 @@ const log = require('electron-log');
 // Reference for the main application window
 let mainWin;
 let lsWindow;
-let logFilePath;
+let tail;
 
 /**
  * Function to create the main application window.
@@ -59,73 +61,44 @@ function createMainWindow() {
 // Info log handler
 ipcMain.on('log-info', (event, message) => {
     log.info(`Renderer: ${message}`);
-    loadLogs().then((res) => {
-        mainWin.webContents.send('log-update', JSON.stringify(res)); // Return the log data to the renderer process
-    });
 });
 
 // Debug log handler
 ipcMain.on('log-debug', (event, message) => {
     log.debug(`Renderer: ${message}`);
-    loadLogs().then((res) => {
-        mainWin.webContents.send('log-update', JSON.stringify(res)); // Return the log data to the renderer process
-    });
 });
 
 // Warn log handler
 ipcMain.on('log-warn', (event, message) => {
     log.warn(`Renderer: ${message}`);
-    loadLogs().then((res) => {
-        mainWin.webContents.send('log-update', JSON.stringify(res)); // Return the log data to the renderer process
-    });
 });
 
 // Error log handler
 ipcMain.on('log-error', (event, message) => {
     log.error(`Renderer: ${message}`);
-    loadLogs().then((res) => {
-        mainWin.webContents.send('log-update', JSON.stringify(res)); // Return the log data to the renderer process
-    });
 });
 
-ipcMain.on('get-logs:request', async (event) => {
-    loadLogs().then((res) => {
-        mainWin.webContents.send('log-update', JSON.stringify(res)); // Return the log data to the renderer process
-    })
-});
+ipcMain.handle('get-logs', async () => {
+    var data = '';
 
-/**
- * Method used for loading the log file.
- * @returns JSON        A response object that is sent to the renderer process.
- */
-function loadLogs() {
-    return new Promise((resolve) => {
-        if (!logFilePath) {
-            logFilePath = log.transports.file.getFile().path;
-            log.debug(`Log file path: ${logFilePath}`);
-        } 
+    const logFilePath = log.transports.file.getFile().path;
+    log.debug(`Log file path: ${logFilePath}`);
+    try {
+        data = fs.readFileSync(logFilePath, 'utf8');
+        log.debug('Log data read successfully.');    
+    } catch (error) {
+        log.error(`Error reading log file: ${error}`);
+    }
 
-        var response = {
-            ok: null,
-            message: null,
-            logs: null,
-            errorType: null
-        }
-
-        try {
-            const data = fs.readFileSync(logFilePath, 'utf8');
-            response.ok = true;
-            response.logs = data;
-            resolve(response);
-        } catch (error) {
-            log.error(`Error reading log file: ${error}`);
-            response.ok = false;
-            response.message = 'Error reading log file';
-            response.errorType = error;
-            resolve(response);
-        }
+    // File stream listener that watches for changes to log file and only sends the most recent line.
+    tail = new Tail(logFilePath);
+    tail.watch();
+    tail.on('line', (data) => {
+        mainWin.webContents.send('update-to-logs', data);
     });
-}
+
+    return data; // Return the log data to the renderer process
+});
 
 /**
  * Function to create a new window to display the provided URL
@@ -213,6 +186,7 @@ app.whenReady().then(() => {
 // When all windows are closed, quit the app unless running on macOS
 app.on('window-all-closed', () => {
     log.info('All windows closed.');
+    
     if (!isMac) {
         log.info('Quitting application.');
         app.quit(); // macOS apps typically stay open until explicitly quit
@@ -317,5 +291,6 @@ ipcMain.on('clear-linked-ls:request', () => {
 // Handles closing the application
 ipcMain.on('exit:request', () => {
     log.info('Received exit request from renderer.');
+    tail.unwatch();
     app.quit();
 });

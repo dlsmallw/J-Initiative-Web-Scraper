@@ -34,10 +34,10 @@ contextBridge.exposeInMainWorld(
             ipcRenderer.send('log-error', message);
         },
         requestLogs: () => {
-            ipcRenderer.send('get-logs');
+            return ipcRenderer.invoke('get-logs');
         },
-        receiveLogs: async (func) => {
-            ipcRenderer.on('log-update', (event, ...args) => func(...args));
+        logUpdate: (func) => {
+            ipcRenderer.on('update-to-logs', (event, ...args) => func(...args));
         }
     }
 );
