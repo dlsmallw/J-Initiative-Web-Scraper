@@ -64,6 +64,7 @@ export class LogPageController {
         $('#log-filter').on('change', () => {
             this.filterLogs()
         });
+        this.logDebug('Log filter event listener attached.');
     }
 
     /**
@@ -155,15 +156,6 @@ export class LogPageController {
 
             this.logLines = logs.split('\n').filter(line => line.trim() !== '');
             this.displayLogs(this.logLines);
-
-            // Attach event listener for log filter
-            const logFilter = document.getElementById('log-filter');
-            if (logFilter) {
-                logFilter.addEventListener('change', filterLogs);
-                this.logDebug('Log filter event listener attached.');
-            } else {
-                this.logWarn('Log filter element not found.');
-            }
         } catch (error) {
             this.logError(`Error loading logs: ${error}`);
         }
@@ -174,18 +166,12 @@ export class LogPageController {
      * @param {Array} logs - Array of log lines to display.
      */
     displayLogs(logs) {
-        const logOutput = document.getElementById('log-output');
-        if (!logOutput) {
-            this.logError('log-output element not found.');
-            return;
-        }
-        logOutput.innerHTML = '';
+        $('#log-output').empty();
 
         logs.forEach(line => {
-            const logEntry = document.createElement('div');
-            logEntry.className = 'log-entry';
-            logEntry.textContent = line;
-            logOutput.appendChild(logEntry);
+            var $logEntry = $('<div>', {class: "log-entry"});
+            $logEntry.text(line);
+            $('#log-output').append($logEntry)
         });
 
         this.logDebug('Logs displayed in UI.');
@@ -195,8 +181,7 @@ export class LogPageController {
      * Filter logs based on selected log level.
      */
     filterLogs() {
-        const logFilter = document.getElementById('log-filter');
-        const filterValue = logFilter ? logFilter.value : 'ALL';
+        const filterValue = $('#log-filter').val();
         let filteredLogs = this.logLines;
 
         if (filterValue !== 'ALL') {
