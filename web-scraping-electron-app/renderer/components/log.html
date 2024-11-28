@@ -5,15 +5,19 @@
     <!-- Filter Dropdown -->
     <div class="mb-3">
         <label for="log-filter" class="form-label">Filter Logs:</label>
-         <select id="log-filter" class="form-select">
-             <option value="ALL">All</option>
-             <option value="info">Info</option>
-             <option value="debug">Debug</option>
-             <option value="warn">Warn</option>
-             <option value="error">Error</option>
-
+        <select id="log-filter" class="form-select">
+            <option value="ALL">All</option>
+            <option value="info">Info</option>
+            <option value="debug">Debug</option>
+            <option value="warn">Warn</option>
+            <option value="error">Error</option>
         </select>
+    </div>
 
+    <!-- Date Filter Section -->
+    <div class="mb-3">
+        <label for="date-filter" class="form-label">Filter by Date:</label>
+        <input type="date" id="date-filter" class="form-control" />
     </div>
 
     <!-- Log Output Section -->
@@ -21,4 +25,5 @@
         <!-- Log entries will be dynamically added here -->
     </pre>
 </div>
+
 

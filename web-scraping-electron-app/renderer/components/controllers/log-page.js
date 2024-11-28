@@ -179,26 +179,45 @@ export class LogPageController {
      */
     filterLogs() {
         const filterValue = $('#log-filter').val();
+        const dateFilter = $('#date-filter').val();
         let filteredLogs = this.logLines;
 
-        if (filterValue !== 'ALL') {
-            // Split the filterValue into an array of levels
-            const levels = filterValue.toLowerCase().split(',').map(s => s.trim());
-            filteredLogs = this.logLines.filter(line => {
-                // Extract the log level using regex
-                const regex = /\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}\] \[(\w+)\]/;
-                const match = line.match(regex);
-                if (match && match[1]) {
-                    const logLevel = match[1].toLowerCase();
-                    return levels.includes(logLevel);
-                }
-                return false;
-            });
-            this.logInfo(`Logs filtered by level: ${filterValue}`);
-        } else {
-            this.logInfo('Log filter reset to show all logs.');
+        // Check if logs are available
+        if (!filteredLogs || filteredLogs.length === 0) {
+            this.logWarn('No logs available to filter.');
+            return;
         }
+         // Combine filters
+         const levels = filterValue !== 'ALL' ? filterValue.toLowerCase().split(',').map(s => s.trim()) : [];
+         const selectedDateStr = dateFilter ? new Date(dateFilter).toISOString().split('T')[0] : null;
 
-        this.displayLogs(filteredLogs);
+         const regex = /\[(\d{4}-\d{2}-\d{2}) \d{2}:\d{2}:\d{2}\.\d{3}\] \[(\w+)\]/;
+
+         filteredLogs = filteredLogs.filter(line => {
+             const match = line.match(regex);
+             if (match) {
+                 const logDate = match[1];
+                 const logLevel = match[2].toLowerCase();
+                 const matchesLevel = !levels.length || levels.includes(logLevel);
+                 const matchesDate = !selectedDateStr || logDate === selectedDateStr;
+
+                 return matchesLevel && matchesDate;
+             }
+             return false;
+         });
+
+         // Log active filters
+         const activeFilters = [];
+         if (filterValue !== 'ALL') activeFilters.push(`Level: ${filterValue}`);
+         if (dateFilter) activeFilters.push(`Date: ${dateFilter}`);
+         if (activeFilters.length > 0) {
+             this.logInfo(`Logs filtered with active filters: ${activeFilters.join(', ')}`);
+         }
+
+         if (filteredLogs.length === 0) {
+             this.logInfo('No logs match the selected filters.');
+         }
+
+         this.displayLogs(filteredLogs);
     }
 }
