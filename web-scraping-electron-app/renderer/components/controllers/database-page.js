@@ -1,9 +1,13 @@
+
+
+
 export class DatabasePageController {
     htmlFilePath = './components/database.html';  // Filepath to HTML component
     name = 'database';                  // Page name
     compID = '#database-container';     // Page component container ID
 
     ipcRenderer = window.electronAPI;
+
 
     /**
      * Returns the pages component html filepath.
@@ -51,7 +55,7 @@ export class DatabasePageController {
         }
 
         insertElement().then(() => {
-            
+
 
             this.initPageListeners();
         });
@@ -103,6 +107,7 @@ export class DatabasePageController {
      */
     logInfo(message) {
         this.ipcRenderer.send('log-info', message);
+
     }
 
     /**
@@ -132,4 +137,23 @@ export class DatabasePageController {
     //============================================================================================================================
     // Page Specific Methods
     //============================================================================================================================
+
+  async displayWebsiteData() {
+    await new Promise(resolve => setTimeout(resolve, 50));
+    const websiteInfo = document.getElementById('website-info');
+    if (!websiteInfo) {
+      this.logError('website-info element not found.');
+      return;
+    }
+    websiteInfo.innerHTML = '';
+
+    const websites = await this.ipcRenderer.invoke('get-websites');
+      const websiteEntry = document.createElement('div');
+    websiteEntry.className = 'website-entry';
+    websiteEntry.textContent = websites;
+    websiteInfo.appendChild(websiteEntry);
+
+
+    this.logDebug('website data displayed in UI.');
+  }
 }

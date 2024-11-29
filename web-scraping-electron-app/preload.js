@@ -40,7 +40,7 @@ contextBridge.exposeInMainWorld(
         },
         // Method for performing a 2-way conversation in a single call
         invoke: (channel, data) => {
-            const validChannels = ['get-logs'];
+            const validChannels = ['get-logs', 'get-websites'];
             if (validChannels.includes(channel)) {
                 return ipcRenderer.invoke(channel, data);
             } else {

@@ -126,7 +126,9 @@ function changePage(event) {
         // Load logs if the current page is the Logs page
         if (currentPage.getName() === 'logs') {
             currentPage.loadLogs();
-        }
+        } else if(currentPage.getName() === 'database') {
+          currentPage.displayWebsiteData();
+      }
     } else {
         logDebug(`Page not changed. Already on ${currentPage.getName()}.`);
     }
