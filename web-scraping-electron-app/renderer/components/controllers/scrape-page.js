@@ -240,7 +240,6 @@ export class ScrapePageController {
 
             // Update the results container to display the submitted URL
             $('#staticURL').val(url);
-            $('#results-container').css('display', 'block');
 
             this.logInfo(`Opened URL successfully.`);
 
