@@ -79,17 +79,6 @@ contextBridge.exposeInMainWorld(
     }
 );
 
-contextBridge.exposeInMainWorld(
-    'scrapingAPI', {
-        openExternal: (url) => {
-            ipcRenderer.send('open-url', url);
-        },
-        openURLErr: async (func) => {
-            ipcRenderer.on('open-url-error', (event, ...args) => func(...args));
-        }
-    }
-);
-
 // Expose a safe API for IPC communication between renderer and main processes
 contextBridge.exposeInMainWorld(
     'electronAPI', {    // Expose a safe API for IPC communication between renderer and main processes
@@ -110,6 +99,12 @@ contextBridge.exposeInMainWorld(
             if (validChannels.includes(channel)) {
                 ipcRenderer.on(channel, (event, ...args) => func(...args));
             }
+        },
+        openExternal: (url) => {
+            ipcRenderer.send('open-url', url);
+        },
+        openURLErr: async (func) => {
+            ipcRenderer.on('open-url-error', (event, ...args) => func(...args));
         },
         exitSignal: () => {
             ipcRenderer.send('exit:request');

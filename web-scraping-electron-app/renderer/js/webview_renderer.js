@@ -24,9 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
             $('#imported_textarea').val(data); // Populate the textarea with the selected text
         }
 
+        // may be pointless
         if (channel === 'export') {
             console.log('Exported data received from webview:', data);
-            ipcRenderer.send('scrapedData:export', data); // Forward exported data to the main process
+            exportDataToApp(exportData);
         }
     });
 
@@ -39,17 +40,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Export data from textarea to the main process
     $('#exportBtn').on('click', () => {
         const dataToExport = $('#imported_textarea').val();
-        if (dataToExport) {
-            const exportData = {
-                formattedData: dataToExport,
-                rawData: dataToExport
-            };
-            ipcRenderer.send('scrapedData:export', exportData);
-            console.log('Exported data sent to main process:', exportData);
-        } else {
-            alert('No data to export!');
-            console.log('Export button clicked with no data in textarea.');
-        }
+        exportDataToApp(dataToExport);
     });
 
 });
+
+/**
+ * Function that consolidates the data export to a central location.
+ * @param {*} data      Data to export.
+ */
+function exportDataToApp(data) {
+    if (data) {
+        const exportData = {
+            formattedData: data,
+            rawData: data
+        };
+        ipcRenderer.send('scrapedData:export', exportData);
+        console.log('Exported data sent to main process:', exportData);
+    } else {
+        alert('No data to export!');
+        console.log('Export button clicked with no data in textarea.');
+    }
+    
+}

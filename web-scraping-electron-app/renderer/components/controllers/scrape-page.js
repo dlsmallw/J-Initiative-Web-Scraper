@@ -3,7 +3,7 @@ export class ScrapePageController {
     name = 'scrape';                  // Page name
     compID = '#scrape-container';     // Page component container ID
 
-    scrapingAPI = window.scrapingAPI;
+    electronAPI = window.electronAPI;
     lsAPI = window.lsAPI;
 
     /**
@@ -95,7 +95,7 @@ export class ScrapePageController {
         });
 
         // Submit button pressed while in Manual Data Entry Mode
-        $('#manual-submit-btn').on('click', async () => {
+        $('#manual-submit-btn').on('click', () => {
             let data = $('#manual-scrape-textarea').val();
             let projID = $('#projectSelect').val();
 
@@ -121,9 +121,23 @@ export class ScrapePageController {
         });
 
         // Listen for errors from main process related to URL opening
-        this.scrapingAPI.openURLErr((errorMessage) => {
+        this.electronAPI.openURLErr((errorMessage) => {
             alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
         });
+
+        this.electronAPI.receive('scrapedData:update', (data) => {
+            console.log('Updating scrape.html with imported data:', data);
+    
+            // Update the Formatted Data container
+            $('#formatted-data-text').html(`<p>${data.formattedData}</p>`);
+    
+            // Update the Raw Data container
+            $('#raw-data-text').html(`<p>${data.rawData}</p>`);
+    
+            // Ensure the results container is visible
+            $('#results-container').show();
+        });
+        this.logDebug('Initialized listener for scraped data updates.');
     }
 
     /**
@@ -221,7 +235,7 @@ export class ScrapePageController {
             }
 
             // Send the URL to the main process to open it
-            this.scrapingAPI.openExternal(url);
+            this.electronAPI.openExternal(url);
             this.logInfo(`Requested to open URL: ${url}`);
 
             // Update the results container to display the submitted URL
