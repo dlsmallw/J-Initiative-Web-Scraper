@@ -3,8 +3,6 @@ export class LogPageController {
     name = 'logs';                  // Page name
     compID = '#log-container';     // Page component container ID
 
-    ipcRenderer = window.electronAPI;
-
     logLines = []; // Store logs for filtering
 
     /**
@@ -42,7 +40,7 @@ export class LogPageController {
     /**
      * Method for intitializing the page in the application.
      */
-    initPage() {
+    async initPage() {
         var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
         var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
 
@@ -52,9 +50,13 @@ export class LogPageController {
             $('#d_content').append( await $.get(this.htmlFilePath));
         }
 
+        await this.loadLogs();
+
         insertElement().then(() => {
             this.initPageListeners();
         });
+
+        this.logInfo("Log Page Initialized");
     }
 
     /**
@@ -62,7 +64,13 @@ export class LogPageController {
      */
     initPageListeners() {
         $('#log-filter').on('change', () => {
-            this.filterLogs()
+            this.filterLogs();
+        });
+        this.logDebug('Log filter event listener attached.');
+
+        // Listens for new logs being made and then updates the UI for just that log
+        this.logger.logUpdate((data) => {
+            this.addLogLine(data);
         });
     }
 
@@ -85,6 +93,7 @@ export class LogPageController {
     //============================================================================================================================
     // Logging Helpers (WIP - Plan to move to a separate class that is imported)
     //============================================================================================================================
+    logger = window.log;    // Variable created for ease of reading
 
     /**
      * Handles displaying an alert message for specific situations (error or otherwise).
@@ -94,8 +103,10 @@ export class LogPageController {
     postAlert(alertMsg, cause) {
         if (cause === undefined) {
             alert(alertMsg);
+            this.logInfo(alertMsg);
         } else {
             alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+            this.logError(`${alertMsg} Cause: ${cause}`);
         }
     }
 
@@ -104,7 +115,7 @@ export class LogPageController {
      * @param {string} message - The message to log.
      */
     logInfo(message) {
-        this.ipcRenderer.send('log-info', message);
+        this.logger.info(message);
     }
 
     /**
@@ -112,7 +123,7 @@ export class LogPageController {
      * @param {string} message - The message to log.
      */
     logDebug(message) {
-        this.ipcRenderer.send('log-debug', message);
+        this.logger.debug(message);
     }
 
     /**
@@ -120,7 +131,7 @@ export class LogPageController {
      * @param {string} message - The message to log.
      */
     logWarn(message) {
-        this.ipcRenderer.send('log-warn', message);
+        this.logger.warn(message);
     }
 
     /**
@@ -128,7 +139,14 @@ export class LogPageController {
      * @param {string} message - The message to log.
      */
     logError(message) {
-        this.ipcRenderer.send('log-error', message);
+        this.logger.error(message);
+    }
+
+    /**
+     * Method for making an IPC log request.
+     */
+    requestLogs() {
+        this.logger.requestLogs();
     }
 
     //============================================================================================================================
@@ -143,7 +161,7 @@ export class LogPageController {
             // Wait for the DOM to be updated
             await new Promise(resolve => setTimeout(resolve, 50));
 
-            const logs = await this.ipcRenderer.invoke('get-logs');
+            const logs = await this.logger.requestLogs();
             this.logDebug('Logs received from main process.');
             if (!logs) {
                 this.logWarn('No logs received from main process.');
@@ -152,18 +170,28 @@ export class LogPageController {
 
             this.logLines = logs.split('\n').filter(line => line.trim() !== '');
             this.displayLogs(this.logLines);
-
-            // Attach event listener for log filter
-            const logFilter = document.getElementById('log-filter');
-            if (logFilter) {
-                logFilter.addEventListener('change', filterLogs);
-                this.logDebug('Log filter event listener attached.');
-            } else {
-                this.logWarn('Log filter element not found.');
-            }
         } catch (error) {
             this.logError(`Error loading logs: ${error}`);
         }
+    }
+
+    /**
+     * Updates the logLines with a new log entry.
+     * @param {*} line          The new log.
+     */
+    addLogLine(line) {
+        this.logLines.push(line);
+        this.filterLogs();
+    }
+
+    /**
+     * Method for appending a new log line into the UI.
+     * @param {*} log       The log to be inserted.
+     */
+    appendLog(log) {
+        var $logEntry = $('<div>', {class: "log-entry"});
+        $logEntry.text(log);
+        $('#log-output').append($logEntry);
     }
 
     /**
@@ -171,29 +199,18 @@ export class LogPageController {
      * @param {Array} logs - Array of log lines to display.
      */
     displayLogs(logs) {
-        const logOutput = document.getElementById('log-output');
-        if (!logOutput) {
-            this.logError('log-output element not found.');
-            return;
-        }
-        logOutput.innerHTML = '';
+        $('#log-output').empty();
 
         logs.forEach(line => {
-            const logEntry = document.createElement('div');
-            logEntry.className = 'log-entry';
-            logEntry.textContent = line;
-            logOutput.appendChild(logEntry);
+            this.appendLog(line);
         });
-
-        this.logDebug('Logs displayed in UI.');
     }
 
     /**
      * Filter logs based on selected log level.
      */
     filterLogs() {
-        const logFilter = document.getElementById('log-filter');
-        const filterValue = logFilter ? logFilter.value : 'ALL';
+        const filterValue = $('#log-filter').val();
         let filteredLogs = this.logLines;
 
         if (filterValue !== 'ALL') {
@@ -209,9 +226,6 @@ export class LogPageController {
                 }
                 return false;
             });
-            this.logInfo(`Logs filtered by level: ${filterValue}`);
-        } else {
-            this.logInfo('Log filter reset to show all logs.');
         }
 
         this.displayLogs(filteredLogs);

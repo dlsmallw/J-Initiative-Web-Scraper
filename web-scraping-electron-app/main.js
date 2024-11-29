@@ -7,6 +7,8 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('node:path');
 
+const Tail = require('tail').Tail;
+
 const { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject } = require('./js/label-studio-api.js');
 
 // Determine if the operating system is macOS
@@ -19,6 +21,7 @@ const log = require('electron-log');
 // Reference for the main application window
 let mainWin;
 let lsWindow;
+let tail;
 
 /**
  * Function to create the main application window.
@@ -76,16 +79,25 @@ ipcMain.on('log-error', (event, message) => {
 });
 
 ipcMain.handle('get-logs', async () => {
+    var data = '';
+
     const logFilePath = log.transports.file.getFile().path;
     log.debug(`Log file path: ${logFilePath}`);
     try {
-        const data = fs.readFileSync(logFilePath, 'utf8');
-        log.debug('Log data read successfully.');
-        return data; // Return the log data to the renderer process
+        data = fs.readFileSync(logFilePath, 'utf8');
+        log.debug('Log data read successfully.');    
     } catch (error) {
         log.error(`Error reading log file: ${error}`);
-        return ''; // Return empty string on error
     }
+
+    // File stream listener that watches for changes to log file and only sends the most recent line.
+    tail = new Tail(logFilePath);
+    tail.watch();
+    tail.on('line', (data) => {
+        mainWin.webContents.send('update-to-logs', data);
+    });
+
+    return data; // Return the log data to the renderer process
 });
 
 /**
@@ -178,6 +190,7 @@ app.whenReady().then(() => {
 // When all windows are closed, quit the app unless running on macOS
 app.on('window-all-closed', () => {
     log.info('All windows closed.');
+    
     if (!isMac) {
         log.info('Quitting application.');
         app.quit(); // macOS apps typically stay open until explicitly quit
@@ -188,7 +201,7 @@ app.on('window-all-closed', () => {
 ipcMain.on('open-url', (event, url) => {
     log.debug(`Received 'open-url' event for URL: ${url}`);
     try {
-        createURLWindow(url)
+        createURLWindow(url);
     } catch (error) {
         // Log error if URL cannot be opened and notify the renderer process
         log.error(`Error opening URL window: ${error.message}`);
@@ -220,7 +233,7 @@ function createLSExternal(url) {
 
         lsWindow.on('close', () => {
             // tell renderer to redisplay embbedded content
-            mainWin.webContents.send('openLSExternal-close');
+            mainWin.webContents.send('open-ls-ext:response');
         });
     
         // Prevent the window from opening any new windows (e.g., pop-ups)
@@ -230,52 +243,52 @@ function createLSExternal(url) {
     } catch (err) {
         lsWindow.close();
         // tell renderer to redisplay embbedded content
-        mainWin.webContents.send('openLSExternal-close');
+        mainWin.webContents.send('open-ls-ext:response');
     }
 }
 
 // Handles exporting data to the linked LS project
-ipcMain.on('exportData:request', async (event, data, projectID) => {
+ipcMain.on('export-to-ls:request', async (event, data, projectID) => {
     exportDataToLS(data, projectID)
         .then(response => {
             console.log(response)
-            mainWin.webContents.send('exportData:response', JSON.stringify(response));
+            mainWin.webContents.send('export-to-ls:response', JSON.stringify(response));
         });
 });
 
 // Handles openning the LS project in an external window
-ipcMain.on('openLSExternal:request', (event, url) => {
+ipcMain.on('open-ls-ext:request', (event, url) => {
     createLSExternal(url);
 });
 
 // Handles updating the linked LS project URL
-ipcMain.on('initLSVariables:request', (event, url, token) => {
+ipcMain.on('init-ls-vars:request', (event, url, token) => {
     updateLinkedLSProject(url);
     updateAPIToken(token)
         .then(result => {
-            mainWin.webContents.send('updateToProjectList', JSON.stringify(result));
+            mainWin.webContents.send('ls-projects-update', JSON.stringify(result));
         }).catch(err => {
             console.log(err);
         }); 
 });
 
 // Handles updating the linked LS project URL
-ipcMain.on('updateLinkedLS:request', (event, url) => {
+ipcMain.on('update-linked-ls:request', (event, url) => {
     updateLinkedLSProject(url);
 });
 
 // Handles updating the linked LS project API Token
-ipcMain.on('updateAPIToken:request', (event, token) => {
+ipcMain.on('update-ls-api-token:request', (event, token) => {
     updateAPIToken(token)
         .then(result => {
-            mainWin.webContents.send('updateToProjectList', JSON.stringify(result));
+            mainWin.webContents.send('ls-projects-update', JSON.stringify(result));
         }).catch(err => {
             console.log(err);
         }); 
 });
 
 // Handles clearing the linked LS project (URL and API)
-ipcMain.on('clearLinkedLS:request', () => {
+ipcMain.on('clear-linked-ls:request', () => {
     clearLinkedLSProject();
 });
 
@@ -294,5 +307,6 @@ ipcMain.on('scrapedData:export', (event, data) => {
 // Handles closing the application
 ipcMain.on('exit:request', () => {
     log.info('Received exit request from renderer.');
+    tail.unwatch();
     app.quit();
 });
