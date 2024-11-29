@@ -407,6 +407,63 @@ input[readonly].default-cursor {
     cursor: default;
 }
 
-#ext-url-window {
-    height: 70vh;
+#import-btn-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#importSelectedBtn {
+    background: #3b4145;
+    width: 40%;
+}
+
+#content-container {
+    transform: translateY(59px);
+}
+
+#webview-container {
+    height: 60vh;
+}
+
+#webview-element {
+    height: 100%;
+}
+
+#data-container {
+    padding-top: 1rem;
+}
+
+#selected-data-container {
+    margin: 0 10px 0 10px;
+}
+
+#data-list {
+    height: 20vh;
+}
+
+#data-list-header {
+    display: flex;
+    display: flex;
+    align-items: center;
+    padding-bottom: 10px;
+    margin-left: 10px;
+}
+
+#data-list-btns {
+    margin-left: 20px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.scrape-data-btn {
+    border-style: solid;
+}
+
+#data-list-lbl {
+    min-width: 140px;
+    font-size: calc(1.275rem + 0.1vw);
+    display: flex;
+    align-items: center;
 }

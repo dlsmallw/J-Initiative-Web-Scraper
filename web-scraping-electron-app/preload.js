@@ -124,5 +124,8 @@ contextBridge.exposeInMainWorld('urlScrape', {
         if (validChannels.includes(channel)) {
             ipcRenderer.on(channel, (event, ...args) => func(...args));
         }
+    },
+    sendCloseSignal: () => {
+        ipcRenderer.send('close-scrape-win');
     }
 });
