@@ -13,16 +13,16 @@
         style-src 'self' 'unsafe-inline';
     ">
     <!-- CSS Stylesheets -->
-    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
-    <link rel="stylesheet" href="../renderer/css/style.css">
+    <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="../css/style.css">
     <!-- jQuery -->
-    <script src="../node_modules/jquery/dist/jquery.js"></script>
+    <script src="../../node_modules/jquery/dist/jquery.js"></script>
     <!-- Include renderer.js -->
-    <script src="../renderer/js/webview_renderer.js"></script>
+    <script src="../js/webview_renderer.js"></script>
 </head>
 <body id="webview_body">
     <!-- Webview -->
-    <webview id="ext-url-window" preload="./js/webview_preload.js"></webview>
+    <webview id="ext-url-window" preload="../js/webview_preload.js"></webview>
 
     <!-- Action Buttons -->
     <div class="action-buttons mt-3">
@@ -38,6 +38,6 @@
     </div>
 
     <!-- Bootstrap JS Bundle -->
-    <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
 </body>
 </html>

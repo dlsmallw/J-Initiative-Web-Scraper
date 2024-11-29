@@ -127,7 +127,7 @@ function createURLWindow(url) {
         }
     });
 
-    const loadingWindow = new BrowserWindow( {
+    const loadingWindow = new BrowserWindow({
         width: 1200, // Set width of the URL window
         height: 800,
         webPreferences: {
@@ -141,7 +141,7 @@ function createURLWindow(url) {
     urlWindow.hide();
 
      // Load the specified URL in the window, catch invalid url
-    urlWindow.loadFile('./renderer/webview_window.html')
+    urlWindow.loadFile('./renderer/window-templates/scrape-window.html')
         .then(() => {
             urlWindow.webContents.send('setUrl', url);
             urlWindow.show();
