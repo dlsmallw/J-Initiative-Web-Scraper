@@ -62,10 +62,16 @@ export class LogPageController {
      */
     initPageListeners() {
         $('#log-filter').on('change', () => {
-            this.filterLogs()
+            this.filterLogs();
         });
-        this.logDebug('Log filter event listener attached.');
+
+        $('#date-filter').on('change', () => {
+            this.filterLogs(); // Reapply filters whenever the date changes
+        });
+
+        this.logDebug('Log filter and date filter event listeners attached.');
     }
+
 
     /**
      * Sets the page active (visible).
@@ -163,16 +169,28 @@ export class LogPageController {
      * @param {Array} logs - Array of log lines to display.
      */
     displayLogs(logs) {
-        $('#log-output').empty();
+        const logOutput = $('#log-output');
+        logOutput.empty(); // Clear existing logs
+
+        if (logs.length === 0) {
+            // If no logs match, display a message in the log output
+            const noLogsMessage = $('<div>', { class: 'no-logs-message text-center text-muted' });
+            noLogsMessage.text('No logs found for the selected filters.');
+            logOutput.append(noLogsMessage);
+
+            this.logDebug('No logs to display.');
+            return;
+        }
 
         logs.forEach(line => {
-            var $logEntry = $('<div>', {class: "log-entry"});
-            $logEntry.text(line);
-            $('#log-output').append($logEntry)
+            const logEntry = $('<div>', { class: 'log-entry' });
+            logEntry.text(line);
+            logOutput.append(logEntry);
         });
 
         this.logDebug('Logs displayed in UI.');
     }
+
 
     /**
      * Filter logs based on selected log level.
@@ -185,6 +203,7 @@ export class LogPageController {
         // Check if logs are available
         if (!filteredLogs || filteredLogs.length === 0) {
             this.logWarn('No logs available to filter.');
+            this.displayLogs([]); // Clear the UI if no logs are available
             return;
         }
          // Combine filters
@@ -208,11 +227,9 @@ export class LogPageController {
 
          // Log active filters
          const activeFilters = [];
-         if (filterValue !== 'ALL') activeFilters.push(`Level: ${filterValue}`);
-         if (dateFilter) activeFilters.push(`Date: ${dateFilter}`);
-         if (activeFilters.length > 0) {
+             if (filterValue !== 'ALL') activeFilters.push(`Level: ${filterValue}`);
+             if (dateFilter) activeFilters.push(`Date: ${dateFilter}`);
              this.logInfo(`Logs filtered with active filters: ${activeFilters.join(', ')}`);
-         }
 
          if (filteredLogs.length === 0) {
              this.logInfo('No logs match the selected filters.');
