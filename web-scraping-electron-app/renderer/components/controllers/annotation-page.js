@@ -4,6 +4,7 @@ export class AnnotationPageController {
     compID = '#annotation-container';     // Page component container ID
 
     lsAPI = window.lsAPI;
+    electronAPI = window.electronAPI;
 
     /**
      * Returns the pages component html filepath.
@@ -150,11 +151,18 @@ export class AnnotationPageController {
      * @param {*} cause             Cause if an error.
      */
     postAlert(alertMsg, cause) {
+        var json = {
+            msg: alertMsg,
+            errType: null
+        }
+
         if (cause === undefined) {
-            alert(alertMsg);
+            this.electronAPI.postDialog.general(JSON.stringify(json));
             this.logInfo(alertMsg);
         } else {
-            alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+            json.errType = cause;
+
+            this.electronAPI.postDialog.error(JSON.stringify(json));
             this.logError(`${alertMsg} Cause: ${cause}`);
         }
     }
@@ -245,7 +253,7 @@ export class AnnotationPageController {
                 this.setLSURL(urlInput);
                 this.showLSEmbeddedFrame();
             } else {
-                alert("The URL '" + urlInput + "' is not valid");
+                this.postAlert("The URL '" + urlInput + "' is not valid", 'Invalid URL');
                 $('#ls-link-input').val('');
             }
         }
@@ -261,7 +269,7 @@ export class AnnotationPageController {
         if (this.checkLSURL(urlInput)) {
             this.setLSURL(urlInput);
         } else {
-            alert("The URL '" + urlInput + "' is not valid");
+            this.postAlert("The URL '" + urlInput + "' is not valid", 'Invalid URL');
             $('#ls-link-option').val(currURL);
         }
     }
@@ -293,7 +301,7 @@ export class AnnotationPageController {
             localStorage.setItem('apiToken', tokenVal);
             this.setLSAPIToken(tokenVal);
         } else {
-            alert('Invalid API Token');
+            this.postAlert('The API Token is not valid', 'Invalid API Token');
 
             if (currToken) {
                 $('#ls-api-token-option').val(currToken);

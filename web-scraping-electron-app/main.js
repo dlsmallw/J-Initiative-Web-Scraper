@@ -124,16 +124,16 @@ function createURLWindow(url) {
         }
     });
 
-    const loadingWindow = new BrowserWindow({
-        width: 1200, // Set width of the URL window
-        height: 800,
-        webPreferences: {
-            nodeIntegration: false, // Disable Node.js integration for security
-            contextIsolation: true, // Isolate context for securitya
-        }
-    });
+    // const loadingWindow = new BrowserWindow({
+    //     width: 1200, // Set width of the URL window
+    //     height: 800,
+    //     webPreferences: {
+    //         nodeIntegration: false, // Disable Node.js integration for security
+    //         contextIsolation: true, // Isolate context for securitya
+    //     }
+    // });
 
-    loadingWindow.loadFile('./renderer/assets/html/loadingscreen.html').then(() => log.info("loading screen opened successfully"));
+    // loadingWindow.loadFile('./renderer/assets/html/loadingscreen.html').then(() => log.info("loading screen opened successfully"));
 
     urlWindow.hide();
     urlWindow.webContents.openDevTools();
@@ -143,11 +143,11 @@ function createURLWindow(url) {
         .then(() => {
             urlWindow.webContents.send('setUrl', url);
             urlWindow.show();
-            loadingWindow.close();
+            // loadingWindow.close();
             log.info(`URL window loaded: ${url}`);
     }).catch((error) => {
             closeScrapeWindow();
-            loadingWindow.close()
+            // loadingWindow.close()
             log.error(`Failed to load URL: ${error}`);
             dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!');
     });
@@ -355,3 +355,15 @@ function terminateApp() {
 
     app.quit();
 }
+
+ipcMain.on('gen-dialog', (event, message) => {
+    var json = JSON.parse(message);
+
+    dialog.showMessageBox(json.msg);
+});
+
+ipcMain.on('err-dialog', (event, message) => {
+    var json = JSON.parse(message);
+
+    dialog.showErrorBox(json.errType, json.msg);
+});

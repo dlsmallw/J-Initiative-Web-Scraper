@@ -108,6 +108,14 @@ contextBridge.exposeInMainWorld(
         },
         exitSignal: () => {
             ipcRenderer.send('exit:request');
+        },
+        postDialog: {
+            general: (message) => {
+                ipcRenderer.send('gen-dialog', message);
+            },
+            error: (message) => {
+                ipcRenderer.send('err-dialog', message);
+            }
         }
     }
 );

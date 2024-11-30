@@ -62,6 +62,8 @@ export class ScrapePageController {
      * Method for initializing the pages event listeners.
      */
     initPageListeners() {
+        this.initResultsContainer();
+
         // Toggles a manual mode or a URL entry mode (URL entry is default)
         $('#scrape-mode-toggle').on('click', () => {
             let curr = $('#scrape-mode-toggle').html();
@@ -122,18 +124,12 @@ export class ScrapePageController {
 
         // Listen for errors from main process related to URL opening
         this.electronAPI.openURLErr((errorMessage) => {
-            alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
+            this.postAlert('Failed to open URL', errorMessage); // Display alert if there was an error opening the URL
         });
 
         this.electronAPI.receive('scrapedData:update', (data) => {
-            console.log('Updating scrape.html with imported data:', data);
-    
-            // Update the Formatted Data container
-            $('#formatted-data-text').html(`<p>${data.formattedData}</p>`);
-    
-            // Update the Raw Data container
-            $('#raw-data-text').html(`<p>${data.rawData}</p>`);
-    
+            var jsonObj = JSON.parse(data);
+            this.parseScrapedDataToList(jsonObj);
             // Ensure the results container is visible
             $('#results-container').show();
         });
@@ -167,11 +163,18 @@ export class ScrapePageController {
      * @param {*} cause             Cause if an error.
      */
     postAlert(alertMsg, cause) {
+        var json = {
+            msg: alertMsg,
+            errType: null
+        }
+
         if (cause === undefined) {
-            alert(alertMsg);
+            this.electronAPI.postDialog.general(JSON.stringify(json));
             this.logInfo(alertMsg);
         } else {
-            alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+            json.errType = cause;
+
+            this.electronAPI.postDialog.error(JSON.stringify(json));
             this.logError(`${alertMsg} Cause: ${cause}`);
         }
     }
@@ -212,12 +215,104 @@ export class ScrapePageController {
     // Page Specific Methods
     //============================================================================================================================
 
+    initResultsContainer() {
+        $('#results-container').hide();
+        $('#rmv-sel-btn').hide();
+    
+        $('#rmv-sel-btn').on('click', () => {
+            this.removeSelectedItems();
+        });
+    
+        $('#rmv-all-btn').on('click', () => {
+            this.clearScrapedList();
+        });
+    }
+
+    parseScrapedDataToList(data) {
+        for (var i = 0; i < data.length; i++) {
+            this.appendNewScrapedItem(data[i]);
+        }
+        $('#results-container').show();
+    }
+
+    appendNewScrapedItem(dataObj) {
+        var $newLI = $('<a>', {
+            href: '#', 
+            class: 'list-group-item list-group-item-action scrape-item',
+            style: 'border-width: 0px 0px 3px 0px;'
+        });
+
+        $newLI.text(dataObj.data);
+        $newLI.attr('data-url', dataObj.url)
+    
+        $newLI.on('click', () => {
+            if ($newLI.hasClass('active')) {
+                $newLI.removeClass('active');
+    
+                if (!this.checkIfAnyActive()) {
+                    $('#rmv-sel-btn').hide();
+                }
+            } else {
+                $newLI.addClass('active');
+                $('#rmv-sel-btn').show();
+            }
+        });
+    
+        $('#results-list').append($newLI);
+    }
+    
+    removeSelectedItems() {
+        $('.scrape-item.active').remove();
+    
+        if (!this.checkIfAnyActive()) {
+            $('#rmv-sel-btn').hide();
+        }
+    
+        if ($('#results-list').children().length === 0) {
+            $('#results-container').hide();
+            $('#rmv-sel-btn').hide();
+        }
+    }
+    
+    clearScrapedList() {
+        $('#results-list').empty();
+        $('#results-container').hide();
+        $('#rmv-sel-btn').hide();
+    }
+    
+    checkIfAnyActive() {
+        if ($('#results-list').children('.active').length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    getAllReadyData() {
+        var scrapedData = [];
+    
+        var elemArr = $('.scrape-item');
+    
+        for (var i = 0; i < elemArr.length; i++) {
+            var dataURL = $(elemArr[i]).attr('data-url');
+            var textData = $(elemArr[i]).text();
+    
+            console.log(dataURL);
+            console.log(textData);
+    
+            scrapedData.push({
+                url: dataURL,
+                data: textData
+            });
+        }
+    
+        return scrapedData;
+    }
+
     /**
      * Function to handle the "Submit" button click on the Scrape page.
      */
     submitBtnPressed() {
-        this.logDebug('Submit button pressed.');
-
         let url = $('#url-input').val();
 
         // Check if a URL was entered
@@ -227,42 +322,66 @@ export class ScrapePageController {
                 url = 'https://' + url;
             }
 
-            // Validate the URL format before sending
-            if (!this.isValidURL(url)) {
-                this.postAlert('Please enter a valid URL.');
-                this.logWarn('Invalid URL entered.');
-                return;
-            }
+            console.log(url);
 
-            // Send the URL to the main process to open it
-            this.electronAPI.openExternal(url);
-            this.logInfo(`Requested to open URL: ${url}`);
+            this.checkURL(url).then((res) => {
+                // Validate the URL format before sending
+                if (!res) {
+                    this.postAlert('Please enter a valid URL', 'Invalid URL');
+                    this.logWarn('Invalid URL entered.');
+                } else {
+                    // Send the URL to the main process to open it
+                    this.electronAPI.openExternal(url);
+                    this.logInfo(`Requested to open URL: ${url}`);
 
-            // Update the results container to display the submitted URL
-            $('#staticURL').val(url);
+                    // Update the results container to display the submitted URL
+                    $('#staticURL').val(url);
 
-            this.logInfo(`Opened URL successfully.`);
-
-            // Additional code for scraping (if needed)
-            // ...
+                    this.logInfo('Opened URL successfully');
+                }
+            })
         } else {
-            alert('Please enter a URL.'); // Alert the user if no URL is entered
+            this.postAlert('Please enter a URL', 'Empty URL'); // Alert the user if no URL is entered
             this.logWarn('No URL entered.');
         }
     }
 
     /**
-     * URL validation function to check if the URL is valid.
-     * @param {*} url       The URL to validate.
-     * @returns Bool        A boolean corresponding to if it is valid or not.
+     * Method used to validate that the URL entered is valid.
+     * @param {*} url       The URL.
+     * @returns             A boolean indicating if it is valid or not.
      */
-    isValidURL(url) {
-        try {
-            new URL(url);
-            return true;
-        } catch (error) {
-            return false;
-        }
+    checkURL(url) {
+        let urlObj;
+
+        return new Promise((resolve) => {
+            try {  
+                urlObj = new URL(url);
+    
+                if (urlObj.protocol !== "https:") {
+                    console.log('1');
+                    return resolve(false);
+                } 
+        
+                var req = new XMLHttpRequest();
+                req.open('GET', url, true);
+                req.onreadystatechange = function() {
+                    if (req.readyState === 4) {
+                        if (req.status === 404) {
+                            console.log('2');
+                            resolve(false);
+                        } else {
+                            console.log('3');
+                            resolve(true);
+                        }
+                    }
+                }
+                req.send();
+            } catch (err) {
+                console.log('4');
+                resolve(false);
+            }
+        }); 
     }
 
     /**

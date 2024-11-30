@@ -438,19 +438,19 @@ input[readonly].default-cursor {
     margin: 0 10px 0 10px;
 }
 
-#data-list {
+.scraped-list {
     height: 20vh;
+    background-color: var(--bs-list-group-bg);
 }
 
-#data-list-header {
-    display: flex;
+.list-header {
     display: flex;
     align-items: center;
     padding-bottom: 10px;
     margin-left: 10px;
 }
 
-#data-list-btns {
+.list-btn-container {
     margin-left: 20px;
     display: flex;
     justify-content: space-between;
@@ -461,9 +461,41 @@ input[readonly].default-cursor {
     border-style: solid;
 }
 
-#data-list-lbl {
+.hdr-lbl {
     min-width: 140px;
     font-size: calc(1.275rem + 0.1vw);
     display: flex;
     align-items: center;
+}
+
+.exp-to-btn-grp {
+    display: flex;
+    align-items: center;
+}
+
+#results-list {
+    height: 30vh;
+}
+
+#ls-exp-btn-container {
+    margin-top: 15px;
+}
+
+#exp-lbl-container {
+    width: 95px;
+    font-size: large;
+    font-weight: 600;
+}
+
+#url-exp-btn-grp {
+    margin-left: 10px;
+}
+
+#exp-proj-lbl {
+    padding-right: 10%;
+}
+
+#projectSelect-url {
+    width: fit-content;
+    margin-right: 15px;
 }

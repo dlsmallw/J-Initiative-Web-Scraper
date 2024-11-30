@@ -89,8 +89,10 @@ function initDataContainer() {
 function appendNewScrapedItem(dataObj) {
     var $newLI = $('<a>', {
         href: '#', 
-        class: 'list-group-item list-group-item-action scrape-item'
+        class: 'list-group-item list-group-item-action scrape-item',
+        style: 'border-width: 0px 0px 3px 0px;'
     });
+
     $newLI.text(dataObj.data);
     $newLI.attr('data-url', dataObj.url)
 
@@ -131,12 +133,11 @@ function clearScrapedList() {
 }
 
 function checkIfAnyActive() {
-    $('#data-list').children('.scrape-item').each(() => {
-        if ($(this).hasClass('active')) {
-            return true;
-        }
-    });
-    return false;
+    if ($('#data-list').children('.active').length > 0) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 function getAllReadyData() {
