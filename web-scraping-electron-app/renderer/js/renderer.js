@@ -24,6 +24,7 @@ let currentPage;
 
 document.addEventListener('DOMContentLoaded', () => {
     logDebug('DOM loaded, initializing initial dynamic content.');
+
     // Initialize theme when the document is fully loaded
     initializeTheme();
 
@@ -85,6 +86,7 @@ function attachPageEventListeners() {
     $('#exit-nav').on('click', () => {
         ipcRenderer.exitSignal();
     });
+
 
     // Listen for errors from main process related to URL opening
     ipcRenderer.receive('open-url-error', (errorMessage) => {
@@ -165,6 +167,7 @@ function initializeTheme() {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
         document.documentElement.className = savedTheme; // Apply saved theme to the document
+
         logDebug(`Applied saved theme: ${savedTheme}`);
     } else {
         // Set default theme if none is saved
@@ -196,22 +199,6 @@ function changeTheme() {
     localStorage.setItem('theme', theme);
 
     logInfo(`Theme changed to: ${theme}`);
-
-    switch (theme) {
-        case 'light-theme':
-            document.getElementById("url-input").style.background = "white"
-            break
-        case 'blue-theme':
-            document.getElementById("url-input").style.background = "blue"
-            break
-        case 'disco-theme':
-            document.getElementById("url-input").style.background = "magenta"
-            break
-        case 'dark-theme':
-        default:
-            document.getElementById("url-input").style.background = "black"
-            break
-    }
 }
 
 //============================================================================================================================
