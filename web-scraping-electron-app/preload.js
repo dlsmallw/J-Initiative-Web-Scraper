@@ -52,8 +52,12 @@ contextBridge.exposeInMainWorld(
             ipcRenderer.on('open-ls-ext:response', (event, ...args) => func(...args));
         },
         // Used for exporting scraped data to a linked LS project
-        exportData: (data, projectID) => {
-            ipcRenderer.send('export-to-ls:request', data, projectID);
+        exportDataToLS: async (data, projectID) => {
+            ipcRenderer.invoke('export-to-ls:request', data, projectID)
+                .then(r => console.log(r))
+                .catch(err => {
+                    console.log(err);
+                });
         },
         onExportRes: async (func) => {
             ipcRenderer.on('export-to-ls:response', (event, ...args) => func(...args));

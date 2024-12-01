@@ -52,14 +52,14 @@
             
             <div id="ls-exp-btn-container">
                 <div id="url-exp-btn-grp" class="form-group exp-to-btn-grp">
-                    <div id="exp-lbl-container">
-                        <span id="exp-proj-lbl">Export To</span>
+                    <div class="exp-lbl-container">
+                        <span id="url-exp-btn-lbl">Export To</span>
                     </div>
                     <!-- <label for="projectSelect-url">Project to Export To</label> -->
                     <select id="projectSelect-url" class="form-control">
                         <option selected></option>
                     </select>
-                    <button class="btn btn-secondary border border-secondary" type="button" id="ls-export-btn">Export To</button>
+                    <button class="btn btn-secondary border border-secondary" type="button" id="url-exportBtn">Export</button>
                 </div>
             </div>
         </div>
@@ -70,8 +70,10 @@
 
         <div class="form">
 
-            <div class="form-group mb-3">
-                <label for="projectSelect-man">Project to Export To</label>
+            <div class="form-group mb-3 exp-to-btn-grp">
+                <div class="exp-lbl-container">
+                    <span id="man-exp-btn-lbl">Export To</span>
+                </div>
                 <select id="projectSelect-man" class="form-control">
                     <option selected></option>
                     <!--Options will be dynamically added-->
@@ -83,7 +85,7 @@
                 <textarea class="form-control" id="manual-scrape-textarea" rows="3"></textarea>
             </div>
         
-            <button class="btn btn-outline-secondary" type="button" id="manual-submit-btn">Submit</button>
+            <button class="btn btn-outline-secondary" type="button" id="man-exportBtn">Export</button>
         </div>
     </div>
 </div>

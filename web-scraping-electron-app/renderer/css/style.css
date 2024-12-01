@@ -481,7 +481,7 @@ input[readonly].default-cursor {
     margin-top: 15px;
 }
 
-#exp-lbl-container {
+.exp-lbl-container {
     width: 95px;
     font-size: large;
     font-weight: 600;
@@ -491,11 +491,16 @@ input[readonly].default-cursor {
     margin-left: 10px;
 }
 
-#exp-proj-lbl {
+#url-exp-btn-lbl {
     padding-right: 10%;
 }
 
 #projectSelect-url {
     width: fit-content;
     margin-right: 15px;
+}
+
+#projectSelect-man {
+    width: fit-content;
+    margin-left: 5px;
 }

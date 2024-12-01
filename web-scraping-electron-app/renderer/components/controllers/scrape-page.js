@@ -97,34 +97,14 @@ export class ScrapePageController {
         });
 
         // Submit button pressed while in Manual Data Entry Mode
-        $('#manual-submit-btn').on('click', () => {
-            let data = $('#manual-scrape-textarea').val();
-            let projID = $('#projectSelect').val();
-
-            if (data === '') {
-                this.postAlert('Data Field Cannot Be Empty!', 'Empty String');
-            } else {
-                this.lsAPI.exportData(data, projID);
-                this.disableManualScrape();
-
-                this.lsAPI.onExportRes((res) => {
-                    var response = JSON.parse(res);
-            
-                    if (response.ok) {
-                        this.postAlert(response.resMsg);
-                        $('#manual-scrape-textarea').val('');
-                    } else {
-                        this.postAlert(response.resMsg, response.errType);
-                    }
-
-                    this.enableManualScrape();
-                });
-            }
+        $('#man-exportBtn').on('click', () => {
+            this.manModeExport();
         });
 
         // Listen for errors from main process related to URL opening
         this.electronAPI.openURLErr((errorMessage) => {
             this.postAlert('Failed to open URL', errorMessage); // Display alert if there was an error opening the URL
+            this.enableURLField();
         });
 
         this.electronAPI.receive('scrapedData:update', (data) => {
@@ -134,6 +114,103 @@ export class ScrapePageController {
             $('#results-container').show();
         });
         this.logDebug('Initialized listener for scraped data updates.');
+    }
+
+    async exportData(dataArr, projID) {
+        if (dataArr !== null) {
+            var lsFormattedArr = [];
+            var dbFormattedArr = [];
+
+            for (var i = 0; i < dataArr.length; i++) {
+                lsFormattedArr.push({
+                    textData: dataArr[i].data
+                });
+
+                dbFormattedArr.push({
+                    url: dataArr[i].url,
+                    textData: dataArr[i].data
+                });
+            }
+
+            return new Promise(async (resolve) => {
+                var res = await this.lsAPI.exportDataToLS(JSON.stringify(lsFormattedArr), projID);
+                console.log(res);
+                resolve(res);
+            });
+
+            // console.log(res)
+            // var response = JSON.parse(res);
+            // console.log(response)
+
+            // return response;
+            
+
+
+
+        } else {
+            return null;
+        }
+    }
+
+    async urlModeExport() {
+        this.disableResultsBtns();
+
+        var data = this.getAllReadyData();
+        var projID = $('#projectSelect-url').val();
+
+        if (data !== null && data.length > 0) {
+            this.exportData(data, projID).then((res) => {
+                var response = JSON.parse(res);
+
+                if (response !== null) {
+                    if (response.ok) {
+                        this.postAlert(response.resMsg);
+                        clearScrapedList();
+                        $('#url-input').val('');
+                    } else {
+                        this.postAlert(response.resMsg, response.errType);
+                    }
+                } else {
+                    this.postAlert('Cannot Export Null Data', 'Invalid Data State');
+                }
+    
+                this.enableURLField();
+                this.enableResultsBtns(); 
+            });
+        }  
+    }
+
+    async manModeExport() {
+        this.disableManualScrape();
+
+        var data = [{
+            url: null,
+            data: $('#manual-scrape-textarea').val()
+        }];
+
+        var projID = $('#projectSelect-man').val();
+
+        if (data.textData === '') {
+            this.postAlert('Data Field Cannot Be Empty!', 'Empty String');
+        } else {
+            this.exportData(data, projID).then((res) => {
+                var response = JSON.parse(res);
+
+                if (response !== null) {
+                    if (response.ok) {
+                        this.postAlert(response.resMsg);
+                        $('#manual-scrape-textarea').val('');
+                    } else {
+                        this.postAlert(response.resMsg, response.errType);
+                    }
+                } else {
+                    this.postAlert('Cannot Export Null Data', 'Invalid Data State');
+                }
+    
+                this.enableManualScrape();
+            })
+           
+        }
     }
 
     /**
@@ -226,7 +303,13 @@ export class ScrapePageController {
         $('#rmv-all-btn').on('click', () => {
             this.clearScrapedList();
         });
+
+        $('#url-exportBtn').on('click', () => {
+            this.urlModeExport();
+        });
     }
+
+    
 
     parseScrapedDataToList(data) {
         for (var i = 0; i < data.length; i++) {
@@ -243,7 +326,7 @@ export class ScrapePageController {
         });
 
         $newLI.text(dataObj.data);
-        $newLI.attr('data-url', dataObj.url)
+        $newLI.attr('data-url', dataObj.url);
     
         $newLI.on('click', () => {
             if ($newLI.hasClass('active')) {
@@ -271,6 +354,8 @@ export class ScrapePageController {
         if ($('#results-list').children().length === 0) {
             $('#results-container').hide();
             $('#rmv-sel-btn').hide();
+
+            this.enableURLField();
         }
     }
     
@@ -278,6 +363,8 @@ export class ScrapePageController {
         $('#results-list').empty();
         $('#results-container').hide();
         $('#rmv-sel-btn').hide();
+
+        this.enableURLField();
     }
     
     checkIfAnyActive() {
@@ -313,6 +400,8 @@ export class ScrapePageController {
      * Function to handle the "Submit" button click on the Scrape page.
      */
     submitBtnPressed() {
+        this.disableURLField();
+
         let url = $('#url-input').val();
 
         // Check if a URL was entered
@@ -329,15 +418,13 @@ export class ScrapePageController {
                 if (!res) {
                     this.postAlert('Please enter a valid URL', 'Invalid URL');
                     this.logWarn('Invalid URL entered.');
+                    this.enableURLField();
                 } else {
                     // Send the URL to the main process to open it
                     this.electronAPI.openExternal(url);
-                    this.logInfo(`Requested to open URL: ${url}`);
 
                     // Update the results container to display the submitted URL
                     $('#staticURL').val(url);
-
-                    this.logInfo('Opened URL successfully');
                 }
             })
         } else {
@@ -388,6 +475,7 @@ export class ScrapePageController {
      * Method for disabling the input field and button while handling a request.
      */
     disableManualScrape() {
+        $('#projectSelect-man').prop('disabled', true);
         $('#manual-submit-btn').prop('disabled', true);
         $('#manual-scrape-textarea').prop('disabled', true);
     }
@@ -396,7 +484,32 @@ export class ScrapePageController {
      * Method for re-enabling the input field and button after handling a request.
      */
     enableManualScrape() {
+        $('#projectSelect-man').removeAttr('disabled');
         $('#manual-submit-btn').removeAttr('disabled');
         $('#manual-scrape-textarea').removeAttr('disabled');
+    }
+
+    disableURLField() {
+        $('#url-input').prop('disabled', true);
+        $('#submitURLBtn').prop('disabled', true);
+    }
+
+    enableURLField() {
+        $('#url-input').removeAttr('disabled');
+        $('#submitURLBtn').removeAttr('disabled');
+    }
+
+    disableResultsBtns() {
+        $('#rmv-all-btn').prop('disabled', true);
+        $('#rmv-sel-btn').prop('disabled', true);
+        $('#projectSelect-url').prop('disabled', true);
+        $('#ls-export-btn').prop('disabled', true);
+    }
+
+    enableResultsBtns() {
+        $('#rmv-all-btn').removeAttr('disabled');
+        $('#rmv-sel-btn').removeAttr('disabled');
+        $('#projectSelect-url').removeAttr('disabled');
+        $('#ls-export-btn').removeAttr('disabled');
     }
 }
