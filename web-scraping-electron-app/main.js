@@ -120,20 +120,22 @@ ipcMain.handle('get-logs', async () => {
 });
 
 ipcMain.handle('get-websites', async () => {
-  let websiteData = '';
-  try {
-    const docRef = doc(db, "Websites", "Website List");
-    const docSnap = await getDoc(docRef);
-    const documentData = docSnap.data();
-    const websiteList = documentData.List;
+    let websiteData = '';
+    
+    try {
+        const docRef = doc(db, "Websites", "Website List");
+        const docSnap = await getDoc(docRef);
+        const documentData = docSnap.data();
+        const websiteList = documentData.List;
 
-    websiteList.forEach(website => {
-      websiteData += website + '\n';
-    });
-  return websiteData;
-  } catch (error) {
-    return ''; // Return empty string on error
-  }
+        websiteList.forEach(website => {
+            websiteData += website + '\n';
+        });
+
+        return websiteData;
+    } catch (error) {
+            return ''; // Return empty string on error
+    }
 });
 
 /**
