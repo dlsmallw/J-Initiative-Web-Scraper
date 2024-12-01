@@ -47,7 +47,6 @@ function formatProjectData(response) {
 
         index -= 1;
     });
-    console.log(formattedResults)
 
     return formattedResults;
 }
