@@ -247,18 +247,13 @@ function createLSExternal(url) {
     }
 }
 
-
-
 // Handles exporting data to the linked LS project
-ipcMain.handle('export-to-ls:request', (event, data, projectID) => {
+ipcMain.on('export-to-ls:request', async (event, data, projectID) => {
     var jsonObj = JSON.parse(data);
-
-    exportDataToLS(jsonObj, projectID)
-        .then(res => {
-            var response = JSON.stringify(res);
-            console.log(response)
-            return res;
-        });
+    exportDataToLS(jsonObj, projectID).then((res) => {
+        var response = JSON.stringify(res);
+        mainWin.webContents.send('export-to-ls:response', response);
+    });
 });
 
 // Handles openning the LS project in an external window

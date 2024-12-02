@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Listen for 'getSelected' messages from the host (renderer process)
     ipcRenderer.on('getSelected', function () {
-        console.log(window.location.href);
         var jsonObj = {
             url: window.location.href.toString(),
             data: getSelectedText()

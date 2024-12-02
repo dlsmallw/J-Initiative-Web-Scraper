@@ -107,110 +107,32 @@ export class ScrapePageController {
             this.enableURLField();
         });
 
+        // Handles receiving scraped data from the external window
         this.electronAPI.receive('scrapedData:update', (data) => {
             var jsonObj = JSON.parse(data);
             this.parseScrapedDataToList(jsonObj);
             // Ensure the results container is visible
-            $('#results-container').show();
+            this.showResultsContainer()
         });
         this.logDebug('Initialized listener for scraped data updates.');
-    }
 
-    async exportData(dataArr, projID) {
-        if (dataArr !== null) {
-            var lsFormattedArr = [];
-            var dbFormattedArr = [];
-
-            for (var i = 0; i < dataArr.length; i++) {
-                lsFormattedArr.push({
-                    textData: dataArr[i].data
-                });
-
-                dbFormattedArr.push({
-                    url: dataArr[i].url,
-                    textData: dataArr[i].data
-                });
-            }
-
-            return new Promise(async (resolve) => {
-                var res = await this.lsAPI.exportDataToLS(JSON.stringify(lsFormattedArr), projID);
-                console.log(res);
-                resolve(res);
-            });
-
-            // console.log(res)
-            // var response = JSON.parse(res);
-            // console.log(response)
-
-            // return response;
-            
-
-
-
-        } else {
-            return null;
-        }
-    }
-
-    async urlModeExport() {
-        this.disableResultsBtns();
-
-        var data = this.getAllReadyData();
-        var projID = $('#projectSelect-url').val();
-
-        if (data !== null && data.length > 0) {
-            this.exportData(data, projID).then((res) => {
-                var response = JSON.parse(res);
+        // Handles receiving the response from main regarding processing scraped data for export
+        this.lsAPI.onExportResponse((res) => {
+            var response = JSON.parse(res);
 
                 if (response !== null) {
                     if (response.ok) {
+                        this.resetAllFields();
                         this.postAlert(response.resMsg);
-                        clearScrapedList();
-                        $('#url-input').val('');
                     } else {
                         this.postAlert(response.resMsg, response.errType);
                     }
                 } else {
-                    this.postAlert('Cannot Export Null Data', 'Invalid Data State');
+                    this.postAlert('Null Response Received from Main Process', 'Invalid Data State');
                 }
-    
-                this.enableURLField();
-                this.enableResultsBtns(); 
-            });
-        }  
-    }
 
-    async manModeExport() {
-        this.disableManualScrape();
-
-        var data = [{
-            url: null,
-            data: $('#manual-scrape-textarea').val()
-        }];
-
-        var projID = $('#projectSelect-man').val();
-
-        if (data.textData === '') {
-            this.postAlert('Data Field Cannot Be Empty!', 'Empty String');
-        } else {
-            this.exportData(data, projID).then((res) => {
-                var response = JSON.parse(res);
-
-                if (response !== null) {
-                    if (response.ok) {
-                        this.postAlert(response.resMsg);
-                        $('#manual-scrape-textarea').val('');
-                    } else {
-                        this.postAlert(response.resMsg, response.errType);
-                    }
-                } else {
-                    this.postAlert('Cannot Export Null Data', 'Invalid Data State');
-                }
-    
-                this.enableManualScrape();
-            })
-           
-        }
+                this.reenableScrapePageFunctions();
+        });
     }
 
     /**
@@ -292,9 +214,11 @@ export class ScrapePageController {
     // Page Specific Methods
     //============================================================================================================================
 
+    /**
+     * Initializes the results container UI elements.
+     */
     initResultsContainer() {
-        $('#results-container').hide();
-        $('#rmv-sel-btn').hide();
+        this.hideResultsContainer();
     
         $('#rmv-sel-btn').on('click', () => {
             this.removeSelectedItems();
@@ -309,15 +233,21 @@ export class ScrapePageController {
         });
     }
 
-    
-
+    /**
+     * Takes data returned from external scrape window and parses it into the results container.
+     * @param {*} data          The data being parsed.
+     */
     parseScrapedDataToList(data) {
         for (var i = 0; i < data.length; i++) {
             this.appendNewScrapedItem(data[i]);
         }
-        $('#results-container').show();
+        this.showResultsContainer();
     }
 
+    /**
+     * Adds a new data item to the results list.
+     * @param {*} dataObj       The data being appended.
+     */
     appendNewScrapedItem(dataObj) {
         var $newLI = $('<a>', {
             href: '#', 
@@ -344,6 +274,9 @@ export class ScrapePageController {
         $('#results-list').append($newLI);
     }
     
+    /**
+     * Removes any currently selected items from the results list.
+     */
     removeSelectedItems() {
         $('.scrape-item.active').remove();
     
@@ -352,18 +285,17 @@ export class ScrapePageController {
         }
     
         if ($('#results-list').children().length === 0) {
-            $('#results-container').hide();
-            $('#rmv-sel-btn').hide();
-
+            this.hideResultsContainer();
             this.enableURLField();
         }
     }
     
+    /**
+     * Removes all items from the results list.
+     */
     clearScrapedList() {
         $('#results-list').empty();
-        $('#results-container').hide();
-        $('#rmv-sel-btn').hide();
-
+        this.hideResultsContainer();
         this.enableURLField();
     }
     
@@ -375,6 +307,10 @@ export class ScrapePageController {
         }
     }
 
+    /**
+     * Checks if there are any currently selected data itmes in the results list.
+     * @returns         Boolean indicating if there are any selected items.
+     */
     getAllReadyData() {
         var scrapedData = [];
     
@@ -397,6 +333,67 @@ export class ScrapePageController {
     }
 
     /**
+     * Method used to send the scraped data to main for exporting to Label Studio.
+     * @param {*} dataArr           Data to be exported.
+     * @param {*} projID            The LS project being exported to.
+     */
+    exportData(dataArr, projID) {
+        this.disableWhileExporting();
+
+        if (dataArr !== null) {
+            var lsFormattedArr = [];
+            var dbFormattedArr = [];
+
+            for (var i = 0; i < dataArr.length; i++) {
+                lsFormattedArr.push({
+                    textData: dataArr[i].data
+                });
+
+                dbFormattedArr.push({
+                    url: dataArr[i].url,
+                    textData: dataArr[i].data
+                });
+            }
+
+            this.lsAPI.exportDataToLS(JSON.stringify(lsFormattedArr), projID);
+        } else {
+            this.postAlert('No Data to Export', 'Missing Export Data');
+        }
+    }
+
+    /**
+     * Logic that handles exporting data when using URL mode.
+     */
+    urlModeExport() {
+        var data = this.getAllReadyData();
+        var projID = $('#projectSelect-url').val();
+
+        if (data !== null && data.length > 0) {
+            this.exportData(data, projID);
+        } else {
+            this.postAlert('No Data to Export', 'Missing Export Data');
+        }
+    }
+
+    /**
+     * Logic that handles exporting data when using manual mode.
+     */
+    manModeExport() {
+        var data = [{
+            url: null,
+            data: $('#manual-scrape-textarea').val()
+        }];
+
+        var projID = $('#projectSelect-man').val();
+
+        if (data.textData !== '') {
+            this.exportData(data, projID);
+        } else {
+            this.postAlert('Data Field Cannot Be Empty!', 'Empty String');
+        }
+    }
+
+    /**
      * Function to handle the "Submit" button click on the Scrape page.
      */
     submitBtnPressed() {
@@ -411,8 +408,6 @@ export class ScrapePageController {
                 url = 'https://' + url;
             }
 
-            console.log(url);
-
             this.checkURL(url).then((res) => {
                 // Validate the URL format before sending
                 if (!res) {
@@ -426,7 +421,7 @@ export class ScrapePageController {
                     // Update the results container to display the submitted URL
                     $('#staticURL').val(url);
                 }
-            })
+            });
         } else {
             this.postAlert('Please enter a URL', 'Empty URL'); // Alert the user if no URL is entered
             this.logWarn('No URL entered.');
@@ -472,6 +467,48 @@ export class ScrapePageController {
     }
 
     /**
+     * Method for resetting all scrape page fields.
+     */
+    resetAllFields() {
+        this.clearScrapedList();
+        $('#url-input').val('');
+        $('#manual-scrape-textarea').val('');
+    }
+
+    /**
+     * Disables all scrape page fields while performing a data export.
+     */
+    disableWhileExporting() {
+        this.disableManualScrape();
+        this.disableURLField();
+        this.disableResultsBtns();
+    }
+
+    /**
+     * Reenables scrape page functions after exporting data.
+     */
+    reenableScrapePageFunctions() {
+        this.enableManualScrape();
+        this.enableURLField();
+        this.enableResultsBtns();
+    }
+
+    /**
+     * Hides the URL mode results container.
+     */
+    hideResultsContainer() {
+        $('#results-container').hide();
+        $('#rmv-sel-btn').hide();
+    }
+
+    /**
+     * Shows the URL mode results container.
+     */
+    showResultsContainer() {
+        $('#results-container').show();
+    }
+
+    /**
      * Method for disabling the input field and button while handling a request.
      */
     disableManualScrape() {
@@ -489,16 +526,25 @@ export class ScrapePageController {
         $('#manual-scrape-textarea').removeAttr('disabled');
     }
 
+    /**
+     * Disables the URL mode windows url field.
+     */
     disableURLField() {
         $('#url-input').prop('disabled', true);
         $('#submitURLBtn').prop('disabled', true);
     }
 
+    /**
+     * Reenables the URL mode windows url field.
+     */
     enableURLField() {
         $('#url-input').removeAttr('disabled');
         $('#submitURLBtn').removeAttr('disabled');
     }
 
+    /**
+     * Disables the results container buttons on the URL mode window.
+     */
     disableResultsBtns() {
         $('#rmv-all-btn').prop('disabled', true);
         $('#rmv-sel-btn').prop('disabled', true);
@@ -506,6 +552,9 @@ export class ScrapePageController {
         $('#ls-export-btn').prop('disabled', true);
     }
 
+    /**
+     * Reenables the results container buttons on the URL mode window.
+     */
     enableResultsBtns() {
         $('#rmv-all-btn').removeAttr('disabled');
         $('#rmv-sel-btn').removeAttr('disabled');

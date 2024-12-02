@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrapeUtilListeners();
 });
 
+/**
+ * Initializes the theme used for the window.
+ */
 function initTheme() {
     // Load the saved theme from localStorage if it exists
     const savedTheme = localStorage.getItem('theme');
@@ -19,12 +22,18 @@ function initTheme() {
     }
 }
 
+/**
+ * Initializes the windows listeners.
+ */
 function initWinListeners() {
     $('#exit-scrape-win-btn').on('click', () => {
         ipcRenderer.sendCloseSignal();
     });
 }
 
+/**
+ * Initializes any scrape functionality related listeners.
+ */
 function initScrapeUtilListeners() {
     // Listen for 'setUrl' messages from the main process to set the webview's URL
     ipcRenderer.receive('setUrl', (url) => {
@@ -44,15 +53,12 @@ function initScrapeUtilListeners() {
         const data = event.args[0];
 
         if (channel === 'selection') {
-            console.log('Selected text received from webview:', data);
             var res = JSON.parse(data);
-
             appendNewScrapedItem(res);
         }
 
         // may be pointless
         if (channel === 'export') {
-            console.log('Exported data received from webview:', data);
             exportDataToApp(exportData);
         }
 
@@ -68,11 +74,13 @@ function initScrapeUtilListeners() {
     // Export data from textarea to the main process
     $('#exportBtn').on('click', () => {
         const dataToExport = getAllReadyData();
-        
         exportDataToApp(JSON.stringify(dataToExport));
     });
 }
 
+/**
+ * Initializes the UI elements within the data container.
+ */
 function initDataContainer() {
     $('#data-container').hide();
     $('#clear-sel-btn').hide();
@@ -86,6 +94,10 @@ function initDataContainer() {
     });
 }
 
+/**
+ * Appends a new data item to the list of scraped data.
+ * @param {*} dataObj       The data to be added.
+ */
 function appendNewScrapedItem(dataObj) {
     var $newLI = $('<a>', {
         href: '#', 
@@ -113,6 +125,9 @@ function appendNewScrapedItem(dataObj) {
     $('#data-container').show();
 }
 
+/**
+ * Removes any currently selected items from the data list.
+ */
 function removeSelectedItems() {
     $('.active').remove();
 
@@ -126,12 +141,19 @@ function removeSelectedItems() {
     }
 }
 
+/**
+ * Removes all items from the data list.
+ */
 function clearScrapedList() {
     $('#data-list').empty();
     $('#data-container').hide();
     $('#clear-sel-btn').hide();
 }
 
+/**
+ * Checks if there are any currently selected data itmes in the list.
+ * @returns         Boolean indicating if there are any selected items.
+ */
 function checkIfAnyActive() {
     if ($('#data-list').children('.active').length > 0) {
         return true;
@@ -140,6 +162,11 @@ function checkIfAnyActive() {
     }
 }
 
+/**
+ * Takes all data within the data list and prepares it for importing it into the 
+ * main application.
+ * @returns         An array of the data list items.
+ */
 function getAllReadyData() {
     var scrapedData = [];
 
@@ -148,9 +175,6 @@ function getAllReadyData() {
     for (var i = 0; i < elemArr.length; i++) {
         var dataURL = $(elemArr[i]).attr('data-url');
         var textData = $(elemArr[i]).text();
-
-        console.log(dataURL);
-        console.log(textData);
 
         scrapedData.push({
             url: dataURL,
@@ -161,11 +185,16 @@ function getAllReadyData() {
     return scrapedData;
 }
 
+/**
+ * Enables the import button.
+ */
 function enableImportBtn() {
     $('#importSelectedBtn').prop('disabled', false);
-    console.log('Import enabled');
 }
 
+/**
+ * Disables the import button.
+ */
 function disableImportBtn() {
     $('#importSelectedBtn').prop('disabled', true);
 }
@@ -177,10 +206,8 @@ function disableImportBtn() {
 function exportDataToApp(data) {
     if (data) {
         ipcRenderer.send('scrapedData:export', data);
-        console.log('Exported data sent to main process:', data);
         ipcRenderer.sendCloseSignal();
     } else {
         alert('No data to export!');
-        console.log('Export button clicked with no data in textarea.');
     }
 }
