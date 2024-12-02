@@ -3,7 +3,7 @@ test();
 console.assert(1 == 2, "Testing 1 == 2");
 
 function test() {
-	if(1 == 2) {
+	if(1 == 1) {
 		console.log("test");
 		//process.exit();
 		console.log("test2");
