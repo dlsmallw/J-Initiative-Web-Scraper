@@ -8,6 +8,7 @@ import { AboutPageController } from '../components/controllers/about-page.js';
 
 
 const ipcRenderer = window.electronAPI;
+const lsAPI = window.lsAPI;
 
 
 // Pages object to manage different sections of the application
@@ -70,7 +71,7 @@ function attachPageEventListeners() {
     });
 
     // Handles receipt of updated project list
-    ipcRenderer.receive('updateToProjectList', (res) => {
+    lsAPI.updateToProjectList((res) => {
         var response = JSON.parse(res);
 
         if (response.ok) {
@@ -78,17 +79,11 @@ function attachPageEventListeners() {
         } else {
             postAlert(response.resMsg, response.errType);
         }
-        
     });
 
     // Event listener for the "Exit" navigation link
     $('#exit-nav').on('click', () => {
         ipcRenderer.exitSignal();
-    });
-
-    // Listen for errors from main process related to URL opening
-    ipcRenderer.receive('open-url-error', (errorMessage) => {
-        alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
     });
 }
 
@@ -122,13 +117,10 @@ function changePage(event) {
         currentPage = newPage;
 
         logInfo(`Page changed to ${currentPage.getName()}.`);
-
-        // Load logs if the current page is the Logs page
-        if (currentPage.getName() === 'logs') {
-            currentPage.loadLogs();
-        } else if(currentPage.getName() === 'database') {
-          currentPage.displayWebsiteData();
-      }
+        
+        if(currentPage.getName() === 'database') {
+            currentPage.displayWebsiteData();
+        }
     } else {
         logDebug(`Page not changed. Already on ${currentPage.getName()}.`);
     }
@@ -203,6 +195,7 @@ function changeTheme() {
 //============================================================================================================================
 // Logging Helpers (WIP - Plan to move to a separate class that is imported)
 //============================================================================================================================
+const logger = window.log;    // Variable created for ease of reading
 
 /**
  * Handles displaying an alert message for specific situations (error or otherwise).
@@ -212,8 +205,10 @@ function changeTheme() {
 function postAlert(alertMsg, cause) {
     if (cause === undefined) {
         alert(alertMsg);
+        logInfo(alertMsg);
     } else {
         alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+        logError(`${alertMsg} Cause: ${cause}`);
     }
 }
 
@@ -222,7 +217,7 @@ function postAlert(alertMsg, cause) {
  * @param {string} message - The message to log.
  */
 function logInfo(message) {
-    ipcRenderer.send('log-info', message);
+    logger.info(message);
 }
 
 /**
@@ -230,7 +225,7 @@ function logInfo(message) {
  * @param {string} message - The message to log.
  */
 function logDebug(message) {
-    ipcRenderer.send('log-debug', message);
+    logger.debug(message);
 }
 
 /**
@@ -238,7 +233,7 @@ function logDebug(message) {
  * @param {string} message - The message to log.
  */
 function logWarn(message) {
-    ipcRenderer.send('log-warn', message);
+    logger.warn(message);
 }
 
 /**
@@ -246,5 +241,5 @@ function logWarn(message) {
  * @param {string} message - The message to log.
  */
 function logError(message) {
-    ipcRenderer.send('log-error', message);
+    logger.error(message);
 }

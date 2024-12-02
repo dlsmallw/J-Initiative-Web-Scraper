@@ -7,7 +7,7 @@ export class DatabasePageController {
     compID = '#database-container';     // Page component container ID
 
     ipcRenderer = window.electronAPI;
-
+    databaseAPI = window.databaseAPI;
 
     /**
      * Returns the pages component html filepath.
@@ -87,6 +87,7 @@ export class DatabasePageController {
     //============================================================================================================================
     // Logging Helpers (WIP - Plan to move to a separate class that is imported)
     //============================================================================================================================
+    logger = window.log;    // Variable created for ease of reading
 
     /**
      * Handles displaying an alert message for specific situations (error or otherwise).
@@ -96,8 +97,10 @@ export class DatabasePageController {
     postAlert(alertMsg, cause) {
         if (cause === undefined) {
             alert(alertMsg);
+            this.logInfo(alertMsg);
         } else {
             alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+            this.logError(`${alertMsg} Cause: ${cause}`);
         }
     }
 
@@ -106,8 +109,7 @@ export class DatabasePageController {
      * @param {string} message - The message to log.
      */
     logInfo(message) {
-        this.ipcRenderer.send('log-info', message);
-
+        this.logger.info(message);
     }
 
     /**
@@ -115,7 +117,7 @@ export class DatabasePageController {
      * @param {string} message - The message to log.
      */
     logDebug(message) {
-        this.ipcRenderer.send('log-debug', message);
+        this.logger.debug(message);
     }
 
     /**
@@ -123,7 +125,7 @@ export class DatabasePageController {
      * @param {string} message - The message to log.
      */
     logWarn(message) {
-        this.ipcRenderer.send('log-warn', message);
+        this.logger.warn(message);
     }
 
     /**
@@ -131,7 +133,7 @@ export class DatabasePageController {
      * @param {string} message - The message to log.
      */
     logError(message) {
-        this.ipcRenderer.send('log-error', message);
+        this.logger.error(message);
     }
 
     //============================================================================================================================
@@ -147,8 +149,9 @@ export class DatabasePageController {
     }
     websiteInfo.innerHTML = '';
 
-    const websites = await this.ipcRenderer.invoke('get-websites');
-      const websiteEntry = document.createElement('div');
+    const websites = await this.databaseAPI.getWebsites();
+    const websiteEntry = document.createElement('div');
+
     websiteEntry.className = 'website-entry';
     websiteEntry.textContent = websites;
     websiteInfo.appendChild(websiteEntry);
