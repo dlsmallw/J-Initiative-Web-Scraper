@@ -8,7 +8,7 @@ runTests();
  * Basic test format. 
  */
 function test() {
-	if(1 == 2) {
+	if(1 == 1) {
 		return true;
 		
 	}
@@ -24,8 +24,8 @@ function runTests() {
 	}
 	catch(err) {
 		if(err instanceof assert.AssertionError) {
-			console.log("testing failure");
-			process.exitCode = 1;
+			console.log("One or more tests failed!");
+			process.exitCode = 1; // This indicates an error occurred when the process exits.
 		}
 		else {
 			// Some other error occurred?
