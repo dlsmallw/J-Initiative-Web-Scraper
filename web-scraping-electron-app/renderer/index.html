@@ -31,29 +31,12 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <!-- Navigation Links -->
-                <ul class="navbar-nav mb-0 not-draggable">
-                    <li class="nav-item" id="home">
-                        <a class="nav-link" id="home-nav" href="#">Home</a>
-                    </li>
-                    <li class="nav-item" id="scrape">
-                        <a class="nav-link" id="scrape-nav" href="#">Scraper</a>
-                    </li>
-                    <li class="nav-item" id="annotation">
-                        <a class="nav-link" id="annotation-nav" href="#">Annotation</a>
-                    </li>
-                    <li class="nav-item" id="database">
-                        <a class="nav-link" id="database-nav" href="#">Database</a>
-                    </li>
-                    <li class="nav-item" id="about">
-                        <a class="nav-link" id="about-nav" href="#">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="logs-nav" href="#">Logs</a>
-                    </li>
+                <ul class="navbar-nav mb-0 not-draggable" id="navbar-ul-1">
+                    
                 </ul>
 
                 <!-- Theme Selector and Exit aligned to the right -->
-                <ul class="navbar-nav ms-auto mb-0 not-draggable">
+                <ul class="navbar-nav ms-auto mb-0 not-draggable" id="navbar-ul-2">
                     <li class="nav-item">
                         <select id="theme-select" class="form-select form-select-sm">
                             <option value="light-theme">Light Theme</option>
@@ -75,7 +58,7 @@
     <!-- Bootstrap JS Bundle -->
     <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
     <!-- Include renderer.js -->
-    <script src="../renderer/js/renderer.js"></script>
+    <script type="module" src="../renderer/js/renderer.js"></script>
 </body>
 </html>
 
