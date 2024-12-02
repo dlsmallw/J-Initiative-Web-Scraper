@@ -1,3 +1,3 @@
 
 
-console.assert(1 == 2, "test");
+console.assert(1 == 2, "testing 1 = 2");
