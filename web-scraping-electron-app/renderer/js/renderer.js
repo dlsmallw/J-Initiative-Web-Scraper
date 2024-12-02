@@ -9,6 +9,9 @@ import { AboutPageController } from '../components/controllers/about-page.js';
 
 const ipcRenderer = window.electronAPI;
 const lsAPI = window.lsAPI;
+const testVal = 4;
+
+//export default testVal;
 
 
 // Pages object to manage different sections of the application

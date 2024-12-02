@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A web scraping application that is to be used for assisting in NLP model training",
   "main": "main.js",
+  "type": "module", 
   "scripts": {
     "dev": "npx electronmon .",
     "start": "electron .",
@@ -23,6 +24,7 @@
     "electron-store": "^10.0.0",
     "firebase": "^11.0.2",
     "jquery": "^3.7.1",
+    "mocha": "^10.8.2",
     "tail": "^2.2.6",
     "web-scraping-electron-app": "file:"
   },
