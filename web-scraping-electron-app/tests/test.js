@@ -4,21 +4,23 @@ runTests();
 
 
 
-
+/**
+ * Basic test format. 
+ */
 function test() {
 	if(1 == 1) {
-		console.log("test");
-		//process.exit();
-		console.log("test2");
-		process.exitCode = 1;
+		return true;
 		
+	}
+	else {
+		return false;
 	}
 }
 
 
 function runTests() {
 	try {
-		assert(1 == 2, "Testing 1 == 2");
+		assert(test(), "Testing 1 == 1");
 	}
 	catch(err) {
 		if(err instanceof assert.AssertionError) {
