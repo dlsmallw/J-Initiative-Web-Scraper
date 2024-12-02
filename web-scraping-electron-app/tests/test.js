@@ -8,7 +8,7 @@ runTests();
  * Basic test format. 
  */
 function test() {
-	if(1 == 1) {
+	if(1 == 2) {
 		return true;
 		
 	}
