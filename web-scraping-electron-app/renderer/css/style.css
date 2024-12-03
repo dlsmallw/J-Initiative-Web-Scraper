@@ -14,7 +14,7 @@
 
     /* Fonts and Borders */
     --font-family: 'Poppins', sans-serif;
-    --border-color: #ced4da;
+    --border-color: #ced4da3d;
 
     /* Navbar and Links */
     --navbar-bg: var(--secondary-bg);
@@ -36,7 +36,8 @@
 =======================================================================*/
 html.light-theme {
     --primary-bg: #ffffff;
-    --secondary-bg: #f8f9fa;
+    --secondary-bg: #f8f9fade;
+    --acc-body-bg: #fffffff7;
     --accent-bg: #e9ecef;
     --primary-color: #212529;
     --secondary-color: #6c757d;
@@ -45,6 +46,7 @@ html.light-theme {
     --content-bg: #ffffff;
     --link-color: #007bff;
     --border-style: lightgray solid thin;
+    --body-border-style: black solid thin;
 }
 
 /*=======================================================================
@@ -52,8 +54,9 @@ html.light-theme {
     - A modern theme with dark backgrounds and light text.
 =======================================================================*/
 html.dark-theme {
-    --primary-bg: #121212;
+    --primary-bg: #2b2b2b;
     --secondary-bg: #1e1e1e;
+    --acc-body-bg: #212529ab;
     --accent-bg: #2c2c2c;
     --primary-color: #f8f9fa;
     --secondary-color: #ced4da;
@@ -62,6 +65,7 @@ html.dark-theme {
     --content-bg: #121212;
     --link-color: #66b2ff;
     --border-style: none;
+    --body-border-style: #d3d3d32e solid thin;
 }
 
 /*=======================================================================
@@ -71,6 +75,7 @@ html.dark-theme {
 html.blue-theme {
     --primary-bg: #e3f2fd;
     --secondary-bg: #bbdefb;
+    --acc-body-bg: #c7e3ff;
     --accent-bg: #90caf9;
     --primary-color: #0d47a1;
     --secondary-color: #1976d2;
@@ -78,7 +83,7 @@ html.blue-theme {
     --navbar-bg: #bbdefb;
     --content-bg: #e3f2fd;
     --link-color: #0d47a1;
-    --border-style: lightgray solid thin;
+    --border-style: none;
 }
 
 /*=======================================================================
@@ -88,6 +93,7 @@ html.blue-theme {
 html.disco-theme {
     --primary-bg: #FF00FF;
     --secondary-bg: #00CED1;
+    --acc-body-bg: #92fdff;
     --accent-bg: #c8bca7;
     --primary-color: #4B0082;
     --secondary-color: #8d6e63;
@@ -112,6 +118,7 @@ body {
     width: 100%;
     display: flex;
     flex-direction: column;
+    border: var(--body-border-style);
 }
 
 /*=======================================================================
@@ -131,8 +138,10 @@ body {
     align-items: center; /* Vertically align navbar items */
     background-color: var(--navbar-bg);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 100%;
+    width: 99.8%;
     transition: background-color 0.3s ease-in-out;
+    transform: translateY(2%);
+    margin-left: 0.1%;
 }
 
 /* Flexbox container for nav links */
@@ -220,7 +229,6 @@ body {
     Content Area Styling
 =======================================================================*/
 #d_content {
-    background-color: var(--content-bg);
     padding: 1%;
     max-width: 90%;
     margin: auto;
@@ -277,14 +285,12 @@ body {
     background-color: var(--secondary-bg);
     color: var(--primary-color);
     border: none;
-    border-radius: 4px;
     padding: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .accordion-button.collapsed {
-    background-color: var(--accent-bg);
     color: var(--primary-color);
 }
 
@@ -293,7 +299,7 @@ body {
 }
 
 .accordion-body {
-    background-color: var(--primary-bg);
+    background-color: var(--acc-body-bg);
     padding: 20px;
     border-top: 2px solid var(--border-color);
 }
@@ -340,6 +346,12 @@ body {
     min-height: 60vh;
 }
 
+#annotation-webview {
+    height: 100%;
+    border: solid #d3d3d34d;
+    border-radius: 0.5%;
+}
+
 .embedded-content {
     width: 100%;
     height: 100%;
@@ -352,7 +364,7 @@ body {
     opacity: 0;
     color: black;
     cursor: pointer;
-    transform: translateY(-45%) translateX(-20%);
+    transform: translateY(-35%) translateX(-20%);
 }
 
 #ls-embedded, #ls-external, #ls-set, #ls-not-set {
@@ -364,7 +376,7 @@ body {
 }
 
 #ls-set {
-    padding-bottom: 10px;
+    background-color: var(--secondary-bg);
 }
 
 #ls-external {
@@ -419,6 +431,10 @@ input[readonly].default-cursor {
 }
 
 #content-container {
+    transform: translateY(59px);
+}
+
+.content-container {
     transform: translateY(59px);
 }
 
@@ -503,4 +519,17 @@ input[readonly].default-cursor {
 #projectSelect-man {
     width: fit-content;
     margin-left: 5px;
+}
+
+#anno-webview {
+    height: 90vh;
+    padding-bottom: 15px;
+}
+
+#anno-element {
+    height: 100%;
+}
+
+#ls-config-accordion {
+    margin-top: 10px;
 }

@@ -44,20 +44,50 @@ contextBridge.exposeInMainWorld(
 
 contextBridge.exposeInMainWorld(
     'lsAPI', {
-        // Used for openning an instance of the LS project in a separate window
-        openExternal: (url) => {
-            ipcRenderer.send('open-ls-ext:request', url);
-        },
-        onOpenExtRes: (func) => {
-            ipcRenderer.on('open-ls-ext:response', (event, ...args) => func(...args));
-        },
+        //=================================================================================================
+        // IPC Methods for handling LS app api calls
+        //=================================================================================================
         // Used for exporting scraped data to a linked LS project
         exportDataToLS: (data, projectID) => {
             ipcRenderer.send('export-to-ls:request', data, projectID);
         },
-        onExportResponse: async (func) => {
+        onExportResponse: (func) => {
             ipcRenderer.on('export-to-ls:response', (event, ...args) => func(...args));
         },
+        
+        //=================================================================================================
+        // External LS Window IPC Methods
+        //=================================================================================================
+        // Used for openning an instance of the LS project in a separate window
+        openExternal: (url) => {
+            ipcRenderer.send('open-ls-ext:request', url);
+        },
+        setExtLSURL: (func) => {
+            ipcRenderer.on('set-ls-url', (event, ...args) => func(...args));
+        },
+        extLSWinClosed: (func) => {
+            ipcRenderer.on('ext-ls-win-closed', (event, ...args) => func(...args));
+        },
+        extLSURLChange: (url) => {
+            ipcRenderer.send('ext-ls-url-change', url);
+        },
+        urlChange: (func) => {
+            ipcRenderer.on('ls-navigation-update', (event, ...args) => func(...args));
+        },
+        sendCloseSignal: () => {
+            ipcRenderer.send('close-anno-win');
+        },
+
+        //=================================================================================================
+        // API calls to LS Linked App
+        //=================================================================================================
+        updateToProjectList: (func) => {
+            ipcRenderer.on('ls-projects-update', (event, ...args) => func(...args));
+        }, 
+
+        //=================================================================================================
+        // IPC Methods for updating info about linked LS app
+        //=================================================================================================
         initVariables: (url, token) => {
             ipcRenderer.send('init-ls-vars:request', url, token);
         },
@@ -73,9 +103,7 @@ contextBridge.exposeInMainWorld(
         clearLinkedProject: () => {
             ipcRenderer.send('clear-linked-ls:request');
         },
-        updateToProjectList: async (func) => {
-            ipcRenderer.on('ls-projects-update', (event, ...args) => func(...args));
-        }
+
     }
 );
 

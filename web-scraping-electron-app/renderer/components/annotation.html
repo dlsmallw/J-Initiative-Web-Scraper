@@ -14,13 +14,17 @@
         </div>
         <!--The embedded LS app-->
         <div id="ls-set" class="position-relative">
-            <iframe
-                class="embedded-content shadow rounded"
+            <!-- <iframe
+                class="embedded-content shadow rounded "
                 id="annotation-iframe"
                 src=""
                 height="600"
                 sandbox="allow-scripts allow-same-origin allow-forms"
-            ></iframe>
+            ></iframe> -->
+            <webview 
+                id="annotation-webview" 
+                src="">
+            </webview>
             <!--A button for openning the LS app in an external window-->
             <svg 
                 class="position-absolute bottom-0 end-0" 

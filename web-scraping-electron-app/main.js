@@ -32,12 +32,14 @@ function createMainWindow() {
     // Create the BrowserWindow instance with specific options
     mainWin = new BrowserWindow({
         frame: false,
+        transparent: true, 
         width: isDev ? 1400 : 1200, // Set width: larger size for development
         height: 800, // Set height for the window
         minWidth: isDev ? 1400 : 1200, // Set minimum width to prevent shrinking beyond a set size
         minHeight: 800, // Set minimum height
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
+            webviewTag: true
         }
     });
 
@@ -216,20 +218,32 @@ ipcMain.on('close-scrape-win', (event) => {
 function createLSExternal(url) {
     // Create the BrowserWindow instance with specific options
     lsWindow = new BrowserWindow({
-        width: 800, // Set width: larger size for development
-        height: 600, // Set height for the window
-        minWidth: 800, // Set minimum width to prevent shrinking beyond a set size
-        minHeight: 600, // Set minimum height
+        frame: false,
+        width: 1400, // Set width of the LS window
+        height: 1000, // Set height of the LS window
+        minWidth: 1200, // Set minimum width to prevent shrinking beyond a set size
+        minHeight: 800, // Set minimum height
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
+            webviewTag: true
         }
     });
 
     // Disable the default application menu
-    // lsWindow.setMenu(null);
+    lsWindow.setMenu(null);
+
+    lsWindow.webContents.openDevTools();
 
     try {
-        lsWindow.loadURL(url);
+        lsWindow.loadFile('./renderer/window-templates/anno-window.html')
+            .then(() => {
+                lsWindow.webContents.send('set-ls-url', url);
+                lsWindow.show();
+            }).catch((err) => {
+                closeLSWindow();
+                log.error('Failed to open external LS window');
+                dialog.showErrorBox('Failed to open external LS window', 'Window Initialization Error');
+            });
 
         lsWindow.on('close', () => {
             // tell renderer to redisplay embbedded content
@@ -241,11 +255,19 @@ function createLSExternal(url) {
             return { action: 'deny' }; // Deny any requests to open new windows
         });
     } catch (err) {
-        lsWindow.close();
-        // tell renderer to redisplay embbedded content
-        mainWin.webContents.send('open-ls-ext:response');
+        closeLSWindow();
     }
 }
+
+ipcMain.on('ext-ls-url-change', (event, url) => {
+    console.log(url);
+    mainWin.webContents.send('ls-navigation-update', url);
+})
+
+// Handles a close request for the external Label Studio Window
+ipcMain.on('close-anno-win', (event) => {
+    closeLSWindow();
+});
 
 // Handles exporting data to the linked LS project
 ipcMain.on('export-to-ls:request', async (event, data, projectID) => {
@@ -335,11 +357,16 @@ function closeScrapeWindow() {
     mainWin.webContents.send('ext-url-win-closed');
 }
 
-function closeLSWindow() {
+function closeLSWindow(url = null) {
     if (lsWindow) {
         lsWindow.close();
         lsWindow = null;
     }
+
+    var urlToSend = url ? url !== null : '';
+
+    // tell renderer to redisplay embbedded content
+    mainWin.webContents.send('ext-ls-win-closed', url);
 }
 
 function closeAllWindows() {

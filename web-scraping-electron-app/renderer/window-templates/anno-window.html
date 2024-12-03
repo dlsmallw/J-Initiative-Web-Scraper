@@ -23,9 +23,10 @@
 <body>
     <nav class="navbar navbar-expand-sm navbar-dark fixed-top draggable">
         <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">Label Studio</span>
             <ul class="navbar-nav ms-auto mb-0 not-draggable">
                 <li class="nav-item">
-                    <a class="nav-link" id="exit-anno-win-btn" href="#">Return to Application</a>
+                    <a class="nav-link" id="exit-anno-win-btn" href="#">Close Window</a>
                 </li>
             </ul>
         </div>
@@ -33,7 +34,7 @@
     
     <div id="anno-container" class="content-container">
         <div id="anno-webview" class="webview-container">
-            <webview id="anno-element" class="webview-element" preload="./js/anno-webview-preload.js"></webview>
+            <webview id="anno-element" class="webview-element"></webview>
         </div>
     </div>
     <!-- Bootstrap JS Bundle -->
