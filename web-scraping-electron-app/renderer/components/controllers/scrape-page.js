@@ -133,6 +133,10 @@ export class ScrapePageController {
 
                 this.reenableScrapePageFunctions();
         });
+
+        this.electronAPI.onExtWindowClose(() => {
+            this.resetAllFields();
+        });
     }
 
     /**
@@ -441,7 +445,6 @@ export class ScrapePageController {
                 urlObj = new URL(url);
     
                 if (urlObj.protocol !== "https:") {
-                    console.log('1');
                     return resolve(false);
                 } 
         
@@ -450,17 +453,14 @@ export class ScrapePageController {
                 req.onreadystatechange = function() {
                     if (req.readyState === 4) {
                         if (req.status === 404) {
-                            console.log('2');
                             resolve(false);
                         } else {
-                            console.log('3');
                             resolve(true);
                         }
                     }
                 }
                 req.send();
             } catch (err) {
-                console.log('4');
                 resolve(false);
             }
         }); 

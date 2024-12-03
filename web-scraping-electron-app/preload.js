@@ -106,6 +106,9 @@ contextBridge.exposeInMainWorld(
         openURLErr: async (func) => {
             ipcRenderer.on('open-url-error', (event, ...args) => func(...args));
         },
+        onExtWindowClose: (func) => {
+            ipcRenderer.on('ext-url-win-closed', (event, ...args) => func(...args));
+        },
         exitSignal: () => {
             ipcRenderer.send('exit:request');
         },

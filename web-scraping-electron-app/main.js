@@ -331,6 +331,8 @@ function closeScrapeWindow() {
         urlWindow.close();
         urlWindow = null;
     }
+
+    mainWin.webContents.send('ext-url-win-closed');
 }
 
 function closeLSWindow() {
