@@ -75,6 +75,20 @@ ipcMain.on('log-error', (event, message) => {
     log.error(`Renderer: ${message}`);
 });
 
+ipcMain.on('logs:clear', (event) => {
+    const logFilePath = log.transports.file.getFile().path;
+    log.debug(`Clearing logs at path: ${logFilePath}`);
+    try {
+        fs.writeFileSync(logFilePath, ''); // Overwrite the log file with an empty string
+        log.info('Logs cleared successfully.');
+        event.sender.send('logs:cleared'); // Notify renderer process that logs were cleared
+    } catch (error) {
+        log.error(`Error clearing log file: ${error}`);
+        event.sender.send('logs:cleared-error', error.message); // Notify renderer process of the error
+    }
+});
+
+
 ipcMain.handle('get-logs', async () => {
     const logFilePath = log.transports.file.getFile().path;
     log.debug(`Log file path: ${logFilePath}`);

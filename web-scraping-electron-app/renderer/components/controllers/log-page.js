@@ -69,6 +69,13 @@ export class LogPageController {
             this.filterLogs(); // Reapply filters whenever the date changes
         });
 
+        // Attach clear logs handler
+        $('#clearLogsBtn').on('click', () => {
+            if (confirm('Are you sure you want to clear all logs?')) {
+                this.clearLogs();
+            }
+        });
+
         this.logDebug('Log filter and date filter event listeners attached.');
     }
 
@@ -236,5 +243,22 @@ export class LogPageController {
          }
 
          this.displayLogs(filteredLogs);
+    }
+
+     /**
+     * Clear logs both in the UI and on the backend.
+     */
+    clearLogs() {
+        this.ipcRenderer.send('logs:clear');
+
+        this.ipcRenderer.receive('logs:cleared', () => {
+            this.logLines = [];
+            this.displayLogs([]);
+        });
+
+        this.ipcRenderer.receive('logs:cleared-error', (errorMessage) => {
+            alert(`Failed to clear logs: ${errorMessage}`);
+            this.logError(`Failed to clear logs: ${errorMessage}`);
+        });
     }
 }
