@@ -1,10 +1,10 @@
 // renderer.js
-import { HomePageController } from '../components/controllers/home-page.js';
-import { ScrapePageController } from '../components/controllers/scrape-page.js';
-import { AnnotationPageController } from '../components/controllers/annotation-page.js';
-import { DatabasePageController } from '../components/controllers/database-page.js';
-import { LogPageController } from '../components/controllers/log-page.js';
-import { AboutPageController } from '../components/controllers/about-page.js';
+const HomePageController = require('../components/controllers/home-page.js');
+const ScrapePageController = require('../components/controllers/scrape-page.js');
+const AnnotationPageController = require('../components/controllers/annotation-page.js');
+const DatabasePageController = require('../components/controllers/database-page.js');
+const LogPageController = require('../components/controllers/log-page.js');
+const AboutPageController = require('../components/controllers/about-page.js');
 
 
 const ipcRenderer = window.electronAPI;
