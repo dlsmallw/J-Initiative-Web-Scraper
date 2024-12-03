@@ -19,7 +19,7 @@ const fs = require('fs');
 const log = require('electron-log');
 
 const { initializeApp } = require('firebase/app');
-const { collection, getDocs, getFirestore, doc, getDoc } = require('firebase/firestore');
+const { collection, getDocs, getFirestore, doc, getDoc, updateDoc, setDoc, arrayUnion} = require('firebase/firestore');
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhqRcDSUGoTiEka890A53u7cjS0J1IH48",
@@ -151,7 +151,17 @@ function createURLWindow(url) {
         return;
     }
 
-    log.debug(`Creating URL window for: ${url}`);
+  const docRef = doc(db, "Websites", "Website List");
+  updateDoc(docRef, {
+    List: arrayUnion(url)
+  });
+
+  setDoc(doc(db, "Websites", url), {
+    website_url: url,
+  });
+
+
+  log.debug(`Creating URL window for: ${url}`);
 
     // Create a new BrowserWindow instance for the URL
     const urlWindow = new BrowserWindow({
