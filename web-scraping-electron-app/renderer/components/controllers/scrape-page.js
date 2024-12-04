@@ -3,7 +3,8 @@ export class ScrapePageController {
     name = 'scrape';                  // Page name
     compID = '#scrape-container';     // Page component container ID
 
-    ipcRenderer = window.electronAPI;
+    scrapingAPI = window.scrapingAPI;
+    lsAPI = window.lsAPI;
 
     /**
      * Returns the pages component html filepath.
@@ -101,10 +102,10 @@ export class ScrapePageController {
             if (data === '') {
                 this.postAlert('Data Field Cannot Be Empty!', 'Empty String');
             } else {
-                this.ipcRenderer.exportScrapedData(data, projID);
+                this.lsAPI.exportData(data, projID);
                 this.disableManualScrape();
 
-                this.ipcRenderer.receive('exportData:response', (res) => {
+                this.lsAPI.onExportRes((res) => {
                     var response = JSON.parse(res);
             
                     if (response.ok) {
@@ -117,6 +118,11 @@ export class ScrapePageController {
                     this.enableManualScrape();
                 });
             }
+        });
+
+        // Listen for errors from main process related to URL opening
+        this.scrapingAPI.openURLErr((errorMessage) => {
+            alert(`Failed to open URL: ${errorMessage}`); // Display alert if there was an error opening the URL
         });
     }
 
@@ -139,6 +145,7 @@ export class ScrapePageController {
     //============================================================================================================================
     // Logging Helpers (WIP - Plan to move to a separate class that is imported)
     //============================================================================================================================
+    logger = window.log;    // Variable created for ease of reading
 
     /**
      * Handles displaying an alert message for specific situations (error or otherwise).
@@ -148,8 +155,10 @@ export class ScrapePageController {
     postAlert(alertMsg, cause) {
         if (cause === undefined) {
             alert(alertMsg);
+            this.logInfo(alertMsg);
         } else {
             alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+            this.logError(`${alertMsg} Cause: ${cause}`);
         }
     }
 
@@ -158,7 +167,7 @@ export class ScrapePageController {
      * @param {string} message - The message to log.
      */
     logInfo(message) {
-        this.ipcRenderer.send('log-info', message);
+        this.logger.info(message);
     }
 
     /**
@@ -166,7 +175,7 @@ export class ScrapePageController {
      * @param {string} message - The message to log.
      */
     logDebug(message) {
-        this.ipcRenderer.send('log-debug', message);
+        this.logger.debug(message);
     }
 
     /**
@@ -174,7 +183,7 @@ export class ScrapePageController {
      * @param {string} message - The message to log.
      */
     logWarn(message) {
-        this.ipcRenderer.send('log-warn', message);
+        this.logger.warn(message);
     }
 
     /**
@@ -182,7 +191,7 @@ export class ScrapePageController {
      * @param {string} message - The message to log.
      */
     logError(message) {
-        this.ipcRenderer.send('log-error', message);
+        this.logger.error(message);
     }
 
     //============================================================================================================================
@@ -212,7 +221,7 @@ export class ScrapePageController {
             }
 
             // Send the URL to the main process to open it
-            this.ipcRenderer.send('open-url', url);
+            this.scrapingAPI.openExternal(url);
             this.logInfo(`Requested to open URL: ${url}`);
 
             // Update the results container to display the submitted URL
