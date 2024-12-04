@@ -5,6 +5,8 @@ export class LogPageController {
 
     logLines = []; // Store logs for filtering
 
+    electronAPI = window.electronAPI;
+
     /**
      * Returns the pages component html filepath.
      * @returns String          The html filepath.
@@ -101,11 +103,18 @@ export class LogPageController {
      * @param {*} cause             Cause if an error.
      */
     postAlert(alertMsg, cause) {
+        var json = {
+            msg: alertMsg,
+            errType: null
+        }
+
         if (cause === undefined) {
-            alert(alertMsg);
+            this.electronAPI.postDialog.general(JSON.stringify(json));
             this.logInfo(alertMsg);
         } else {
-            alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+            json.errType = cause;
+
+            this.electronAPI.postDialog.error(JSON.stringify(json));
             this.logError(`${alertMsg} Cause: ${cause}`);
         }
     }

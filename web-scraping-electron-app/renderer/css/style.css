@@ -406,3 +406,101 @@ body {
 input[readonly].default-cursor {
     cursor: default;
 }
+
+#import-btn-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#importSelectedBtn {
+    background: #3b4145;
+    width: 40%;
+}
+
+#content-container {
+    transform: translateY(59px);
+}
+
+#webview-container {
+    height: 60vh;
+}
+
+#webview-element {
+    height: 100%;
+}
+
+#data-container {
+    padding-top: 1rem;
+}
+
+#selected-data-container {
+    margin: 0 10px 0 10px;
+}
+
+.scraped-list {
+    height: 20vh;
+    background-color: var(--bs-list-group-bg);
+}
+
+.list-header {
+    display: flex;
+    align-items: center;
+    padding-bottom: 10px;
+    margin-left: 10px;
+}
+
+.list-btn-container {
+    margin-left: 20px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.scrape-data-btn {
+    border-style: solid;
+}
+
+.hdr-lbl {
+    min-width: 140px;
+    font-size: calc(1.275rem + 0.1vw);
+    display: flex;
+    align-items: center;
+}
+
+.exp-to-btn-grp {
+    display: flex;
+    align-items: center;
+}
+
+#results-list {
+    height: 30vh;
+}
+
+#ls-exp-btn-container {
+    margin-top: 15px;
+}
+
+.exp-lbl-container {
+    width: 95px;
+    font-size: large;
+    font-weight: 600;
+}
+
+#url-exp-btn-grp {
+    margin-left: 10px;
+}
+
+#url-exp-btn-lbl {
+    padding-right: 10%;
+}
+
+#projectSelect-url {
+    width: fit-content;
+    margin-right: 15px;
+}
+
+#projectSelect-man {
+    width: fit-content;
+    margin-left: 5px;
+}

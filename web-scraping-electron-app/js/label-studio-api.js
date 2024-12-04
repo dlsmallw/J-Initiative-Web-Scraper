@@ -111,16 +111,15 @@ function makeRequestToLS(requestJSON, requestType) {
 
 /**
  * Formats raw string data by splitting it into an array of individual sentences.
- * @param {*} rawData       The data to be formatted.
+ * @param {*} textData       The data to be formatted.
  * @returns Array           An array split into individual sentences.
  */
-function formatRawData(rawData) {
+function formatTextData(textData) {
     var regex = /(?:\([^()]*\)|\d+\.\d+|[^.?!])+[.?!]/g;
 
-    var trimmedRawData = rawData.trim();
+    var trimmedRawData = textData.trim();
     
     if (trimmedRawData !== '') {
-        var currIndex = 0;
         var formattedData = [];
 
         var sentArr = trimmedRawData.match(regex);
@@ -130,18 +129,44 @@ function formatRawData(rawData) {
                 var sentStr = sent.trim();
 
                 if (sentStr !== '') {
-                    formattedData[currIndex] = {
-                        'text': sentStr
-                    }
-    
-                    currIndex += 1;
+                    formattedData.push({
+                        text: sentStr
+                    });
                 }
             });
         }
+
         return formattedData;
     }
 
     return null;
+}
+
+/**
+ * Processes the raw data received from the application into a format acceptable for Label Studio.
+ * @param {*} dataArr       The raw data.
+ * @returns                 A formatted array of all data to export.
+ */
+function formatDataArr(dataArr) {
+    var formattedResult = null;
+
+    if (dataArr !== null) {
+        var formattedArr = [];
+
+        for (var i = 0; i < dataArr.length; i++) {
+            var data = formatTextData(dataArr[i].textData);
+
+            for (var j = 0; j < data.length; j++) {
+                formattedArr.push(data[j]);
+            }
+        }
+
+        if (formattedArr.length !== 0) {
+            formattedResult = formattedArr;
+        }
+    }
+
+    return formattedResult;
 }
 
 /**
@@ -150,14 +175,14 @@ function formatRawData(rawData) {
  * @returns JSON            The request object.
  */
 function requestJSON(rawData, projectID) {
-    var textData = formatRawData(rawData);
+    var formattedData = formatDataArr(rawData);
 
-    if (textData !== null) {
+    if (formattedData !== null) {
         return {
             method: 'post',
             url: `${BASEURL}/api/projects/${projectID}/import`,
             headers: requestHeader(),
-            data: textData
+            data: formattedData
         }
     } else {
         throw new Error("Invalid Data Format From Null Data.");

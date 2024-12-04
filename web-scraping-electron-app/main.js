@@ -20,7 +20,7 @@ const log = require('electron-log');
 
 // Reference for the main application window
 let mainWin;
-let lsWindow;
+let urlWindow, lsWindow;
 let tail;
 
 /**
@@ -32,10 +32,10 @@ function createMainWindow() {
     // Create the BrowserWindow instance with specific options
     mainWin = new BrowserWindow({
         frame: false,
-        width: isDev ? 1200 : 800, // Set width: larger size for development
-        height: 600, // Set height for the window
-        minWidth: isDev ? 1200 : 800, // Set minimum width to prevent shrinking beyond a set size
-        minHeight: 600, // Set minimum height
+        width: isDev ? 1400 : 1200, // Set width: larger size for development
+        height: 800, // Set height for the window
+        minWidth: isDev ? 1400 : 1200, // Set minimum width to prevent shrinking beyond a set size
+        minHeight: 800, // Set minimum height
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
         }
@@ -85,17 +85,11 @@ ipcMain.handle('get-logs', async () => {
     log.debug(`Log file path: ${logFilePath}`);
     try {
         data = fs.readFileSync(logFilePath, 'utf8');
-        log.debug('Log data read successfully.');    
+        log.debug('Log data read successfully.');   
+        initLogListener(logFilePath);
     } catch (error) {
         log.error(`Error reading log file: ${error}`);
     }
-
-    // File stream listener that watches for changes to log file and only sends the most recent line.
-    tail = new Tail(logFilePath);
-    tail.watch();
-    tail.on('line', (data) => {
-        mainWin.webContents.send('update-to-logs', data);
-    });
 
     return data; // Return the log data to the renderer process
 });
@@ -116,38 +110,46 @@ function createURLWindow(url) {
     log.debug(`Creating URL window for: ${url}`);
 
     // Create a new BrowserWindow instance for the URL
-    const urlWindow = new BrowserWindow({
-        width: 1200, // Set width of the URL window
-        height: 800, // Set height of the URL window
+    urlWindow = new BrowserWindow({
+        frame: false,
+        width: 1400, // Set width of the URL window
+        height: 1000, // Set height of the URL window
+        minWidth: 1200, // Set minimum width to prevent shrinking beyond a set size
+        minHeight: 800, // Set minimum height
         webPreferences: {
             nodeIntegration: false, // Disable Node.js integration for security
             contextIsolation: true, // Isolate context for security
+            preload: path.join(__dirname, 'preload.js'),
+            webviewTag: true
         }
     });
 
-    const loadingWindow = new BrowserWindow( {
-        width: 1200, // Set width of the URL window
-        height: 800,
-        webPreferences: {
-            nodeIntegration: false, // Disable Node.js integration for security
-            contextIsolation: true, // Isolate context for securitya
-        }
-    });
+    // const loadingWindow = new BrowserWindow({
+    //     width: 1200, // Set width of the URL window
+    //     height: 800,
+    //     webPreferences: {
+    //         nodeIntegration: false, // Disable Node.js integration for security
+    //         contextIsolation: true, // Isolate context for securitya
+    //     }
+    // });
 
-    loadingWindow.loadFile('./renderer/assets/html/loadingscreen.html').then(() => log.info("loading screen opened successfully"));
+    // loadingWindow.loadFile('./renderer/assets/html/loadingscreen.html').then(() => log.info("loading screen opened successfully"));
 
     urlWindow.hide();
+    urlWindow.webContents.openDevTools();
 
-    // Load the specified URL in the window, catch invalid url
-    urlWindow.loadURL(url).then(() => {
-        urlWindow.show();
-        loadingWindow.close();
-        log.info(`URL window loaded: ${url}`);
+     // Load the specified URL in the window, catch invalid url
+    urlWindow.loadFile('./renderer/window-templates/scrape-window.html')
+        .then(() => {
+            urlWindow.webContents.send('setUrl', url);
+            urlWindow.show();
+            // loadingWindow.close();
+            log.info(`URL window loaded: ${url}`);
     }).catch((error) => {
-        urlWindow.close();
-        loadingWindow.close();
-        log.error(`Failed to load URL: ${error}`);
-        dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!');
+            closeScrapeWindow();
+            // loadingWindow.close()
+            log.error(`Failed to load URL: ${error}`);
+            dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!');
     });
 
     // Prevent the window from navigating away from the original URL
@@ -186,23 +188,25 @@ app.whenReady().then(() => {
 // When all windows are closed, quit the app unless running on macOS
 app.on('window-all-closed', () => {
     log.info('All windows closed.');
-    
-    if (!isMac) {
-        log.info('Quitting application.');
-        app.quit(); // macOS apps typically stay open until explicitly quit
-    }
+    terminateApp();
 });
 
 // Listen for 'open-url' event from renderer to open a new window with the provided URL
 ipcMain.on('open-url', (event, url) => {
-    log.debug(`Received 'open-url' event for URL: ${url}`);
-    try {
-        createURLWindow(url);
-    } catch (error) {
-        // Log error if URL cannot be opened and notify the renderer process
-        log.error(`Error opening URL window: ${error.message}`);
-        event.sender.send('open-url-error', error.message);
+    if (!urlWindow) {
+        log.debug(`Received 'open-url' event for URL: ${url}`);
+        try {
+            createURLWindow(url);
+        } catch (error) {
+            // Log error if URL cannot be opened and notify the renderer process
+            log.error(`Error opening URL window: ${error.message}`);
+            event.sender.send('open-url-error', error.message);
+        }
     }
+});
+
+ipcMain.on('close-scrape-win', (event) => {
+    closeScrapeWindow();
 });
 
 /**
@@ -245,11 +249,11 @@ function createLSExternal(url) {
 
 // Handles exporting data to the linked LS project
 ipcMain.on('export-to-ls:request', async (event, data, projectID) => {
-    exportDataToLS(data, projectID)
-        .then(response => {
-            console.log(response)
-            mainWin.webContents.send('export-to-ls:response', JSON.stringify(response));
-        });
+    var jsonObj = JSON.parse(data);
+    exportDataToLS(jsonObj, projectID).then((res) => {
+        var response = JSON.stringify(res);
+        mainWin.webContents.send('export-to-ls:response', response);
+    });
 });
 
 // Handles openning the LS project in an external window
@@ -288,9 +292,78 @@ ipcMain.on('clear-linked-ls:request', () => {
     clearLinkedLSProject();
 });
 
+// Handles a scrape request
+ipcMain.on('scrapedData:export', (event, data) => {
+    console.log('Main process received scraped data:', data);
+
+    if (mainWin) {
+        mainWin.webContents.send('scrapedData:update', data);
+        console.log('Forwarded scraped data to renderer.');
+    } else {
+        console.error('Main window is not available to forward scraped data.');
+    }
+});
+
 // Handles closing the application
 ipcMain.on('exit:request', () => {
     log.info('Received exit request from renderer.');
-    tail.unwatch();
+    terminateApp();
+});
+
+function initLogListener(logFilePath) {
+    // File stream listener that watches for changes to log file and only sends the most recent line.
+    tail = new Tail(logFilePath);
+    tail.watch();
+    tail.on('line', (data) => {
+        mainWin.webContents.send('update-to-logs', data);
+    });
+}
+
+function terminateLogListener() {
+    if (tail) {
+        tail.unwatch()
+        tail = null;
+    }
+}
+
+function closeScrapeWindow() {
+    if (urlWindow) {
+        urlWindow.close();
+        urlWindow = null;
+    }
+
+    mainWin.webContents.send('ext-url-win-closed');
+}
+
+function closeLSWindow() {
+    if (lsWindow) {
+        lsWindow.close();
+        lsWindow = null;
+    }
+}
+
+function closeAllWindows() {
+    closeScrapeWindow();
+    closeLSWindow();
+}
+
+function terminateApp() {
+    log.info('Terminating Application Processes');
+
+    terminateLogListener();
+    closeAllWindows();
+
     app.quit();
+}
+
+ipcMain.on('gen-dialog', (event, message) => {
+    var json = JSON.parse(message);
+
+    dialog.showMessageBox(json.msg);
+});
+
+ipcMain.on('err-dialog', (event, message) => {
+    var json = JSON.parse(message);
+
+    dialog.showErrorBox(json.errType, json.msg);
 });
