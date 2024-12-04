@@ -42,7 +42,7 @@ export class LogPageController {
     /**
      * Method for intitializing the page in the application.
      */
-    async initPage() {
+    initPage() {
         var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
         var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
 
@@ -52,25 +52,33 @@ export class LogPageController {
             $('#d_content').append( await $.get(this.htmlFilePath));
         }
 
-        await this.loadLogs();
-
         insertElement().then(() => {
+            $('#date-filter').val(this.toDateInputValue(new Date()));
+
+            this.loadLogs();
             this.initPageListeners();
+            this.logInfo("Log Page Initialized");
         });
 
-        this.logInfo("Log Page Initialized");
+        
     }
+
+    toDateInputValue(dateObject){
+        const local = new Date(dateObject);
+        local.setMinutes(dateObject.getMinutes() - dateObject.getTimezoneOffset());
+        return local.toJSON().slice(0,10);
+    };
 
     /**
      * Method for initializing the pages event listeners.
      */
     initPageListeners() {
         $('#log-filter').on('change', () => {
-            this.filterLogs();
+            this.displayLogs();
         });
 
         $('#date-filter').on('change', () => {
-            this.filterLogs(); // Reapply filters whenever the date changes
+            this.displayLogs(); // Reapply filters whenever the date changes
         });
 
         this.logDebug('Log filter and date filter event listeners attached.');
@@ -175,16 +183,16 @@ export class LogPageController {
         try {
             // Wait for the DOM to be updated
             await new Promise(resolve => setTimeout(resolve, 50));
-
             const logs = await this.logger.requestLogs();
+
             this.logDebug('Logs received from main process.');
             if (!logs) {
                 this.logWarn('No logs received from main process.');
                 return;
             }
 
-            this.logLines = logs.split('\n').filter(line => line.trim() !== '');
-            this.displayLogs(this.logLines);
+            this.logLines = logs;
+            this.displayLogs();
         } catch (error) {
             this.logError(`Error loading logs: ${error}`);
         }
@@ -194,9 +202,14 @@ export class LogPageController {
      * Updates the logLines with a new log entry.
      * @param {*} line          The new log.
      */
-    addLogLine(line) {
-        this.logLines.push(line);
-        this.filterLogs();
+    addLogLine(logs) {
+        if (logs) {
+            logs.forEach(logObj => {
+                this.logLines.push(logObj);
+            });
+
+            this.displayLogs();
+        }
     }
 
     /**
@@ -211,13 +224,15 @@ export class LogPageController {
 
     /**
      * Display logs in the UI.
-     * @param {Array} logs - Array of log lines to display.
      */
-    displayLogs(logs) {
+    displayLogs() {
+        var typeFilter = $('#log-filter').val();
+        var dateFilter = new Date($('#date-filter').val());
+
         const logOutput = $('#log-output');
         logOutput.empty(); // Clear existing logs
 
-        if (logs.length === 0) {
+        if (this.logLines.length === 0) {
             // If no logs match, display a message in the log output
             const noLogsMessage = $('<div>', { class: 'no-logs-message text-center text-muted' });
             noLogsMessage.text('No logs found for the selected filters.');
@@ -227,53 +242,19 @@ export class LogPageController {
             return;
         }
 
-        logs.forEach(line => {
-            this.appendLog(line);
+        var logs = this.logLines.filter(logObj => {
+            var meetsDateFilter = true ? (dateFilter === undefined || (logObj.logDateTime.toDateString() === dateFilter.toDateString())) : false;
+            var meetsTypeFilter = true ? (typeFilter === 'ALL' || logObj.logType === typeFilter) : false;
+
+            if (meetsDateFilter && meetsTypeFilter) {
+                return true;
+            }
+
+            return false;
         });
-    }
 
-
-    /**
-     * Filter logs based on selected log level.
-     */
-    filterLogs() {
-        const filterValue = $('#log-filter').val();
-        const dateFilter = $('#date-filter').val();
-        let filteredLogs = this.logLines;
-
-        // Check if logs are available
-        if (!filteredLogs || filteredLogs.length === 0) {
-            this.logWarn('No logs available to filter.');
-            this.displayLogs([]); // Clear the UI if no logs are available
-            return;
-        }
-         // Combine filters
-         const levels = filterValue !== 'ALL' ? filterValue.toLowerCase().split(',').map(s => s.trim()) : [];
-         const selectedDateStr = dateFilter ? new Date(dateFilter).toISOString().split('T')[0] : null;
-
-         const regex = /\[(\d{4}-\d{2}-\d{2}) \d{2}:\d{2}:\d{2}\.\d{3}\] \[(\w+)\]/;
-
-         filteredLogs = filteredLogs.filter(line => {
-             const match = line.match(regex);
-             if (match) {
-                 const logDate = match[1];
-                 const logLevel = match[2].toLowerCase();
-                 const matchesLevel = !levels.length || levels.includes(logLevel);
-                 const matchesDate = !selectedDateStr || logDate === selectedDateStr;
-
-                 return matchesLevel && matchesDate;
-             }
-             return false;
-         });
-
-         // Log active filters
-         const activeFilters = [];
-             if (filterValue !== 'ALL') activeFilters.push(`Level: ${filterValue}`);
-             if (dateFilter) activeFilters.push(`Date: ${dateFilter}`);
-         if (filteredLogs.length === 0) {
-             this.logInfo('No logs match the selected filters.');
-         }
-
-         this.displayLogs(filteredLogs);
+        logs.forEach(logObj => {
+            this.appendLog(logObj.rawLogStr);
+        });
     }
 }

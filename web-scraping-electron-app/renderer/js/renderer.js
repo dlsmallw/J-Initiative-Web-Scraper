@@ -105,7 +105,6 @@ function getPage(value) {
  * @param {*} event     The event corresponding to a page change.
  */
 function changePage(event) {
-    logDebug("Attempting to change page due to " + event.type);
     event.preventDefault(); // Prevent default link behavior
     const newPage = getPage(this.id.split('-')[0]);
 
