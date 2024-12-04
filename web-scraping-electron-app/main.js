@@ -7,6 +7,8 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('node:path');
 
+const Tail = require('tail').Tail;
+
 const { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject } = require('./js/label-studio-api.js');
 
 // Determine if the operating system is macOS
@@ -18,7 +20,8 @@ const log = require('electron-log');
 
 // Reference for the main application window
 let mainWin;
-let lsWindow;
+let urlWindow, lsWindow;
+let tail;
 
 /**
  * Function to create the main application window.
@@ -29,12 +32,14 @@ function createMainWindow() {
     // Create the BrowserWindow instance with specific options
     mainWin = new BrowserWindow({
         frame: false,
-        width: isDev ? 1200 : 800, // Set width: larger size for development
-        height: 600, // Set height for the window
-        minWidth: isDev ? 1200 : 800, // Set minimum width to prevent shrinking beyond a set size
-        minHeight: 600, // Set minimum height
+        transparent: true, 
+        width: isDev ? 1400 : 1200, // Set width: larger size for development
+        height: 800, // Set height for the window
+        minWidth: isDev ? 1400 : 1200, // Set minimum width to prevent shrinking beyond a set size
+        minHeight: 800, // Set minimum height
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
+            webviewTag: true
         }
     });
 
@@ -76,16 +81,19 @@ ipcMain.on('log-error', (event, message) => {
 });
 
 ipcMain.handle('get-logs', async () => {
+    var data = '';
+
     const logFilePath = log.transports.file.getFile().path;
     log.debug(`Log file path: ${logFilePath}`);
     try {
-        const data = fs.readFileSync(logFilePath, 'utf8');
-        log.debug('Log data read successfully.');
-        return data; // Return the log data to the renderer process
+        data = fs.readFileSync(logFilePath, 'utf8');
+        log.debug('Log data read successfully.');   
+        initLogListener(logFilePath);
     } catch (error) {
         log.error(`Error reading log file: ${error}`);
-        return ''; // Return empty string on error
     }
+
+    return data; // Return the log data to the renderer process
 });
 
 /**
@@ -104,38 +112,46 @@ function createURLWindow(url) {
     log.debug(`Creating URL window for: ${url}`);
 
     // Create a new BrowserWindow instance for the URL
-    const urlWindow = new BrowserWindow({
-        width: 1200, // Set width of the URL window
-        height: 800, // Set height of the URL window
+    urlWindow = new BrowserWindow({
+        frame: false,
+        width: 1400, // Set width of the URL window
+        height: 1000, // Set height of the URL window
+        minWidth: 1200, // Set minimum width to prevent shrinking beyond a set size
+        minHeight: 800, // Set minimum height
         webPreferences: {
             nodeIntegration: false, // Disable Node.js integration for security
             contextIsolation: true, // Isolate context for security
+            preload: path.join(__dirname, 'preload.js'),
+            webviewTag: true
         }
     });
 
-    const loadingWindow = new BrowserWindow( {
-        width: 1200, // Set width of the URL window
-        height: 800,
-        webPreferences: {
-            nodeIntegration: false, // Disable Node.js integration for security
-            contextIsolation: true, // Isolate context for securitya
-        }
-    });
+    // const loadingWindow = new BrowserWindow({
+    //     width: 1200, // Set width of the URL window
+    //     height: 800,
+    //     webPreferences: {
+    //         nodeIntegration: false, // Disable Node.js integration for security
+    //         contextIsolation: true, // Isolate context for securitya
+    //     }
+    // });
 
-    loadingWindow.loadFile('./renderer/assets/html/loadingscreen.html').then(() => log.info("loading screen opened successfully"));
+    // loadingWindow.loadFile('./renderer/assets/html/loadingscreen.html').then(() => log.info("loading screen opened successfully"));
 
     urlWindow.hide();
+    urlWindow.webContents.openDevTools();
 
-    // Load the specified URL in the window, catch invalid url
-    urlWindow.loadURL(url).then(() => {
-        urlWindow.show();
-        loadingWindow.close();
-        log.info(`URL window loaded: ${url}`);
+     // Load the specified URL in the window, catch invalid url
+    urlWindow.loadFile('./renderer/window-templates/scrape-window.html')
+        .then(() => {
+            urlWindow.webContents.send('setUrl', url);
+            urlWindow.show();
+            // loadingWindow.close();
+            log.info(`URL window loaded: ${url}`);
     }).catch((error) => {
-        urlWindow.close();
-        loadingWindow.close();
-        log.error(`Failed to load URL: ${error}`);
-        dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!');
+            closeScrapeWindow();
+            // loadingWindow.close()
+            log.error(`Failed to load URL: ${error}`);
+            dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!');
     });
 
     // Prevent the window from navigating away from the original URL
@@ -174,22 +190,25 @@ app.whenReady().then(() => {
 // When all windows are closed, quit the app unless running on macOS
 app.on('window-all-closed', () => {
     log.info('All windows closed.');
-    if (!isMac) {
-        log.info('Quitting application.');
-        app.quit(); // macOS apps typically stay open until explicitly quit
-    }
+    terminateApp();
 });
 
 // Listen for 'open-url' event from renderer to open a new window with the provided URL
 ipcMain.on('open-url', (event, url) => {
-    log.debug(`Received 'open-url' event for URL: ${url}`);
-    try {
-        createURLWindow(url)
-    } catch (error) {
-        // Log error if URL cannot be opened and notify the renderer process
-        log.error(`Error opening URL window: ${error.message}`);
-        event.sender.send('open-url-error', error.message);
+    if (!urlWindow) {
+        log.debug(`Received 'open-url' event for URL: ${url}`);
+        try {
+            createURLWindow(url);
+        } catch (error) {
+            // Log error if URL cannot be opened and notify the renderer process
+            log.error(`Error opening URL window: ${error.message}`);
+            event.sender.send('open-url-error', error.message);
+        }
     }
+});
+
+ipcMain.on('close-scrape-win', (event) => {
+    closeScrapeWindow();
 });
 
 /**
@@ -199,24 +218,36 @@ ipcMain.on('open-url', (event, url) => {
 function createLSExternal(url) {
     // Create the BrowserWindow instance with specific options
     lsWindow = new BrowserWindow({
-        width: 800, // Set width: larger size for development
-        height: 600, // Set height for the window
-        minWidth: 800, // Set minimum width to prevent shrinking beyond a set size
-        minHeight: 600, // Set minimum height
+        frame: false,
+        width: 1400, // Set width of the LS window
+        height: 1000, // Set height of the LS window
+        minWidth: 1200, // Set minimum width to prevent shrinking beyond a set size
+        minHeight: 800, // Set minimum height
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
+            webviewTag: true
         }
     });
 
     // Disable the default application menu
-    // lsWindow.setMenu(null);
+    lsWindow.setMenu(null);
+
+    lsWindow.webContents.openDevTools();
 
     try {
-        lsWindow.loadURL(url);
+        lsWindow.loadFile('./renderer/window-templates/anno-window.html')
+            .then(() => {
+                lsWindow.webContents.send('set-ls-url', url);
+                lsWindow.show();
+            }).catch((err) => {
+                closeLSWindow();
+                log.error('Failed to open external LS window');
+                dialog.showErrorBox('Failed to open external LS window', 'Window Initialization Error');
+            });
 
         lsWindow.on('close', () => {
             // tell renderer to redisplay embbedded content
-            mainWin.webContents.send('openLSExternal-close');
+            mainWin.webContents.send('open-ls-ext:response');
         });
     
         // Prevent the window from opening any new windows (e.g., pop-ups)
@@ -224,59 +255,142 @@ function createLSExternal(url) {
             return { action: 'deny' }; // Deny any requests to open new windows
         });
     } catch (err) {
-        lsWindow.close();
-        // tell renderer to redisplay embbedded content
-        mainWin.webContents.send('openLSExternal-close');
+        closeLSWindow();
     }
 }
 
+ipcMain.on('ext-ls-url-change', (event, url) => {
+    console.log(url);
+    mainWin.webContents.send('ls-navigation-update', url);
+})
+
+// Handles a close request for the external Label Studio Window
+ipcMain.on('close-anno-win', (event) => {
+    closeLSWindow();
+});
+
 // Handles exporting data to the linked LS project
-ipcMain.on('exportData:request', async (event, data, projectID) => {
-    exportDataToLS(data, projectID)
-        .then(response => {
-            console.log(response)
-            mainWin.webContents.send('exportData:response', JSON.stringify(response));
-        });
+ipcMain.on('export-to-ls:request', async (event, data, projectID) => {
+    var jsonObj = JSON.parse(data);
+    exportDataToLS(jsonObj, projectID).then((res) => {
+        var response = JSON.stringify(res);
+        mainWin.webContents.send('export-to-ls:response', response);
+    });
 });
 
 // Handles openning the LS project in an external window
-ipcMain.on('openLSExternal:request', (event, url) => {
+ipcMain.on('open-ls-ext:request', (event, url) => {
     createLSExternal(url);
 });
 
 // Handles updating the linked LS project URL
-ipcMain.on('initLSVariables:request', (event, url, token) => {
+ipcMain.on('init-ls-vars:request', (event, url, token) => {
     updateLinkedLSProject(url);
     updateAPIToken(token)
         .then(result => {
-            mainWin.webContents.send('updateToProjectList', JSON.stringify(result));
+            mainWin.webContents.send('ls-projects-update', JSON.stringify(result));
         }).catch(err => {
             console.log(err);
         }); 
 });
 
 // Handles updating the linked LS project URL
-ipcMain.on('updateLinkedLS:request', (event, url) => {
+ipcMain.on('update-linked-ls:request', (event, url) => {
     updateLinkedLSProject(url);
 });
 
 // Handles updating the linked LS project API Token
-ipcMain.on('updateAPIToken:request', (event, token) => {
+ipcMain.on('update-ls-api-token:request', (event, token) => {
     updateAPIToken(token)
         .then(result => {
-            mainWin.webContents.send('updateToProjectList', JSON.stringify(result));
+            mainWin.webContents.send('ls-projects-update', JSON.stringify(result));
         }).catch(err => {
             console.log(err);
         }); 
 });
 
 // Handles clearing the linked LS project (URL and API)
-ipcMain.on('clearLinkedLS:request', () => {
+ipcMain.on('clear-linked-ls:request', () => {
     clearLinkedLSProject();
+});
+
+// Handles a scrape request
+ipcMain.on('scrapedData:export', (event, data) => {
+    console.log('Main process received scraped data:', data);
+
+    if (mainWin) {
+        mainWin.webContents.send('scrapedData:update', data);
+        console.log('Forwarded scraped data to renderer.');
+    } else {
+        console.error('Main window is not available to forward scraped data.');
+    }
 });
 
 // Handles closing the application
 ipcMain.on('exit:request', () => {
     log.info('Received exit request from renderer.');
+    terminateApp();
+});
+
+function initLogListener(logFilePath) {
+    // File stream listener that watches for changes to log file and only sends the most recent line.
+    tail = new Tail(logFilePath);
+    tail.watch();
+    tail.on('line', (data) => {
+        mainWin.webContents.send('update-to-logs', data);
+    });
+}
+
+function terminateLogListener() {
+    if (tail) {
+        tail.unwatch()
+        tail = null;
+    }
+}
+
+function closeScrapeWindow() {
+    if (urlWindow) {
+        urlWindow.close();
+        urlWindow = null;
+    }
+
+    mainWin.webContents.send('ext-url-win-closed');
+}
+
+function closeLSWindow(url = null) {
+    if (lsWindow) {
+        lsWindow.close();
+        lsWindow = null;
+    }
+
+    var urlToSend = url ? url !== null : '';
+
+    // tell renderer to redisplay embbedded content
+    mainWin.webContents.send('ext-ls-win-closed', url);
+}
+
+function closeAllWindows() {
+    closeScrapeWindow();
+    closeLSWindow();
+}
+
+function terminateApp() {
+    log.info('Terminating Application Processes');
+
+    terminateLogListener();
+    closeAllWindows();
+
     app.quit();
+}
+
+ipcMain.on('gen-dialog', (event, message) => {
+    var json = JSON.parse(message);
+
+    dialog.showMessageBox(json.msg);
+});
+
+ipcMain.on('err-dialog', (event, message) => {
+    var json = JSON.parse(message);
+
+    dialog.showErrorBox(json.errType, json.msg);
 });

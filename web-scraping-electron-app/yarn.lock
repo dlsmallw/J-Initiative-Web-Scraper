@@ -3130,6 +3130,11 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
+tail@^2.2.6:
+  version "2.2.6"
+  resolved "https://registry.yarnpkg.com/tail/-/tail-2.2.6.tgz#24abd701963639b896c42496d5f416216ec0b558"
+  integrity sha512-IQ6G4wK/t8VBauYiGPLx+d3fA5XjSVagjWV5SIYzvEvglbQjwEcukeYI68JOPpdydjxhZ9sIgzRlSmwSpphHyw==
+
 tar@^6.0.5, tar@^6.1.11, tar@^6.2.1:
   version "6.2.1"
   resolved "https://registry.yarnpkg.com/tar/-/tar-6.2.1.tgz#717549c541bc3c2af15751bea94b1dd068d4b03a"
@@ -3253,7 +3258,7 @@ wcwidth@^1.0.1:
     electron-store "^10.0.0"
     firebase "^11.0.2"
     jquery "^3.7.1"
-    web-scraping-electron-app "file:../../../../AppData/Local/Yarn/Cache/v6/npm-web-scraping-electron-app-1.0.0-67c5f52a-533e-4265-b66c-72ce68ed48c6-1732519123435/node_modules/web-scraping-electron-app"
+    web-scraping-electron-app "file:../../../../AppData/Local/Yarn/Cache/v6/npm-web-scraping-electron-app-1.0.0-25744836-b311-4067-b142-d80b2c8dc393-1732695243192/node_modules/web-scraping-electron-app"
 
 webidl-conversions@^3.0.0:
   version "3.0.1"
