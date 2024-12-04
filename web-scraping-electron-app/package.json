@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A web scraping application that is to be used for assisting in NLP model training",
   "main": "main.js",
-  
+  "type": "module", 
   "scripts": {
     "dev": "npx electronmon .",
     "start": "electron .",

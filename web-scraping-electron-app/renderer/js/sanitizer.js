@@ -11,7 +11,7 @@
  * 
  * If you just want the presets already built in, call [sanitizerObject].htmlMode() or [sanitizerObject].sqlMode().
  * */
-export class Sanitizer {
+class Sanitizer {
 	constructor(input, sanitizeProtocol, expressionMap = {}) {
 		// If any structures need initializing, do that here
 		this.input = input;
@@ -202,3 +202,5 @@ t.htmlMode();
 t.addToExpressionMap("script", "REPLACED");
 console.log(t.removeTags("", false));
 */
+
+export {Sanitizer, SanitizeProtocol};
