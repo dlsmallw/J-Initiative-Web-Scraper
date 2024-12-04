@@ -11,7 +11,7 @@
  * 
  * If you just want the presets already built in, call [sanitizerObject].htmlMode() or [sanitizerObject].sqlMode().
  * */
-class Sanitizer {
+export class Sanitizer {
 	constructor(input, sanitizeProtocol, expressionMap = {}) {
 		// If any structures need initializing, do that here
 		this.input = input;

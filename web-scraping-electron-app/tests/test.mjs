@@ -1,7 +1,7 @@
 
 import assert from 'assert';
 import {describe, it } from 'node:test';
-import testVal from '../renderer/js/renderer.js';
+//import {Sanitizer} from '../renderer/js/sanitizer.js';
 
 
 runTests();
@@ -19,6 +19,17 @@ function test() {
 	else {
 		return false;
 	}
+}
+
+function testSanitizer() {
+	describe('Array', function () {
+		describe('#indexOf()', function () {
+	    	it('should return -1 when the value is not present', function () {
+	      		assert.equal([1, 2, 3].indexOf(4), -1);
+	    	});
+	  	});
+	});
+
 }
 
 function basicExample() {
@@ -46,6 +57,7 @@ function runTests() {
 	try {
 		assert(test(), "Testing 1 == 1");
 		//assert(testRenderer(), "Testing renderer functions");
+		assert(testSanitizer(), "Testing sanitizer functions");
 		basicExample();
 
 	}
