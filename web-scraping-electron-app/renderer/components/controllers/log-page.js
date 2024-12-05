@@ -267,12 +267,16 @@ export class LogPageController {
             const noLogsMessage = $('<div>', { class: 'no-logs-message text-center text-muted' });
             noLogsMessage.text('No logs found for the selected filters.');
             logOutput.append(noLogsMessage);
-
-            this.logDebug('No logs to display.');
         } else {
             logs.forEach(logObj => {
                 this.appendLog(logObj.rawLogStr);
             });
+        }
+        
+        if (this.logLines.length > 0) {
+            $('#clearLogsBtn').removeAttr('disabled');
+        } else {
+            $('#clearLogsBtn').prop('disabled', true);
         }
     }
 

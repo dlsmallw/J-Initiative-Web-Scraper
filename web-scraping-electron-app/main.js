@@ -114,6 +114,7 @@ let tail;
 
 let logReadQueue = new Queue();
 let logIntervalUpdater;
+let logListenerEnabled = true;
 
 const logFileMutex = new Mutex();
 
@@ -248,11 +249,10 @@ function initLogListener(logFilePath) {
     // File stream listener that watches for changes to log file and only sends the most recent line.
     tail = new Tail(logFilePath);
     tail.watch();
+
     tail.on('line', (data) => {
         logReadQueue.enqueue(formLogObject(data));
     });
-
-    startLoggingInterval(10000);
 }
 
 /**
@@ -263,8 +263,6 @@ function terminateLogListener() {
         tail.unwatch()
         tail = null;
     }
-
-    clearLogUpdateInterval();
 }
 
 // function enableLogger() {
@@ -325,15 +323,18 @@ ipcMain.handle('get-logs', async () => {
     }
 
     initLogListener(logFilePath.toString());
+    startLoggingInterval(5000);
 
     return logData;
 });
 
 ipcMain.on('logs:clear', (event) => {
     const logFilePath = log.transports.file.getFile().path;
-    log.debug(`Clearing logs at path: ${logFilePath}`);
     try {
+        terminateLogListener();
         fs.writeFileSync(logFilePath, ''); // Overwrite the log file with an empty string
+        initLogListener(logFilePath);
+
         log.info('Logs cleared successfully.');
         event.sender.send('logs:cleared'); // Notify renderer process that logs were cleared
     } catch (error) {
@@ -572,6 +573,7 @@ function terminateApp() {
     logInfo('Terminating Application Processes');
 
     terminateLogListener();
+    clearLogUpdateInterval();
     closeAllWindows();
 
     app.quit();
