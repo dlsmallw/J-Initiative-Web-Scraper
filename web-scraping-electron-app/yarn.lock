@@ -200,9 +200,9 @@
   optionalDependencies:
     global-agent "^3.0.0"
 
-"@electron/node-gyp@git+https://github.com/electron/node-gyp.git#06b29aafb7708acef8b3669835c8a7857ebc92d2":
+"@electron/node-gyp@https://github.com/electron/node-gyp#06b29aafb7708acef8b3669835c8a7857ebc92d2":
   version "10.2.0-electron.1"
-  resolved "git+https://github.com/electron/node-gyp.git#06b29aafb7708acef8b3669835c8a7857ebc92d2"
+  resolved "https://github.com/electron/node-gyp#06b29aafb7708acef8b3669835c8a7857ebc92d2"
   dependencies:
     env-paths "^2.2.0"
     exponential-backoff "^3.1.1"
@@ -3302,7 +3302,7 @@ wcwidth@^1.0.1:
     firebase "^11.0.2"
     jquery "^3.7.1"
     tail "^2.2.6"
-    web-scraping-electron-app "file:../../../../AppData/Local/Yarn/Cache/v6/npm-web-scraping-electron-app-1.0.0-50718f30-34f5-4706-a7ec-eef19a30cd67-1733386730065/node_modules/web-scraping-electron-app"
+    web-scraping-electron-app "file:../../../../Users/david/AppData/Local/Yarn/Cache/v6/npm-web-scraping-electron-app-1.0.0-73f7dbcd-61df-42e1-8537-d1bd8f1a2888-1733413460958/node_modules/web-scraping-electron-app"
 
 webidl-conversions@^3.0.0:
   version "3.0.1"
