@@ -8,7 +8,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
-const { fs } = require('fs');
+const fs = require('fs');
 const { Tail } = require('tail');
 const { Mutex } = require('async-mutex');
 

@@ -6,6 +6,7 @@ export class LogPageController {
     logLines = []; // Store logs for filtering
 
     electronAPI = window.electronAPI;
+    logger = window.log;
 
     /**
      * Returns the pages component html filepath.
@@ -86,6 +87,15 @@ export class LogPageController {
         this.logger.logUpdate((data) => {
             this.addLogLine(data);
         });
+
+        this.logger.logsClearedUpdate(() => {
+            this.logLines = [];
+            this.displayLogs();
+        });
+
+        this.logger.logClearError((errRes) => {
+            this.postAlert('Failed to clear logs', errRes);
+        });
     }
 
 
@@ -108,7 +118,6 @@ export class LogPageController {
     //============================================================================================================================
     // Logging Helpers (WIP - Plan to move to a separate class that is imported)
     //============================================================================================================================
-    logger = window.log;    // Variable created for ease of reading
 
     /**
      * Handles displaying an alert message for specific situations (error or otherwise).
@@ -271,16 +280,6 @@ export class LogPageController {
      * Clear logs both in the UI and on the backend.
      */
     clearLogs() {
-        this.ipcRenderer.send('logs:clear');
-
-        this.ipcRenderer.receive('logs:cleared', () => {
-            this.logLines = [];
-            this.displayLogs([]);
-        });
-
-        this.ipcRenderer.receive('logs:cleared-error', (errorMessage) => {
-            alert(`Failed to clear logs: ${errorMessage}`);
-            this.logError(`Failed to clear logs: ${errorMessage}`);
-        });
+        this.logger.clearLogs();
     }
 }
