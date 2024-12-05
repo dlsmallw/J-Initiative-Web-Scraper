@@ -142,4 +142,23 @@ export class DatabasePageController {
     //============================================================================================================================
     // Page Specific Methods
     //============================================================================================================================
+
+  async displayWebsiteData() {
+    await new Promise(resolve => setTimeout(resolve, 50));
+    const websiteInfo = document.getElementById('website-info');
+    if (!websiteInfo) {
+      this.logError('website-info element not found.');
+      return;
+    }
+    websiteInfo.innerHTML = '';
+
+    const websites = await this.ipcRenderer.invoke('get-websites');
+    const websiteEntry = document.createElement('div');
+    websiteEntry.className = 'website-entry';
+    websiteEntry.textContent = websites;
+    websiteInfo.appendChild(websiteEntry);
+
+
+    this.logDebug('website data displayed in UI.');
+  }
 }

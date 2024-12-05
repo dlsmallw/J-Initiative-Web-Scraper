@@ -178,3 +178,9 @@ contextBridge.exposeInMainWorld('urlScrape', {
         ipcRenderer.send('close-scrape-win');
     }
 });
+
+contextBridge.exposeInMainWorld('database', {
+  displayWebsiteData: () => {
+    return ipcRenderer.invoke('get-websites');
+  }
+});
