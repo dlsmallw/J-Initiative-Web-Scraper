@@ -3,7 +3,7 @@ export class AboutPageController {
     name = 'about';                  // Page name
     compID = '#about-container';     // Page component container ID
 
-    ipcRenderer = window.electronAPI;
+    electronAPI = window.electronAPI;
 
     /**
      * Returns the pages component html filepath.
@@ -85,6 +85,7 @@ export class AboutPageController {
     //============================================================================================================================
     // Logging Helpers (WIP - Plan to move to a separate class that is imported)
     //============================================================================================================================
+    logger = window.log;    // Variable created for ease of reading
 
     /**
      * Handles displaying an alert message for specific situations (error or otherwise).
@@ -92,19 +93,28 @@ export class AboutPageController {
      * @param {*} cause             Cause if an error.
      */
     postAlert(alertMsg, cause) {
+        var json = {
+            msg: alertMsg,
+            errType: null
+        }
+
         if (cause === undefined) {
-            alert(alertMsg);
+            this.electronAPI.postDialog.general(JSON.stringify(json));
+            this.logInfo(alertMsg);
         } else {
-            alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+            json.errType = cause;
+
+            this.electronAPI.postDialog.error(JSON.stringify(json));
+            this.logError(`${alertMsg} Cause: ${cause}`);
         }
     }
-    
+
     /**
      * Send an info log message to the main process.
      * @param {string} message - The message to log.
      */
     logInfo(message) {
-        this.ipcRenderer.send('log-info', message);
+        this.logger.info(message);
     }
 
     /**
@@ -112,7 +122,7 @@ export class AboutPageController {
      * @param {string} message - The message to log.
      */
     logDebug(message) {
-        this.ipcRenderer.send('log-debug', message);
+        this.logger.debug(message);
     }
 
     /**
@@ -120,7 +130,7 @@ export class AboutPageController {
      * @param {string} message - The message to log.
      */
     logWarn(message) {
-        this.ipcRenderer.send('log-warn', message);
+        this.logger.warn(message);
     }
 
     /**
@@ -128,7 +138,7 @@ export class AboutPageController {
      * @param {string} message - The message to log.
      */
     logError(message) {
-        this.ipcRenderer.send('log-error', message);
+        this.logger.error(message);
     }
 
     //============================================================================================================================

@@ -3,9 +3,9 @@ export class LogPageController {
     name = 'logs';                  // Page name
     compID = '#log-container';     // Page component container ID
 
-    ipcRenderer = window.electronAPI;
-
     logLines = []; // Store logs for filtering
+
+    electronAPI = window.electronAPI;
 
     /**
      * Returns the pages component html filepath.
@@ -53,7 +53,11 @@ export class LogPageController {
         }
 
         insertElement().then(() => {
+            $('#date-filter').val(this.localizeDateValue(new Date()));
+
+            this.loadLogs();
             this.initPageListeners();
+            this.logInfo("Log Page Initialized");
         });
     }
 
@@ -62,11 +66,11 @@ export class LogPageController {
      */
     initPageListeners() {
         $('#log-filter').on('change', () => {
-            this.filterLogs();
+            this.displayLogs();
         });
 
         $('#date-filter').on('change', () => {
-            this.filterLogs(); // Reapply filters whenever the date changes
+            this.displayLogs(); // Reapply filters whenever the date changes
         });
 
         // Attach clear logs handler
@@ -77,6 +81,11 @@ export class LogPageController {
         });
 
         this.logDebug('Log filter and date filter event listeners attached.');
+
+        // Listens for new logs being made and then updates the UI for just that log
+        this.logger.logUpdate((data) => {
+            this.addLogLine(data);
+        });
     }
 
 
@@ -99,6 +108,7 @@ export class LogPageController {
     //============================================================================================================================
     // Logging Helpers (WIP - Plan to move to a separate class that is imported)
     //============================================================================================================================
+    logger = window.log;    // Variable created for ease of reading
 
     /**
      * Handles displaying an alert message for specific situations (error or otherwise).
@@ -106,10 +116,19 @@ export class LogPageController {
      * @param {*} cause             Cause if an error.
      */
     postAlert(alertMsg, cause) {
+        var json = {
+            msg: alertMsg,
+            errType: null
+        }
+
         if (cause === undefined) {
-            alert(alertMsg);
+            this.electronAPI.postDialog.general(JSON.stringify(json));
+            this.logInfo(alertMsg);
         } else {
-            alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+            json.errType = cause;
+
+            this.electronAPI.postDialog.error(JSON.stringify(json));
+            this.logError(`${alertMsg} Cause: ${cause}`);
         }
     }
 
@@ -118,7 +137,7 @@ export class LogPageController {
      * @param {string} message - The message to log.
      */
     logInfo(message) {
-        this.ipcRenderer.send('log-info', message);
+        this.logger.info(message);
     }
 
     /**
@@ -126,7 +145,7 @@ export class LogPageController {
      * @param {string} message - The message to log.
      */
     logDebug(message) {
-        this.ipcRenderer.send('log-debug', message);
+        this.logger.debug(message);
     }
 
     /**
@@ -134,7 +153,7 @@ export class LogPageController {
      * @param {string} message - The message to log.
      */
     logWarn(message) {
-        this.ipcRenderer.send('log-warn', message);
+        this.logger.warn(message);
     }
 
     /**
@@ -142,12 +161,30 @@ export class LogPageController {
      * @param {string} message - The message to log.
      */
     logError(message) {
-        this.ipcRenderer.send('log-error', message);
+        this.logger.error(message);
+    }
+
+    /**
+     * Method for making an IPC log request.
+     */
+    requestLogs() {
+        this.logger.requestLogs();
     }
 
     //============================================================================================================================
     // Page Specific Methods
     //============================================================================================================================
+
+    /**
+     * Takes a date object and converts it into the localized datetime.
+     * @param {*} dateObj           The date object.
+     * @returns                     The localized date time.
+     */
+    localizeDateValue(dateObj){
+        const local = new Date(dateObj);
+        local.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset());
+        return local.toJSON().slice(0,10);
+    };
 
     /**
      * Load and display logs.
@@ -156,28 +193,65 @@ export class LogPageController {
         try {
             // Wait for the DOM to be updated
             await new Promise(resolve => setTimeout(resolve, 50));
+            const logs = await this.logger.requestLogs();
 
-            const logs = await this.ipcRenderer.invoke('get-logs');
             this.logDebug('Logs received from main process.');
             if (!logs) {
                 this.logWarn('No logs received from main process.');
                 return;
             }
 
-            this.logLines = logs.split('\n').filter(line => line.trim() !== '');
-            this.displayLogs(this.logLines);
+            this.logLines = logs;
+            this.displayLogs();
         } catch (error) {
             this.logError(`Error loading logs: ${error}`);
         }
     }
 
     /**
-     * Display logs in the UI.
-     * @param {Array} logs - Array of log lines to display.
+     * Updates the logLines with a new log entry.
+     * @param {*} line          The new log.
      */
-    displayLogs(logs) {
-        const logOutput = $('#log-output');
+    addLogLine(logs) {
+        if (logs) {
+            logs.forEach(logObj => {
+                this.logLines.push(logObj);
+            });
+
+            this.displayLogs();
+        }
+    }
+
+    /**
+     * Method for appending a new log line into the UI.
+     * @param {*} log       The log to be inserted.
+     */
+    appendLog(log) {
+        var $logEntry = $('<div>', {class: "log-entry"});
+        $logEntry.text(log);
+        $('#log-wrapper').append($logEntry);
+    }
+
+    /**
+     * Display logs in the UI.
+     */
+    displayLogs() {
+        var typeFilter = $('#log-filter').val();
+        var dateFilter = new Date($('#date-filter').val());
+
+        const logOutput = $('#log-wrapper');
         logOutput.empty(); // Clear existing logs
+
+        var logs = this.logLines.filter(logObj => {
+            var meetsDateFilter = true ? (dateFilter === undefined || (logObj.logDateTime.toDateString() === dateFilter.toDateString())) : false;
+            var meetsTypeFilter = true ? (typeFilter === 'ALL' || logObj.logType === typeFilter) : false;
+
+            if (meetsDateFilter && meetsTypeFilter) {
+                return true;
+            }
+
+            return false;
+        });
 
         if (logs.length === 0) {
             // If no logs match, display a message in the log output
@@ -186,63 +260,11 @@ export class LogPageController {
             logOutput.append(noLogsMessage);
 
             this.logDebug('No logs to display.');
-            return;
+        } else {
+            logs.forEach(logObj => {
+                this.appendLog(logObj.rawLogStr);
+            });
         }
-
-        logs.forEach(line => {
-            const logEntry = $('<div>', { class: 'log-entry' });
-            logEntry.text(line);
-            logOutput.append(logEntry);
-        });
-
-        this.logDebug('Logs displayed in UI.');
-    }
-
-
-    /**
-     * Filter logs based on selected log level.
-     */
-    filterLogs() {
-        const filterValue = $('#log-filter').val();
-        const dateFilter = $('#date-filter').val();
-        let filteredLogs = this.logLines;
-
-        // Check if logs are available
-        if (!filteredLogs || filteredLogs.length === 0) {
-            this.logWarn('No logs available to filter.');
-            this.displayLogs([]); // Clear the UI if no logs are available
-            return;
-        }
-         // Combine filters
-         const levels = filterValue !== 'ALL' ? filterValue.toLowerCase().split(',').map(s => s.trim()) : [];
-         const selectedDateStr = dateFilter ? new Date(dateFilter).toISOString().split('T')[0] : null;
-
-         const regex = /\[(\d{4}-\d{2}-\d{2}) \d{2}:\d{2}:\d{2}\.\d{3}\] \[(\w+)\]/;
-
-         filteredLogs = filteredLogs.filter(line => {
-             const match = line.match(regex);
-             if (match) {
-                 const logDate = match[1];
-                 const logLevel = match[2].toLowerCase();
-                 const matchesLevel = !levels.length || levels.includes(logLevel);
-                 const matchesDate = !selectedDateStr || logDate === selectedDateStr;
-
-                 return matchesLevel && matchesDate;
-             }
-             return false;
-         });
-
-         // Log active filters
-         const activeFilters = [];
-             if (filterValue !== 'ALL') activeFilters.push(`Level: ${filterValue}`);
-             if (dateFilter) activeFilters.push(`Date: ${dateFilter}`);
-             this.logInfo(`Logs filtered with active filters: ${activeFilters.join(', ')}`);
-
-         if (filteredLogs.length === 0) {
-             this.logInfo('No logs match the selected filters.');
-         }
-
-         this.displayLogs(filteredLogs);
     }
 
      /**

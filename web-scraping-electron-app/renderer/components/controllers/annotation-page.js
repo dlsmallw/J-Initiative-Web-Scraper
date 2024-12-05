@@ -3,7 +3,8 @@ export class AnnotationPageController {
     name = 'annotation';                  // Page name
     compID = '#annotation-container';     // Page component container ID
 
-    ipcRenderer = window.electronAPI;
+    lsAPI = window.lsAPI;
+    electronAPI = window.electronAPI;
 
     /**
      * Returns the pages component html filepath.
@@ -40,7 +41,7 @@ export class AnnotationPageController {
     /**
      * Method for intitializing the page in the application.
      */
-    async initPage() {
+    initPage() {
         var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
         var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
 
@@ -55,15 +56,17 @@ export class AnnotationPageController {
             const api_token = localStorage.getItem('apiToken');
 
             if (ls_url) {   // Label Studio project linked
-                $('#annotation-iframe').attr('src', ls_url);
+                $('#annotation-webview').attr('src', ls_url);
                 this.showLSEmbeddedFrame();
 
                 $('#ls-link-option').val(ls_url);
-                this.ipcRenderer.updateLinkedLSProject(ls_url);
+                
 
                 if (api_token) {
                     $('#ls-api-token-option').val(api_token);
-                    this.ipcRenderer.updateLSAPIToken(api_token);
+                    this.lsAPI.initVariables(ls_url, api_token);
+                } else {
+                    this.lsAPI.updateURL(ls_url);
                 }
             } else {        // No Label Studio project linked
                 this.hideLSEmbeddedFrame();
@@ -86,8 +89,8 @@ export class AnnotationPageController {
         $('#ext-win-btn').on('click', () => {
             $('#ls-embedded').hide();
             $('#ls-external').show();
-            var url = $('#annotation-iframe').attr('src');
-            this.ipcRenderer.openLSExternal(url);
+            var url = $('#annotation-webview').attr('src');
+            this.lsAPI.openExternal(url);
         });
 
         // Handles when clicking the "Clear Linked Project" button
@@ -115,7 +118,11 @@ export class AnnotationPageController {
             this.updateLSAPIToken();
         });
 
-        this.ipcRenderer.receive('openLSExternal-close', () => {
+        this.lsAPI.urlChange((url) => {
+            this.updatedLSWebviewSrc(url);
+        })
+
+        this.lsAPI.extLSWinClosed(() => {
             $('#ls-external').hide();
             $('#ls-embedded').show();
         });
@@ -140,6 +147,7 @@ export class AnnotationPageController {
     //============================================================================================================================
     // Logging Helpers (WIP - Plan to move to a separate class that is imported)
     //============================================================================================================================
+    logger = window.log;    // Variable created for ease of reading
 
     /**
      * Handles displaying an alert message for specific situations (error or otherwise).
@@ -147,10 +155,19 @@ export class AnnotationPageController {
      * @param {*} cause             Cause if an error.
      */
     postAlert(alertMsg, cause) {
+        var json = {
+            msg: alertMsg,
+            errType: null
+        }
+
         if (cause === undefined) {
-            alert(alertMsg);
+            this.electronAPI.postDialog.general(JSON.stringify(json));
+            this.logInfo(alertMsg);
         } else {
-            alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+            json.errType = cause;
+
+            this.electronAPI.postDialog.error(JSON.stringify(json));
+            this.logError(`${alertMsg} Cause: ${cause}`);
         }
     }
 
@@ -159,7 +176,7 @@ export class AnnotationPageController {
      * @param {string} message - The message to log.
      */
     logInfo(message) {
-        this.ipcRenderer.send('log-info', message);
+        this.logger.info(message);
     }
 
     /**
@@ -167,7 +184,7 @@ export class AnnotationPageController {
      * @param {string} message - The message to log.
      */
     logDebug(message) {
-        this.ipcRenderer.send('log-debug', message);
+        this.logger.debug(message);
     }
 
     /**
@@ -175,7 +192,7 @@ export class AnnotationPageController {
      * @param {string} message - The message to log.
      */
     logWarn(message) {
-        this.ipcRenderer.send('log-warn', message);
+        this.logger.warn(message);
     }
 
     /**
@@ -183,7 +200,7 @@ export class AnnotationPageController {
      * @param {string} message - The message to log.
      */
     logError(message) {
-        this.ipcRenderer.send('log-error', message);
+        this.logger.error(message);
     }
 
     //============================================================================================================================
@@ -240,7 +257,7 @@ export class AnnotationPageController {
                 this.setLSURL(urlInput);
                 this.showLSEmbeddedFrame();
             } else {
-                alert("The URL '" + urlInput + "' is not valid");
+                this.postAlert("The URL '" + urlInput + "' is not valid", 'Invalid URL');
                 $('#ls-link-input').val('');
             }
         }
@@ -256,11 +273,22 @@ export class AnnotationPageController {
         if (this.checkLSURL(urlInput)) {
             this.setLSURL(urlInput);
         } else {
-            alert("The URL '" + urlInput + "' is not valid");
+            this.postAlert("The URL '" + urlInput + "' is not valid", 'Invalid URL');
             $('#ls-link-option').val(currURL);
         }
     }
 
+    /**
+     * Updates the current url of the webview window.
+     * @param {*} url 
+     */
+    updatedLSWebviewSrc(url) {
+        var currURL = $('#annotation-webview').attr('src');
+
+        if (currURL !== url) {
+            $('#annotation-webview').attr('src', url);
+        }
+    }
 
     /**
      * Function for setting the LS project URL within local storage.
@@ -270,8 +298,8 @@ export class AnnotationPageController {
         if (url) {
             localStorage.setItem('lsURL', url);
             $('#ls-link-option').val(url);
-            $('#annotation-iframe').attr('src', url);
-            this.ipcRenderer.updateLinkedLSProject(url);
+            $('#annotation-webview').attr('src', url);
+            this.lsAPI.updateURL(url);
         }
     }
 
@@ -286,9 +314,9 @@ export class AnnotationPageController {
 
         if (regex.test(tokenVal)) {
             localStorage.setItem('apiToken', tokenVal);
-            this.setLSAPIToken(tokenVal)
+            this.setLSAPIToken(tokenVal);
         } else {
-            alert('Invalid API Token');
+            this.postAlert('The API Token is not valid', 'Invalid API Token');
 
             if (currToken) {
                 $('#ls-api-token-option').val(currToken);
@@ -304,7 +332,7 @@ export class AnnotationPageController {
         if (token) {
             localStorage.setItem('apiToken', token);
             $('#ls-api-token-option').val(token);
-            this.ipcRenderer.updateLSAPIToken(token);
+            this.lsAPI.updateToken(token);
         } 
     }
 
@@ -317,12 +345,12 @@ export class AnnotationPageController {
 
         localStorage.removeItem('lsURL');
         $('#ls-link-option').val('');
-        $('#annotation-iframe').attr('src', "");
+        $('#annotation-webview').attr('src', "");
 
         localStorage.removeItem('apiToken');
         $('#ls-api-token-option').val('');
         
-        this.ipcRenderer.clearLinkedLSProject();
+        this.lsAPI.clearLinkedProject();
     }
 
     /**
