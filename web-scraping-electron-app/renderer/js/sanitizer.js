@@ -11,6 +11,9 @@
  * 
  * If you just want the presets already built in, call [sanitizerObject].htmlMode() or [sanitizerObject].sqlMode().
  * */
+
+//import SanitizeProtocol from 'SanitizeProtocol.js';
+
 class Sanitizer {
 	constructor(input, sanitizeProtocol, expressionMap = {}) {
 		// If any structures need initializing, do that here
@@ -177,6 +180,21 @@ class Sanitizer {
 }
 
 
+
+
+
+
+//const t = new Sanitizer('<li class="%toggle %"\'ESCAPE^>', new SanitizeProtocol(), new Map([["ESCAPE", "escape"], ["toggle", "TOGGLE"]]));
+
+//t.addToMap("ESCAPE", "escape");
+/*
+const t = new Sanitizer('<script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.js">Test ><>text</script>', new SanitizeProtocol(), {"ESCAPE": "escape", "toggle": "TOGGLE"});
+t.htmlMode();
+
+t.addToExpressionMap("script", "REPLACED");
+console.log(t.removeTags("", false));
+*/
+
 // Note: this is a second class. I would normally move this to another file, but since it's only used as part of this script, it simplifies the imports needed.
 class SanitizeProtocol {
 
@@ -191,18 +209,5 @@ class SanitizeProtocol {
 		return textToSanitize.replace(reg, (match)=>(this.sanitizationMapping[match]));
 	}
 }
-
-
-
-//const t = new Sanitizer('<li class="%toggle %"\'ESCAPE^>', new SanitizeProtocol(), new Map([["ESCAPE", "escape"], ["toggle", "TOGGLE"]]));
-
-//t.addToMap("ESCAPE", "escape");
-/*
-const t = new Sanitizer('<script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.js">Test ><>text</script>', new SanitizeProtocol(), {"ESCAPE": "escape", "toggle": "TOGGLE"});
-t.htmlMode();
-
-t.addToExpressionMap("script", "REPLACED");
-console.log(t.removeTags("", false));
-*/
 
 export {Sanitizer, SanitizeProtocol};
