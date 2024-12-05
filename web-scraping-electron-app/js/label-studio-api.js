@@ -33,6 +33,11 @@ function requestHeader() {
     }
 }
 
+/**
+ * Formats the returned project information into a JSON object.
+ * @param {*} response          The response object.
+ * @returns                     A JSON object of the project info.
+ */
 function formatProjectData(response) {
     var numProjects = response.count;
     var results = response.results;
@@ -51,6 +56,10 @@ function formatProjectData(response) {
     return formattedResults;
 }
 
+/**
+ * Handles the logic for making a project request api call to the linked LS project.
+ * @returns             The response of the API call.
+ */
 function getProjects() {
     var request = {
         method: 'get',
@@ -61,6 +70,12 @@ function getProjects() {
     return makeRequestToLS(request, RequestType.GetProjects);
 }
 
+/**
+ * Handles making any number of LS API calls.
+ * @param {*} requestJSON       The request object.
+ * @param {*} requestType       The type of request.
+ * @returns                     The response.
+ */
 function makeRequestToLS(requestJSON, requestType) {
     // Used to define an informative response to be sent back to the renderer
     let jsonOBJ = {
@@ -111,37 +126,67 @@ function makeRequestToLS(requestJSON, requestType) {
 
 /**
  * Formats raw string data by splitting it into an array of individual sentences.
- * @param {*} rawData       The data to be formatted.
+ * @param {*} textData       The data to be formatted.
  * @returns Array           An array split into individual sentences.
  */
-function formatRawData(rawData) {
+function formatTextData(textData) {
     var regex = /(?:\([^()]*\)|\d+\.\d+|[^.?!])+[.?!]/g;
+    // can be used to check for ascii valid characters but this may not be what we want
+    // var asciiRegex = /^[\x00-\x7F]+$/;       
 
-    var trimmedRawData = rawData.trim();
+    var trimmedRawData = textData.trim();
     
-    if (trimmedRawData !== '') {
-        var currIndex = 0;
+    if (trimmedRawData && trimmedRawData !== '') {
         var formattedData = [];
-
         var sentArr = trimmedRawData.match(regex);
 
-        if (sentArr.length > 0) {
+        if (sentArr && sentArr.length > 0) {
             sentArr.forEach(sent => {
                 var sentStr = sent.trim();
 
                 if (sentStr !== '') {
-                    formattedData[currIndex] = {
-                        'text': sentStr
-                    }
-    
-                    currIndex += 1;
+                    formattedData.push({
+                        text: sentStr
+                    });
                 }
             });
+        } else {
+            formattedData.push({
+                text: trimmedRawData
+            });
         }
+
         return formattedData;
     }
 
     return null;
+}
+
+/**
+ * Processes the raw data received from the application into a format acceptable for Label Studio.
+ * @param {*} dataArr       The raw data.
+ * @returns                 A formatted array of all data to export.
+ */
+function formatDataArr(dataArr) {
+    var formattedResult = null;
+
+    if (dataArr !== null) {
+        var formattedArr = [];
+
+        for (var i = 0; i < dataArr.length; i++) {
+            var data = formatTextData(dataArr[i].textData);
+
+            for (var j = 0; j < data.length; j++) {
+                formattedArr.push(data[j]);
+            }
+        }
+
+        if (formattedArr.length !== 0) {
+            formattedResult = formattedArr;
+        }
+    }
+
+    return formattedResult;
 }
 
 /**
@@ -150,14 +195,14 @@ function formatRawData(rawData) {
  * @returns JSON            The request object.
  */
 function requestJSON(rawData, projectID) {
-    var textData = formatRawData(rawData);
+    var formattedData = formatDataArr(rawData);
 
-    if (textData !== null) {
+    if (formattedData !== null) {
         return {
             method: 'post',
             url: `${BASEURL}/api/projects/${projectID}/import`,
             headers: requestHeader(),
-            data: textData
+            data: formattedData
         }
     } else {
         throw new Error("Invalid Data Format From Null Data.");
@@ -187,19 +232,36 @@ function exportDataToLS(rawData, projectID) {
     }
 }
 
+/**
+ * Handles updating the LS URL.
+ * @param {*} url       The new URL.
+ */
 function updateLinkedLSProject(url) {
     BASEURL = url;
     APITOKEN = '';
 }
 
+/**
+ * Handles updating the API token.
+ * @param {*} token         The new token.
+ * @returns                 The updated list of projects.
+ */
 function updateAPIToken(token) {
     APITOKEN = token;
     return getProjects();
 }
 
+/**
+ * Clears the linked LS project.
+ */
 function clearLinkedLSProject() {
     BASEURL = '';
     APITOKEN = '';
+
+    return {
+        ok: true,
+        data: null
+    }
 }
 
 module.exports= { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject };
