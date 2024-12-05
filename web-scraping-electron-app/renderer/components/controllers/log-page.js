@@ -244,6 +244,17 @@ export class LogPageController {
     /**
      * Display logs in the UI.
      */
+     ////////////////////////////  UPDATE  PLEASE TEST /////////////////////////////////////////////
+     /**
+    * Filters logs by the selected date and type while ensuring compatibility across time zones.
+    *
+    * - The selected filter date is normalized to the local timezone (e.g., user's system timezone).
+    * - Log entry timestamps are parsed into local Date objects and compared as date strings (YYYY-MM-DD).
+    * - Only the date part is considered, ignoring time and timezone offsets, making it consistent across regions.
+    *
+    * This ensures the method works correctly regardless of the user's timezone (e.g., California vs. Japan).
+    */
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     displayLogs() {
     const typeFilter = $('#log-filter').val();
     const dateFilterValue = $('#date-filter').val();
