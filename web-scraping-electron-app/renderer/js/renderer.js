@@ -132,10 +132,19 @@ function changePage(event) {
  * @param {*} projects      The returned list of available projects.
  */
 function updateProjectOptions(projects) {
-    $('#projectSelect').empty();
+    var urlSelect = $('#projectSelect-url');
+    var manSelect = $('#projectSelect-man');
+
+    $(urlSelect).empty();
+    $(manSelect).empty();
 
     $.each(projects, function(i, project) {
-        $('#projectSelect').append($('<option>', {
+        $(urlSelect).append($('<option>', {
+            value: project.id,
+            text: `${project.id} - ${project.project_name}`
+        }));
+
+        $(manSelect).append($('<option>', {
             value: project.id,
             text: `${project.id} - ${project.project_name}`
         }));
@@ -196,16 +205,23 @@ function changeTheme() {
 const logger = window.log;    // Variable created for ease of reading
 
 /**
- * Handles displaying an alert message for specific situations (error or otherwise).
- * @param {*} alertMsg          Message to display.
- * @param {*} cause             Cause if an error.
- */
+     * Handles displaying an alert message for specific situations (error or otherwise).
+     * @param {*} alertMsg          Message to display.
+     * @param {*} cause             Cause if an error.
+     */
 function postAlert(alertMsg, cause) {
+    var json = {
+        msg: alertMsg,
+        errType: null
+    }
+
     if (cause === undefined) {
-        alert(alertMsg);
+        ipcRenderer.postDialog.general(JSON.stringify(json));
         logInfo(alertMsg);
     } else {
-        alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+        json.errType = cause;
+
+        ipcRenderer.postDialog.error(JSON.stringify(json));
         logError(`${alertMsg} Cause: ${cause}`);
     }
 }
