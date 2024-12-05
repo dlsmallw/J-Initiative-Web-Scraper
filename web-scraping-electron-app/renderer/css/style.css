@@ -533,3 +533,8 @@ input[readonly].default-cursor {
 #ls-config-accordion {
     margin-top: 10px;
 }
+
+#log-output {
+    display: flex;
+    flex-direction: column-reverse;
+}

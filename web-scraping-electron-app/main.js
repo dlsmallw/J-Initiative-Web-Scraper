@@ -1,10 +1,10 @@
-// main.js
 /**
- * This file will be used as the primary entry point for the application.
+ * main.js: This file will be used as the primary entry point for the application.
  */
 
+//====================================================================================
 // Import necessary modules from Electron and Node.js
-
+//====================================================================================
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
@@ -14,7 +14,9 @@ const { Mutex } = require('async-mutex');
 // API Imports
 const { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject } = require('./js/label-studio-api.js');
 
+//====================================================================================
 // Helper class for handling processing of Queued events.
+//====================================================================================
 class Queue {
     elements = {};
     headIdx = 0;
@@ -53,10 +55,18 @@ class Queue {
         return item;
     }
 
+    /**
+     * Checks if the Queue has elements
+     * @returns         A boolean indicating if the queue has elements.
+     */
     hasElements() {
         return this.headIdx < this.tailIdx;
     }
 
+    /**
+     * Method that removes the head-most element from the queue.
+     * @returns         The removed item.
+     */
     dequeue() {
         var item = this.elements[this.headIdx];
         delete this.elements[this.headIdx];
@@ -88,6 +98,10 @@ class Queue {
     }
 }
 
+//====================================================================================
+// Variable Declarations
+//====================================================================================
+
 // Useful variables for app initialization
 const isMac = process.platform === 'darwin';    // Determine if the operating system is macOS
 const isDev = !app.isPackaged;                  // Determine if we are in development mode or production mode
@@ -102,58 +116,166 @@ let logIntervalUpdater;
 
 const logFileMutex = new Mutex();
 
+//====================================================================================
+// Log-making functionality and listeners
+//====================================================================================
+
+// Log Functions
+//####################################################################################
+
 /**
- * Function to create the main application window.
+ * Makes an info log entry.
+ * @param {*} log       The log entry.
  */
-function createMainWindow() {
-    logDebug('Creating main application window.');
-
-    // Create the BrowserWindow instance with specific options
-    mainWin = new BrowserWindow({
-        frame: false,
-        transparent: true, 
-        width: isDev ? 1400 : 1200, // Set width: larger size for development
-        height: 800, // Set height for the window
-        minWidth: isDev ? 1400 : 1200, // Set minimum width to prevent shrinking beyond a set size
-        minHeight: 800, // Set minimum height
-        webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
-            webviewTag: true
-        }
-    });
-
-    // Open developer tools automatically if in development mode
-    if (isDev) {
-        logDebug('Opening developer tools.');
-        mainWin.webContents.openDevTools();
-    }
-
-    // Disable the default application menu
-    mainWin.setMenu(null);
-
-    // Load the main HTML file for the renderer process
-    mainWin.loadFile('./renderer/index.html').then(() => {
-        logInfo('Main window loaded.');
-    }).catch((error) => {
-        logError(`Failed to load main window: ${error}`);
-    });
-}
-
 function logInfo(log) {
     writeNewLog(log, 'info');
 }
 
+/**
+ * Makes an debug log entry.
+ * @param {*} log       The log entry.
+ */
 function logDebug(log) {
     writeNewLog(log, 'debug');
 }
 
+/**
+ * Makes an warn log entry.
+ * @param {*} log       The log entry.
+ */
 function logWarn(log) {
     writeNewLog(log, 'warn');
 }
 
+/**
+ * Makes an error log entry.
+ * @param {*} log       The log entry.
+ */
 function logError(log) {
     writeNewLog(log, 'error');
 }
+
+/**
+ * Forms a JSON log object for managing log-related info.
+ * @param {*} line          The log entry.
+ * @returns                 The JSON log object.
+ */
+function formLogObject(line) {
+    var [rawDateTime, rawType] = line.match(/\[(.*?)\]/g);
+
+    var [year, month, day] = rawDateTime.match(/\d{4}-\d{2}-\d{2}/)[0].split('-');
+    var [hr, min, sec, millisec] = rawDateTime.match(/\b(\d{1,2}):(\d{2}):(\d{2})\.(\d{1,3})\b/).slice(1);
+   
+    var dateObj = new Date(year, month - 1, day, hr, min, sec, millisec);
+    var type = rawType.replace(/[\[\]']+/g, '');
+    var msg = line.substring(line.lastIndexOf(']') + 1).trim();
+    var rawLogMsg = line;
+
+    // console.log(`${year}-${month}-${day}`);
+    // console.log(`${hr}-${min}-${sec}-${millisec}`);
+    // console.log(type)
+    // console.log(msg)
+
+    return {
+        logDateTime: dateObj,
+        logType: type,
+        logMsg: msg,
+        rawLogStr: rawLogMsg
+    }
+}
+
+/**
+ * Facilitates writing a new log to the log file.
+ * @param {*} line          The log entry.
+ * @param {*} type          The log type.
+ */
+function writeNewLog(line, type) {
+    logFileMutex.acquire().then(() => {
+
+        switch (type) {
+            case 'info':
+                log.info(line);
+                break;
+            case 'debug':
+                log.debug(line);
+                break;
+            case 'warn':
+                log.warn(line);
+                break;
+            case 'error':
+                log.error(line);
+                break;
+            default:
+                break;
+        }
+
+        logFileMutex.release();
+    });
+}
+
+/**
+ * Function that sends the current queue of logs to be read to the renderer.
+ */
+async function sendNewLogsToRenderer() {
+    var logList = await logReadQueue.getPendingLogs();
+
+    if (logList.length > 0) {
+        mainWin.webContents.send('update-to-logs', logList);
+    }
+}
+
+/**
+ * Function that handles sending the renderer the new logs on a set periodicity.
+ * @param {*} timeInterval          The desired periodicity.
+ */
+function startLoggingInterval(timeInterval) {
+    logIntervalUpdater = setInterval(sendNewLogsToRenderer, timeInterval);
+}
+
+/**
+ * Function for clearing the log update interval.
+ */
+function clearLogUpdateInterval() {
+    clearInterval(logIntervalUpdater);
+}
+
+/**
+ * Initializes the log file listener for detecting new log entries.
+ * @param {*} logFilePath           The log file path. 
+ */
+function initLogListener(logFilePath) {
+    // File stream listener that watches for changes to log file and only sends the most recent line.
+    tail = new Tail(logFilePath);
+    tail.watch();
+    tail.on('line', (data) => {
+        logReadQueue.enqueue(formLogObject(data));
+    });
+
+    startLoggingInterval(10000);
+}
+
+/**
+ * Function for terminating the log file listener.
+ */
+function terminateLogListener() {
+    if (tail) {
+        tail.unwatch()
+        tail = null;
+    }
+
+    clearLogUpdateInterval();
+}
+
+// function enableLogger() {
+//     loggerEnabled = true;
+// }
+
+// function disableLogger() {
+//     loggerEnabled = false;
+// }
+
+// Log Listeners
+//####################################################################################
 
 // Info log handler
 ipcMain.on('log-info', (event, message) => {
@@ -206,59 +328,48 @@ ipcMain.handle('get-logs', async () => {
     return logData;
 });
 
-function enableLogger() {
-    loggerEnabled = true;
-}
 
-function disableLogger() {
-    loggerEnabled = false;
-}
 
-function formLogObject(line) {
-    var [rawDateTime, rawType] = line.match(/\[(.*?)\]/g);
 
-    var [year, month, day] = rawDateTime.match(/\d{4}-\d{2}-\d{2}/)[0].split('-');
-    var [hr, min, sec, millisec] = rawDateTime.match(/\b(\d{1,2}):(\d{2}):(\d{2})\.(\d{1,3})\b/).slice(1);
-   
-    var dateObj = new Date(year, month - 1, day, hr, min, sec, millisec);
-    var type = rawType.replace(/[\[\]']+/g, '');
-    var msg = line.substring(line.lastIndexOf(']') + 1).trim();
-    var rawLogMsg = line;
 
-    // console.log(`${year}-${month}-${day}`);
-    // console.log(`${hr}-${min}-${sec}-${millisec}`);
-    // console.log(type)
-    // console.log(msg)
+//====================================================================================
+// Window creation methods
+//====================================================================================
 
-    return {
-        logDateTime: dateObj,
-        logType: type,
-        logMsg: msg,
-        rawLogStr: rawLogMsg
-    }
-}
+/**
+ * Function to create the main application window.
+ */
+function createMainWindow() {
+    logDebug('Creating main application window.');
 
-function writeNewLog(line, type) {
-    logFileMutex.acquire().then(() => {
-
-        switch (type) {
-            case 'info':
-                log.info(line);
-                break;
-            case 'debug':
-                log.debug(line);
-                break;
-            case 'warn':
-                log.warn(line);
-                break;
-            case 'error':
-                log.error(line);
-                break;
-            default:
-                break;
+    // Create the BrowserWindow instance with specific options
+    mainWin = new BrowserWindow({
+        frame: false,
+        transparent: true, 
+        width: isDev ? 1400 : 1200, // Set width: larger size for development
+        height: 800, // Set height for the window
+        minWidth: isDev ? 1400 : 1200, // Set minimum width to prevent shrinking beyond a set size
+        minHeight: 800, // Set minimum height
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+            webviewTag: true
         }
+    });
 
-        logFileMutex.release();
+    // Open developer tools automatically if in development mode
+    if (isDev) {
+        logDebug('Opening developer tools.');
+        mainWin.webContents.openDevTools();
+    }
+
+    // Disable the default application menu
+    mainWin.setMenu(null);
+
+    // Load the main HTML file for the renderer process
+    mainWin.loadFile('./renderer/index.html').then(() => {
+        logInfo('Main window loaded.');
+    }).catch((error) => {
+        logError(`Failed to load main window: ${error}`);
     });
 }
 
@@ -292,30 +403,17 @@ function createURLWindow(url) {
         }
     });
 
-    // const loadingWindow = new BrowserWindow({
-    //     width: 1200, // Set width of the URL window
-    //     height: 800,
-    //     webPreferences: {
-    //         nodeIntegration: false, // Disable Node.js integration for security
-    //         contextIsolation: true, // Isolate context for securitya
-    //     }
-    // });
-
-    // loadingWindow.loadFile('./renderer/assets/html/loadingscreen.html').then(() => log.info("loading screen opened successfully"));
-
     urlWindow.hide();
-    urlWindow.webContents.openDevTools();
+    // urlWindow.webContents.openDevTools();
 
-     // Load the specified URL in the window, catch invalid url
+    // Load the specified URL in the window, catch invalid url
     urlWindow.loadFile('./renderer/window-templates/scrape-window.html')
         .then(() => {
             urlWindow.webContents.send('setUrl', url);
             urlWindow.show();
-            // loadingWindow.close();
             logInfo(`URL window loaded: ${url}`);
     }).catch((error) => {
             closeScrapeWindow();
-            // loadingWindow.close()
             logError(`Failed to load URL: ${error}`);
             dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!');
     });
@@ -334,48 +432,6 @@ function createURLWindow(url) {
         return { action: 'deny' }; // Deny any requests to open new windows
     });
 }
-
-// When the application is ready, create the main window
-app.whenReady().then(() => {
-    createMainWindow();
-    logInfo('Application is ready');
-
-    // macOS specific behavior to recreate window when the dock icon is clicked
-    app.on('activate', () => {
-        logDebug('App activated.');
-        // Only create a new window if none are open
-        if (BrowserWindow.getAllWindows().length === 0) {
-            logInfo('No windows open. Creating main window.');
-            createMainWindow();
-        }
-    });
-}).catch((error) => {
-    logError(`Error during app startup: ${error}`);
-});
-
-// When all windows are closed, quit the app unless running on macOS
-app.on('window-all-closed', () => {
-    logInfo('All windows closed.');
-    terminateApp();
-});
-
-// Listen for 'open-url' event from renderer to open a new window with the provided URL
-ipcMain.on('open-url', (event, url) => {
-    if (!urlWindow) {
-        logDebug(`Received 'open-url' event for URL: ${url}`);
-        try {
-            createURLWindow(url);
-        } catch (error) {
-            // Log error if URL cannot be opened and notify the renderer process
-            logError(`Error opening URL window: ${error.message}`);
-            event.sender.send('open-url-error', error.message);
-        }
-    }
-});
-
-ipcMain.on('close-scrape-win', (event) => {
-    closeScrapeWindow();
-});
 
 /**
  * Opens the LS project app in a separate window.
@@ -398,7 +454,7 @@ function createLSExternal(url) {
     // Disable the default application menu
     lsWindow.setMenu(null);
 
-    lsWindow.webContents.openDevTools();
+    // lsWindow.webContents.openDevTools();
 
     try {
         lsWindow.loadFile('./renderer/window-templates/anno-window.html')
@@ -425,27 +481,136 @@ function createLSExternal(url) {
     }
 }
 
+/**
+ * Handles closing the external scrape window if it exists.
+ */
+function closeScrapeWindow() {
+    if (urlWindow) {
+        urlWindow.close();
+        urlWindow = null;
+    }
+
+    mainWin.webContents.send('ext-url-win-closed');
+}
+
+/**
+ * Handles closing the external LS window if it exists.
+ * @param {*} url           The URL of the LS window prior to closing.
+ */
+function closeLSWindow(url = null) {
+    if (lsWindow) {
+        lsWindow.close();
+        lsWindow = null;
+    }
+
+    var urlToSend = url ? url !== null : '';
+
+    // tell renderer to redisplay embbedded content
+    mainWin.webContents.send('ext-ls-win-closed', url);
+}
+
+/**
+ * Method for closing all external windows.
+ */
+function closeAllWindows() {
+    closeScrapeWindow();
+    closeLSWindow();
+}
+
+// Listen for 'open-url' event from renderer to open a new window with the provided URL
+ipcMain.on('open-url', (event, url) => {
+    if (!urlWindow) {
+        logDebug(`Received 'open-url' event for URL: ${url}`);
+        try {
+            createURLWindow(url);
+        } catch (error) {
+            // Log error if URL cannot be opened and notify the renderer process
+            logError(`Error opening URL window: ${error.message}`);
+            event.sender.send('open-url-error', error.message);
+        }
+    }
+});
+
+// Handles openning the LS project in an external window
+ipcMain.on('open-ls-ext:request', (event, url) => {
+    createLSExternal(url);
+});
+
+ipcMain.on('close-scrape-win', (event) => {
+    closeScrapeWindow();
+});
+
 ipcMain.on('ext-ls-url-change', (event, url) => {
     mainWin.webContents.send('ls-navigation-update', url);
-})
+});
 
 // Handles a close request for the external Label Studio Window
 ipcMain.on('close-anno-win', (event) => {
     closeLSWindow();
 });
 
+//====================================================================================
+// Application Initialization/Termination Functions and Listeners
+//====================================================================================
+
+/**
+ * Method that handles termination of any processes prior to closing the application.
+ */
+function terminateApp() {
+    logInfo('Terminating Application Processes');
+
+    terminateLogListener();
+    closeAllWindows();
+
+    app.quit();
+}
+
+// When the application is ready, create the main window
+app.whenReady().then(() => {
+    createMainWindow();
+    logInfo('Application is ready');
+
+    // macOS specific behavior to recreate window when the dock icon is clicked
+    app.on('activate', () => {
+        logDebug('App activated.');
+        // Only create a new window if none are open
+        if (BrowserWindow.getAllWindows().length === 0) {
+            logInfo('No windows open. Creating main window.');
+            createMainWindow();
+        }
+    });
+}).catch((error) => {
+    logError(`Error during app startup: ${error}`);
+});
+
+// When all windows are closed, quit the app unless running on macOS
+app.on('window-all-closed', () => {
+    logInfo('All windows closed.');
+    terminateApp();
+});
+
+// Handles closing the application
+ipcMain.on('exit:request', () => {
+    logInfo('Received exit request from renderer.');
+    terminateApp();
+});
+
+//====================================================================================
+// Additional IPC channel listeners
+//====================================================================================
+
+// Label Studio related listeners
+//####################################################################################
+
 // Handles exporting data to the linked LS project
 ipcMain.on('export-to-ls:request', async (event, data, projectID) => {
     var jsonObj = JSON.parse(data);
+    console.log(jsonObj)
     exportDataToLS(jsonObj, projectID).then((res) => {
         var response = JSON.stringify(res);
+        console.log(res)
         mainWin.webContents.send('export-to-ls:response', response);
     });
-});
-
-// Handles openning the LS project in an external window
-ipcMain.on('open-ls-ext:request', (event, url) => {
-    createLSExternal(url);
 });
 
 // Handles updating the linked LS project URL
@@ -476,8 +641,12 @@ ipcMain.on('update-ls-api-token:request', (event, token) => {
 
 // Handles clearing the linked LS project (URL and API)
 ipcMain.on('clear-linked-ls:request', () => {
-    clearLinkedLSProject();
+    var res = clearLinkedLSProject();
+    mainWin.webContents.send('ls-projects-update', JSON.stringify(res));
 });
+
+// Scraping related listeners
+//####################################################################################
 
 // Handles a scrape request
 ipcMain.on('scrapedData:export', (event, data) => {
@@ -491,95 +660,15 @@ ipcMain.on('scrapedData:export', (event, data) => {
     }
 });
 
-// Handles closing the application
-ipcMain.on('exit:request', () => {
-    logInfo('Received exit request from renderer.');
-    terminateApp();
-});
-
-async function sendNewLogsToRenderer() {
-    var logList = await logReadQueue.getPendingLogs();
-
-    if (logList.length > 0) {
-        mainWin.webContents.send('update-to-logs', logList);
-    }
-}
-
-function startLoggingInterval(timeInterval) {
-    logIntervalUpdater = setInterval(sendNewLogsToRenderer, timeInterval);
-}
-
-function clearLogUpdateInterval() {
-    clearInterval(logIntervalUpdater);
-}
-
-function initLogListener(logFilePath) {
-    // File stream listener that watches for changes to log file and only sends the most recent line.
-    tail = new Tail(logFilePath);
-    tail.watch();
-    tail.on('line', (data) => {
-        logReadQueue.enqueue(formLogObject(data));
-    });
-
-    startLoggingInterval(10000)
-}
-
-function terminateLogListener() {
-    if (tail) {
-        tail.unwatch()
-        tail = null;
-    }
-
-    clearLogUpdateInterval();
-}
-
-function closeScrapeWindow() {
-    if (urlWindow) {
-        urlWindow.close();
-        urlWindow = null;
-    }
-
-    mainWin.webContents.send('ext-url-win-closed');
-}
-
-function closeLSWindow(url = null) {
-    if (lsWindow) {
-        lsWindow.close();
-        lsWindow = null;
-    }
-
-    var urlToSend = url ? url !== null : '';
-
-    // tell renderer to redisplay embbedded content
-    mainWin.webContents.send('ext-ls-win-closed', url);
-}
-
-function closeAllWindows() {
-    closeScrapeWindow();
-    closeLSWindow();
-}
-
-function terminateApp() {
-    logInfo('Terminating Application Processes');
-
-    terminateLogListener();
-    closeAllWindows();
-
-    app.quit();
-}
+// Dialog window generation listeners
+//####################################################################################
 
 ipcMain.on('gen-dialog', (event, message) => {
     var json = JSON.parse(message);
-
-    dialog.showMessageBox(json.msg);
+    dialog.showMessageBox(json.resMsg);
 });
 
 ipcMain.on('err-dialog', (event, message) => {
     var json = JSON.parse(message);
-
-    dialog.showErrorBox(json.errType, json.msg);
+    dialog.showErrorBox(json.errType, json.resMsg);
 });
-
-
-
-

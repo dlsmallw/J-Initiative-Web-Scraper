@@ -112,7 +112,7 @@ export class ScrapePageController {
             var jsonObj = JSON.parse(data);
             this.parseScrapedDataToList(jsonObj);
             // Ensure the results container is visible
-            this.showResultsContainer()
+            this.showResultsContainer();
         });
         this.logDebug('Initialized listener for scraped data updates.');
 
@@ -120,22 +120,27 @@ export class ScrapePageController {
         this.lsAPI.onExportResponse((res) => {
             var response = JSON.parse(res);
 
-                if (response !== null) {
-                    if (response.ok) {
-                        this.resetAllFields();
-                        this.postAlert(response.resMsg);
-                    } else {
-                        this.postAlert(response.resMsg, response.errType);
-                    }
+            if (response !== null) {
+                if (response.ok) {
+                    this.resetAllFields();
+                    this.postAlert(response.resMsg);
                 } else {
-                    this.postAlert('Null Response Received from Main Process', 'Invalid Data State');
+                    this.postAlert(response.resMsg, response.errType);
+                    
                 }
+            } else {
+                this.postAlert('Null Response Received from Main Process', 'Invalid Data State');
+            }
 
-                this.reenableScrapePageFunctions();
+            console.log('test')
+
+            this.reenableScrapePageFunctions();
         });
 
         this.electronAPI.onExtWindowClose(() => {
-            this.resetAllFields();
+            if ($('#results-list').children().length === 0) {
+                this.resetAllFields();
+            }
         });
     }
 
@@ -323,9 +328,6 @@ export class ScrapePageController {
         for (var i = 0; i < elemArr.length; i++) {
             var dataURL = $(elemArr[i]).attr('data-url');
             var textData = $(elemArr[i]).text();
-    
-            console.log(dataURL);
-            console.log(textData);
     
             scrapedData.push({
                 url: dataURL,

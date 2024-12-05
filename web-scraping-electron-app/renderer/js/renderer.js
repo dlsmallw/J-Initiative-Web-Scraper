@@ -136,17 +136,19 @@ function updateProjectOptions(projects) {
     $(urlSelect).empty();
     $(manSelect).empty();
 
-    $.each(projects, function(i, project) {
-        $(urlSelect).append($('<option>', {
-            value: project.id,
-            text: `${project.id} - ${project.project_name}`
-        }));
-
-        $(manSelect).append($('<option>', {
-            value: project.id,
-            text: `${project.id} - ${project.project_name}`
-        }));
-    });
+    if (projects) {
+        $.each(projects, function(i, project) {
+            $(urlSelect).append($('<option>', {
+                value: project.id,
+                text: `${project.id} - ${project.project_name}`
+            }));
+    
+            $(manSelect).append($('<option>', {
+                value: project.id,
+                text: `${project.id} - ${project.project_name}`
+            }));
+        });
+    }  
 } 
 
 //============================================================================================================================

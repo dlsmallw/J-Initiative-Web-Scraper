@@ -53,21 +53,13 @@ export class LogPageController {
         }
 
         insertElement().then(() => {
-            $('#date-filter').val(this.toDateInputValue(new Date()));
+            $('#date-filter').val(this.localizeDateValue(new Date()));
 
             this.loadLogs();
             this.initPageListeners();
             this.logInfo("Log Page Initialized");
         });
-
-        
     }
-
-    toDateInputValue(dateObject){
-        const local = new Date(dateObject);
-        local.setMinutes(dateObject.getMinutes() - dateObject.getTimezoneOffset());
-        return local.toJSON().slice(0,10);
-    };
 
     /**
      * Method for initializing the pages event listeners.
@@ -177,6 +169,17 @@ export class LogPageController {
     //============================================================================================================================
 
     /**
+     * Takes a date object and converts it into the localized datetime.
+     * @param {*} dateObj           The date object.
+     * @returns                     The localized date time.
+     */
+    localizeDateValue(dateObj){
+        const local = new Date(dateObj);
+        local.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset());
+        return local.toJSON().slice(0,10);
+    };
+
+    /**
      * Load and display logs.
      */
     async loadLogs() {
@@ -219,7 +222,7 @@ export class LogPageController {
     appendLog(log) {
         var $logEntry = $('<div>', {class: "log-entry"});
         $logEntry.text(log);
-        $('#log-output').append($logEntry);
+        $('#log-wrapper').append($logEntry);
     }
 
     /**
@@ -229,18 +232,8 @@ export class LogPageController {
         var typeFilter = $('#log-filter').val();
         var dateFilter = new Date($('#date-filter').val());
 
-        const logOutput = $('#log-output');
+        const logOutput = $('#log-wrapper');
         logOutput.empty(); // Clear existing logs
-
-        if (this.logLines.length === 0) {
-            // If no logs match, display a message in the log output
-            const noLogsMessage = $('<div>', { class: 'no-logs-message text-center text-muted' });
-            noLogsMessage.text('No logs found for the selected filters.');
-            logOutput.append(noLogsMessage);
-
-            this.logDebug('No logs to display.');
-            return;
-        }
 
         var logs = this.logLines.filter(logObj => {
             var meetsDateFilter = true ? (dateFilter === undefined || (logObj.logDateTime.toDateString() === dateFilter.toDateString())) : false;
@@ -253,8 +246,17 @@ export class LogPageController {
             return false;
         });
 
-        logs.forEach(logObj => {
-            this.appendLog(logObj.rawLogStr);
-        });
+        if (logs.length === 0) {
+            // If no logs match, display a message in the log output
+            const noLogsMessage = $('<div>', { class: 'no-logs-message text-center text-muted' });
+            noLogsMessage.text('No logs found for the selected filters.');
+            logOutput.append(noLogsMessage);
+
+            this.logDebug('No logs to display.');
+        } else {
+            logs.forEach(logObj => {
+                this.appendLog(logObj.rawLogStr);
+            });
+        }
     }
 }
