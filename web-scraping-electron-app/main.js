@@ -33,8 +33,19 @@ class Queue {
      */
     async enqueue(item) {
         await this.mutex.acquire().then(() => {
-            this.elements[this.tailIdx] = item
-            this.tailIdx++
+            var containsItem = false;
+
+            for (var elem in this.elements) {
+                if (this.elements[elem] === item) {
+                    containsItem = true;
+                    break;
+                }
+            }
+
+            if (!containsItem) {
+                this.elements[this.tailIdx] = item
+                this.tailIdx++
+            }
 
             this.mutex.release();
         });
@@ -219,11 +230,7 @@ function writeNewLog(line, type) {
  * Function that sends the current queue of logs to be read to the renderer.
  */
 async function sendNewLogsToRenderer() {
-    console.log('Before:');
-    console.log(logReadQueue);
     var logList = await logReadQueue.getPendingLogs();
-    console.log('After:');
-    console.log(logReadQueue);
 
     if (logList.length > 0) {
         mainWin.webContents.send('update-to-logs', logList);
