@@ -123,7 +123,45 @@ function testSanitizer() {
 	      		const keys = Object.keys(protocol.sanitizationMapping);
 	      		keys.forEach((key) => {
 	      			//console.log(key);
-	      			assert.equal(protocol.sanitizationMapping.key, sqlMap.key); 
+	      			assert.equal(true, sqlMap.hasOwnProperty(key)); 
+	      		});
+	    	});
+	  	});
+	  	describe('#htmlMode()', function () {
+	    	it('should set the expression map and sanitize protocol to match common HTML injections', function () {
+	    		const san = new Sanitizer(textInput, new SanitizeProtocol(), {});
+	    		san.htmlMode();
+	    		const map = san.getExpressionMap();
+	    		const protocol = san.getProtocol();
+
+	      		assert.equal(Object.keys(map).length, 0);
+
+	      		assert.equal(Object.keys(protocol).length, 2);
+	      		assert.equal(protocol.regexString, "[&<>\"'/“”‘’]");
+
+	      		const keys = Object.keys(protocol.sanitizationMapping);
+	      		keys.forEach((key) => {
+	      			//console.log(key + ", " + htmlMap.key);
+	      			assert.equal(true, htmlMap.hasOwnProperty(key)); 
+	      		});
+	    	});
+	  	});
+	  	describe('#sanitize()', function () {
+	    	it('should set the expression map and sanitize protocol to match common HTML injections', function () {
+	    		const san = new Sanitizer(textInput, new SanitizeProtocol(), {});
+	    		san.htmlMode();
+	    		const map = san.getExpressionMap();
+	    		const protocol = san.getProtocol();
+
+	      		assert.equal(Object.keys(map).length, 0);
+
+	      		assert.equal(Object.keys(protocol).length, 2);
+	      		assert.equal(protocol.regexString, "[&<>\"'/“”‘’]");
+
+	      		const keys = Object.keys(protocol.sanitizationMapping);
+	      		keys.forEach((key) => {
+	      			//console.log(key + ", " + htmlMap.key);
+	      			assert.equal(true, htmlMap.hasOwnProperty(key)); 
 	      		});
 	    	});
 	  	});
