@@ -33,6 +33,11 @@ function requestHeader() {
     }
 }
 
+/**
+ * Formats the returned project information into a JSON object.
+ * @param {*} response          The response object.
+ * @returns                     A JSON object of the project info.
+ */
 function formatProjectData(response) {
     var numProjects = response.count;
     var results = response.results;
@@ -51,6 +56,10 @@ function formatProjectData(response) {
     return formattedResults;
 }
 
+/**
+ * Handles the logic for making a project request api call to the linked LS project.
+ * @returns             The response of the API call.
+ */
 function getProjects() {
     var request = {
         method: 'get',
@@ -61,6 +70,12 @@ function getProjects() {
     return makeRequestToLS(request, RequestType.GetProjects);
 }
 
+/**
+ * Handles making any number of LS API calls.
+ * @param {*} requestJSON       The request object.
+ * @param {*} requestType       The type of request.
+ * @returns                     The response.
+ */
 function makeRequestToLS(requestJSON, requestType) {
     // Used to define an informative response to be sent back to the renderer
     let jsonOBJ = {
@@ -116,15 +131,16 @@ function makeRequestToLS(requestJSON, requestType) {
  */
 function formatTextData(textData) {
     var regex = /(?:\([^()]*\)|\d+\.\d+|[^.?!])+[.?!]/g;
+    // can be used to check for ascii valid characters but this may not be what we want
+    // var asciiRegex = /^[\x00-\x7F]+$/;       
 
     var trimmedRawData = textData.trim();
     
-    if (trimmedRawData !== '') {
+    if (trimmedRawData && trimmedRawData !== '') {
         var formattedData = [];
-
         var sentArr = trimmedRawData.match(regex);
 
-        if (sentArr.length > 0) {
+        if (sentArr && sentArr.length > 0) {
             sentArr.forEach(sent => {
                 var sentStr = sent.trim();
 
@@ -133,6 +149,10 @@ function formatTextData(textData) {
                         text: sentStr
                     });
                 }
+            });
+        } else {
+            formattedData.push({
+                text: trimmedRawData
             });
         }
 
@@ -212,19 +232,36 @@ function exportDataToLS(rawData, projectID) {
     }
 }
 
+/**
+ * Handles updating the LS URL.
+ * @param {*} url       The new URL.
+ */
 function updateLinkedLSProject(url) {
     BASEURL = url;
     APITOKEN = '';
 }
 
+/**
+ * Handles updating the API token.
+ * @param {*} token         The new token.
+ * @returns                 The updated list of projects.
+ */
 function updateAPIToken(token) {
     APITOKEN = token;
     return getProjects();
 }
 
+/**
+ * Clears the linked LS project.
+ */
 function clearLinkedLSProject() {
     BASEURL = '';
     APITOKEN = '';
+
+    return {
+        ok: true,
+        data: null
+    }
 }
 
 module.exports= { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject };

@@ -56,7 +56,7 @@ export class AnnotationPageController {
             const api_token = localStorage.getItem('apiToken');
 
             if (ls_url) {   // Label Studio project linked
-                $('#annotation-iframe').attr('src', ls_url);
+                $('#annotation-webview').attr('src', ls_url);
                 this.showLSEmbeddedFrame();
 
                 $('#ls-link-option').val(ls_url);
@@ -89,7 +89,7 @@ export class AnnotationPageController {
         $('#ext-win-btn').on('click', () => {
             $('#ls-embedded').hide();
             $('#ls-external').show();
-            var url = $('#annotation-iframe').attr('src');
+            var url = $('#annotation-webview').attr('src');
             this.lsAPI.openExternal(url);
         });
 
@@ -118,7 +118,19 @@ export class AnnotationPageController {
             this.updateLSAPIToken();
         });
 
-        this.lsAPI.onOpenExtRes(() => {
+        $('#config-accordion').on('click', () => {
+            if ($('#config-accordion').hasClass('collapsed')) {
+                $('body').height($('body').height() - 270);
+            } else {
+                $('body').height($('body').height() + 270);
+            }
+        })
+
+        this.lsAPI.urlChange((url) => {
+            this.updatedLSWebviewSrc(url);
+        })
+
+        this.lsAPI.extLSWinClosed(() => {
             $('#ls-external').hide();
             $('#ls-embedded').show();
         });
@@ -274,6 +286,17 @@ export class AnnotationPageController {
         }
     }
 
+    /**
+     * Updates the current url of the webview window.
+     * @param {*} url 
+     */
+    updatedLSWebviewSrc(url) {
+        var currURL = $('#annotation-webview').attr('src');
+
+        if (currURL !== url) {
+            $('#annotation-webview').attr('src', url);
+        }
+    }
 
     /**
      * Function for setting the LS project URL within local storage.
@@ -283,7 +306,7 @@ export class AnnotationPageController {
         if (url) {
             localStorage.setItem('lsURL', url);
             $('#ls-link-option').val(url);
-            $('#annotation-iframe').attr('src', url);
+            $('#annotation-webview').attr('src', url);
             this.lsAPI.updateURL(url);
         }
     }
@@ -330,7 +353,7 @@ export class AnnotationPageController {
 
         localStorage.removeItem('lsURL');
         $('#ls-link-option').val('');
-        $('#annotation-iframe').attr('src', "");
+        $('#annotation-webview').attr('src', "");
 
         localStorage.removeItem('apiToken');
         $('#ls-api-token-option').val('');
