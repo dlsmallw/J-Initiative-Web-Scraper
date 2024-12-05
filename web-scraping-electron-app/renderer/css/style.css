@@ -140,8 +140,8 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 99.8%;
     transition: background-color 0.3s ease-in-out;
-    transform: translateY(2%);
     margin-left: 0.1%;
+    border-top: var(--body-border-style);
 }
 
 /* Flexbox container for nav links */

@@ -219,7 +219,11 @@ function writeNewLog(line, type) {
  * Function that sends the current queue of logs to be read to the renderer.
  */
 async function sendNewLogsToRenderer() {
+    console.log('Before:');
+    console.log(logReadQueue);
     var logList = await logReadQueue.getPendingLogs();
+    console.log('After:');
+    console.log(logReadQueue);
 
     if (logList.length > 0) {
         mainWin.webContents.send('update-to-logs', logList);

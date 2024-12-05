@@ -118,6 +118,14 @@ export class AnnotationPageController {
             this.updateLSAPIToken();
         });
 
+        $('#config-accordion').on('click', () => {
+            if ($('#config-accordion').hasClass('collapsed')) {
+                $('body').height($('body').height() - 270);
+            } else {
+                $('body').height($('body').height() + 270);
+            }
+        })
+
         this.lsAPI.urlChange((url) => {
             this.updatedLSWebviewSrc(url);
         })
