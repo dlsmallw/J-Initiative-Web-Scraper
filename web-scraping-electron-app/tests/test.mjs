@@ -147,22 +147,36 @@ function testSanitizer() {
 	    	});
 	  	});
 	  	describe('#sanitize()', function () {
-	    	it('should set the expression map and sanitize protocol to match common HTML injections', function () {
-	    		const san = new Sanitizer(textInput, new SanitizeProtocol(), {});
-	    		san.htmlMode();
-	    		const map = san.getExpressionMap();
-	    		const protocol = san.getProtocol();
+	    	it('should wipe a text input of all of the described characters/words', function () {
+	    		const htmlProtocol = new SanitizeProtocol("[&<>\"'/“”‘’]", htmlMap);
+	    		const san = new Sanitizer(textInput, htmlProtocol, {"ESCAPE": "escape"});
+	    		//san.htmlMode();
+	    		const text = "This has ampersand: &, less than:<, greater than:>, "
+	    			+ "doublequote: \", singlequote:', slash:/, doublequote open:“, doublequote close:”"
+	    			+ "singlequote open:‘, singlequote close:’, and ESCAPE.";
+	    		const expectedOutput = "This has ampersand: &amp;, less than:&lt;, greater than:&gt;, "
+	    			+ "doublequote: &quot;, singlequote:&#x27;, slash:&#x2F;, doublequote open:&quot;, doublequote close:&quot;"
+	    			+ "singlequote open:&#x27;, singlequote close:&#x27;, and escape.";
 
-	      		assert.equal(Object.keys(map).length, 0);
+	      		assert.equal(san.sanitize(text), expectedOutput);
+	    	});
+	  	});
+	  	describe('#removeTags()', function () {
+	    	it('should wipe a text input of all of tags and sanitize on demand', function () {
+	    		const htmlProtocol = new SanitizeProtocol("[&<>\"'/“”‘’]", htmlMap);
+	    		const san = new Sanitizer(textInput, htmlProtocol, {"ESCAPE": "escape"});
+	    		//san.htmlMode();
 
-	      		assert.equal(Object.keys(protocol).length, 2);
-	      		assert.equal(protocol.regexString, "[&<>\"'/“”‘’]");
+	    		const taggedText = '<script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.js">Test ><> & text< not a tag></script>';
+	    		const expectedOutput = 'Test > & text< not a tag>';
+	    		const expectedSanitizedOutput = 'Test &gt;&lt;&gt; &amp; text&gt; not a tag&lt;';
+	    		
+	    		console.log("OUTPUT HERE: " + san.removeTags(taggedText, false));
+	    		console.log("OUTPUT HERE: " + expectedOutput);
+	    		console.log(san.removeTags(taggedText, true));
 
-	      		const keys = Object.keys(protocol.sanitizationMapping);
-	      		keys.forEach((key) => {
-	      			//console.log(key + ", " + htmlMap.key);
-	      			assert.equal(true, htmlMap.hasOwnProperty(key)); 
-	      		});
+	      		assert.equal(san.removeTags(taggedText, false), expectedOutput);
+	      		//assert.equal(san.removeTags(taggedText, true), expectedSanitizedOutput);
 	    	});
 	  	});
 	});

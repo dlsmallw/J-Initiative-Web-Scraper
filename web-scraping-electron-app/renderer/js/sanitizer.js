@@ -120,6 +120,8 @@ class Sanitizer {
 	 * @param input 		The text to sanitize. If none is given, the object will use whatever text was input via the constructor initially.
 	 * @param alsoSanitize	Whether to also run the sanitize() method on the output. Defaults to true.
 	 * @return String 		The sanitized text.
+	 * 
+	 * TODO: This has a bug where it will sometimes duplicate the last character in the string. ex. '<script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.js">Test ><> & text< not a tag>.</script>';
 	 */
 	removeTags(input = "", alsoSanitize = true) {
 		if(input == "") {
