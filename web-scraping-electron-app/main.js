@@ -154,11 +154,11 @@ function createURLWindow(url) {
   const docRef = doc(db, "Websites", "Website List");
   updateDoc(docRef, {
     List: arrayUnion(url)
-  });
+  }).then(r => log.info(`website added to website list: ${url}`));
 
   setDoc(doc(db, "Websites", url), {
     website_url: url,
-  });
+  }).then(r => log.info(`website document created: ${url}`));
 
 
   log.debug(`Creating URL window for: ${url}`);
