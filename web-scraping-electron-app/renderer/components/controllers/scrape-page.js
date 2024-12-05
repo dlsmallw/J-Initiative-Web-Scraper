@@ -132,8 +132,6 @@ export class ScrapePageController {
                 this.postAlert('Null Response Received from Main Process', 'Invalid Data State');
             }
 
-            console.log('test')
-
             this.reenableScrapePageFunctions();
         });
 

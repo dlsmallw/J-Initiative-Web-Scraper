@@ -630,10 +630,8 @@ ipcMain.on('exit:request', () => {
 // Handles exporting data to the linked LS project
 ipcMain.on('export-to-ls:request', async (event, data, projectID) => {
     var jsonObj = JSON.parse(data);
-    console.log(jsonObj)
     exportDataToLS(jsonObj, projectID).then((res) => {
         var response = JSON.stringify(res);
-        console.log(res)
         mainWin.webContents.send('export-to-ls:response', response);
     });
 });
@@ -675,11 +673,8 @@ ipcMain.on('clear-linked-ls:request', () => {
 
 // Handles a scrape request
 ipcMain.on('scrapedData:export', (event, data) => {
-    console.log('Main process received scraped data:', data);
-
     if (mainWin) {
         mainWin.webContents.send('scrapedData:update', data);
-        console.log('Forwarded scraped data to renderer.');
     } else {
         console.error('Main window is not available to forward scraped data.');
     }
@@ -690,10 +685,10 @@ ipcMain.on('scrapedData:export', (event, data) => {
 
 ipcMain.on('gen-dialog', (event, message) => {
     var json = JSON.parse(message);
-    dialog.showMessageBox(json.resMsg);
+    dialog.showMessageBox({message: json.msg});
 });
 
 ipcMain.on('err-dialog', (event, message) => {
     var json = JSON.parse(message);
-    dialog.showErrorBox(json.errType, json.resMsg);
+    dialog.showErrorBox(json.errType, json.msg);
 });
