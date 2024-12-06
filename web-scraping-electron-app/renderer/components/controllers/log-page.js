@@ -256,69 +256,70 @@ export class LogPageController {
     */
     ////////////////////////////////////////////////////////////////////////////////////////////////
     displayLogs() {
-    const typeFilter = $('#log-filter').val();
-    const dateFilterValue = $('#date-filter').val();
+        const typeFilter = $('#log-filter').val();
+        const dateFilterValue = $('#date-filter').val();
+        // console.log(dateFilterValue);
 
-    // Ensure date filter is parsed correctly as local date
-    const dateFilter = dateFilterValue ? new Date(dateFilterValue + 'T00:00:00') : null;
+        // Ensure date filter is parsed correctly as local date
+        const dateFilter = dateFilterValue ? new Date(dateFilterValue + 'T00:00:00') : null;
 
-    //console.log('Type Filter:', typeFilter);
-    //console.log('Date Filter Value:', dateFilterValue);
-    //console.log('Parsed Date Filter:', dateFilter);
+        //console.log('Type Filter:', typeFilter);
+        //console.log('Date Filter Value:', dateFilterValue);
+        //console.log('Parsed Date Filter:', dateFilter);
 
-    const logOutput = $('#log-wrapper');
-    logOutput.empty(); // Clear existing logs
+        const logOutput = $('#log-wrapper');
+        logOutput.empty(); // Clear existing logs
 
-    // Filter logs
-    const logs = this.logLines.filter(logObj => {
-        let meetsDateFilter = true;
-        let meetsTypeFilter = true;
+        // Filter logs
+        const logs = this.logLines.filter(logObj => {
+            let meetsDateFilter = true;
+            let meetsTypeFilter = true;
 
-        if (dateFilter) {
-            // Parse the log date as local date
-            const logDate = new Date(logObj.logDateTime);
-            const logDateString = logDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-            const filterDateString = dateFilter.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+            if (dateFilter) {
+                // Parse the log date as local date
+                const logDate = new Date(logObj.logDateTime);
+                const logDateString = logDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+                // const filterDateString = dateFilter.toISOString().split('T')[0]; // Format as YYYY-MM-DD
 
-            //console.log('Log Entry Date:', logDateString);
-            //console.log('Filter Date:', filterDateString);
+                // console.log('Log Entry Date:', logDateString);
+                // console.log('Filter Date:', filterDateString);
 
-            meetsDateFilter = logDateString === filterDateString;
-            //console.log('Meets Date Filter:', meetsDateFilter);
-        }
+                meetsDateFilter = logDateString === dateFilterValue;
+                // console.log('Meets Date Filter:', meetsDateFilter);
+            }
 
-        if (typeFilter !== 'ALL') {
-            meetsTypeFilter = logObj.logType === typeFilter;
-            //console.log('Log Type:', logObj.logType, 'Meets Type Filter:', meetsTypeFilter);
-        }
+            if (typeFilter !== 'ALL') {
+                meetsTypeFilter = logObj.logType === typeFilter;
+                // console.log('Log Type:', logObj.logType, 'Meets Type Filter:', meetsTypeFilter);
+            }
 
-        const matchesFilters = meetsDateFilter && meetsTypeFilter;
-        //console.log('Log Entry Matches Filters:', matchesFilters);
-        return matchesFilters; // Only include logs that match all filters
-    });
-
-    //console.log('Filtered Logs:', logs);
-
-    // Display logs or show a "no logs" message
-    if (logs.length === 0) {
-        //console.log('No logs found for the selected filters.');
-        const noLogsMessage = $('<div>', { class: 'no-logs-message text-center text-muted' });
-        noLogsMessage.text('No logs found for the selected filters.');
-        logOutput.append(noLogsMessage);
-    } else {
-        logs.forEach(logObj => {
-            this.appendLog(logObj.rawLogStr); // Add each log to the UI
+            const matchesFilters = meetsDateFilter && meetsTypeFilter;
+            //console.log('Log Entry Matches Filters:', matchesFilters);
+            return matchesFilters; // Only include logs that match all filters
         });
-        //console.log('Logs displayed in UI:', logs.length);
-    }
 
-    // Enable or disable the "Clear Logs" button based on logs presence
-    if (this.logLines.length > 0) {
-        $('#clearLogsBtn').removeAttr('disabled');
-    } else {
-        $('#clearLogsBtn').prop('disabled', true);
+        //console.log('Filtered Logs:', logs);
+
+        // Display logs or show a "no logs" message
+        if (logs.length === 0) {
+            //console.log('No logs found for the selected filters.');
+            const noLogsMessage = $('<div>', { class: 'no-logs-message text-center text-muted' });
+            noLogsMessage.text('No logs found for the selected filters.');
+            logOutput.append(noLogsMessage);
+        } else {
+            logs.forEach(logObj => {
+                this.appendLog(logObj.rawLogStr); // Add each log to the UI
+            });
+            //console.log('Logs displayed in UI:', logs.length);
+        }
+
+        // Enable or disable the "Clear Logs" button based on logs presence
+        if (this.logLines.length > 0) {
+            $('#clearLogsBtn').removeAttr('disabled');
+        } else {
+            $('#clearLogsBtn').prop('disabled', true);
+        }
     }
-}
      /**
      * Clear logs both in the UI and on the backend.
      */
