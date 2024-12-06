@@ -179,8 +179,8 @@ contextBridge.exposeInMainWorld('urlScrape', {
     }
 });
 
-contextBridge.exposeInMainWorld('database', {
-  displayWebsiteData: () => {
-    return ipcRenderer.invoke('get-websites');
-  }
+contextBridge.exposeInMainWorld('databaseAPI', {
+    getWebsiteData: () => {
+        return ipcRenderer.invoke('get-websites');
+    }
 });

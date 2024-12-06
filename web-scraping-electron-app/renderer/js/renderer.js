@@ -116,10 +116,6 @@ function changePage(event) {
         currentPage = newPage;
 
         logInfo(`Page changed to ${currentPage.getName()}.`);
-        
-        if(currentPage.getName() === 'database') {
-            currentPage.displayWebsiteData();
-        }
     } else {
         logDebug(`Page not changed. Already on ${currentPage.getName()}.`);
     }
