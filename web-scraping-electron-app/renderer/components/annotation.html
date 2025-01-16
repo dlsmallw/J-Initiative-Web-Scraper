@@ -14,13 +14,10 @@
         </div>
         <!--The embedded LS app-->
         <div id="ls-set" class="position-relative">
-            <iframe
-                class="embedded-content shadow rounded"
-                id="annotation-iframe"
-                src=""
-                height="600"
-                sandbox="allow-scripts allow-same-origin allow-forms"
-            ></iframe>
+            <webview 
+                id="annotation-webview" 
+                src="">
+            </webview>
             <!--A button for openning the LS app in an external window-->
             <svg 
                 class="position-absolute bottom-0 end-0" 
@@ -43,7 +40,7 @@
     <!--Config menu for updating LS URL/API Token-->
     <div class="accordion-item accordion" id="ls-config-accordion">
         <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ls-config" aria-expanded="false" aria-controls="ls-config">
+            <button class="accordion-button collapsed" id="config-accordion" type="button" data-bs-toggle="collapse" data-bs-target="#ls-config" aria-expanded="false" aria-controls="ls-config">
                 Label Studio Configuration
             </button>
         </h2>
