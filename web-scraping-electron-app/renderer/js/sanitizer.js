@@ -145,15 +145,18 @@ class Sanitizer {
 					transformedInput += substringInput.slice(min, substringInput.indexOf('<') + 1);
 					substringInput = substringInput.slice(substringInput.indexOf('<') + 1);
 				}
-				else if(substringInput.indexOf('>') >= min) {
-					var start = substringInput.indexOf('<');
-					var end = substringInput.indexOf('>') + 1;
-					
-					transformedInput += substringInput.slice(min, start);
-					substringInput = substringInput.slice(end);
-				}
+				// There's a <. Find the next > after that. 
 				else {
-					keepGoing = false;
+					var start = substringInput.indexOf('<');
+					var subStr = substringInput.slice(start);
+					if(subStr.indexOf('>') >= 0) {
+						var localEnd = subStr.indexOf('>');
+						transformedInput += substringInput.slice(min, start);
+						substringInput = substringInput.slice(start + localEnd);
+					}
+					else {
+						keepGoing = false;
+					}
 				}
 				
 			}
