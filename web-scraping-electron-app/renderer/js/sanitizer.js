@@ -159,7 +159,7 @@ class Sanitizer {
 			}
 		}
 		if(alsoSanitize) {
-			var regexTransformed = this.sanitizeProtocol.sanitize(input);
+			var regexTransformed = this.sanitizeProtocol.sanitize(transformedInput);
 
 			for(var key in this.expressionMap) {
 				regexTransformed = regexTransformed.replaceAll(key, this.expressionMap[key]);
