@@ -118,7 +118,7 @@ class Sanitizer {
 	/**
 	 * Removes HTML tags from the input text. Can also sanitize the data.
 	 * @param input 		The text to sanitize. If none is given, the object will use whatever text was input via the constructor initially.
-	 * @param alsoSanitize	Whether to also run the sanitize() method on the output. Defaults to true.
+	 * @param alsoSanitize	Boolean. Whether to also run the sanitize() method on the output. Defaults to true.
 	 * @return String 		The sanitized text.
 	 */
 	removeTags(input = "", alsoSanitize = true) {
@@ -137,29 +137,27 @@ class Sanitizer {
 			}
 			else {
 				// Check for whether the < is part of a tag.
-				// HTML tags cannot have a space after the opening <, 
-				// so the current test is to check for a space after the <, 
-				// and whether there's a closing > after the <. 
-				if(substringInput.charAt(substringInput.indexOf('<') + 1) === " ") {
-					
-					transformedInput += substringInput.slice(min, substringInput.indexOf('<') + 1);
-					substringInput = substringInput.slice(substringInput.indexOf('<') + 1);
-				}
-				// There's a <. Find the next > after that. 
-				else {
-					var start = substringInput.indexOf('<');
-					var subStr = substringInput.slice(start);
-					if(subStr.indexOf('>') >= 0) {
-						var localEnd = subStr.indexOf('>');
+				var start = substringInput.indexOf('<');
+				var subStr = substringInput.slice(start);
+				if(subStr.indexOf('>') >= 0) {
+					var localEnd = subStr.indexOf('>');
+					var end = start + localEnd;
+
+					if(this.isValidTag(substringInput.slice(start, end))) {
 						transformedInput += substringInput.slice(min, start);
-						substringInput = substringInput.slice(start + localEnd);
+						substringInput = substringInput.slice(end + 1);
 					}
 					else {
 						keepGoing = false;
 					}
 				}
-				
+				else {
+					keepGoing = false;
+				}				
 			}
+		}
+		if(substringInput.length > 0) {
+			transformedInput += substringInput;
 		}
 		if(alsoSanitize) {
 			var regexTransformed = this.sanitizeProtocol.sanitize(transformedInput);
@@ -174,6 +172,35 @@ class Sanitizer {
 			return transformedInput;
 		}
 		
+	}
+
+
+	/**
+	 * Determines if a tag is a valid HTML5 tag (for purposes of removing tags). NOTE: This currently only checks the first character in the tag after the <. 
+	 * For full specifications on a valid custom tag, see: https://html.spec.whatwg.org/#valid-custom-element-name
+	 * @param tagToCheck 	A string containing a possible HTML tag. <> optional, but assumed to have been already checked for in terms of validity.
+	 * @return boolean 		Whether that string can be a valid HTML tag.
+	 */
+	isValidTag(tagToCheck) {
+		let firstChar = tagToCheck.charAt(0);
+		if(firstChar === '<') {
+			firstChar = tagToCheck.charAt(1);
+		}
+
+		let charCode = firstChar.charCodeAt(0);
+		/*if((charCode >= 65) && (charCode <= 90)) { // upper case. Not valid for first char, subsequent is fine.
+
+		}*/
+		if(charCode === 47) {
+			return true;
+		}
+		else if((charCode >= 97) && (charCode <= 122)) { // lower case ascii ranges
+			return true;
+		}
+		return false;
+
+
+
 	}
 }
 
