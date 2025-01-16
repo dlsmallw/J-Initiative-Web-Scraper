@@ -340,15 +340,21 @@ body {
     Scrape Page and External Window Styling
 =======================================================================*/
 
-#import-btn-container {
+.scrape-btn-container {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-#importSelectedBtn {
+.text-sel-btn {
     background: #3b4145;
     width: 40%;
+    margin: 0 10px 0 10px;
+}
+
+.import-btn-container {
+    display: flex;
+    justify-content: center;
 }
 
 #content-container {
@@ -552,3 +558,76 @@ body {
 input[readonly].default-cursor {
     cursor: default;
 }
+
+/*=======================================================================
+    Custom Toggle Button Styling
+=======================================================================*/
+#exit-scrape-win-btn {
+    margin-left: 50px;
+    font-weight: bold;
+}
+
+#text-mode-label {
+    color: var(--primary-color);
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.toggle {
+    position: relative;
+    width: 110px;
+    height: 40px;
+    border-radius: 20px;
+    box-shadow: inset 0 2px 1px rgba(0, 0, 0, 0.1);
+    background-color: var(--primary-bg);
+    overflow: hidden;
+  }
+  
+  .toggle__checkbox {
+    position: absolute;
+    left: -9999px;
+  }
+  
+  .toggle__label {
+    position: relative;
+    display: inline-block;
+    top: 4px;
+    left: 4px;
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background-color: #fff;
+    transition: all 0.25s ease-in-out;
+    cursor: pointer;
+  }
+  
+  .toggle__label:before, .toggle__label:after {
+    position: absolute;
+    top: 0;
+    color: var(--primary-color);
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    line-height: 32px;
+    transition: all 0.15s ease-in-out;
+  }
+  .toggle__label:before {
+    left: -62px;
+    content: "Manual";
+    opacity: 0;
+  }
+  .toggle__label:after {
+    left: 45px;
+    content: "Auto";
+    opacity: 1;
+  }
+  
+  .toggle__checkbox:checked ~ .toggle__label {
+    left: 75px;
+  }
+  .toggle__checkbox:checked ~ .toggle__label:before {
+    opacity: 1;
+  }
+  .toggle__checkbox:checked ~ .toggle__label:after {
+    opacity: 0;
+  }

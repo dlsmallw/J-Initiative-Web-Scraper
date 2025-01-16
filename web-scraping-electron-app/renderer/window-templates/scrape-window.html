@@ -26,6 +26,15 @@
         <div class="container-fluid">
             <ul class="navbar-nav ms-auto mb-0 not-draggable" id="navbar-ul-2">
                 <li class="nav-item">
+                    <span id="text-mode-label">Selection Mode</span>
+                </li>
+                <li class="nav-item">
+                    <div class="toggle">
+                        <input id="text-sel-toggle" class="toggle__checkbox" type="checkbox">
+                        <label for="text-sel-toggle" class="toggle__label"></label>
+                    </div>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" id="exit-scrape-win-btn" href="#">Close Window</a>
                 </li>
             </ul>
@@ -39,20 +48,46 @@
         
         <div id="selected-data-container">
             <!-- Action Buttons -->
-            <div class="action-buttons mt-3" id="import-btn-container">
-                <button 
-                    class="
-                        btn 
-                        btn-secondary 
-                        border 
-                        border-secondary
-                        " 
-                    type="button" 
-                    id="importSelectedBtn" 
-                    disabled>Import Selected Data</button>
+            <div class="action-buttons mt-3" class="scrape-btn-container">
+                <div id="auto-mode" class="import-btn-container">
+                    <button 
+                        class="
+                            btn 
+                            btn-secondary 
+                            border 
+                            border-secondary
+                            text-sel-btn
+                            " 
+                        type="button" 
+                        id="auto-importCombBtn" 
+                        disabled>Import As Single Entry</button>
+                    <button 
+                        class="
+                            btn 
+                            btn-secondary 
+                            border 
+                            border-secondary
+                            text-sel-btn
+                            " 
+                        type="button" 
+                        id="auto-importSepBtn" 
+                        disabled>Import All Separately</button>
+                </div>
+                <div id="man-mode" class="import-btn-container">
+                    <button 
+                        class="
+                            btn 
+                            btn-secondary 
+                            border 
+                            border-secondary
+                            text-sel-btn
+                            " 
+                        type="button" 
+                        id="man-importCombBtn" 
+                        disabled>Import Selected Data</button>
+                </div>
             </div>
 
-            
             <div id="data-container">
                 <div id="data-list-header" class="list-header">
                     <div id="lbl-container" class="hdr-lbl-container">
@@ -83,5 +118,6 @@
     </div>
     <!-- Bootstrap JS Bundle -->
     <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    
 </body>
 </html>

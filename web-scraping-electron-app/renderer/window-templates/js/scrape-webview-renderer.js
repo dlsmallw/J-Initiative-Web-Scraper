@@ -1,11 +1,15 @@
 //webview_renderer.js
 const ipcRenderer = window.urlScrape;
+// Used for tracking what mode the tool is in
+var auto_scrape_mode = true
 
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initDataContainer();
     initWinListeners();
     initScrapeUtilListeners();
+
+    $('#man-mode').hide()
 });
 
 /**
@@ -43,31 +47,48 @@ function initScrapeUtilListeners() {
     const webview = document.getElementById('webview-element');
 
     // Import selected text from the webview
-    $('#importSelectedBtn').on('click', () => {
+    $('#man-importCombBtn').on('click', () => {
         webview.send('getSelected'); // Request selected text from the webview
     });
+
+    $('#text-sel-toggle').on('change', () => {
+        if (document.getElementById('text-sel-toggle').checked) {
+            $('#auto-mode').hide()
+            $('#man-mode').show()
+    
+            webview.send('man-selection-mode');
+        } else {
+            $('#man-mode').hide()
+            $('#auto-mode').show()
+    
+            webview.send('auto-selection-mode');
+        }
+    })
 
     // Handle messages from the webview
     webview.addEventListener('ipc-message', (event) => {
         const channel = event.channel;
         const data = event.args[0];
 
-        if (channel === 'selection') {
-            var res = JSON.parse(data);
-            appendNewScrapedItem(res);
-        }
-
-        // may be pointless
-        if (channel === 'export') {
-            exportDataToApp(exportData);
-        }
-
-        if (channel === 'enable-import') {
-            enableImportBtn();
-        }
-
-        if (channel === 'disable-import') {
-            disableImportBtn();
+        switch(channel) {
+            case 'selection':
+                var res = JSON.parse(data);
+                appendNewScrapedItem(res);
+                break;
+            case 'export':
+                exportDataToApp(exportData);
+                break;
+            case 'enable-import':
+                enableManImportBtn();
+                break;
+            case 'disable-import':
+                disableManImportBtn();
+                break;
+            case 'log':
+                console.log(data);
+                break;
+            default:
+                break;
         }
     });
 
@@ -188,15 +209,15 @@ function getAllReadyData() {
 /**
  * Enables the import button.
  */
-function enableImportBtn() {
-    $('#importSelectedBtn').prop('disabled', false);
+function enableManImportBtn() {
+    $('#man-importCombBtn').prop('disabled', false);
 }
 
 /**
  * Disables the import button.
  */
-function disableImportBtn() {
-    $('#importSelectedBtn').prop('disabled', true);
+function disableManImportBtn() {
+    $('#man-importCombBtn').prop('disabled', true);
 }
 
 /**
