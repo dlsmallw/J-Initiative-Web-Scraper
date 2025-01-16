@@ -6,6 +6,9 @@ const { ipcRenderer } = require('electron');
 // Creates a time delay for events
 const delay = (timeDelay) => new Promise(resolve => setTimeout(resolve, timeDelay));
 
+var isManualMode = false;
+var hoverEleme = null;
+
 // Export button listener inside the webview
 document.addEventListener('DOMContentLoaded', () => {
     initMouseEventListeners();
@@ -18,6 +21,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // When received, send the selected text back to the host using 'ipcRenderer.sendToHost'
         ipcRenderer.sendToHost('selection', JSON.stringify(jsonObj));
+    });
+
+    ipcRenderer.on('man-selection-mode', function() {
+        isManualMode = true;
+        makeLog('changed to man')
+    });
+
+    ipcRenderer.on('auto-selection-mode', function() {
+        isManualMode = false;
+        makeLog('changed to auto')
     });
 });
 
@@ -46,18 +59,43 @@ function selectedTextCheck() {
  */
 function initMouseEventListeners() {
     document.addEventListener('mousemove', () => {
-        selectedTextCheck();
+        if (isManualMode) selectedTextCheck();
     });
 
     document.addEventListener('mouseup', async () => {
         // Delay to allow selection to update
-        await delay(50);    
-        selectedTextCheck();
+        if (isManualMode) {
+            await delay(50);    
+            selectedTextCheck();
+        }
     });
 
-    document.addEventListener('mousedown', async () => {
-        // Delay to allow selection to update
-        await delay(50);
-        selectedTextCheck();
-    });
+    document.addEventListener('mousedown', handleSelectEvent);
+}
+
+async function handleSelectEvent(event) {
+    // Delay to allow selection to update
+    if (isManualMode) {
+        if (event) {
+            await delay(50);
+            selectedTextCheck();
+        }
+    } else {
+        if (event.ctrlKey) {
+            element = window.document.elementFromPoint(event.clientX, event.clientY)
+            if (!element.classList.contains('jiws-selected')) {
+                element.classList.add('jiws-selected')
+                element.style.outline = '#f00 solid 2px'
+                text = element.innerText || element.textContent
+                makeLog(text)
+            } else {
+                element.classList.remove('jiws-selected')
+                element.style.outline = ''
+            }
+        }
+    }
+}
+
+function makeLog(log) {
+    ipcRenderer.sendToHost('log', log)
 }
