@@ -8,8 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initDataContainer();
     initWinListeners();
     initScrapeUtilListeners();
-
-    $('#man-mode').hide()
 });
 
 /**
@@ -51,18 +49,24 @@ function initScrapeUtilListeners() {
         webview.send('getSelected'); // Request selected text from the webview
     });
 
-    $('#text-sel-toggle').on('change', () => {
-        if (document.getElementById('text-sel-toggle').checked) {
+    $('#text-sel-toggle').on('change', async () => {
+        isChecked = document.getElementById('text-sel-toggle').checked
+        console.log(isChecked)
+        chann = '';
+
+        if (isChecked) {
+            chann = 'man-selection-mode';
+            console.log('Man mode')
             $('#auto-mode').hide()
             $('#man-mode').show()
-    
-            webview.send('man-selection-mode');
         } else {
+            chann = 'auto-selection-mode';
+            console.log('Auto mode')
             $('#man-mode').hide()
             $('#auto-mode').show()
-    
-            webview.send('auto-selection-mode');
         }
+
+        webview.send(chann);
     })
 
     // Handle messages from the webview
@@ -78,10 +82,12 @@ function initScrapeUtilListeners() {
             case 'export':
                 exportDataToApp(exportData);
                 break;
-            case 'enable-import':
+            case 'enable-man-import':
+                console.log('Enable')
                 enableManImportBtn();
                 break;
-            case 'disable-import':
+            case 'disable-man-import':
+                console.log('Disable')
                 disableManImportBtn();
                 break;
             case 'log':
@@ -103,6 +109,8 @@ function initScrapeUtilListeners() {
  * Initializes the UI elements within the data container.
  */
 function initDataContainer() {
+    $('#man-mode').hide()
+
     $('#data-container').hide();
     $('#clear-sel-btn').hide();
 

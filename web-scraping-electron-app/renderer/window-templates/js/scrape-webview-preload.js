@@ -7,7 +7,10 @@ const { ipcRenderer } = require('electron');
 const delay = (timeDelay) => new Promise(resolve => setTimeout(resolve, timeDelay));
 
 var isManualMode = false;
-var hoverEleme = null;
+
+// objects used while in auto mode
+var autoCurrHoveredElement = null
+var autoSelectedElements = []
 
 // Export button listener inside the webview
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,14 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
         ipcRenderer.sendToHost('selection', JSON.stringify(jsonObj));
     });
 
-    ipcRenderer.on('man-selection-mode', function() {
+    ipcRenderer.on('man-selection-mode', () => {
         isManualMode = true;
-        makeLog('changed to man')
     });
 
     ipcRenderer.on('auto-selection-mode', function() {
         isManualMode = false;
-        makeLog('changed to auto')
     });
 });
 
@@ -43,13 +44,26 @@ function getSelectedText() {
 }
 
 /**
- * Checks if their is currently text selected and either enables or diables the import button.
+ * Checks if there is currently text selected and either enables or diables the import button.
  */
 function selectedTextCheck() {
-    if (getSelectedText() !== '') {
-        ipcRenderer.sendToHost('enable-import');
+    if (isManualMode) {
+        if (getSelectedText() !== '') {
+            ipcRenderer.sendToHost('enable-man-import');
+        } else {
+            ipcRenderer.sendToHost('disable-man-import');
+        }
+    }
+}
+
+/**
+ * Checks if there are elements that are currently highlighted.
+ */
+function selectedElementsCheck() {
+    if (autoSelectedElements.length() > 0) {
+        ipcRenderer.sendToHost('enable-auto-import');
     } else {
-        ipcRenderer.sendToHost('disable-import');
+        ipcRenderer.sendToHost('disable-auto-import');
     }
 }
 
@@ -58,16 +72,22 @@ function selectedTextCheck() {
  * NOTE: Setting these three event listeners ensures that it is always checking whether text is selected.
  */
 function initMouseEventListeners() {
+    // This is specifically used to prevent browser key-combination events when selecting elements
+    document.addEventListener('click', function(e) {
+        if (!isManualMode && e.ctrlKey) {
+            e.preventDefault()
+            e.stopPropagation();
+        } 
+    }, true);
+
     document.addEventListener('mousemove', () => {
-        if (isManualMode) selectedTextCheck();
+        selectedTextCheck();
     });
 
     document.addEventListener('mouseup', async () => {
         // Delay to allow selection to update
-        if (isManualMode) {
-            await delay(50);    
-            selectedTextCheck();
-        }
+        await delay(50);    
+        selectedTextCheck();
     });
 
     document.addEventListener('mousedown', handleSelectEvent);
@@ -75,6 +95,7 @@ function initMouseEventListeners() {
 
 async function handleSelectEvent(event) {
     // Delay to allow selection to update
+    makeLog(isManualMode)
     if (isManualMode) {
         if (event) {
             await delay(50);
