@@ -67,7 +67,7 @@ function initScrapeUtilListeners() {
         }
 
         webview.send(chann);
-    })
+    });
 
     // Handle messages from the webview
     webview.addEventListener('ipc-message', (event) => {
@@ -103,6 +103,23 @@ function initScrapeUtilListeners() {
         const dataToExport = getAllReadyData();
         exportDataToApp(JSON.stringify(dataToExport));
     });
+
+    webview.click()
+
+    // webview.addEventListener('mouseenter', (e) => {
+    //     console.log('Mouse entered webview')
+    // });
+
+    // webview.addEventListener('mouseleave', (e) => {
+    //     console.log('Mouse left webview')
+    //     webview.blur()
+    // })
+
+    // document.elementFromPoint(0, 61).focus();
+
+    // window.addEventListener('mousemove', (e) => {
+    //     console.log(`X:${e.x}, Y:${e.y}`)
+    // })
 }
 
 /**

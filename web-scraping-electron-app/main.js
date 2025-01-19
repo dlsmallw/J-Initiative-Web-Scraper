@@ -428,7 +428,7 @@ function createURLWindow(url) {
     });
 
     urlWindow.hide();
-    // urlWindow.webContents.openDevTools();
+    urlWindow.webContents.openDevTools();
 
     // Load the specified URL in the window, catch invalid url
     urlWindow.loadFile('./renderer/window-templates/scrape-window.html')
