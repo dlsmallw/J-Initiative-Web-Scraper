@@ -3,6 +3,9 @@ const ipcRenderer = window.urlScrape;
 // Used for tracking what mode the tool is in
 var auto_scrape_mode = true
 
+var inWebview = false
+var hotKey = 'Control'
+
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initDataContainer();
@@ -104,22 +107,27 @@ function initScrapeUtilListeners() {
         exportDataToApp(JSON.stringify(dataToExport));
     });
 
-    webview.click()
+    webview.addEventListener('mouseenter', (e) => {
+        inWebview = true;
+        webview.send('in-webview-frame');
+    });
 
-    // webview.addEventListener('mouseenter', (e) => {
-    //     console.log('Mouse entered webview')
-    // });
+    webview.addEventListener('mouseleave', (e) => {
+        inWebview = false;
+        webview.send('outside-webview-frame');
+    });
 
-    // webview.addEventListener('mouseleave', (e) => {
-    //     console.log('Mouse left webview')
-    //     webview.blur()
-    // })
+    document.addEventListener('keydown', (e) => {
+        if (inWebview && e.key === hotKey) {
+            webview.send('key-down')
+        }
+    });
 
-    // document.elementFromPoint(0, 61).focus();
-
-    // window.addEventListener('mousemove', (e) => {
-    //     console.log(`X:${e.x}, Y:${e.y}`)
-    // })
+    document.addEventListener('keyup', (e) => {
+        if (inWebview && e.key === hotKey) {
+            webview.send('key-up')
+        }
+    });
 }
 
 /**

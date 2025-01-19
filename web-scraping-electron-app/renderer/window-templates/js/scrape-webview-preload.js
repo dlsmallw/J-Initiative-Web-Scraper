@@ -12,6 +12,12 @@ var isManualMode = false;
 var autoCurrHoveredElement = null
 var autoSelectedElements = []
 
+var webviewFocused = false
+var hotKeyDown = false
+
+var currMouseX = 0
+var currMouseY = 0
+
 // Export button listener inside the webview
 document.addEventListener('DOMContentLoaded', (e) => {
     // Listen for 'getSelected' messages from the host (renderer process)
@@ -32,12 +38,42 @@ document.addEventListener('DOMContentLoaded', (e) => {
         isManualMode = false;
     });
 
-    document.addEventListener('mouseenter', makeLog('mouse entered webview'))
-    document.addEventListener('mouseleave', makeLog('mouse left webview'))
+    ipcRenderer.on('key-down', () => {
+        hotKeyDown = true
+        makeLog('Hot Key Pressed')
 
-    // document.getElementsByTagName('body').addEventListener('focusin', makeLog('Focused'))
+        element = window.document.elementFromPoint(currMouseX, currMouseY)
+        if (!isManualMode) {
+            if (autoCurrHoveredElement === null) {
+                if (webviewFocused && e.ctrlKey || hotKeyDown) {
+                    autoCurrHoveredElement = element
+                    autoCurrHoveredElement.style.backgroundColor = 'rgba(0,0,0,0.2)';
+                }
+            } 
+        }
+    });
 
-    initKeyMouseEventListeners()
+    ipcRenderer.on('key-up', () => {
+        hotKeyDown = false
+        makeLog('Hot Key Released')
+
+        if (autoCurrHoveredElement !== null) {
+            autoCurrHoveredElement.style.backgroundColor = '';
+            autoCurrHoveredElement = null;
+        }  
+    });
+
+    ipcRenderer.on('in-webview-frame', (e) => {
+        webviewFocused = true
+        makeLog('webview focused')
+    });
+
+    ipcRenderer.on('outside-webview-frame', (e) => {
+        webviewFocused = false
+        makeLog('webview lost focus')
+    });
+
+    initKeyMouseEventListeners();
 });
 
 /**
@@ -77,21 +113,38 @@ function selectedElementsCheck() {
  * NOTE: Setting these three event listeners ensures that it is always checking whether text is selected.
  */
 function initKeyMouseEventListeners() {
-
     // This is specifically used to prevent browser key-combination events when selecting elements
-    document.addEventListener('keydown', (e) => {
-        makeLog(`${e.key} pressed`)
+    document.addEventListener('click', (e) => {
         if (!isManualMode) {
-            if (e.ctrlKey) {
+            if (e.ctrlKey || hotKeyDown) {
                 e.preventDefault();
                 e.stopPropagation();
+            }
+        }
+    }, true);
+
+    document.addEventListener('keydown', (e) => {
+        makeLog(`${e.key} pressed`)
+        element = window.document.elementFromPoint(currMouseX, currMouseY)
+        if (!isManualMode) {
+            if (e.ctrlKey || hotKeyDown) {
+
+                if (autoCurrHoveredElement === null) {
+                    if (webviewFocused) {
+                        hotKeyDown = true
+                        autoCurrHoveredElement = element
+                        autoCurrHoveredElement.style.backgroundColor = 'rgba(0,0,0,0.2)';
+                    }
+                } 
             } 
+            
         }
     }, true);
 
     document.addEventListener('keyup', (e) => {
         makeLog(`${e.key} released`)
-        if (e.ctrlKey || e.key === 'Control') {
+        if (webviewFocused && e.ctrlKey || hotKeyDown) {
+            hotKeyDown = false
             if (autoCurrHoveredElement !== null) {
                 autoCurrHoveredElement.style.backgroundColor = '';
                 autoCurrHoveredElement = null;
@@ -100,10 +153,15 @@ function initKeyMouseEventListeners() {
     });
 
     document.addEventListener('mousemove', (e) => {
+        currMouseX = e.clientX
+        currMouseY = e.clientY
+
+        makeLog(`X:${currMouseX}, Y:${currMouseY}`)
+
         if (isManualMode) {
             selectedTextCheck();
         } else {
-            if (e.ctrlKey) {
+            if (webviewFocused && e.ctrlKey || hotKeyDown) {
                 element = window.document.elementFromPoint(e.clientX, e.clientY)
                 if (!element.isEqualNode(autoCurrHoveredElement)) {
                     if (autoCurrHoveredElement === null) {
@@ -129,6 +187,7 @@ function initKeyMouseEventListeners() {
     });
 
     document.addEventListener('mousedown', async (e) => {
+        makeLog('Mouse Clicked')
         if (isManualMode) {
             // Delay to allow selection to update
             if (e) {
@@ -136,7 +195,7 @@ function initKeyMouseEventListeners() {
                 selectedTextCheck();
             }
         } else {
-            if (e.ctrlKey) {
+            if (e.ctrlKey || hotKeyDown) {
                 element = window.document.elementFromPoint(e.clientX, e.clientY)
                 if (!element.classList.contains('jiws-selected')) {
                     element.classList.add('jiws-selected')
