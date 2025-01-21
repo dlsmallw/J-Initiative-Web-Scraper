@@ -246,7 +246,7 @@ function combineSelToResObj() {
 
     document.querySelectorAll('.jiws-selected').forEach((elem) => {
         text = elem.innerText || elem.textContent;
-        if (text !== null && text !== '') concatItem += `${text}\s`;
+        if (text !== null && text !== '') concatItem += `${text} `;
     });
     deselectAllElements();
     var data = concatItem;
