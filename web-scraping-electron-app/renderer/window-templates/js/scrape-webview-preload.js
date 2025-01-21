@@ -10,38 +10,47 @@ var isManualMode = false;
 
 // objects used while in auto mode
 var autoCurrHoveredElement = null
-var autoSelectedElements = []
-
 var webviewFocused = false
 var hotKeyDown = false
-
 var currMouseX = 0
 var currMouseY = 0
 
+
+
 // Export button listener inside the webview
-document.addEventListener('DOMContentLoaded', (e) => {
+document.addEventListener('DOMContentLoaded', () => {
     // Listen for 'getSelected' messages from the host (renderer process)
-    ipcRenderer.on('getSelected', function () {
-        var jsonObj = {
-            url: window.location.href.toString(),
-            data: getSelectedText()
-        }
+    ipcRenderer.on('getSelected', (e) => {
+        var resObj = manualTextScrape();
         // When received, send the selected text back to the host using 'ipcRenderer.sendToHost'
-        ipcRenderer.sendToHost('selection', JSON.stringify(jsonObj));
+        ipcRenderer.sendToHost('selection', JSON.stringify(resObj));
     });
 
-    ipcRenderer.on('man-selection-mode', () => {
+    ipcRenderer.on('get-selected-elem-combined', (e) => {
+        var resObj = combineSelToResObj();
+        // When received, send the selected text back to the host using 'ipcRenderer.sendToHost'
+        ipcRenderer.sendToHost('selection', JSON.stringify(resObj));
+    });
+
+    ipcRenderer.on('get-selected-elem-individual', (e) => {
+        var resObj = indivSelToResObj();
+        // When received, send the selected text back to the host using 'ipcRenderer.sendToHost'
+        ipcRenderer.sendToHost('selection', JSON.stringify(resObj));
+    });
+
+    ipcRenderer.on('man-selection-mode', (e) => {
         isManualMode = true;
+        deselectAllElements();
+        selectedTextCheck();
     });
 
-    ipcRenderer.on('auto-selection-mode', function() {
+    ipcRenderer.on('auto-selection-mode', (e) => {
         isManualMode = false;
+        selectedElementsCheck();
     });
 
-    ipcRenderer.on('key-down', () => {
+    ipcRenderer.on('key-down', (e) => {
         hotKeyDown = true
-        makeLog('Hot Key Pressed')
-
         element = window.document.elementFromPoint(currMouseX, currMouseY)
         if (!isManualMode) {
             if (autoCurrHoveredElement === null) {
@@ -53,10 +62,8 @@ document.addEventListener('DOMContentLoaded', (e) => {
         }
     });
 
-    ipcRenderer.on('key-up', () => {
+    ipcRenderer.on('key-up', (e) => {
         hotKeyDown = false
-        makeLog('Hot Key Released')
-
         if (autoCurrHoveredElement !== null) {
             autoCurrHoveredElement.style.backgroundColor = '';
             autoCurrHoveredElement = null;
@@ -64,21 +71,33 @@ document.addEventListener('DOMContentLoaded', (e) => {
     });
 
     ipcRenderer.on('in-webview-frame', (e) => {
-        webviewFocused = true
-        makeLog('webview focused')
+        webviewFocused = true;
     });
 
     ipcRenderer.on('outside-webview-frame', (e) => {
-        webviewFocused = false
-        makeLog('webview lost focus')
+        webviewFocused = false;
     });
 
     initKeyMouseEventListeners();
 });
 
+function formIndivDataResObj(dataURL, textData) {
+    return {
+        url: dataURL,
+        data: textData
+    }
+}
+
+function manualTextScrape() {
+    url = window.location.href.toString();
+    text = getSelectedText();
+    dataObj = formIndivDataResObj(url, text);
+    return [dataObj];
+}
+
 /**
  * Function to get the currently selected text in the webview
- * @returns String      The current selection.
+ * @returns Array      The formatted response object.
  */
 function getSelectedText() {
     return window.getSelection().toString().trim();
@@ -88,20 +107,19 @@ function getSelectedText() {
  * Checks if there is currently text selected and either enables or diables the import button.
  */
 function selectedTextCheck() {
-    if (isManualMode) {
-        if (getSelectedText() !== '') {
-            ipcRenderer.sendToHost('enable-man-import');
-        } else {
-            ipcRenderer.sendToHost('disable-man-import');
-        }
+    if (getSelectedText() !== '') {
+        ipcRenderer.sendToHost('enable-man-import');
+    } else {
+        ipcRenderer.sendToHost('disable-man-import');
     }
+    
 }
 
 /**
  * Checks if there are elements that are currently highlighted.
  */
 function selectedElementsCheck() {
-    if (autoSelectedElements.length() > 0) {
+    if (document.querySelectorAll('.jiws-selected').length > 0) {
         ipcRenderer.sendToHost('enable-auto-import');
     } else {
         ipcRenderer.sendToHost('disable-auto-import');
@@ -124,27 +142,24 @@ function initKeyMouseEventListeners() {
     }, true);
 
     document.addEventListener('keydown', (e) => {
-        makeLog(`${e.key} pressed`)
-        element = window.document.elementFromPoint(currMouseX, currMouseY)
+        element = window.document.elementFromPoint(currMouseX, currMouseY);
         if (!isManualMode) {
             if (e.ctrlKey || hotKeyDown) {
-
                 if (autoCurrHoveredElement === null) {
                     if (webviewFocused) {
-                        hotKeyDown = true
-                        autoCurrHoveredElement = element
+                        hotKeyDown = true;
+                        autoCurrHoveredElement = element;
                         autoCurrHoveredElement.style.backgroundColor = 'rgba(0,0,0,0.2)';
                     }
                 } 
             } 
-            
+            selectedElementsCheck();
         }
     }, true);
 
     document.addEventListener('keyup', (e) => {
-        makeLog(`${e.key} released`)
         if (webviewFocused && e.ctrlKey || hotKeyDown) {
-            hotKeyDown = false
+            hotKeyDown = false;
             if (autoCurrHoveredElement !== null) {
                 autoCurrHoveredElement.style.backgroundColor = '';
                 autoCurrHoveredElement = null;
@@ -153,23 +168,21 @@ function initKeyMouseEventListeners() {
     });
 
     document.addEventListener('mousemove', (e) => {
-        currMouseX = e.clientX
-        currMouseY = e.clientY
-
-        makeLog(`X:${currMouseX}, Y:${currMouseY}`)
+        currMouseX = e.clientX;
+        currMouseY = e.clientY;
 
         if (isManualMode) {
             selectedTextCheck();
         } else {
             if (webviewFocused && e.ctrlKey || hotKeyDown) {
-                element = window.document.elementFromPoint(e.clientX, e.clientY)
+                element = window.document.elementFromPoint(currMouseX, currMouseY);
                 if (!element.isEqualNode(autoCurrHoveredElement)) {
                     if (autoCurrHoveredElement === null) {
-                        autoCurrHoveredElement = element
+                        autoCurrHoveredElement = element;
                         autoCurrHoveredElement.style.backgroundColor = 'rgba(0,0,0,0.2)';
                     } else {
                         autoCurrHoveredElement.style.backgroundColor = '';
-                        autoCurrHoveredElement = element
+                        autoCurrHoveredElement = element;
                         autoCurrHoveredElement.style.backgroundColor = 'rgba(0,0,0,0.2)';
                     }
                 } 
@@ -187,7 +200,6 @@ function initKeyMouseEventListeners() {
     });
 
     document.addEventListener('mousedown', async (e) => {
-        makeLog('Mouse Clicked')
         if (isManualMode) {
             // Delay to allow selection to update
             if (e) {
@@ -196,19 +208,65 @@ function initKeyMouseEventListeners() {
             }
         } else {
             if (e.ctrlKey || hotKeyDown) {
-                element = window.document.elementFromPoint(e.clientX, e.clientY)
+                element = window.document.elementFromPoint(currMouseX, currMouseY);
                 if (!element.classList.contains('jiws-selected')) {
-                    element.classList.add('jiws-selected')
-                    element.style.outline = '#f00 solid 2px'
-                    text = element.innerText || element.textContent
-                    makeLog(text)
+                    selectElement(element);
                 } else {
-                    element.classList.remove('jiws-selected')
-                    element.style.outline = ''
+                    deselectElement(element);
                 }
             }
+            selectedElementsCheck();
         }
     });
+}
+
+function selectElement(element) {
+    if (element) {
+        element.classList.add('jiws-selected');
+        element.style.outline = '#f00 solid 2px';
+    }
+}
+
+function deselectElement(element) {
+    if (element) {
+        element.style.outline = '';
+        element.classList.remove('jiws-selected');
+    }
+}
+
+function deselectAllElements() {
+    document.querySelectorAll('.jiws-selected').forEach(element => {
+        deselectElement(element);
+    });
+}
+
+function combineSelToResObj() {
+    var url = window.location.href.toString();
+    var concatItem = '';
+
+    document.querySelectorAll('.jiws-selected').forEach((elem) => {
+        text = elem.innerText || elem.textContent;
+        if (text !== null && text !== '') concatItem += `${text}\s`;
+    });
+    deselectAllElements();
+    var data = concatItem;
+    var dataObj = formIndivDataResObj(url, data);
+    return [dataObj];
+}
+
+function indivSelToResObj() {
+    var url = window.location.href.toString();
+    var resObj = [];
+
+    document.querySelectorAll('.jiws-selected').forEach((elem) => {
+        text = elem.innerText || elem.textContent;
+        if (text !== null && text !== '') {
+            dataObj = formIndivDataResObj(url, text);
+            resObj.push(dataObj);
+        }
+    });
+    deselectAllElements();
+    return resObj;
 }
 
 function makeLog(log) {

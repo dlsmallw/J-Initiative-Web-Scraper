@@ -52,21 +52,28 @@ function initScrapeUtilListeners() {
         webview.send('getSelected'); // Request selected text from the webview
     });
 
+    $('#auto-importCombBtn').on('click', () => {
+        console.log('auto-importCombBtn')
+        webview.send('get-selected-elem-combined');
+    })
+
+    $('#auto-importSepBtn').on('click', () => {
+        console.log('auto-importSepBtn')
+        webview.send('get-selected-elem-individual');
+    })
+
     $('#text-sel-toggle').on('change', async () => {
         isChecked = document.getElementById('text-sel-toggle').checked
-        console.log(isChecked)
         chann = '';
 
         if (isChecked) {
             chann = 'man-selection-mode';
-            console.log('Man mode')
-            $('#auto-mode').hide()
-            $('#man-mode').show()
+            $('#auto-mode').hide();
+            $('#man-mode').show();
         } else {
             chann = 'auto-selection-mode';
-            console.log('Auto mode')
-            $('#man-mode').hide()
-            $('#auto-mode').show()
+            $('#man-mode').hide();
+            $('#auto-mode').show();
         }
 
         webview.send(chann);
@@ -86,12 +93,16 @@ function initScrapeUtilListeners() {
                 exportDataToApp(exportData);
                 break;
             case 'enable-man-import':
-                console.log('Enable')
                 enableManImportBtn();
                 break;
             case 'disable-man-import':
-                console.log('Disable')
                 disableManImportBtn();
+                break;
+            case 'enable-auto-import':
+                enableAutoImportBtns();
+                break;
+            case 'disable-auto-import':
+                disableAutoImportBtns();
                 break;
             case 'log':
                 console.log(data);
@@ -150,32 +161,37 @@ function initDataContainer() {
 
 /**
  * Appends a new data item to the list of scraped data.
- * @param {*} dataObj       The data to be added.
+ * @param {*} data       The data to be added.
  */
-function appendNewScrapedItem(dataObj) {
-    var $newLI = $('<a>', {
-        href: '#', 
-        class: 'list-group-item list-group-item-action scrape-item',
-        style: 'border-width: 0px 0px 3px 0px;'
-    });
+function appendNewScrapedItem(data) {
+    for (index in data) {
+        item = data[index];
 
-    $newLI.text(dataObj.data);
-    $newLI.attr('data-url', dataObj.url)
-
-    $newLI.on('click', () => {
-        if ($newLI.hasClass('active')) {
-            $newLI.removeClass('active');
-
-            if (!checkIfAnyActive()) {
-                $('#clear-sel-btn').hide();
+        var $newLI = $('<a>', {
+            href: '#', 
+            class: 'list-group-item list-group-item-action scrape-item',
+            style: 'border-width: 0px 0px 3px 0px;'
+        });
+    
+        $newLI.text(item.data);
+        $newLI.attr('data-url', item.url)
+    
+        $newLI.on('click', () => {
+            if ($newLI.hasClass('active')) {
+                $newLI.removeClass('active');
+    
+                if (!checkIfAnyActive()) {
+                    $('#clear-sel-btn').hide();
+                }
+            } else {
+                $newLI.addClass('active');
+                $('#clear-sel-btn').show();
             }
-        } else {
-            $newLI.addClass('active');
-            $('#clear-sel-btn').show();
-        }
-    });
-
-    $('#data-list').append($newLI);
+        });
+    
+        $('#data-list').append($newLI);
+    }
+    
     $('#data-container').show();
 }
 
@@ -240,17 +256,33 @@ function getAllReadyData() {
 }
 
 /**
- * Enables the import button.
+ * Enables the manual-mode import button.
  */
 function enableManImportBtn() {
     $('#man-importCombBtn').prop('disabled', false);
 }
 
 /**
- * Disables the import button.
+ * Disables the manual-mode import button.
  */
 function disableManImportBtn() {
     $('#man-importCombBtn').prop('disabled', true);
+}
+
+/**
+ * Enables the auto-mode import buttons.
+ */
+function enableAutoImportBtns() {
+    $('#auto-importCombBtn').prop('disabled', false);
+    $('#auto-importSepBtn').prop('disabled', false);
+}
+
+/**
+ * Disables the auto-mode import buttons.
+ */
+function disableAutoImportBtns() {
+    $('#auto-importCombBtn').prop('disabled', true);
+    $('#auto-importSepBtn').prop('disabled', true);
 }
 
 /**
