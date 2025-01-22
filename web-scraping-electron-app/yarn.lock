@@ -1529,9 +1529,9 @@ fast-glob@^3.2.7:
     micromatch "^4.0.8"
 
 fast-uri@^3.0.1:
-  version "3.0.5"
-  resolved "https://registry.yarnpkg.com/fast-uri/-/fast-uri-3.0.5.tgz#19f5f9691d0dab9b85861a7bb5d98fca961da9cd"
-  integrity sha512-5JnBCWpFlMo0a3ciDy/JckMzzv1U9coZrIhedq+HXxxUfDTAiS0LA8OKVao4G9BxmCVck/jtA5r3KAtRWEyD8Q==
+  version "3.0.6"
+  resolved "https://registry.yarnpkg.com/fast-uri/-/fast-uri-3.0.6.tgz#88f130b77cfaea2378d56bf970dea21257a68748"
+  integrity sha512-Atfo14OibSv5wAp4VWNsFYE1AchQRTv9cBGWET4pZWHzYshFSS9NQI6I57rdKn9croWVMbYFbLhJ+yJvmZIIHw==
 
 fastq@^1.6.0:
   version "1.18.0"
@@ -3171,9 +3171,9 @@ type-fest@^1.0.2:
   integrity sha512-yGSza74xk0UG8k+pLh5oeoYirvIiWo5t0/o3zHHAO2tRDiZcxWP7fywNlXhqb6/r6sWvwi+RsyQMWhVLe4BVuA==
 
 type-fest@^4.18.2, type-fest@^4.20.0:
-  version "4.32.0"
-  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-4.32.0.tgz#55bacdd6f2cf1392b7e9cde894e9b1d726807e97"
-  integrity sha512-rfgpoi08xagF3JSdtJlCwMq9DGNDE0IMh3Mkpc1wUypg9vPi786AiqeBBKcqvIkq42azsBM85N490fyZjeUftw==
+  version "4.33.0"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-4.33.0.tgz#2da0c135b9afa76cf8b18ecfd4f260ecd414a432"
+  integrity sha512-s6zVrxuyKbbAsSAD5ZPTB77q4YIdRctkTbJ2/Dqlinwz+8ooH2gd+YA7VA6Pa93KML9GockVvoxjZ2vHP+mu8g==
 
 uint8array-extras@^1.4.0:
   version "1.4.0"
@@ -3254,7 +3254,7 @@ wcwidth@^1.0.1:
     firebase "^11.0.2"
     jquery "^3.7.1"
     tail "^2.2.6"
-    web-scraping-electron-app "file:../../../../AppData/Local/Yarn/Cache/v6/npm-web-scraping-electron-app-1.0.0-48434cff-f951-45a4-9a9c-99a249aa1c67-1737313197190/node_modules/web-scraping-electron-app"
+    web-scraping-electron-app "file:../../../../AppData/Local/Yarn/Cache/v6/npm-web-scraping-electron-app-1.0.0-7a197bcb-26bb-4b49-b08f-8eed3e73a407-1737559905504/node_modules/web-scraping-electron-app"
 
 webidl-conversions@^3.0.0:
   version "3.0.1"
