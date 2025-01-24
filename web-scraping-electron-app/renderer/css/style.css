@@ -562,6 +562,39 @@ input[readonly].default-cursor {
 /*=======================================================================
     Custom Toggle Button Styling
 =======================================================================*/
+.hotkey-change-in-progress {
+    #hotkey-text {
+        color: yellow !important;
+    }
+
+    #hotkey-set-icon {
+        fill: yellow !important;
+    }
+}
+
+
+
+#hotkey-set-container {
+    border-radius: 50%; 
+    cursor: pointer;
+    color: transparent;
+}
+
+#hotkey-set-icon {
+    fill: var(--primary-color);
+}
+
+#hotkey-set-container:hover > #hotkey-set-icon {
+    fill: var(--primary-bg);
+}
+
+#hotkey-text {
+    color: var(--primary-color);
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
 #exit-scrape-win-btn {
     margin-left: 50px;
     font-weight: bold;
@@ -596,7 +629,7 @@ input[readonly].default-cursor {
     width: 32px;
     height: 32px;
     border-radius: 16px;
-    background-color: #fff;
+    background-color: var(--secondary-color);
     transition: all 0.25s ease-in-out;
     cursor: pointer;
   }

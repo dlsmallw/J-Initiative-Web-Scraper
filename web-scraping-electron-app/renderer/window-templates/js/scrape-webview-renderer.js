@@ -4,10 +4,11 @@ const ipcRenderer = window.urlScrape;
 var auto_scrape_mode = true
 
 var inWebview = false
-var hotKey = 'Control'
+var hotKey = null
+var hotkeyChangeInProgress = false
 
 document.addEventListener('DOMContentLoaded', () => {
-    initTheme();
+    initScrapeWindow();
     initDataContainer();
     initWinListeners();
     initScrapeUtilListeners();
@@ -16,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 /**
  * Initializes the theme used for the window.
  */
-function initTheme() {
+function initScrapeWindow() {
     // Load the saved theme from localStorage if it exists
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
@@ -25,6 +26,17 @@ function initTheme() {
         // Set default theme if none is saved
         document.documentElement.className = 'light-theme';
     }
+
+    // Load the saved theme from localStorage if it exists
+    const savedHotKey = localStorage.getItem('scrape-hotkey');
+    if (savedHotKey) {
+        hotKey = savedHotKey; // Set used hotkey
+    } else {
+        // Set default theme if none is saved
+        hotKey = 'Control';
+        localStorage.setItem('scrape-hotkey', hotKey);
+    }
+    setHotKey(hotKey);
 }
 
 /**
@@ -79,6 +91,10 @@ function initScrapeUtilListeners() {
         webview.send(chann);
     });
 
+    $('#hotkey-set-container').on('click', () => {
+        hotkeyChangeRequested()
+    })
+
     // Handle messages from the webview
     webview.addEventListener('ipc-message', (event) => {
         const channel = event.channel;
@@ -107,6 +123,9 @@ function initScrapeUtilListeners() {
             case 'log':
                 console.log(data);
                 break;
+            case 'request-hotkey':
+                webview.send('set-hotkey', hotKey)
+                break;
             default:
                 break;
         }
@@ -120,23 +139,45 @@ function initScrapeUtilListeners() {
 
     webview.addEventListener('mouseenter', (e) => {
         inWebview = true;
-        webview.send('in-webview-frame');
+        if (!hotkeyChangeInProgress) {
+            webview.send('in-webview-frame');
+        }
     });
 
     webview.addEventListener('mouseleave', (e) => {
         inWebview = false;
-        webview.send('outside-webview-frame');
+        if (!hotkeyChangeInProgress) {
+            webview.send('outside-webview-frame');
+        }
     });
 
     document.addEventListener('keydown', (e) => {
-        if (inWebview && e.key === hotKey) {
-            webview.send('key-down')
+        if (hotkeyChangeInProgress) {
+            e.preventDefault()
+            e.stopPropagation()
+            setHotKey(e.key);
+        } else {
+            if (inWebview && e.key === hotKey) {
+                e.preventDefault()
+                e.stopPropagation()
+                webview.send('key-down')
+            }
         }
     });
 
     document.addEventListener('keyup', (e) => {
-        if (inWebview && e.key === hotKey) {
-            webview.send('key-up')
+        if (hotkeyChangeInProgress) {
+            webview.send('set-hotkey', hotKey);
+            if (inWebview) {
+                webview.send('in-webview-frame');
+            } else {
+                webview.send('outside-webview-frame');
+            }
+            hotkeyChangeInProgress = false;
+        } else {
+            if (inWebview && e.key === hotKey) {
+                webview.send('key-up')
+            }
         }
     });
 }
@@ -283,6 +324,27 @@ function enableAutoImportBtns() {
 function disableAutoImportBtns() {
     $('#auto-importCombBtn').prop('disabled', true);
     $('#auto-importSepBtn').prop('disabled', true);
+}
+
+function hotkeyChangeRequested() {
+    console.log('hotkey change initiated');
+    hotkeyChangeInProgress = true;
+    $('#hotkey-set-icon').addClass('hotkey-change-in-progress');
+    $('#hotkey-text').addClass('hotkey-change-in-progress');
+    $('#curr-hotkey-text').text('Press a Key to Change...');
+}
+
+function setHotKey(newHotKey) {
+    if (newHotKey) {    
+        console.log('hotkey changed');
+        hotKey = newHotKey;
+        localStorage.setItem('scrape-hotkey', hotKey);
+        $('#curr-hotkey-text').text(hotKey);
+    } 
+
+    $('#hotkey-set-icon').removeClass('hotkey-change-in-progress');
+    $('#hotkey-text').removeClass('hotkey-change-in-progress');
+    $('#curr-hotkey-text').text(hotKey);
 }
 
 /**
