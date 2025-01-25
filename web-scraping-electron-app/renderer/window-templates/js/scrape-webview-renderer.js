@@ -5,13 +5,16 @@ var auto_scrape_mode = true
 
 var inWebview = false
 var hotKey = null
-var hotkeyChangeInProgress = false
+var changingHotKey = false
 
 document.addEventListener('DOMContentLoaded', () => {
     initScrapeWindow();
     initDataContainer();
     initWinListeners();
     initScrapeUtilListeners();
+
+    disableAutoImportBtns();
+    disableManImportBtn();
 });
 
 /**
@@ -65,12 +68,10 @@ function initScrapeUtilListeners() {
     });
 
     $('#auto-importCombBtn').on('click', () => {
-        console.log('auto-importCombBtn')
         webview.send('get-selected-elem-combined');
     })
 
     $('#auto-importSepBtn').on('click', () => {
-        console.log('auto-importSepBtn')
         webview.send('get-selected-elem-individual');
     })
 
@@ -91,9 +92,9 @@ function initScrapeUtilListeners() {
         webview.send(chann);
     });
 
-    $('#hotkey-set-container').on('click', () => {
-        hotkeyChangeRequested()
-    })
+    $('#hotkey-change-btn').on('click', () => {
+        hotkeyChangeRequested();
+    });
 
     // Handle messages from the webview
     webview.addEventListener('ipc-message', (event) => {
@@ -120,11 +121,11 @@ function initScrapeUtilListeners() {
             case 'disable-auto-import':
                 disableAutoImportBtns();
                 break;
-            case 'log':
-                console.log(data);
-                break;
             case 'request-hotkey':
                 webview.send('set-hotkey', hotKey)
+                break;
+            case 'log':
+                console.log(data);
                 break;
             default:
                 break;
@@ -139,41 +140,45 @@ function initScrapeUtilListeners() {
 
     webview.addEventListener('mouseenter', (e) => {
         inWebview = true;
-        if (!hotkeyChangeInProgress) {
+        if (!changingHotKey) {
             webview.send('in-webview-frame');
         }
     });
 
     webview.addEventListener('mouseleave', (e) => {
         inWebview = false;
-        if (!hotkeyChangeInProgress) {
+        if (!changingHotKey) {
             webview.send('outside-webview-frame');
         }
     });
 
     document.addEventListener('keydown', (e) => {
-        if (hotkeyChangeInProgress) {
-            e.preventDefault()
-            e.stopPropagation()
+        if (changingHotKey) {
+            e.preventDefault();
+            e.stopPropagation();
             setHotKey(e.key);
         } else {
             if (inWebview && e.key === hotKey) {
-                e.preventDefault()
-                e.stopPropagation()
+                e.preventDefault();
+                e.stopPropagation();
                 webview.send('key-down')
             }
         }
     });
 
     document.addEventListener('keyup', (e) => {
-        if (hotkeyChangeInProgress) {
+        if (changingHotKey) {
             webview.send('set-hotkey', hotKey);
+            enableWebview();
+            enableHotKeyChange();
+            enableModeSelector();
+
             if (inWebview) {
                 webview.send('in-webview-frame');
             } else {
                 webview.send('outside-webview-frame');
             }
-            hotkeyChangeInProgress = false;
+            changingHotKey = false;
         } else {
             if (inWebview && e.key === hotKey) {
                 webview.send('key-up')
@@ -186,7 +191,8 @@ function initScrapeUtilListeners() {
  * Initializes the UI elements within the data container.
  */
 function initDataContainer() {
-    $('#man-mode').hide()
+    $('#man-mode').hide();
+    $('#sel-cont-overlay').hide();
 
     $('#data-container').hide();
     $('#clear-sel-btn').hide();
@@ -300,50 +306,98 @@ function getAllReadyData() {
  * Enables the manual-mode import button.
  */
 function enableManImportBtn() {
-    $('#man-importCombBtn').prop('disabled', false);
+    $('#man-importCombBtn')
+        .prop('disabled', false)
+        .removeClass('element-disabled');
 }
 
 /**
  * Disables the manual-mode import button.
  */
 function disableManImportBtn() {
-    $('#man-importCombBtn').prop('disabled', true);
+    $('#man-importCombBtn')
+        .prop('disabled', true)
+        .addClass('element-disabled');
 }
 
 /**
  * Enables the auto-mode import buttons.
  */
 function enableAutoImportBtns() {
-    $('#auto-importCombBtn').prop('disabled', false);
-    $('#auto-importSepBtn').prop('disabled', false);
+    $('#auto-importCombBtn')
+        .prop('disabled', false)
+        .removeClass('element-disabled');
+    $('#auto-importSepBtn')
+        .prop('disabled', false)
+        .removeClass('element-disabled');
 }
 
 /**
  * Disables the auto-mode import buttons.
  */
 function disableAutoImportBtns() {
-    $('#auto-importCombBtn').prop('disabled', true);
-    $('#auto-importSepBtn').prop('disabled', true);
+    $('#auto-importCombBtn')
+        .prop('disabled', true)
+        .addClass('element-disabled');
+    $('#auto-importSepBtn')
+        .prop('disabled', true)
+        .addClass('element-disabled');
+}
+
+function enableWebview() {
+    $('#webview-overlay').hide();
+    $('#sel-cont-overlay').hide();
+}
+
+function disableWebview() {
+    $('#webview-overlay').show();
+    $('#sel-cont-overlay').show();
+}
+
+function disableModeSelector() {
+    $('#scrape-mode-toggle-container').addClass('element-disabled');
+    $('#text-mode-label').addClass('element-disabled');
+    $('#text-sel-toggle').prop('disabled', true)
+}
+
+function enableModeSelector() {
+    $('#scrape-mode-toggle-container').removeClass('element-disabled');
+    $('#text-mode-label').removeClass('element-disabled');
+    $('#text-sel-toggle').prop('disabled', false);
+}
+
+function disableHotKeyChange() {
+    tempColor = '#ffb98e;';
+    $('#hotkey-set-icon').css('fill', tempColor);
+    $('#hotkey-text').css('color', tempColor);
+    $('#hotkey-change-btn').prop('disabled', true);
+}
+
+function enableHotKeyChange() {
+    $('#hotkey-set-icon').css('fill', '')
+    $('#hotkey-text').css('color', '')
+    $('#hotkey-change-btn').prop('disabled', false);
 }
 
 function hotkeyChangeRequested() {
-    console.log('hotkey change initiated');
-    hotkeyChangeInProgress = true;
-    $('#hotkey-set-icon').addClass('hotkey-change-in-progress');
-    $('#hotkey-text').addClass('hotkey-change-in-progress');
+    disableWebview()
+    disableHotKeyChange();
+    disableModeSelector();
+    disableManImportBtn();
+    disableAutoImportBtns();
+
     $('#curr-hotkey-text').text('Press a Key to Change...');
+    console.log('hotkey change initiated');
+    changingHotKey = true;
 }
 
 function setHotKey(newHotKey) {
     if (newHotKey) {    
-        console.log('hotkey changed');
         hotKey = newHotKey;
         localStorage.setItem('scrape-hotkey', hotKey);
         $('#curr-hotkey-text').text(hotKey);
     } 
 
-    $('#hotkey-set-icon').removeClass('hotkey-change-in-progress');
-    $('#hotkey-text').removeClass('hotkey-change-in-progress');
     $('#curr-hotkey-text').text(hotKey);
 }
 

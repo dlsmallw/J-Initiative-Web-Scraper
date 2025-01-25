@@ -365,20 +365,59 @@ body {
     transform: translateY(59px);
 }
 
-#webview-container {
+#webview-outer-container {
     height: 60vh;
+    position: relative;
 }
 
-#webview-element {
+#webview-container {
     height: 100%;
+    position: relative;
 }
 
-#data-container {
-    padding-top: 1rem;
+#webview-overlay,
+#webview-element {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#webview-overlay {
+    z-index: 10;
+    background: grey;
+    opacity: 0.3;
+    display: none;
+}
+
+#sel-data-outer-cont {
+    position: relative;
+    height: 34vh;
+}
+
+#sel-cont-overlay,
+#selected-data-container {
+    
+    height: 100%;
+    position: absolute;
+}
+    
+#sel-cont-overlay {
+    z-index: 5;
+    background: grey;
+    opacity: 0.05;
+    width: 100%;
 }
 
 #selected-data-container {
     margin: 0 10px 0 10px;
+    z-index: 0;
+    width: 98%;
+}
+
+#data-container {
+    padding-top: 1rem;
 }
 
 .scraped-list {
@@ -562,19 +601,7 @@ input[readonly].default-cursor {
 /*=======================================================================
     Custom Toggle Button Styling
 =======================================================================*/
-.hotkey-change-in-progress {
-    #hotkey-text {
-        color: yellow !important;
-    }
-
-    #hotkey-set-icon {
-        fill: yellow !important;
-    }
-}
-
-
-
-#hotkey-set-container {
+#hotkey-change-btn {
     border-radius: 50%; 
     cursor: pointer;
     color: transparent;
@@ -584,7 +611,7 @@ input[readonly].default-cursor {
     fill: var(--primary-color);
 }
 
-#hotkey-set-container:hover > #hotkey-set-icon {
+#hotkey-change-btn:hover > #hotkey-set-icon {
     fill: var(--primary-bg);
 }
 
@@ -644,11 +671,13 @@ input[readonly].default-cursor {
     line-height: 32px;
     transition: all 0.15s ease-in-out;
   }
+
   .toggle__label:before {
     left: -62px;
     content: "Manual";
     opacity: 0;
   }
+
   .toggle__label:after {
     left: 45px;
     content: "Auto";
@@ -658,9 +687,20 @@ input[readonly].default-cursor {
   .toggle__checkbox:checked ~ .toggle__label {
     left: 75px;
   }
+
   .toggle__checkbox:checked ~ .toggle__label:before {
     opacity: 1;
   }
+
   .toggle__checkbox:checked ~ .toggle__label:after {
     opacity: 0;
+  }
+
+  .element-disabled {
+    filter: brightness(50%);
+  }
+
+  #hotkey-change-btn[disabled] {
+    pointer-events: none;
+    cursor: default;
   }

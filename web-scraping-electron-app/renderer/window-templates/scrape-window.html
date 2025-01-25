@@ -26,7 +26,7 @@
         <div class="container-fluid">
             <ul class="navbar-nav mb-0 not-draggable" id="navbar-ul-1">
                 <li class="nav-item">
-                <a id="hotkey-set-container" href="#">
+                <a id="hotkey-change-btn" href="#">
                     <svg xmlns="http://www.w3.org/2000/svg"  
                         id="hotkey-set-icon"
                         viewBox="0 0 32 32" 
@@ -44,7 +44,7 @@
                     <span id="text-mode-label">Selection Mode</span>
                 </li>
                 <li class="nav-item">
-                    <div class="toggle">
+                    <div id="scrape-mode-toggle-container" class="toggle">
                         <input id="text-sel-toggle" class="toggle__checkbox" type="checkbox">
                         <label for="text-sel-toggle" class="toggle__label"></label>
                     </div>
@@ -57,79 +57,76 @@
     </nav>
     
     <div id="content-container">
-        <div id="webview-container">
-            <webview id="webview-element" preload="./js/scrape-webview-preload.js"></webview>
-        </div>
-        
-        <div id="selected-data-container">
-            <!-- Action Buttons -->
-            <div class="action-buttons mt-3" class="scrape-btn-container">
-                <div id="auto-mode" class="import-btn-container">
-                    <button 
-                        class="
-                            btn 
-                            btn-secondary 
-                            border 
-                            border-secondary
-                            text-sel-btn
-                            " 
-                        type="button" 
-                        id="auto-importCombBtn" 
-                        disabled>Import As Single Entry</button>
-                    <button 
-                        class="
-                            btn 
-                            btn-secondary 
-                            border 
-                            border-secondary
-                            text-sel-btn
-                            " 
-                        type="button" 
-                        id="auto-importSepBtn" 
-                        disabled>Import All Separately</button>
-                </div>
-                <div id="man-mode" class="import-btn-container">
-                    <button 
-                        class="
-                            btn 
-                            btn-secondary 
-                            border 
-                            border-secondary
-                            text-sel-btn
-                            " 
-                        type="button" 
-                        id="man-importCombBtn" 
-                        disabled>Import Selected Data</button>
-                </div>
-            </div>
-
-            <div id="data-container">
-                <div id="data-list-header" class="list-header">
-                    <div id="lbl-container" class="hdr-lbl-container">
-                        <span id="data-list-lbl" class="hdr-lbl">Scraped Data</span>
-                    </div>
-                    <div id="data-list-btns" class="list-btn-container">
-                        <div>
-                            <button id="clear-all-btn" type="button" class="btn btn-secondary border border-secondary scrape-data-btn">Clear All</button>
-                            <button id="clear-sel-btn" type="button" class="btn btn-secondary border border-secondary scrape-data-btn">Clear Selected</button>
-                        </div>
-                        <div>
-                            <button class="btn btn-secondary border border-secondary" type="button" id="exportBtn">Export</button> <!-- New Export Button -->
-                        </div>
-                    </div>
-                </div>
-                <div id="data-list" class="list-group list-group-flush overflow-auto scraped-list">
-                    
-                </div>
+        <div id="webview-outer-container">
+            <div id="webview-container">
+                <webview id="webview-element" preload="./js/scrape-webview-preload.js"></webview>
+                <div id="webview-overlay"></div>
             </div>
         </div>
         
-    
-        <!-- Scraped Data Display -->
-        <!-- <div class="form-group mb-3 mt-3">
-            <label for="imported_textarea">Scraped Data</label>
-            <textarea class="form-control" id="imported_textarea" rows="5" readonly></textarea>
-        </div> -->
+        <div id="sel-data-outer-cont">
+            <div id="sel-cont-overlay"></div>
+            <div id="selected-data-container">
+                <!-- Action Buttons -->
+                <div class="action-buttons mt-3" class="scrape-btn-container">
+                    <div id="auto-mode" class="import-btn-container">
+                        <button 
+                            class="
+                                btn 
+                                btn-secondary 
+                                border 
+                                border-secondary
+                                text-sel-btn
+                                " 
+                            type="button" 
+                            id="auto-importCombBtn" 
+                            disabled>Import As Single Entry</button>
+                        <button 
+                            class="
+                                btn 
+                                btn-secondary 
+                                border 
+                                border-secondary
+                                text-sel-btn
+                                " 
+                            type="button" 
+                            id="auto-importSepBtn" 
+                            disabled>Import All Separately</button>
+                    </div>
+                    <div id="man-mode" class="import-btn-container">
+                        <button 
+                            class="
+                                btn 
+                                btn-secondary 
+                                border 
+                                border-secondary
+                                text-sel-btn
+                                " 
+                            type="button" 
+                            id="man-importCombBtn" 
+                            disabled>Import Selected Data</button>
+                    </div>
+                </div>
+                <div id="data-container">
+                    <div id="data-list-header" class="list-header">
+                        <div id="lbl-container" class="hdr-lbl-container">
+                            <span id="data-list-lbl" class="hdr-lbl">Scraped Data</span>
+                        </div>
+                        <div id="data-list-btns" class="list-btn-container">
+                            <div>
+                                <button id="clear-all-btn" type="button" class="btn btn-secondary border border-secondary scrape-data-btn">Clear All</button>
+                                <button id="clear-sel-btn" type="button" class="btn btn-secondary border border-secondary scrape-data-btn">Clear Selected</button>
+                            </div>
+                            <div>
+                                <button class="btn btn-secondary border border-secondary" type="button" id="exportBtn">Export</button> <!-- New Export Button -->
+                            </div>
+                        </div>
+                    </div>
+                    <div id="data-list" class="list-group list-group-flush overflow-auto scraped-list">
+                    </div>
+                </div> 
+            </div>
+        </div>
     </div>
     <!-- Bootstrap JS Bundle -->
     <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>

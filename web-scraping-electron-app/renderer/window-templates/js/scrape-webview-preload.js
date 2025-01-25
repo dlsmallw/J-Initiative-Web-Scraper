@@ -6,12 +6,10 @@ const { ipcRenderer } = require('electron');
 // Creates a time delay for events
 const delay = (timeDelay) => new Promise(resolve => setTimeout(resolve, timeDelay));
 
-var interactionsDisabled = false;
 var isManualMode = false;
 
-
 // objects used while in auto mode
-var autoCurrHoveredElement = null;
+var currElementOver = null;
 var webviewFocused = false;
 var hotKeyDown = false;
 var hotKey = null;
@@ -28,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ipcRenderer.on('set-hotkey', (e, key) => {
         hotKey = key;
         hotKeyDown = false;
-        makeLog(`Hotkey Changed to ${hotKey}`);
     });
 
     // Listen for 'getSelected' messages from the host (renderer process)
@@ -54,32 +51,30 @@ document.addEventListener('DOMContentLoaded', () => {
         isManualMode = true;
         deselectAllElements();
         selectedTextCheck();
+        hotKeyDown = false;
     });
 
     ipcRenderer.on('auto-selection-mode', (e) => {
         isManualMode = false;
+        clearTextSelection();
         selectedElementsCheck();
+        hotKeyDown = false;
     });
 
     ipcRenderer.on('key-down', (e) => {
-        hotKeyDown = true
+        hotKeyDown = true;
         element = window.document.elementFromPoint(currMouseX, currMouseY)
-        if (!isManualMode) {
-            if (autoCurrHoveredElement === null) {
-                if (webviewFocused) {
-                    autoCurrHoveredElement = element
-                    autoCurrHoveredElement.style.backgroundColor = 'rgba(0,0,0,0.2)';
-                }
-            } 
-        }
+        if (!isManualMode && currElementOver === null) {
+            if (webviewFocused) {
+                currElementOver = element
+                currElementOver.style.backgroundColor = 'rgba(0,0,0,0.2)';
+            }
+        } 
     });
 
     ipcRenderer.on('key-up', (e) => {
-        hotKeyDown = false
-        if (autoCurrHoveredElement !== null) {
-            autoCurrHoveredElement.style.backgroundColor = '';
-            autoCurrHoveredElement = null;
-        }  
+        hotKeyDown = false;
+        releaseHoveredElement();
     });
 
     ipcRenderer.on('in-webview-frame', (e) => {
@@ -124,8 +119,15 @@ function selectedTextCheck() {
         ipcRenderer.sendToHost('enable-man-import');
     } else {
         ipcRenderer.sendToHost('disable-man-import');
+    }   
+}
+
+function clearTextSelection() {
+    if (window.getSelection) {
+        window.getSelection().removeAllRanges();
+    } else if (document.selection) {
+        document.selection.empty();
     }
-    
 }
 
 /**
@@ -146,37 +148,32 @@ function selectedElementsCheck() {
 function initKeyMouseEventListeners() {
     // This is specifically used to prevent browser key-combination events when selecting elements
     document.addEventListener('click', (e) => {
-        if (!isManualMode) {
-            if (hotKeyDown) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
+        if (!isManualMode && hotKeyDown) {
+            e.preventDefault();
+            e.stopPropagation();
         }
     }, true);
 
     document.addEventListener('keydown', (e) => {
-        
         if (e.key === hotKey) {
-            makeLog(`${e.key} pressed`)
-            hotKeyDown = true
+            hotKeyDown = true;
         }
 
         element = window.document.elementFromPoint(currMouseX, currMouseY);
         if (!isManualMode && hotKeyDown) {
-            if (autoCurrHoveredElement === null) {
-                if (webviewFocused) {
-                    hotKeyDown = true;
-                    autoCurrHoveredElement = element;
-                    autoCurrHoveredElement.style.backgroundColor = 'rgba(0,0,0,0.2)';
-                }
+            if (webviewFocused && currElementOver === null) {
+                currElementOver = element;
+                currElementOver.style.backgroundColor = 'rgba(0,0,0,0.2)';
             } 
             selectedElementsCheck();
         }
     }, true);
 
     document.addEventListener('keyup', (e) => {
-        hotKeyDown = false;
-        releaseHoveredElement();
+        if (e.key === hotKey) {
+            hotKeyDown = false;
+            releaseHoveredElement();
+        }
     });
 
     document.addEventListener('mousemove', (e) => {
@@ -186,21 +183,21 @@ function initKeyMouseEventListeners() {
         if (isManualMode) {
             selectedTextCheck();
         } else {
+            clearTextSelection();
             if (webviewFocused && hotKeyDown) {
                 element = window.document.elementFromPoint(currMouseX, currMouseY);
-                if (!element.isEqualNode(autoCurrHoveredElement)) {
-                    if (autoCurrHoveredElement === null) {
-                        autoCurrHoveredElement = element;
-                        autoCurrHoveredElement.style.backgroundColor = 'rgba(0,0,0,0.2)';
+                if (!element.isEqualNode(currElementOver)) {
+                    if (currElementOver === null) {
+                        currElementOver = element;
+                        currElementOver.style.backgroundColor = 'rgba(0,0,0,0.2)';
                     } else {
                         releaseHoveredElement();
-                        autoCurrHoveredElement = element;
-                        autoCurrHoveredElement.style.backgroundColor = 'rgba(0,0,0,0.2)';
+                        currElementOver = element;
+                        currElementOver.style.backgroundColor = 'rgba(0,0,0,0.2)';
                     }
                 } 
             } else {
-                autoCurrHoveredElement.style.backgroundColor = '';
-                autoCurrHoveredElement = null;
+                releaseHoveredElement();
             }
         }
     });
@@ -219,10 +216,6 @@ function initKeyMouseEventListeners() {
                 selectedTextCheck();
             }
         } else {
-            if (e.key === hotKey) {
-                hotKeyDown = True
-            }
-
             if (hotKeyDown) {
                 element = window.document.elementFromPoint(currMouseX, currMouseY);
                 if (!element.classList.contains('jiws-selected')) {
@@ -237,9 +230,9 @@ function initKeyMouseEventListeners() {
 }
 
 function releaseHoveredElement() {
-    if (autoCurrHoveredElement !== null) {
-        autoCurrHoveredElement.style.backgroundColor = '';
-        autoCurrHoveredElement = null;
+    if (currElementOver !== null) {
+        currElementOver.style.backgroundColor = '';
+        currElementOver = null;
     }  
 }
 
@@ -271,6 +264,7 @@ function combineSelToResObj() {
         text = elem.innerText || elem.textContent;
         if (text !== null && text !== '') concatItem += `${text} `;
     });
+
     deselectAllElements();
     var data = concatItem;
     var dataObj = formIndivDataResObj(url, data);
@@ -291,6 +285,8 @@ function indivSelToResObj() {
     deselectAllElements();
     return resObj;
 }
+
+
 
 function makeLog(log) {
     ipcRenderer.sendToHost('log', log)
