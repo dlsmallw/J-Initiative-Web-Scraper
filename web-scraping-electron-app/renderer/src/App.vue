@@ -3,10 +3,11 @@
     <nav>
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link> |
-      <router-link to="/label-studio">Label Studio</router-link> |
+      <router-link to="/annotation">Annotation</router-link> |
       <router-link to="/database">Database</router-link> |
-      <router-link to="/log-viewer">Log Viewer</router-link> |
-      <router-link to="/scraper">Scraper</router-link>
+      <router-link to="/logs">Logs</router-link> |
+      <router-link to="/scrape">Scrape</router-link> |
+      <router-link to="/theme">Theme</router-link>
     </nav>
     <router-view />
   </div>
@@ -22,3 +23,4 @@
   margin-top: 60px;
 }
 </style>
+
