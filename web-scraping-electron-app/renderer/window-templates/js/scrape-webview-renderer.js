@@ -3,6 +3,7 @@ const ipcRenderer = window.urlScrape;
 // Used for tracking what mode the tool is in
 var auto_scrape_mode = true
 
+// Variables used for tracking the state of various events and settings
 var inWebview = false
 var hotKey = null
 var changingHotKey = false
@@ -343,28 +344,43 @@ function disableAutoImportBtns() {
         .addClass('element-disabled');
 }
 
+/**
+ * Places a transparent overlay over the webview panel to prevent interactions.
+ */
 function enableWebview() {
     $('#webview-overlay').hide();
     $('#sel-cont-overlay').hide();
 }
 
+/**
+ * Removes the webview overlay from webview panel.
+ */
 function disableWebview() {
     $('#webview-overlay').show();
     $('#sel-cont-overlay').show();
 }
 
+/**
+ * Disables the mode selection toggle button.
+ */
 function disableModeSelector() {
     $('#scrape-mode-toggle-container').addClass('element-disabled');
     $('#text-mode-label').addClass('element-disabled');
     $('#text-sel-toggle').prop('disabled', true)
 }
 
+/**
+ * Enables the mode selection toggle button.
+ */
 function enableModeSelector() {
     $('#scrape-mode-toggle-container').removeClass('element-disabled');
     $('#text-mode-label').removeClass('element-disabled');
     $('#text-sel-toggle').prop('disabled', false);
 }
 
+/**
+ * Handles visual changes when in the process of changing the hotkey button.
+ */
 function hotKeySettingChanging() {
     tempColor = '#ff6363';
     $('#hotkey-set-icon').css('fill', tempColor);
@@ -374,6 +390,9 @@ function hotKeySettingChanging() {
         .css('cursor', 'default')
 }
 
+/**
+ * Resets the visuals of the hotkey settings style to default.
+ */
 function hotKeySettingNormal() {
     $('#hotkey-set-icon').css('fill', '')
     $('#hotkey-text').css('color', '')
@@ -382,6 +401,9 @@ function hotKeySettingNormal() {
         .css('cursor', '')
 }
 
+/**
+ * Handles hotkey change logic.
+ */
 function hotkeyChangeRequested() {
     disableWebview()
     hotKeySettingChanging();
@@ -394,6 +416,9 @@ function hotkeyChangeRequested() {
     changingHotKey = true;
 }
 
+/**
+ * Handles checking the selected hotkey is valid and sets it.
+ */
 function setHotKey(newHotKey) {
     // These keys generally should not be used fir browser hotkey events
     var prohibitedKeys = [

@@ -3,9 +3,21 @@
 // Import the ipcRenderer module from Electron
 const { ipcRenderer } = require('electron');
 
+// Structure used for filtering selected elements to exclude non-textual elements
+const EXCLUDED_TAGS = new Set([
+    "HEAD", "TITLE", "BASE", "LINK", "META", "STYLE", "SCRIPT", "NOSCRIPT",
+    "IMG", "VIDEO", "AUDIO", "CANVAS", "SVG", "PICTURE", "SOURCE", "TRACK", 
+    "MAP", "AREA", "FORM", "INPUT", "TEXTAREA", "BUTTON", "SELECT", "OPTION", 
+    "OPTGROUP", "LABEL", "FIELDSET", "LEGEND", "DATALIST", "OUTPUT", "PROGRESS", 
+    "METER", "DETAILS", "SUMMARY", "DIALOG", "MENU", "TABLE", "CAPTION", "THEAD", 
+    "TBODY", "TFOOT", "TR", "TH", "TD", "COL", "COLGROUP"
+]);
+
 // Creates a time delay for events
 const delay = (timeDelay) => new Promise(resolve => setTimeout(resolve, timeDelay));
+const SEL_CLASS = 'jiws-selected';
 
+// Used to classify if in manual or auto selection mode
 var isManualMode = false;
 
 // objects used while in auto mode
@@ -16,8 +28,6 @@ var hotKey = null;
 
 var currMouseX = 0;
 var currMouseY = 0;
-
-
 
 // Export button listener inside the webview
 document.addEventListener('DOMContentLoaded', () => {
@@ -66,8 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         element = window.document.elementFromPoint(currMouseX, currMouseY)
         if (!isManualMode && currElementOver === null) {
             if (webviewFocused) {
-                currElementOver = element
-                currElementOver.style.backgroundColor = 'rgba(0,0,0,0.2)';
+                hoveredElement(element);
             }
         } 
     });
@@ -89,6 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initKeyMouseEventListeners();
 });
 
+/**
+ * Forms an individual data object for a single piece of text data (with the associated URL).
+ * @param {*} dataURL String        The url the data was taken from.
+ * @param {*} textData String       The data.
+ * @returns JSONObject      The data object with the data.
+ */
 function formIndivDataResObj(dataURL, textData) {
     return {
         url: dataURL,
@@ -96,6 +111,10 @@ function formIndivDataResObj(dataURL, textData) {
     }
 }
 
+/**
+ * Forms a response object to return selected data from manual scrape to the main process.
+ * @returns JSONObject      The response with the data.
+ */
 function manualTextScrape() {
     url = window.location.href.toString();
     text = getSelectedText();
@@ -122,6 +141,9 @@ function selectedTextCheck() {
     }   
 }
 
+/**
+ * Clears currently highlighted text (manual mode).
+ */
 function clearTextSelection() {
     if (window.getSelection) {
         window.getSelection().removeAllRanges();
@@ -134,7 +156,7 @@ function clearTextSelection() {
  * Checks if there are elements that are currently highlighted.
  */
 function selectedElementsCheck() {
-    if (document.querySelectorAll('.jiws-selected').length > 0) {
+    if (document.querySelectorAll(`.${SEL_CLASS}`).length > 0) {
         ipcRenderer.sendToHost('enable-auto-import');
     } else {
         ipcRenderer.sendToHost('disable-auto-import');
@@ -162,8 +184,7 @@ function initKeyMouseEventListeners() {
         element = window.document.elementFromPoint(currMouseX, currMouseY);
         if (!isManualMode && hotKeyDown) {
             if (webviewFocused && currElementOver === null) {
-                currElementOver = element;
-                currElementOver.style.backgroundColor = 'rgba(0,0,0,0.2)';
+                hoveredElement(element);
             } 
             selectedElementsCheck();
         }
@@ -188,12 +209,10 @@ function initKeyMouseEventListeners() {
                 element = window.document.elementFromPoint(currMouseX, currMouseY);
                 if (!element.isEqualNode(currElementOver)) {
                     if (currElementOver === null) {
-                        currElementOver = element;
-                        currElementOver.style.backgroundColor = 'rgba(0,0,0,0.2)';
+                        hoveredElement(element);
                     } else {
                         releaseHoveredElement();
-                        currElementOver = element;
-                        currElementOver.style.backgroundColor = 'rgba(0,0,0,0.2)';
+                        hoveredElement(element);
                     }
                 } 
             } else {
@@ -218,7 +237,7 @@ function initKeyMouseEventListeners() {
         } else {
             if (hotKeyDown) {
                 element = window.document.elementFromPoint(currMouseX, currMouseY);
-                if (!element.classList.contains('jiws-selected')) {
+                if (!element.classList.contains(SEL_CLASS)) {
                     selectElement(element);
                 } else {
                     deselectElement(element);
@@ -229,6 +248,38 @@ function initKeyMouseEventListeners() {
     });
 }
 
+/**
+ * Used to filter out text data when a child element is elected along with their parent element.
+ * @param {*} element       The element to be checked.
+ * @returns Boolean         If the elements parent is selected.
+ */
+function checkAncestorSelected(element) {
+    var parent = element.parentElement
+    if (parent !== null && parent.tagName != 'BODY') {
+        if (parent.classList.contains(SEL_CLASS)) {
+            return true;
+        } else {
+            return checkAncestorSelected(parent);
+        }
+    } else {
+        return false;
+    }
+}
+
+/**
+ * Applies a hovered 'highlight' effect.
+ * @param {*} element       The element hovered.
+ */
+function hoveredElement(element) {
+    if (element && !EXCLUDED_TAGS.has(element.tagName)) {
+        currElementOver = element;
+        currElementOver.style.backgroundColor = 'rgba(0,0,0,0.2)';
+    }
+}
+
+/**
+ * Removes the hovered effect.
+ */
 function releaseHoveredElement() {
     if (currElementOver !== null) {
         currElementOver.style.backgroundColor = '';
@@ -236,58 +287,97 @@ function releaseHoveredElement() {
     }  
 }
 
+/**
+ * Applies a selected effect to elements that are selected when in auto mode.
+ * @param {*} element       The element to be selected.
+ */
 function selectElement(element) {
-    if (element) {
-        element.classList.add('jiws-selected');
+    if (element && !EXCLUDED_TAGS.has(element.tagName)) {
+        element.classList.add(SEL_CLASS);
         element.style.outline = '#f00 solid 2px';
     }
 }
 
+/**
+ * Removes the selected effect from a selected element.
+ * @param {*} element       The element to be deselected.
+ */
 function deselectElement(element) {
     if (element) {
         element.style.outline = '';
-        element.classList.remove('jiws-selected');
+        element.classList.remove(SEL_CLASS);
     }
 }
 
+/**
+ * Removes the selected effect from all selected elements.
+ */
 function deselectAllElements() {
-    document.querySelectorAll('.jiws-selected').forEach(element => {
+    document.querySelectorAll(`.${SEL_CLASS}`).forEach(element => {
         deselectElement(element);
     });
 }
 
+
+/**
+ * Extracts the text data from all selected elements while also filtering out duplicate data.
+ * @returns Array[String]       The array of text data.
+ */
+function processSelectedElems() {
+    var textArr = []
+    document.querySelectorAll(`.${SEL_CLASS}`).forEach((elem) => {
+        if (!EXCLUDED_TAGS.has(elem.tagName)) {
+            if (!checkAncestorSelected(elem)) {
+                text = elem.innerText || elem.textContent;
+                if (text !== null && text !== '') {
+                    textArr.push(text.trim());
+                }
+            }
+            
+        }
+    });
+    return textArr;
+}
+
+/**
+ * Combines all text data pulled from the page into a single data item.
+ * @returns JSONObject          The response object containing the data.
+ */
 function combineSelToResObj() {
     var url = window.location.href.toString();
     var concatItem = '';
 
-    document.querySelectorAll('.jiws-selected').forEach((elem) => {
-        text = elem.innerText || elem.textContent;
-        if (text !== null && text !== '') concatItem += `${text} `;
+    processSelectedElems().forEach((text) => {
+        if (text !== null && text !== '') {
+            if (concatItem.indexOf(text) === -1) concatItem += `${text} `;
+        } 
     });
-
     deselectAllElements();
-    var data = concatItem;
-    var dataObj = formIndivDataResObj(url, data);
-    return [dataObj];
+    return [formIndivDataResObj(url, concatItem)];
 }
 
+/**
+ * Extracts all text data pulled from the page into individual data items.
+ * @returns JSONObject          The response object containing the extracted data.
+ */
 function indivSelToResObj() {
     var url = window.location.href.toString();
     var resObj = [];
 
-    document.querySelectorAll('.jiws-selected').forEach((elem) => {
-        text = elem.innerText || elem.textContent;
-        if (text !== null && text !== '') {
-            dataObj = formIndivDataResObj(url, text);
-            resObj.push(dataObj);
-        }
+    processSelectedElems().forEach((text) => {
+        dataObj = formIndivDataResObj(url, text);
+        resObj.push(dataObj);
     });
     deselectAllElements();
     return resObj;
 }
 
 
-
+/**
+ * Helper function to facilitate logs from within the webview context.
+ * @param {*} log String        The log.
+ */
 function makeLog(log) {
     ipcRenderer.sendToHost('log', log)
 }
+
