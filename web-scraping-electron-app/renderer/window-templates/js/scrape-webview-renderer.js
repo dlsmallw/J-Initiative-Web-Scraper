@@ -170,7 +170,6 @@ function initScrapeUtilListeners() {
         if (changingHotKey) {
             webview.send('set-hotkey', hotKey);
             enableWebview();
-            enableHotKeyChange();
             enableModeSelector();
 
             if (inWebview) {
@@ -366,22 +365,26 @@ function enableModeSelector() {
     $('#text-sel-toggle').prop('disabled', false);
 }
 
-function disableHotKeyChange() {
-    tempColor = '#ffb98e;';
+function hotKeySettingChanging() {
+    tempColor = '#ff6363';
     $('#hotkey-set-icon').css('fill', tempColor);
     $('#hotkey-text').css('color', tempColor);
-    $('#hotkey-change-btn').prop('disabled', true);
+    $('#hotkey-change-btn')
+        .css('pointer-events', 'none')
+        .css('cursor', 'default')
 }
 
-function enableHotKeyChange() {
+function hotKeySettingNormal() {
     $('#hotkey-set-icon').css('fill', '')
     $('#hotkey-text').css('color', '')
-    $('#hotkey-change-btn').prop('disabled', false);
+    $('#hotkey-change-btn')
+        .css('pointer-events', '')
+        .css('cursor', '')
 }
 
 function hotkeyChangeRequested() {
     disableWebview()
-    disableHotKeyChange();
+    hotKeySettingChanging();
     disableModeSelector();
     disableManImportBtn();
     disableAutoImportBtns();
@@ -392,12 +395,20 @@ function hotkeyChangeRequested() {
 }
 
 function setHotKey(newHotKey) {
-    if (newHotKey) {    
+    // These keys generally should not be used fir browser hotkey events
+    var prohibitedKeys = [
+        'Tab', 'Enter', 'Pause', 'CapsLock', 'Escape', 'PageUp', 'PageDown', 'End', 'Home', 'PrintScreen', '`',
+        'Insert', 'Delete', 'Meta', 'ContextMenu', 'NumLock', 'ScrollLock', 'AudioVolumeMute', 'AudioVolumeDown', 
+        'AudioVolumeUp', 'LaunchMediaPlayer', 'LaunchApplication1', 'LaunchApplication2', ' '
+    ];
+
+    if (newHotKey && !prohibitedKeys.includes(newHotKey)) {    
         hotKey = newHotKey;
         localStorage.setItem('scrape-hotkey', hotKey);
         $('#curr-hotkey-text').text(hotKey);
     } 
 
+    hotKeySettingNormal()
     $('#curr-hotkey-text').text(hotKey);
 }
 
