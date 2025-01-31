@@ -429,6 +429,7 @@ export class ScrapePageController {
         } else {
             this.postAlert('Please enter a URL', 'Empty URL'); // Alert the user if no URL is entered
             this.logWarn('No URL entered.');
+            this.enableURLField();
         }
     }
 

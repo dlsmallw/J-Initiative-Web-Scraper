@@ -427,8 +427,8 @@ function createURLWindow(url) {
         }
     });
 
+    urlWindow.webContents.openDevTools();
     urlWindow.hide();
-    // urlWindow.webContents.openDevTools();
 
     // Load the specified URL in the window, catch invalid url
     urlWindow.loadFile('./renderer/window-templates/scrape-window.html')
@@ -455,6 +455,8 @@ function createURLWindow(url) {
         logWarn('Attempt to open a new window was blocked.');
         return { action: 'deny' }; // Deny any requests to open new windows
     });
+
+    urlWindow.webContents.focus()
 }
 
 /**

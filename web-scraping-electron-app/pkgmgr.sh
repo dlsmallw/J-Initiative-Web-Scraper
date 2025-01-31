@@ -8,7 +8,10 @@ build() {
 
 # Cleans the project directory of unnecessary files
 clean() {
-    rm -rf package-lock.json
+    if [ -f package-lock.json ];
+    then
+        rm -rf package-lock.json
+    fi
 
     if [ -d ./.venv ]; 
     then

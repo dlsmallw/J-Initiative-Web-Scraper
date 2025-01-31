@@ -340,15 +340,21 @@ body {
     Scrape Page and External Window Styling
 =======================================================================*/
 
-#import-btn-container {
+.scrape-btn-container {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-#importSelectedBtn {
+.text-sel-btn {
     background: #3b4145;
     width: 40%;
+    margin: 0 10px 0 10px;
+}
+
+.import-btn-container {
+    display: flex;
+    justify-content: center;
 }
 
 #content-container {
@@ -359,20 +365,59 @@ body {
     transform: translateY(59px);
 }
 
-#webview-container {
+#webview-outer-container {
     height: 60vh;
+    position: relative;
 }
 
-#webview-element {
+#webview-container {
     height: 100%;
+    position: relative;
 }
 
-#data-container {
-    padding-top: 1rem;
+#webview-overlay,
+#webview-element {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#webview-overlay {
+    z-index: 10;
+    background: grey;
+    opacity: 0.3;
+    display: none;
+}
+
+#sel-data-outer-cont {
+    position: relative;
+    height: 34vh;
+}
+
+#sel-cont-overlay,
+#selected-data-container {
+    
+    height: 100%;
+    position: absolute;
+}
+    
+#sel-cont-overlay {
+    z-index: 5;
+    background: grey;
+    opacity: 0.05;
+    width: 100%;
 }
 
 #selected-data-container {
     margin: 0 10px 0 10px;
+    z-index: 0;
+    width: 98%;
+}
+
+#data-container {
+    padding-top: 1rem;
 }
 
 .scraped-list {
@@ -552,3 +597,110 @@ body {
 input[readonly].default-cursor {
     cursor: default;
 }
+
+/*=======================================================================
+    Custom Toggle Button Styling
+=======================================================================*/
+#hotkey-change-btn {
+    border-radius: 50%; 
+    cursor: pointer;
+    color: transparent;
+}
+
+#hotkey-set-icon {
+    fill: var(--primary-color);
+}
+
+#hotkey-change-btn:hover > #hotkey-set-icon {
+    fill: var(--primary-bg);
+}
+
+#hotkey-text {
+    color: var(--primary-color);
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+#exit-scrape-win-btn {
+    margin-left: 50px;
+    font-weight: bold;
+}
+
+#text-mode-label {
+    color: var(--primary-color);
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.toggle {
+    position: relative;
+    width: 110px;
+    height: 40px;
+    border-radius: 20px;
+    box-shadow: inset 0 2px 1px rgba(0, 0, 0, 0.1);
+    background-color: var(--primary-bg);
+    overflow: hidden;
+  }
+  
+  .toggle__checkbox {
+    position: absolute;
+    left: -9999px;
+  }
+  
+  .toggle__label {
+    position: relative;
+    display: inline-block;
+    top: 4px;
+    left: 4px;
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background-color: var(--secondary-color);
+    transition: all 0.25s ease-in-out;
+    cursor: pointer;
+  }
+  
+  .toggle__label:before, .toggle__label:after {
+    position: absolute;
+    top: 0;
+    color: var(--primary-color);
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    line-height: 32px;
+    transition: all 0.15s ease-in-out;
+  }
+
+  .toggle__label:before {
+    left: -62px;
+    content: "Manual";
+    opacity: 0;
+  }
+
+  .toggle__label:after {
+    left: 45px;
+    content: "Auto";
+    opacity: 1;
+  }
+  
+  .toggle__checkbox:checked ~ .toggle__label {
+    left: 75px;
+  }
+
+  .toggle__checkbox:checked ~ .toggle__label:before {
+    opacity: 1;
+  }
+
+  .toggle__checkbox:checked ~ .toggle__label:after {
+    opacity: 0;
+  }
+
+  .element-disabled {
+    filter: brightness(50%);
+  }
+
+  #hotkey-change-btn[disabled] {
+    pointer-events: none;
+    cursor: default;
+  }
