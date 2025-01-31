@@ -134,6 +134,37 @@ body {
 }
 
 /*=======================================================================
+    Notification Settings
+=======================================================================*/
+.notification {
+    float: right;
+    background-color: #90caf9;
+    font-weight: lighter;
+    color: black;
+    text-decoration: none;
+    padding: 5px 6px;
+    position: relative;
+    top: 0;
+    right: 0;
+    display: inline-block;
+    border-radius: 10px;
+}
+
+.notification .badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    padding: 5px 7px;
+    border-radius: 50%;
+    background: red;
+    color: white;
+}
+
+.notification:hover {
+    background: blue;
+}
+
+/*=======================================================================
     Navbar Styling
 =======================================================================*/
 .draggable {
