@@ -627,10 +627,15 @@ input[readonly].default-cursor {
     font-weight: bold;
 }
 
-#text-mode-label {
+#text-mode-label, #mode-toggle-lbl {
     color: var(--primary-color);
     font-size: 13px;
     font-weight: bold;
+}
+
+#mode-toggle-lbl {
+    padding-right: 8px;
+    font-size: 15px;
 }
 
 .toggle {
@@ -639,16 +644,28 @@ input[readonly].default-cursor {
     height: 40px;
     border-radius: 20px;
     box-shadow: inset 0 2px 1px rgba(0, 0, 0, 0.1);
-    background-color: var(--primary-bg);
     overflow: hidden;
-  }
+}
+
+#toggle-container {
+    display: flex;
+    align-items: center;
+}
+
+#scrape-mode-toggle-container {
+    background-color: var(--primary-bg);
+}
+
+#scrape-tab-toggle-container {
+    background-color: var(--secondary-bg);
+}
   
-  .toggle__checkbox {
+.toggle__checkbox {
     position: absolute;
     left: -9999px;
-  }
+}
   
-  .toggle__label {
+.toggle__label {
     position: relative;
     display: inline-block;
     top: 4px;
@@ -659,9 +676,10 @@ input[readonly].default-cursor {
     background-color: var(--secondary-color);
     transition: all 0.25s ease-in-out;
     cursor: pointer;
-  }
+}
   
-  .toggle__label:before, .toggle__label:after {
+.toggle__label:before, 
+.toggle__label:after {
     position: absolute;
     top: 0;
     color: var(--primary-color);
@@ -670,37 +688,43 @@ input[readonly].default-cursor {
     text-transform: uppercase;
     line-height: 32px;
     transition: all 0.15s ease-in-out;
-  }
+}
 
-  .toggle__label:before {
+.toggle__label:before {
     left: -62px;
+    opacity: 0; 
+}
+
+#text-sel-toggle-lbl:before,
+#scrape-mode-toggle-lbl:before {
     content: "Manual";
-    opacity: 0;
-  }
+}
 
-  .toggle__label:after {
-    left: 45px;
+#text-sel-toggle-lbl:after {
     content: "Auto";
+}
+
+#scrape-mode-toggle-lbl:after {
+    content: "URL";
+}
+
+.toggle__label:after {
+    left: 45px;
     opacity: 1;
-  }
-  
-  .toggle__checkbox:checked ~ .toggle__label {
+}
+
+.toggle__checkbox:checked ~ .toggle__label {
     left: 75px;
-  }
+}
 
-  .toggle__checkbox:checked ~ .toggle__label:before {
+.toggle__checkbox:checked ~ .toggle__label:before {
     opacity: 1;
-  }
+}
 
-  .toggle__checkbox:checked ~ .toggle__label:after {
+.toggle__checkbox:checked ~ .toggle__label:after {
     opacity: 0;
-  }
+}
 
-  .element-disabled {
+.element-disabled {
     filter: brightness(50%);
-  }
-
-  #hotkey-change-btn[disabled] {
-    pointer-events: none;
-    cursor: default;
-  }
+}
