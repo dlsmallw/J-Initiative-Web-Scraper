@@ -61,7 +61,34 @@ export class HomePageController {
      * Method for initializing the pages event listeners.
      */
     initPageListeners() {
-        // Insert code for listeners here
+        window.notifications = ["Dinner at 4:00pm with Shan", "You have one missed call!", "You have a call incoming."];
+        document.getElementById("notification-button").addEventListener("click", this.displayNotifications);
+        document.getElementById("notification-x-button").addEventListener("click", this.displayNotificationsHelper);
+    }
+
+    /**
+     * Method for showing notifications.
+     */
+    displayNotifications() {
+        if(notifications[0] !== "No notifications") {
+            document.getElementById("notification-button").style.display = "none";
+            document.getElementById("notification-x-button").style.visibility = "visible";
+            document.getElementById("notification-box").style.visibility="visible";
+        }
+
+        var notifs = document.getElementById('notification-box');
+
+        notifications.forEach((element) => (notifs.add(new Option(element))));
+        //notifications.forEach((element) => (new Notification(element)));
+    }
+
+    /**
+     * Helper method for displayNotifications().
+     */
+    displayNotificationsHelper() {
+            document.getElementById("notification-button").style.display = "block";
+            document.getElementById("notification-x-button").style.visibility="hidden";
+            document.getElementById("notification-box").style.visibility="hidden";
     }
 
     /**

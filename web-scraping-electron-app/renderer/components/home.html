@@ -2,10 +2,16 @@
 <div class="notification-container" style="align-items: center">
     <p><br><br></p>
 
-    <a href="#" class="notification" style="margin-right: auto">
-        <span class="caption">notifications</span>
+    <button class="notification" id="notification-button" style="visibility: visible">
+        <span>Notifications</span>
         <span class="badge">3</span>
-    </a>
+    </button>
+
+    <select id="notification-box" style="visibility: hidden; float:right" class="notification-box"></select>
+
+    <button class="notification" id="notification-x-button">
+        <span class="badge">x</span>
+    </button>
 </div>
 
 <div id="home-container" class="my-5 container">
