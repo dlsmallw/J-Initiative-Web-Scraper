@@ -67,7 +67,6 @@ export class ScrapePageController {
         // Toggles a manual mode or a URL entry mode (URL entry is default)
         $('#scrape-mode-toggle').on('change', async () => {
             var isChecked = document.getElementById('scrape-mode-toggle').checked
-            console.log(isChecked)
     
             if (isChecked) {
                 $('#url-scrape-container').hide();
