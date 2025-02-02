@@ -363,13 +363,16 @@ ipcMain.on('logs:clear', (event) => {
 /**
  * Function to create the main application window.
  */
+/**
+ * Function to create the main application window.
+ */
 function createMainWindow() {
     logDebug('Creating main application window.');
 
     // Create the BrowserWindow instance with specific options
     mainWin = new BrowserWindow({
         frame: false,
-        transparent: true, 
+        transparent: true,
         width: isDev ? 1400 : 1200, // Set width: larger size for development
         height: 800, // Set height for the window
         minWidth: isDev ? 1400 : 1200, // Set minimum width to prevent shrinking beyond a set size
@@ -396,6 +399,8 @@ function createMainWindow() {
         logError(`Failed to load main window: ${error}`);
     });
 }
+
+
 
 /**
  * Function to create a new window to display the provided URL

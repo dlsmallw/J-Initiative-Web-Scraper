@@ -33,3 +33,21 @@ renderer/
 ├── vite.config.js
 └── ...other Vite files
 ```
+
+React setup
+```npm install @vitejs/plugin-react --save-dev```
+
+To run the demo you need to navigate to renderer/vite-demo
+Here is a list of commands:
+```
+Scripts available in vite-demo@0.0.0 via `npm run-script`:
+  dev
+    vite
+  build
+    vite build
+  lint
+    eslint .
+  preview
+    vite preview
+```
+
