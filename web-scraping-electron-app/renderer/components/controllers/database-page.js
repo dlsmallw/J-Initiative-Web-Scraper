@@ -4,7 +4,7 @@ export class DatabasePageController {
     compID = '#database-container';     // Page component container ID
 
     electronAPI = window.electronAPI;
-
+    databaseAPI = window.databaseAPI;
     /**
      * Returns the pages component html filepath.
      * @returns String          The html filepath.
@@ -68,6 +68,7 @@ export class DatabasePageController {
      * Sets the page active (visible).
      */
     setPageActive() {
+        this.displayWebsiteData();
         $(`#${this.name}`).addClass('active-nav-item');
         $(this.compID).show();
     }
@@ -142,4 +143,20 @@ export class DatabasePageController {
     //============================================================================================================================
     // Page Specific Methods
     //============================================================================================================================
+
+  async displayWebsiteData() {
+    await new Promise(resolve => setTimeout(resolve, 50));
+    const websiteInfo = document.getElementById('website-info');
+    if (!websiteInfo) {
+      this.logError('website-info element not found.');
+      return;
+    }
+    websiteInfo.innerHTML = '';
+    const websites = await this.databaseAPI.getWebsiteData();
+    const websiteEntry = document.createElement('div');
+    websiteEntry.className = 'website-entry';
+    websiteEntry.textContent = websites;
+    websiteInfo.appendChild(websiteEntry);
+    this.logDebug('website data displayed in UI.');
+  }
 }
