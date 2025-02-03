@@ -51,7 +51,7 @@ export class HomePageController {
         }
 
         insertElement().then(() => {
-            
+
 
             this.initPageListeners();
         });
@@ -61,25 +61,91 @@ export class HomePageController {
      * Method for initializing the pages event listeners.
      */
     initPageListeners() {
-        window.notifications = ["Dinner at 4:00pm with Shan", "You have one missed call!", "You have a call incoming."];
+        window.notifications = ["No notifications."];
+        //this.addNotifications("Joe is going to be late.", "Meeting at 4:30 today."); //examples
+        this.checkForNotifications();
+
         document.getElementById("notification-button").addEventListener("click", this.displayNotifications);
         document.getElementById("notification-x-button").addEventListener("click", this.displayNotificationsHelper);
+        document.getElementById("notification-dismiss-button").addEventListener("click", this.removeNotifications);
+    }
+
+    /**
+     * Method to check for notifications.
+     */
+    checkForNotifications() {
+        if(notifications[0] === "No notifications.") {
+            document.getElementById("notification-button").style.visibility = "hidden";
+        } else {
+            document.getElementById("notification-button").style.visibility = "visible";
+        }
+
+        document.getElementById("number-of-notifications").innerHTML = notifications.length;
+    }
+
+    /**
+     * Method to populate notifications.
+     * @param notification to add.
+     */
+    addNotifications(...notification) {
+        if(notifications[0] === "No notifications.") {
+            notifications[0] = notification[0];
+
+            for(let i = 1; i < notification.length; i++) {
+                notifications[i] = notification[i];
+            }
+        } else {
+            let temp = notifications.length, i = 0;
+            while((notification.length + temp) > notifications.length) {
+                notifications.push(notification[i]);
+                i++;
+            }
+
+            notifications.length = (notification.length + temp);
+        }
+    }
+
+    /**
+     * Method to remove notifications.
+     */
+    removeNotifications() {
+        var temp = document.getElementById("notification-box");
+
+        alert("Notification dismissed.");
+        let i = notifications.indexOf(temp.options[temp.selectedIndex].text);
+
+        if (i > -1) {
+            notifications.splice(i, 1);
+        }
+
+        temp.remove(temp.selectedIndex);
+
+        document.getElementById("number-of-notifications").innerHTML = notifications.length;
+
+        if(notifications.length === 0) {
+            alert("No current notifications.");
+            document.getElementById("notification-button").style.display = "hidden";
+            document.getElementById("notification-x-button").style.visibility="hidden";
+            document.getElementById("notification-box").style.visibility="hidden"; //test
+            document.getElementById("notification-dismiss-button").style.visibility="hidden";
+        }
     }
 
     /**
      * Method for showing notifications.
      */
     displayNotifications() {
-        if(notifications[0] !== "No notifications") {
+        if(notifications[0] !== "No notifications.") {
             document.getElementById("notification-button").style.display = "none";
             document.getElementById("notification-x-button").style.visibility = "visible";
             document.getElementById("notification-box").style.visibility="visible";
+            document.getElementById("notification-dismiss-button").style.visibility="visible";
         }
 
         var notifs = document.getElementById('notification-box');
 
         notifications.forEach((element) => (notifs.add(new Option(element))));
-        //notifications.forEach((element) => (new Notification(element)));
+        //notifications.forEach((element) => (new Notification(element))); //Notifications on desktop
     }
 
     /**
@@ -89,6 +155,10 @@ export class HomePageController {
             document.getElementById("notification-button").style.display = "block";
             document.getElementById("notification-x-button").style.visibility="hidden";
             document.getElementById("notification-box").style.visibility="hidden";
+            document.getElementById("notification-dismiss-button").style.visibility="hidden";
+
+            var notifs = document.getElementById('notification-box');
+            notifications.forEach((element) => (notifs.remove(element)));
     }
 
     /**
