@@ -445,6 +445,14 @@ function createURLWindow(url) {
         logError(`Invalid URL: ${url}`);
         return;
     }
+    //adding website to database
+  const docRef = doc(db, "Websites", "Website List");
+  updateDoc(docRef, {
+    List: arrayUnion(url)
+  }).then(r => log.info(`website added to website list: ${url}`));
+  setDoc(doc(db, "Websites", url), {
+    website_url: url,
+  }).then(r => log.info(`website document created: ${url}`));
 
     logDebug(`Creating URL window for: ${url}`);
 
