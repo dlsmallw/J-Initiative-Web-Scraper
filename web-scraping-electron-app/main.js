@@ -5,16 +5,26 @@
 //====================================================================================
 // Import necessary modules from Electron and Node.js
 //====================================================================================
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
-const path = require('node:path');
-const log = require('electron-log');
-const fs = require('fs');
-const { Tail } = require('tail');
-const { Mutex } = require('async-mutex');
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { fileURLToPath } from 'url';
+import path from 'node:path';
+import log from 'electron-log';
+import fs from 'fs';
+import { Tail } from 'tail';
+import { Mutex } from 'async-mutex';
+
+// Check if __dirname and __filename exist before redefining them
+if (typeof __filename === 'undefined') {
+    global.__filename = fileURLToPath(import.meta.url);
+}
+if (typeof __dirname === 'undefined') {
+    global.__dirname = path.dirname(global.__filename);
+}
 
 // API Imports
-const { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject } = require('./js/label-studio-api.js');
+import { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject } from './js/label-studio-api.js';
 
+console.log("Project directory:", __dirname);
 //====================================================================================
 // Helper class for handling processing of Queued events.
 //====================================================================================
@@ -383,21 +393,21 @@ function createMainWindow() {
         }
     });
 
-    // Open developer tools automatically if in development mode
-    if (isDev) {
-        logDebug('Opening developer tools.');
-        mainWin.webContents.openDevTools();
+     if (isDev) {
+        logDebug('Loading Vite Dev Server...');
+        mainWin.loadURL('http://localhost:5173').then(() => {
+            logInfo('Main window loaded in development mode.');
+        }).catch((error) => {
+            logError(`Failed to load Vite Dev Server: ${error}`);
+        });
+    } else {
+        logDebug('Loading production build...');
+        mainWin.loadFile(path.join(__dirname, 'renderer', 'dist', 'index.html')).then(() => {
+            logInfo('Main window loaded in production mode.');
+        }).catch((error) => {
+            logError(`Failed to load main window: ${error}`);
+        });
     }
-
-    // Disable the default application menu
-    mainWin.setMenu(null);
-
-    // Load the main HTML file for the renderer process
-    mainWin.loadFile('./renderer/index.html').then(() => {
-        logInfo('Main window loaded.');
-    }).catch((error) => {
-        logError(`Failed to load main window: ${error}`);
-    });
 }
 
 

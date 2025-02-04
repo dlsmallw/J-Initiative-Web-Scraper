@@ -2,7 +2,7 @@
  * API for interacting with a linked label studio organization project.
  */
 
-const axios = require('axios').default;
+import axios from 'axios';
 
 var APITOKEN = '';
 var BASEURL = '';
@@ -60,7 +60,7 @@ function formatProjectData(response) {
  * Handles the logic for making a project request api call to the linked LS project.
  * @returns             The response of the API call.
  */
-function getProjects() {
+export function getProjects() {
     var request = {
         method: 'get',
         url: `${BASEURL}/api/projects`,
@@ -215,7 +215,7 @@ function requestJSON(rawData, projectID) {
  * @param {*} projectID     The ID of the project to export to.
  * @returns JSON            Object indicating success or failure.
  */
-function exportDataToLS(rawData, projectID) {
+export function exportDataToLS(rawData, projectID) {
     try {
         var request = requestJSON(rawData, projectID);
 
@@ -236,7 +236,7 @@ function exportDataToLS(rawData, projectID) {
  * Handles updating the LS URL.
  * @param {*} url       The new URL.
  */
-function updateLinkedLSProject(url) {
+export function updateLinkedLSProject(url) {
     BASEURL = url;
     APITOKEN = '';
 }
@@ -246,7 +246,7 @@ function updateLinkedLSProject(url) {
  * @param {*} token         The new token.
  * @returns                 The updated list of projects.
  */
-function updateAPIToken(token) {
+export function updateAPIToken(token) {
     APITOKEN = token;
     return getProjects();
 }
@@ -254,7 +254,7 @@ function updateAPIToken(token) {
 /**
  * Clears the linked LS project.
  */
-function clearLinkedLSProject() {
+export function clearLinkedLSProject() {
     BASEURL = '';
     APITOKEN = '';
 
@@ -263,5 +263,3 @@ function clearLinkedLSProject() {
         data: null
     }
 }
-
-module.exports= { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject };

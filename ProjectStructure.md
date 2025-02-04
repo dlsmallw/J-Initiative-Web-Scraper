@@ -24,7 +24,7 @@ J-Initiative-Web-Scraper
 │   ├── package.json
 │   ├── pkgmgr.sh
 │   ├── preload.js
-│   ├── renderer   [INSTALATION OF REACT]
+│   ├── renderer   [INSTALATION OF VITE and REACT]
 │   │   ├── assets
 │   │   │   ├── html
 │   │   │   └── open-new-window.svg
