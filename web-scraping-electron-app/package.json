@@ -4,15 +4,19 @@
   "description": "A web scraping application that is to be used for assisting in NLP model training",
   "main": "main.js",
   "scripts": {
-    "dev": "npx electronmon .",
-    "start": "electron ."
+    "dev:electron": "electronmon .",
+    "dev:renderer": "cd renderer/vite-demo && npm run dev",
+    "dev": "concurrently -k \"npm run dev:renderer\" \"npm run dev:electron\"",
+    "build": "cd renderer/vite-demo && npm run build"
   },
   "author": "ASU Capstone 2024 Group 8",
   "license": "UNLICENSED",
   "devDependencies": {
     "@electron-forge/cli": "^7.5.0",
     "axios": "^1.7.7",
-    "electron": "^33.0.0"
+    "concurrently": "^9.1.2",
+    "electron": "^33.0.0",
+    "electronmon": "^2.0.3"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",

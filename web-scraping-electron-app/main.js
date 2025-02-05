@@ -12,6 +12,8 @@ const fs = require('fs');
 const { Tail } = require('tail');
 const { Mutex } = require('async-mutex');
 
+
+
 // API Imports
 const { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject } = require('./js/label-studio-api.js');
 
@@ -383,22 +385,28 @@ function createMainWindow() {
         }
     });
 
-    // Open developer tools automatically if in development mode
-    if (isDev) {
-        logDebug('Opening developer tools.');
-        mainWin.webContents.openDevTools();
+     if (isDev) {
+        log.info('Running in development mode, loading Vite dev server...');
+        mainWin.loadURL('http://localhost:5173/')
+            .then(() => log.info('Main window loaded successfully in dev mode.'))
+            .catch(err => log.error(`Failed to load Vite dev server: ${err}`));
+        mainWin.webContents.openDevTools(); // Open DevTools in development mode
+    } else {
+        log.info('Running in production mode, loading built renderer...');
+        mainWin.loadFile(path.join(__dirname, '../dist/renderer/index.html'))
+            .then(() => log.info('Main window loaded successfully in production mode.'))
+            .catch(err => log.error(`Failed to load main window: ${err}`));
     }
 
-    // Disable the default application menu
+    // Disable the default menu
     mainWin.setMenu(null);
-
-    // Load the main HTML file for the renderer process
-    mainWin.loadFile('./renderer/index.html').then(() => {
-        logInfo('Main window loaded.');
-    }).catch((error) => {
-        logError(`Failed to load main window: ${error}`);
-    });
 }
+
+// Ensure the app is ready before creating the main window
+app.whenReady().then(() => {
+    createMainWindow();
+});
+
 
 
 
