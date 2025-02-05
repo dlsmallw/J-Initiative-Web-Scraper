@@ -71,6 +71,22 @@ export class HomePageController {
     }
 
     /**
+     * Manages optional tutorial for new users.
+     */
+    manageTutorial() {
+        if(localStorage.getItem('tutorial') !== "disabled") {
+            // Ask user if they want to do tutorial
+
+            // If yes, launch tutorial
+
+            // Else, treat as completion (aka, disable)
+
+            localStorage.setItem('tutorial', "disabled"); //disable tutorial on completion
+        }
+    }
+
+
+    /**
      * Method to check for notifications.
      */
     checkForNotifications() {
