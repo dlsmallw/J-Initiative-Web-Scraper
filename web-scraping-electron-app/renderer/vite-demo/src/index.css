@@ -54,7 +54,33 @@
     Dark Theme
     - A modern theme with dark backgrounds and light text.
 =======================================================================*/
+    .dark-theme {
+    /* Base Colors */
+    --primary-bg: #121212;        /* Dark background for primary areas */
+    --secondary-bg: #1e1e1e;      /* Slightly lighter dark for secondary areas */
+    --accent-bg: #2c2c2c;         /* Accent elements background */
+    --primary-color: #ffffff;     /* Light text for readability */
+    --secondary-color: #b0b0b0;   /* Subdued secondary text */
+    --hover-color: #e0e0e0;       /* Lighter color for hover effects */
 
+    /* Navbar and Links */
+    --navbar-bg: #1e1e1e;
+    --navbar-link-color: var(--primary-color);
+    --link-color: #bb86fc;        /* A purple accent for links */
+
+    /* Content Area and Buttons */
+    --content-bg: #121212;
+    --button-bg: var(--accent-bg);
+    --button-color: var(--primary-color);
+
+    /* Borders */
+    --border-color: #333333;
+    --border-style: #333333 solid thin;
+    --body-border-style: #333333 solid thin;
+
+    /* Additional variable used in your themes */
+    --acc-body-bg: #1c1c1c;
+}
 
 /*=======================================================================
     Blue Theme

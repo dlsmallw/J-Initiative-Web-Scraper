@@ -402,13 +402,6 @@ function createMainWindow() {
     mainWin.setMenu(null);
 }
 
-// Ensure the app is ready before creating the main window
-app.whenReady().then(() => {
-    createMainWindow();
-});
-
-
-
 
 /**
  * Function to create a new window to display the provided URL
