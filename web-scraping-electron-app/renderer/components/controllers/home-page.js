@@ -43,6 +43,7 @@ export class HomePageController {
     initPage() {
         var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
         var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
+        window.notifications = ["No notifications."];
 
         $('#navbar-ul-1').append(navbarItem);
 
@@ -52,8 +53,10 @@ export class HomePageController {
 
         insertElement().then(() => {
 
-
+            //this.addNotifications("Joe is going to be late.", "Meeting at 4:30 today."); //examples
             this.initPageListeners();
+            this.checkForNotifications();
+            this.manageTutorial();
         });
     }
 
@@ -61,13 +64,11 @@ export class HomePageController {
      * Method for initializing the pages event listeners.
      */
     initPageListeners() {
-        window.notifications = ["No notifications."];
-        //this.addNotifications("Joe is going to be late.", "Meeting at 4:30 today."); //examples
-        this.checkForNotifications();
-
         document.getElementById("notification-button").addEventListener("click", this.displayNotifications);
         document.getElementById("notification-x-button").addEventListener("click", this.displayNotificationsHelper);
         document.getElementById("notification-dismiss-button").addEventListener("click", this.removeNotifications);
+        document.getElementById("yes-tutorial").addEventListener("click", this.runTutorial);
+        document.getElementById("no-tutorial").addEventListener("click", this.disableTutorial);
     }
 
     /**
@@ -75,14 +76,22 @@ export class HomePageController {
      */
     manageTutorial() {
         if(localStorage.getItem('tutorial') !== "disabled") {
-            // Ask user if they want to do tutorial
-
-            // If yes, launch tutorial
-
-            // Else, treat as completion (aka, disable)
-
-            localStorage.setItem('tutorial', "disabled"); //disable tutorial on completion
+            document.getElementById("tutorial").style.display = "block";
         }
+    }
+
+    /**
+     * Runs the tutorial.
+     */
+    runTutorial() {
+        //run tutorial
+    }
+
+    disableTutorial() {
+        alert("Got it! Tutorial has been disabled.");
+
+        localStorage.setItem('tutorial', "disabled");
+        document.getElementById("tutorial").style.display = "none";
     }
 
 

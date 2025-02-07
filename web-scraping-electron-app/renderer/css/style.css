@@ -186,13 +186,29 @@ body {
     border-radius: 10px;
 }
 
-.more-button {
-    background: #bbdefb;
+div#tutorial
+{
+    position:absolute;
+    text-align: center;
+    font-family:  var(--font-family);
+    font-weight: bold;
+    display:none;
+    top:200px;
+    left:50%;
+    width:500px;
+    margin-left:-250px;
+    border:1px solid blue;
+    padding:20px;
+    background-color: #bbdefb;
     color: #121212;
-    font-weight: bolder;
-    font-style: italic;
-    float: right;
-    visibility: hidden;
+}
+
+.tutorial-button {
+    font-size: smaller;
+    padding: 3px 4px;
+    background: darkslategray;
+    border: 1px solid blue;
+    color: white;
 }
 
 /*=======================================================================
