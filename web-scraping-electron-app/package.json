@@ -2,20 +2,21 @@
   "name": "web-scraping-electron-app",
   "version": "1.0.0",
   "description": "A web scraping application that is to be used for assisting in NLP model training",
-  "main": "main.js",
+  "main": "out/main/index.js",
   "scripts": {
-    "dev:electron": "electronmon .",
-    "dev:renderer": "cd renderer/vite-demo && npm run dev",
-    "dev": "concurrently -k \"npm run dev:renderer\" \"npm run dev:electron\"",
-    "build": "cd renderer/vite-demo && npm run build"
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview"
   },
   "author": "ASU Capstone 2024 Group 8",
   "license": "UNLICENSED",
   "devDependencies": {
     "@electron-forge/cli": "^7.5.0",
+    "@vitejs/plugin-react": "^4.3.4",
     "axios": "^1.7.7",
     "concurrently": "^9.1.2",
     "electron": "^33.0.0",
+    "electron-vite": "^2.3.0",
     "electronmon": "^2.0.3"
   },
   "dependencies": {
@@ -27,6 +28,8 @@
     "electron-store": "^10.0.0",
     "firebase": "^11.0.2",
     "jquery": "^3.7.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.5",
     "tail": "^2.2.6",
     "web-scraping-electron-app": "file:"
