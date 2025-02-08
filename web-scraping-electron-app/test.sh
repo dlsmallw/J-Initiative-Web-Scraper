@@ -11,8 +11,11 @@ findVersion(){
 
 testFunc(){
 	baseCall=eval $1
-
 	toFind=$2
+
+	prefix=${baseCall%%$substr*}
+	index=${#prefix}
+	
 	toEnd=$3
 	pos=`expr index "$baseCall" ${toFind}`
 	pos0=${baseCall%%toFind*}
@@ -28,13 +31,45 @@ testFunc(){
 	
 	
 	return $result
+}
+
+testFun2(){
+	str=$(eval $1)
+	toFind=$2
+	toEnd=$3
+	
+	prefix=${str%%$toFind*}
+	#prefix=${str%%"pip"*}
+	index=$((${#prefix} + ${#toFind}))
+	backStr=${str:index}
+	endStr=${backStr%%$toEnd*}
+	endIndex=${#endStr}
+	#echo "HHHHHHHHHHHH"
+	#echo $str
+	#echo ${#str}
+	#echo "HHHHHHHHHHHH"
+	echo $endStr
 	
 }
 
+test3(){
+	str= eval $1 
+	#echo $str
+	echo 5
+}
+
+
 val="pip --version"
-echo $val | cut -d" " -f 2
+tee=$(testFun2 "pip --version" "pip " "from")
+#echo $tee
+teem=$(test3)
+#echo $test3
+testFun2 "pip --version" "pip" " "
+#test3 "pip --version"
+
+#echo $val | cut -d" " -f 2
 #echo ${val:0:2}
 
-testFunc "pip --version" "pip " " "
+#testFunc "pip --version" "pip " " "
 
 #vs=$(testFunc "pip --version" "pip " " ")
