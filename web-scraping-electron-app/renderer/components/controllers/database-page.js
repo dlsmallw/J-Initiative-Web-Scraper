@@ -153,10 +153,13 @@ export class DatabasePageController {
     }
     websiteInfo.innerHTML = '';
     const websites = await this.databaseAPI.getWebsiteData();
-    const websiteEntry = document.createElement('div');
-    websiteEntry.className = 'website-entry';
-    websiteEntry.textContent = websites;
-    websiteInfo.appendChild(websiteEntry);
+    const websiteList = websites.split(/\n/);
+    websiteList.forEach(website => {
+      const websiteEntry = document.createElement('div');
+      websiteEntry.className = 'website-entry';
+      websiteEntry.textContent = website.trim();
+      websiteInfo.appendChild(websiteEntry);
+    });
     this.logDebug('website data displayed in UI.');
   }
 }
