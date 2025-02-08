@@ -16,12 +16,17 @@ to update: pip install -U label-studio
 
 3. Electron forge
 Version: 7.5.0
+to check version: ./node_modules/.bin/electron-forge --version
+
 
 4. Axios
 Version: 1.7.7
 
 5. Electron
 Version: 33.0.0
+Version: ./node_modules/.bin/electron --version
+to update: npm install electron@latest
+
 
 6. popperjs/core
 Version: 2.11.8

@@ -10,6 +10,7 @@ findVersion(){
 	endStr=${backStr%%$toEnd*}
 	endIndex=${#endStr}
 	result=${backStr:0:$endIndex}
+	echo 
 	#echo "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
 
 	echo $result
@@ -26,12 +27,34 @@ funcTest(){
 	echo "HHHHHHHHH $testVal HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
 }
 
+checkAndUpdate(){
+	expected=$1
+	actual=$2
+	updateCode=$3
+
+	result=$(checkVersioning $expected $actual)
+	if ((1 - $result)); then
+		echo "updating..."
+
+		eval $updateCode
+
+		echo "updated!"
+	fi
+
+	echo "done"
+}
+
 
 checkAllVersioning(){
 	pipVersion=$(findVersion "pip --version" "pip " " from")
-	expectedVersion="24.2"
+	ePipVersion="24.2"
+	pipUpdate="python -m pip install --upgrade pip"
 
-	pipResult=$(checkVersioning $pipVersion $expectedVersion)
+	pipResult=$(checkAndUpdate $ePipVersion $pipVersion $pipUpdate)
+
+
+	electronVersion=$(findVersion "./node_modules/.bin/electron-forge --version" "system" "")
+	echo $electronVersion
 
 	# Currently nonfunctional
 	#labelStudioVersion=$(findVersion "label-studio version" "Label Studio version: " '}')
