@@ -1,16 +1,18 @@
 Delete this file once 168 and 169 are complete
 
 Things that might need updating:
-For each in the list, run the following checks: if installed, compare versions. If downloaded version < package.json version, run update code. 
+For each in the list, run the following checks: if installed, compare versions. If downloaded version < package.json version, run update code. Output results to a text file for the electron app to read.
 
-1. Label Studio. 
-Version: 1.13.1 (?)
-to update: pip install -U label-studio
-
-2. pip
+1. pip
 Version: 24.2 (?)
+to check version: pip --version
 to update: python -m pip install --upgrade pip 
 alternative: py -m pip install --upgrade pip
+
+2. Label Studio. 
+Version: 1.13.1 (?)
+to check version: label-studio version
+to update: pip install -U label-studio
 
 3. Electron forge
 Version: 7.5.0
