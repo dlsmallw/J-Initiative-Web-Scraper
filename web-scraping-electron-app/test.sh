@@ -15,18 +15,26 @@ testFunc(){
 	toFind=$2
 	toEnd=$3
 	pos=`expr index "$baseCall" ${toFind}`
+	pos0=${baseCall%%toFind*}
+
+	startCut=$baseCall | cut -d$toFind -f 2
+	echo $startCut
+
 	pos1=$(($pos + ${#toFind} - 1))
-	pos2=`expr index "${baseCall:$pos1}" $toEnd`
+	temp=${baseCall:5:2}
+	sliceEnd=${${baseCall:pos1}%%$toEnd*}
+	
 	result="${baseCall:${pos1}:${pos2}}"
 	
-	echo $pos1
+	
 	return $result
 	
 }
 
 val="pip --version"
-echo ${val:0:2}
+echo $val | cut -d" " -f 2
+#echo ${val:0:2}
 
-testFunc "pip --version" "pip "
+testFunc "pip --version" "pip " " "
 
-vs=$(testFunc "pip --version" "pip " " ")
+#vs=$(testFunc "pip --version" "pip " " ")
