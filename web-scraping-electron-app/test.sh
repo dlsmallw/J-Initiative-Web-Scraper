@@ -10,18 +10,60 @@ findVersion(){
 	endStr=${backStr%%$toEnd*}
 	endIndex=${#endStr}
 	result=${backStr:0:$endIndex}
+	#echo "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
 
 	echo $result
 }
 
-pipVersion=$(findVersion "pip --version" "pip " " from")
+#pipVersion=$(findVersion "pip --version" "pip " " from")
+#findVersion "label-studio version" "Label Studio version: " "{"
+
+#echo "HHHHHHHH $labelStudioVersion HHHHHHHH"
+
+funcTest(){
+	local str=$(eval "label-studio version")
+	testVal=${#str}
+	echo "HHHHHHHHH $testVal HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
+}
 
 
-#test3 "pip --version"
+checkAllVersioning(){
+	pipVersion=$(findVersion "pip --version" "pip " " from")
+	expectedVersion="24.2"
 
-#echo $val | cut -d" " -f 2
-#echo ${val:0:2}
+	pipResult=$(checkVersioning $pipVersion $expectedVersion)
 
-#testFunc "pip --version" "pip " " "
+	# Currently nonfunctional
+	#labelStudioVersion=$(findVersion "label-studio version" "Label Studio version: " '}')
+}
 
-#vs=$(testFunc "pip --version" "pip " " ")
+# 1 is true, 0 is false. returns true if expected (var 1) is less than or equal to actual (var 2)
+checkVersioning(){
+	local expected=$1
+	local actual=$2
+
+	IFS="." read -ra VALSe <<< "$expected"
+	IFS="." read -ra VALSa <<< "$actual"
+
+	local result=1
+	local maxe=${#VALSe[@]}
+	local maxa=${#VALSa[@]}
+	max=$maxe
+	if ((maxe > maxa)); then
+		max=$maxa
+	fi
+
+	local i=0
+	while ((i<$max));do
+		#echo "i: $i , e: ${VALSe[$i]} , a: ${VALSa[$i]}"
+		if ((${VALSa[$i]} < ${VALSe[$i]})); then
+			result=0
+			i=$max
+		fi
+		i=$(($i + 1))
+	done
+
+	echo $result
+}
+
+checkAllVersioning
