@@ -121,6 +121,13 @@ export class ScrapePageController {
     }
 
     /**
+     * Runs the tutorial scraper section.
+     */
+    runTutorialScraper() {
+        //set up.
+    }
+
+    /**
      * Sets the page active (visible).
      */
     setPageActive() {

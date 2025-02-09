@@ -53,7 +53,6 @@ export class HomePageController {
 
         insertElement().then(() => {
 
-            //this.addNotifications("Joe is going to be late.", "Meeting at 4:30 today."); //examples
             this.initPageListeners();
             this.checkForNotifications();
             this.manageTutorial();
@@ -67,7 +66,7 @@ export class HomePageController {
         document.getElementById("notification-button").addEventListener("click", this.displayNotifications);
         document.getElementById("notification-x-button").addEventListener("click", this.displayNotificationsHelper);
         document.getElementById("notification-dismiss-button").addEventListener("click", this.removeNotifications);
-        document.getElementById("yes-tutorial").addEventListener("click", this.runTutorial);
+        document.getElementById("yes-tutorial").addEventListener("click", this.runTutorialHome);
         document.getElementById("no-tutorial").addEventListener("click", this.disableTutorial);
     }
 
@@ -81,10 +80,16 @@ export class HomePageController {
     }
 
     /**
-     * Runs the tutorial.
+     * Runs the tutorial's home section.
      */
-    runTutorial() {
-        //run tutorial
+    runTutorialHome() {
+        document.getElementById("tutorial").style.display = "none";
+
+        document.getElementById("tutorial-home").style.display = "block";
+
+        //IDE recognizes, running program does not
+        this.addNotifications("Joe is going to be late.", "Meeting at 4:30 today."); //examples
+
     }
 
     disableTutorial() {

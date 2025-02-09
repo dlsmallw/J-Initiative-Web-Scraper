@@ -186,7 +186,7 @@ body {
     border-radius: 10px;
 }
 
-div#tutorial
+div#tutorial, div#tutorial-home
 {
     position:absolute;
     text-align: center;
