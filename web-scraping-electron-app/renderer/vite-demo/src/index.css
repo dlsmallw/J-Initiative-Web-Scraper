@@ -74,9 +74,9 @@
     --button-color: var(--primary-color);
 
     /* Borders */
-    --border-color: #333333;
-    --border-style: #333333 solid thin;
-    --body-border-style: #333333 solid thin;
+  --border-color: #00ffff;       /* Neon cyan for borders */
+  --border-style: #00ffff solid thin;
+  --body-border-style: #00ffff solid thin;
 
     /* Additional variable used in your themes */
     --acc-body-bg: #1c1c1c;
@@ -86,37 +86,67 @@
     Blue Theme
     - A calm theme with shades of blue.
 =======================================================================*/
-    .blue-theme {
-    --primary-bg: #e3f2fd;
-    --secondary-bg: #bbdefb;
-    --acc-body-bg: #c7e3ff;
-    --accent-bg: #90caf9;
-    --primary-color: #0d47a1;
-    --secondary-color: #1976d2;
-    --hover-color: #1565c0;
-    --navbar-bg: #bbdefb;
-    --content-bg: #e3f2fd;
-    --link-color: #0d47a1;
-    --border-style: none;
+   .blue-theme {
+  /* Base Colors */
+  --primary-bg: #e3f2fd;         /* A light blue background */
+  --secondary-bg: #bbdefb;       /* Slightly darker blue for secondary areas */
+  --accent-bg: #90caf9;          /* A medium blue for accent elements */
+  --primary-color: #0d47a1;      /* Dark blue text for readability */
+  --secondary-color: #1976d2;    /* A vibrant blue for secondary text */
+  --hover-color: #64b5f6;        /* Lighter blue for hover effects */
+
+  /* Navbar and Links */
+  --navbar-bg: #bbdefb;
+  --navbar-link-color: var(--primary-color);
+  --link-color: #1565c0;         /* A slightly different blue accent for links */
+
+  /* Content Area and Buttons */
+  --content-bg: #e3f2fd;
+  --button-bg: var(--accent-bg);
+  --button-color: var(--primary-color);
+
+  /* Borders */
+  --border-color: #90caf9;
+  --border-style: #90caf9 solid thin;
+  --body-border-style: #90caf9 solid thin;
+
+  /* Additional */
+  --acc-body-bg: #bbdefb;
 }
+
 
 /*=======================================================================
     Disco Theme
     - Party time.
 =======================================================================*/
-    .disco-theme {
-    --primary-bg: #FF00FF;
-    --secondary-bg: #00CED1;
-    --acc-body-bg: #92fdff;
-    --accent-bg: #c8bca7;
-    --primary-color: #4B0082;
-    --secondary-color: #8d6e63;
-    --hover-color: #6d4c41;
-    --navbar-bg: #7FFF00;
-    --content-bg: #00CED1;
-    --link-color: #5d4037;
-    --border-style: none;
+   .disco-theme {
+  /* Base Colors */
+  --primary-bg: #FF00FF;
+  --secondary-bg: #00CED1;
+  --accent-bg: #c8bca7;
+  --primary-color: #4B0082;
+  --secondary-color: #d3d3d3;
+  --hover-color: #39ff14;
+
+  /* Navbar and Links */
+  --navbar-bg: #7FFF00;
+  --navbar-link-color: var(--primary-color);
+  --link-color: #ff00ff;         /* Neon pink for links */
+
+  /* Content Area and Buttons */
+  --content-bg: #000000;
+  --button-bg: #ff00ff;          /* Neon pink for button backgrounds */
+  --button-color: var(--primary-color);
+
+  /* Borders */
+  --border-color: #00ffff;       /* Neon cyan for borders */
+  --border-style: #00ffff solid thin;
+  --body-border-style: #00ffff solid thin;
+
+  /* Additional */
+  --acc-body-bg: #1a1a1a;
 }
+
 
 /*=======================================================================
     General Page Settings
