@@ -53,8 +53,10 @@ export class HomePageController {
 
         insertElement().then(() => {
 
+            //this.addNotifications("Joe is going to be late.", "Meeting at 4:30 today."); example
             this.initPageListeners();
             this.checkForNotifications();
+            window.setInterval(this.checkForNotifications, 500); //check notifications every 0.5 seconds.
             this.manageTutorial();
         });
     }
@@ -69,36 +71,6 @@ export class HomePageController {
         document.getElementById("yes-tutorial").addEventListener("click", this.runTutorialHome);
         document.getElementById("no-tutorial").addEventListener("click", this.disableTutorial);
     }
-
-    /**
-     * Manages optional tutorial for new users.
-     */
-    manageTutorial() {
-        if(localStorage.getItem('tutorial') !== "disabled") {
-            document.getElementById("tutorial").style.display = "block";
-        }
-    }
-
-    /**
-     * Runs the tutorial's home section.
-     */
-    runTutorialHome() {
-        document.getElementById("tutorial").style.display = "none";
-
-        document.getElementById("tutorial-home").style.display = "block";
-
-        //IDE recognizes, running program does not
-        this.addNotifications("Joe is going to be late.", "Meeting at 4:30 today."); //examples
-
-    }
-
-    disableTutorial() {
-        alert("Got it! Tutorial has been disabled.");
-
-        localStorage.setItem('tutorial', "disabled");
-        document.getElementById("tutorial").style.display = "none";
-    }
-
 
     /**
      * Method to check for notifications.
@@ -133,7 +105,9 @@ export class HomePageController {
 
             notifications.length = (notification.length + temp);
         }
-    }
+
+        return 0;
+    };
 
     /**
      * Method to remove notifications.
@@ -189,6 +163,45 @@ export class HomePageController {
 
             var notifs = document.getElementById('notification-box');
             notifications.forEach((element) => (notifs.remove(element)));
+    }
+
+    /**
+     * Manages optional tutorial for new users.
+     */
+    manageTutorial() {
+        if(localStorage.getItem('tutorial') !== "disabled") {
+            document.getElementById("tutorial").style.display = "block";
+        }
+    }
+
+    /**
+     * Runs the tutorial's home section.
+     */
+    runTutorialHome() {
+        document.getElementById("tutorial").style.display = "none";
+
+        document.getElementById("tutorial-home").style.display = "block";
+
+        try { //notifications example for tutorial
+            if(notifications[0] === "No notifications.") {
+                notifications[0] = "Joe is going to be late.";
+                notifications[1] = "Meeting at 4:30 today.";
+            } else {
+                notifications.push("Joe is going to be late.");
+                notifications.push("Meeting at 4:30 today.");
+
+                notifications.length += 2;
+            }
+        } catch(e) {
+            console.log("Tutorial notifications were unable to be added.");
+        }
+    }
+
+    disableTutorial() {
+        alert("Got it! Tutorial has been disabled.");
+
+        localStorage.setItem('tutorial', "disabled");
+        document.getElementById("tutorial").style.display = "none";
     }
 
     /**
