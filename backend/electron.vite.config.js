@@ -50,13 +50,13 @@ module.exports = defineConfig({
   renderer: {
     plugins: [react()],
     // The root of renderer (Vite + React) project
-    root: 'renderer/vite-demo',
+    root: 'frontend/vite-demo',
     build: {
       outDir: 'dist',
       emptyOutDir: true,
       rollupOptions: {
         // The HTML entry for React app
-        input: 'renderer/vite-demo/index.html',
+        input: 'frontend/vite-demo/index.html',
       }
     },
     server: {

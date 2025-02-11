@@ -4,8 +4,8 @@ J-Initiative-Web-Scraper
 ├── J_Initiative_Web_Scraper_Colab_Notebook.ipynb
 ├── LICENSE
 ├── README.md
-├── node_modules (dependencies)
-├── package-lock.json
+├── node_modules (deleted)
+├── package-lock.json (deleted)
 ├── web-scraping-electron-app
 │   ├── LOGGING.md
 │   ├── README.md
@@ -16,15 +16,25 @@ J-Initiative-Web-Scraper
 │   │   ├── SER 401 Task #103.pdf
 │   │   ├── Task #102 Database Research.pdf
 │   │   └── Task105DatabaseWindow.png
-│   ├── js
-│   │   └── label-studio-api.js
+│   ├── dist
+│   │   ├── assets
+│   │      ├── index-Bc7M_tGw.css
+│   │      ├── index-D33E36Lg.js
+│   ├── index.html
+│   ├── vite.svg
+│   ├── out
+│   │    ├── main
+│   │    │      ├── index.js
+│   │    ├── preload
+│   │         ├── index.js
+│   ├── label-studio-api.js
 │   ├── logger.js
 │   ├── main.js
 │   ├── node_modules (dependencies)
 │   ├── package.json
 │   ├── pkgmgr.sh
 │   ├── preload.js
-│   ├── renderer   [INSTALATION OF REACT]
+│   ├── renderer   [INSTALATION OF vite]
 │   │   ├── assets
 │   │   │   ├── html
 │   │   │   └── open-new-window.svg
