@@ -15,6 +15,24 @@ const { Mutex } = require('async-mutex');
 // API Imports
 const { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject } = require('./js/label-studio-api.js');
 
+// Firebase Imports
+const { collection, getDocs, getFirestore, doc, getDoc, updateDoc, setDoc, arrayUnion} = require('firebase/firestore');
+const { initializeApp } = require('firebase/app');
+const firebaseConfig = {
+  apiKey: "AIzaSyAhqRcDSUGoTiEka890A53u7cjS0J1IH48",
+  authDomain: "ser-401-group8-firebase.firebaseapp.com",
+  projectId: "ser-401-group8-firebase",
+  storageBucket: "ser-401-group8-firebase.firebasestorage.app",
+  messagingSenderId: "346387119771",
+  appId: "1:346387119771:web:71d09aec636a6b1c06503e",
+  measurementId: "G-QX3095X9GX"
+};
+
+// Initialize Firebase
+const dbapp = initializeApp(firebaseConfig);
+// Initialize Cloud Firestore and get a reference to the service
+const db = getFirestore(dbapp);
+
 //====================================================================================
 // Helper class for handling processing of Queued events.
 //====================================================================================
@@ -353,6 +371,38 @@ ipcMain.on('logs:clear', (event) => {
         event.sender.send('logs:cleared-error', error.message); // Notify renderer process of the error
     }
 });
+
+//====================================================================================
+// adding websites to database page methods
+//====================================================================================
+
+ipcMain.handle('get-websites', async () => {
+  let websiteData = '';
+  try {
+    const docRef = doc(db, "Websites", "Website List");
+    const docSnap = await getDoc(docRef);
+    const documentData = docSnap.data();
+    const websiteList = documentData.List;
+    websiteList.forEach(website => {
+      websiteData += website + '\n';
+    });
+    return websiteData;
+  } catch (error) {
+    return ''; // Return empty string on error
+  }
+});
+
+ipcMain.handle('add-website', async (event, url) => {
+//adding website to database
+  const docRef = doc(db, "Websites", "Website List");
+  updateDoc(docRef, {
+    List: arrayUnion(url)
+  }).then(r => log.info(`website added to website list: ${url}`));
+  setDoc(doc(db, "Websites", url), {
+    website_url: url,
+  }).then(r => log.info(`website document created: ${url}`));
+});
+
 
 
 

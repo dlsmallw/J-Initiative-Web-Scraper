@@ -4,6 +4,7 @@ export class ScrapePageController {
     compID = '#scrape-container';     // Page component container ID
 
     electronAPI = window.electronAPI;
+    databaseAPI = window.databaseAPI;
     lsAPI = window.lsAPI;
 
     /**
@@ -401,10 +402,11 @@ export class ScrapePageController {
      * Function to handle the "Submit" button click on the Scrape page.
      */
     submitBtnPressed() {
+
         this.disableURLField();
 
         let url = $('#url-input').val();
-
+        this.databaseAPI.addWebsiteToDatabase(url).then(r => this.logWarn('added website to database'));
         // Check if a URL was entered
         if (url) {
             // Prepend 'https://' if no protocol is specified
