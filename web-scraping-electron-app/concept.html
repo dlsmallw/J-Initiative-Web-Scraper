@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  
+</head>
+<body>
+
+  <form onsubmit="return false"><button onclick="scanAndDump()">Click here</button></form>
+  <p>Text</p>
+
+
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+  <script>
+
+    import { exec } from 'child_process';
+
+    /**
+     * Execute simple shell command (async wrapper).
+     * @param {String} cmd
+     * @return {Object} { stdout: String, stderr: String }
+     */
+    async function sh(cmd) {
+      return new Promise(function (resolve, reject) {
+        exec(cmd, (err, stdout, stderr) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve({ stdout, stderr });
+          }
+        });
+      });
+    }
+
+async function main() {
+  let { stdout } = await sh('ls');
+  for (let line of stdout.split('\n')) {
+    console.log(`ls: ${line}`);
+  }
+}
+
+main();
+      function scanAndDump() {
+
+
+        console.log("Done")
+      }
+
+
+  </script>
+</body>
+</html>
