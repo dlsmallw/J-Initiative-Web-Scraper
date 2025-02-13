@@ -66,23 +66,17 @@ export class ScrapePageController {
         this.initResultsContainer();
 
         // Toggles a manual mode or a URL entry mode (URL entry is default)
-        $('#scrape-mode-toggle').on('click', () => {
-            let curr = $('#scrape-mode-toggle').html();
-            let next;
-
-            if (curr === 'Manual Mode') {
-                next = 'URL Mode';
-
+        $('#scrape-mode-toggle').on('change', async () => {
+            var isChecked = document.getElementById('scrape-mode-toggle').checked
+            console.log(isChecked)
+    
+            if (isChecked) {
                 $('#url-scrape-container').hide();
                 $('#manual-scrape-container').show();
             } else {
-                next = 'Manual Mode';
-
                 $('#manual-scrape-container').hide();
                 $('#url-scrape-container').show();
             }
-
-            $('#scrape-mode-toggle').html(next);
         });
 
         // Event listener for the "Submit" button on the Scrape page
