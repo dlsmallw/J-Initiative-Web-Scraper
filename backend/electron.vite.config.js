@@ -49,14 +49,12 @@ module.exports = defineConfig({
   },
   renderer: {
     plugins: [react()],
-    // The root of renderer (Vite + React) project
-    root: 'frontend/vite-demo',
+    root: path.resolve(__dirname, '../frontend'), // correctly points to frontend
     build: {
-      outDir: 'dist',
+      outDir: path.resolve(__dirname, '../frontend/dist'), // Vite's output location
       emptyOutDir: true,
       rollupOptions: {
-        // The HTML entry for React app
-        input: 'frontend/vite-demo/index.html',
+        input: path.resolve(__dirname, '../frontend/index.html'), // correct frontend entry file
       }
     },
     server: {
