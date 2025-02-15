@@ -180,21 +180,7 @@ export class HomePageController {
     runTutorialHome() {
         document.getElementById("tutorial").style.display = "none";
 
-        document.getElementById("tutorial-home").style.display = "block";
-
-        try { //notifications example for tutorial
-            if(notifications[0] === "No notifications.") {
-                notifications[0] = "Joe is going to be late.";
-                notifications[1] = "Meeting at 4:30 today.";
-            } else {
-                notifications.push("Joe is going to be late.");
-                notifications.push("Meeting at 4:30 today.");
-
-                notifications.length += 2;
-            }
-        } catch(e) {
-            console.log("Tutorial notifications were unable to be added.");
-        }
+        //embed video
     }
 
     disableTutorial() {
