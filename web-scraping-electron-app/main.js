@@ -403,6 +403,10 @@ ipcMain.handle('add-website', async (event, url) => {
   }).then(r => log.info(`website document created: ${url}`));
 });
 
+ipcMain.handle('add-scraped-data', async (event, data) => {
+
+});
+
 
 
 
