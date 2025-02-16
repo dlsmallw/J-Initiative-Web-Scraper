@@ -1,5 +1,5 @@
 {
-  "name": "web-scraping-electron-app",
+  "name": "backend",
   "version": "1.0.0",
   "description": "A web scraping application that is to be used for assisting in NLP model training",
   "main": "out/main/index.js",
