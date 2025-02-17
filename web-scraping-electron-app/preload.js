@@ -185,5 +185,8 @@ contextBridge.exposeInMainWorld('databaseAPI', {
   },
   addWebsiteToDatabase: (url) => {
     return ipcRenderer.invoke('add-website', url);
+  },
+  addScrapedDataToDatabase: (data) => {
+    return ipcRenderer.invoke('add-scraped-data', data);
   }
 });
