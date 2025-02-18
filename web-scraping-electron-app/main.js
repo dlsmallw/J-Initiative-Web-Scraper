@@ -397,14 +397,26 @@ ipcMain.handle('add-website', async (event, url) => {
   const docRef = doc(db, "Websites", "Website List");
   updateDoc(docRef, {
     List: arrayUnion(url)
-  }).then(r => log.info(`website added to website list: ${url}`));
+}).then(r => log.info(`website added to website list: ${url}`));
   setDoc(doc(db, "Websites", url), {
     website_url: url,
+    Entries: [],
   }).then(r => log.info(`website document created: ${url}`));
+
 });
 
 ipcMain.handle('add-scraped-data', async (event, data) => {
+for (let i = 0; i < data.length; i++) {
+  const entry = data[i];
+  const url = entry.url;
+  const scrapedData = entry.data;
 
+  const docRef = doc(db, "Websites", url);
+  updateDoc(docRef, {
+    Entries: arrayUnion(scrapedData)
+  }).then(r => log.info(`entry added to website: ${url}`));
+
+}
 });
 
 

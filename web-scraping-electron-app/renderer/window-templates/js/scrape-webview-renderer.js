@@ -249,7 +249,7 @@ function appendNewScrapedItem(data) {
  */
 function addDataToDatabase() {
   const dataToExport = getAllReadyData();
-  this.databaseAPI.addScrapedDataToDatabase(JSON.stringify(dataToExport));
+  this.databaseAPI.addScrapedDataToDatabase(dataToExport);
   ipcRenderer.sendCloseSignal();
 }
 
