@@ -3,15 +3,68 @@
 <form>
 	<fieldset>
 		<legend>Search History</legend>
-		<select name="searchHistory" onclick="">
-			<option value="Option1">Option1</option>
-			<option value="Option2">Option2</option>
 
-		</select>
-		<button type="button">Text</button>
+		<fieldset>
+			<label for="saveLast">Save Last: </label>
+			<input type="text" id="saveLast" />
+		</fieldset>
+		<fieldset>
+			<select name="searchHistory" onclick="">
+				<option value="Option1">Option1</option>
+				<option value="Option2">Option2</option>
 
+			</select>
+		</fieldset>
 	</fieldset>
 	
+	<fieldset>
+		<legend>Window Dimensions</legend>
+
+		<fieldset>
+			<label for="width">Width: </label>
+			<input type="text" id="width" />
+
+			<label for="height">Height: </label>
+			<input type="text" id="height" />
+		</fieldset>
+
+		<fieldset>
+			<button type="button" id="preset1" onclick="preset1()">Preset 1</button>
+			<button type="button" id="preset2" onclick="preset2()">Preset 2</button>
+		</fieldset>
+
+
+	</fieldset>
+
+	<fieldset>
+		<legend>Color Modes</legend>
+
+		<fieldset>
+			<select name="colorModes" onclick="">
+				<option value="light">Light</option>
+				<option value="dark">Dark</option>
+				<option value="disco">Disco</option>
+
+			</select>
+		</fieldset>
+	</fieldset>
+
+	<fieldset>
+		<legend>Default Log Display</legend>
+
+		<fieldset>
+			<select name="defaultLogDisplay" onclick="">
+				<option value="logAll">All</option>
+				<option value="logError">Error</option>
+				<option value="logInfo">Info</option>
+
+			</select>
+		</fieldset>
+	</fieldset>
+
+	<fieldset>
+		<legend>Database Settings</legend>
+	</fieldset>
 
 	<fieldset>
 
