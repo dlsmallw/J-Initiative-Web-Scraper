@@ -57,8 +57,9 @@ J-Initiative-Web-Scraper
 │   │   │   ├── .vite
 │   │   │       ├── deps
 │   │   ├── src
-│   │   │   ├── assets
 │   │   │   ├── components
+│   │   │       ├── About.jsx
+│   │   │       ├── etc. 
 │   │   │   ├── App.jsx
 │   │   │   ├── index.css
 │   │   │   ├── main.jsx
