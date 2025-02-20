@@ -1,3 +1,5 @@
+
+#250 Debug and Fix Vite + React Integration Issues
 # J-Initiative-Web-Scraper
 ```plaintext
 J-Initiative-Web-Scraper

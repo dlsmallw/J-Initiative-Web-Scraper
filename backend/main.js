@@ -7,6 +7,7 @@ import fs from 'fs'
 import { Tail } from 'tail'
 import { Mutex } from 'async-mutex'
 
+
 // Local API file, also converted to ESM
 import {
   exportDataToLS,
@@ -254,13 +255,14 @@ function createMainWindow() {
 
 function createURLWindow(url) {
   try {
-    new URL(url)
+    new URL(url);
   } catch (err) {
-    logError(`Invalid URL: ${url}`)
-    return
+    logError(`Invalid URL: ${url}`);
+    return;
   }
 
-  logDebug(`Creating URL window for: ${url}`)
+  logDebug(`Creating URL window for: ${url}`);
+
   urlWindow = new BrowserWindow({
     frame: false,
     width: 1400,
@@ -271,81 +273,80 @@ function createURLWindow(url) {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
-      webviewTag: true
-    }
-  })
+      webviewTag: true,
+    },
+  });
 
-  urlWindow.hide()
-  urlWindow.loadFile('./renderer/window-templates/scrape-window.html')
-    .then(() => {
-      urlWindow.webContents.send('setUrl', url)
-      urlWindow.show()
-      logInfo(`URL window loaded: ${url}`)
-    })
-    .catch(error => {
-      closeScrapeWindow()
-      logError(`Failed to load URL: ${error}`)
-      dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!')
-    })
+  urlWindow.hide();
 
+  if (isDev) {
+    // DEV: Load the Vite dev server route
+    urlWindow
+      .loadURL(`http://localhost:5173/#/scrape-window`)
+      .then(() => {
+        // (Optional) pass the `url` to the renderer
+        urlWindow.webContents.send('setUrl', url);
+        urlWindow.show();
+        logInfo(`URL window loaded in dev mode: ${url}`);
+      })
+      .catch((error) => {
+        closeScrapeWindow();
+        logError(`Failed to load dev URL: ${error}`);
+        dialog.showErrorBox(
+          'Invalid URL',
+          'Cannot open URL in dev mode!'
+        );
+      });
+
+    urlWindow.webContents.openDevTools();
+  } else {
+    // PROD: Load the built React app in /frontend/dist, with #/scrape-window
+    const distPath = path.join(__dirname, '../frontend/dist', 'index.html');
+
+    urlWindow
+      .loadURL(`file://${distPath}#/scrape-window`)
+      .then(() => {
+        // (Optional) pass the `url` to the renderer
+        urlWindow.webContents.send('setUrl', url);
+        urlWindow.show();
+        logInfo(`URL window loaded in production: ${url}`);
+      })
+      .catch((error) => {
+        closeScrapeWindow();
+        logError(`Failed to load URL: ${error}`);
+        dialog.showErrorBox(
+          'Invalid URL',
+          'Cannot open URL in production!'
+        );
+      });
+  }
+
+  // Optional: Block navigation to external sites once loaded
   urlWindow.webContents.on('will-navigate', (event, navigateUrl) => {
     if (navigateUrl !== url) {
-      event.preventDefault()
-      logWarn(`Navigation attempt to external URL blocked: ${navigateUrl}`)
+      event.preventDefault();
+      logWarn(`Navigation attempt to external URL blocked: ${navigateUrl}`);
     }
-  })
+  });
 
+  // Optional: Block new windows
   urlWindow.webContents.setWindowOpenHandler(() => {
-    logWarn('Attempt to open a new window was blocked.')
-    return { action: 'deny' }
-  })
-}
-
-function createLSExternal(url) {
-  lsWindow = new BrowserWindow({
-    frame: false,
-    width: 1400,
-    height: 1000,
-    minWidth: 1200,
-    minHeight: 800,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      webviewTag: true
-    }
-  })
-  lsWindow.setMenu(null)
-
-  try {
-    lsWindow.loadFile('./renderer/window-templates/anno-window.html')
-      .then(() => {
-        lsWindow.webContents.send('set-ls-url', url)
-        lsWindow.show()
-      })
-      .catch(err => {
-        closeLSWindow()
-        logError('Failed to open external LS window')
-        dialog.showErrorBox('Failed to open external LS window', 'Window Initialization Error')
-      })
-
-    lsWindow.on('close', () => {
-      mainWin.webContents.send('open-ls-ext:response')
-    })
-
-    lsWindow.webContents.setWindowOpenHandler(() => {
-      return { action: 'deny' }
-    })
-  } catch (err) {
-    closeLSWindow()
-  }
+    logWarn('Attempt to open a new window was blocked.');
+    return { action: 'deny' };
+  });
 }
 
 function closeScrapeWindow() {
   if (urlWindow) {
-    urlWindow.close()
-    urlWindow = null
+    urlWindow.close();
+    urlWindow = null;
   }
-  mainWin.webContents.send('ext-url-win-closed')
+  mainWin.webContents.send('ext-url-win-closed'); // if you still want to notify the main window
 }
+
+module.exports = { createURLWindow, closeScrapeWindow };
+
+
 
 function closeLSWindow(url = null) {
   if (lsWindow) {

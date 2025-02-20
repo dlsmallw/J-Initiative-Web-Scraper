@@ -178,3 +178,15 @@ contextBridge.exposeInMainWorld('urlScrape', {
         ipcRenderer.send('close-scrape-win');
     }
 });
+
+// NEW: A dedicated scrapeWindowAPI
+contextBridge.exposeInMainWorld('scrapeWindowAPI', {
+  openScrapeWindow: (url) => {
+    // Tells the main process to open a new scraping window
+    ipcRenderer.send('open-scrape-window', url);
+  },
+  closeScrapeWindow: () => {
+    // Tells the main process to close it if you have logic for that
+    ipcRenderer.send('close-scrape-window');
+  }
+});
