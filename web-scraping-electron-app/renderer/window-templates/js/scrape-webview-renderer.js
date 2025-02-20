@@ -139,6 +139,7 @@ function initScrapeUtilListeners() {
     $('#exportBtn').on('click', () => {
         const dataToExport = getAllReadyData();
         exportDataToApp(JSON.stringify(dataToExport));
+        addDataToDatabase();
     });
 
     webview.addEventListener('mouseenter', (e) => {
@@ -249,7 +250,7 @@ function appendNewScrapedItem(data) {
  */
 function addDataToDatabase() {
   const dataToExport = getAllReadyData();
-  this.databaseAPI.addScrapedDataToDatabase(JSON.stringify(dataToExport));
+  this.databaseAPI.addScrapedDataToDatabase(dataToExport);
   ipcRenderer.sendCloseSignal();
 }
 
