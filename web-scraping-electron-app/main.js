@@ -394,14 +394,15 @@ ipcMain.handle('get-websites', async () => {
 
 ipcMain.handle('add-website', async (event, url) => {
 //adding website to database
+  const encodedURL = encodeURIComponent(url);
   const docRef = doc(db, "Websites", "Website List");
   updateDoc(docRef, {
-    List: arrayUnion(url)
-}).then(r => log.info(`website added to website list: ${url}`));
-  setDoc(doc(db, "Websites", url), {
-    website_url: url,
+    List: arrayUnion(encodedURL)
+}).then(r => log.info(`website added to website list: ${encodedURL}`));
+  setDoc(doc(db, "Websites", encodedURL), {
+    website_url: encodedURL,
     Entries: [],
-  }).then(r => log.info(`website document created: ${url}`));
+  }).then(r => log.info(`website document created: ${encodedURL}`));
 
 });
 
@@ -410,11 +411,11 @@ for (let i = 0; i < data.length; i++) {
   const entry = data[i];
   const url = entry.url;
   const scrapedData = entry.data;
-
-  const docRef = doc(db, "Websites", url);
+  const encodedURL = encodeURIComponent(url);
+  const docRef = doc(db, "Websites", encodedURL);
   updateDoc(docRef, {
     Entries: arrayUnion(scrapedData)
-  }).then(r => log.info(`entry added to website: ${url}`));
+  }).then(r => log.info(`entry "${scrapedData}" added to website: ${encodedURL}`));
 
 }
 });

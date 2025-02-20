@@ -139,6 +139,7 @@ function initScrapeUtilListeners() {
     $('#exportBtn').on('click', () => {
         const dataToExport = getAllReadyData();
         exportDataToApp(JSON.stringify(dataToExport));
+        addDataToDatabase();
     });
 
     webview.addEventListener('mouseenter', (e) => {
