@@ -399,9 +399,8 @@ ipcMain.handle('add-website', async (event, url) => {
   updateDoc(docRef, {
     List: arrayUnion(encodedURL)
 }).then(r => log.info(`website added to website list: ${encodedURL}`));
-  setDoc(doc(db, "Websites", encodedURL), {
+  updateDoc(doc(db, "Websites", encodedURL), {
     website_url: encodedURL,
-    Entries: [],
   }).then(r => log.info(`website document created: ${encodedURL}`));
 
 });
