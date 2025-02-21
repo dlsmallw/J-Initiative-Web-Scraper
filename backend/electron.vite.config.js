@@ -59,6 +59,7 @@ export default defineConfig({
       emptyOutDir: true,
       rollupOptions: {
         input: path.resolve(__dirname, '../frontend/index.html'), // Frontend entry
+        external: ['electron'],
       },
     },
     server: {

@@ -235,22 +235,55 @@ function createMainWindow() {
     }
   });
 
+  logDebug('Main window created successfully.');
+
   if (isDev) {
-    // Attempt to load dev server
+    // Attempt to load Vite dev server
+    logDebug('Running in development mode. Attempting to load Vite dev server...');
     mainWin.loadURL('http://localhost:5173/')
+      .then(() => {
+        logInfo('Successfully loaded Vite dev server.');
+      })
       .catch((err) => {
-        log.error(`Failed to load dev server: ${err}`);
-        log.info('Falling back to local build...');
-        mainWin.loadFile(path.join(__dirname, '../../dist/index.html'))
+        logError(`Failed to load dev server: ${err}`);
+        logInfo('Falling back to the production build (local build)...');
+
+        // Use the correct fallback path
+        const fallbackPath = path.join(__dirname, '../../frontend/dist/index.html');
+        logInfo(`Attempting to load fallback file from: ${fallbackPath}`);
+
+        mainWin.loadFile(fallbackPath)
+          .then(() => {
+            logInfo('Fallback build loaded successfully.');
+          })
+          .catch((error) => {
+            logError(`Failed to load fallback build: ${error}`);
+          });
       });
+
     mainWin.webContents.openDevTools();
+    logDebug('Developer tools opened.');
   } else {
     // Production build
-    mainWin.loadFile(path.join(__dirname, '../../dist/index.html'))
+    logDebug('Running in production mode. Loading local build...');
+
+    const productionPath = path.join(__dirname, '../../frontend/dist/index.html');
+    logDebug(`Attempting to load production build from: ${productionPath}`);
+
+    mainWin.loadFile(productionPath)
+      .then(() => {
+        logInfo('Successfully loaded production build.');
+      })
+      .catch((error) => {
+        logError(`Failed to load the production build: ${error}`);
+      });
   }
 
+  // Remove the default Electron menu for a cleaner UI
   mainWin.setMenu(null);
+  logDebug('Application menu has been disabled.');
 }
+
 
 
 function createURLWindow(url) {
