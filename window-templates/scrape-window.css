@@ -16,6 +16,7 @@
     --font-family: 'Poppins', sans-serif;
     --border-color: #ced4da3d;
 
+
     /* Navbar and Links */
     --navbar-bg: var(--secondary-bg);
     --navbar-link-color: var(--primary-color);
@@ -34,12 +35,12 @@
     Light Theme
     - A clean and minimalistic theme with light colors.
 =======================================================================*/
-html.light-theme {
+   .light-theme {
     --primary-bg: #ffffff;
     --secondary-bg: #f8f9fade;
     --acc-body-bg: #fffffff7;
     --accent-bg: #e9ecef;
-    --primary-color: #212529;
+    --primary-color: #000;
     --secondary-color: #6c757d;
     --hover-color: #adb5bd;
     --navbar-bg: #f8f9fa;
@@ -53,56 +54,99 @@ html.light-theme {
     Dark Theme
     - A modern theme with dark backgrounds and light text.
 =======================================================================*/
-html.dark-theme {
-    --primary-bg: #2b2b2b;
-    --secondary-bg: #1e1e1e;
-    --acc-body-bg: #212529ab;
-    --accent-bg: #2c2c2c;
-    --primary-color: #f8f9fa;
-    --secondary-color: #ced4da;
-    --hover-color: #495057;
+    .dark-theme {
+    /* Base Colors */
+    --primary-bg: #121212;        /* Dark background for primary areas */
+    --secondary-bg: #1e1e1e;      /* Slightly lighter dark for secondary areas */
+    --accent-bg: #2c2c2c;         /* Accent elements background */
+    --primary-color: #ffffff;     /* Light text for readability */
+    --secondary-color: #b0b0b0;   /* Subdued secondary text */
+    --hover-color: #e0e0e0;       /* Lighter color for hover effects */
+
+    /* Navbar and Links */
     --navbar-bg: #1e1e1e;
+    --navbar-link-color: var(--primary-color);
+    --link-color: #bb86fc;        /* A purple accent for links */
+
+    /* Content Area and Buttons */
     --content-bg: #121212;
-    --link-color: #66b2ff;
-    --border-style: none;
-    --body-border-style: #d3d3d32e solid thin;
+    --button-bg: var(--accent-bg);
+    --button-color: var(--primary-color);
+
+    /* Borders */
+  --border-color: #00ffff;       /* Neon cyan for borders */
+  --border-style: #00ffff solid thin;
+  --body-border-style: #00ffff solid thin;
+
+    /* Additional variable used in your themes */
+    --acc-body-bg: #1c1c1c;
 }
 
 /*=======================================================================
     Blue Theme
     - A calm theme with shades of blue.
 =======================================================================*/
-html.blue-theme {
-    --primary-bg: #e3f2fd;
-    --secondary-bg: #bbdefb;
-    --acc-body-bg: #c7e3ff;
-    --accent-bg: #90caf9;
-    --primary-color: #0d47a1;
-    --secondary-color: #1976d2;
-    --hover-color: #1565c0;
-    --navbar-bg: #bbdefb;
-    --content-bg: #e3f2fd;
-    --link-color: #0d47a1;
-    --border-style: none;
+   .blue-theme {
+  /* Base Colors */
+  --primary-bg: #e3f2fd;         /* A light blue background */
+  --secondary-bg: #bbdefb;       /* Slightly darker blue for secondary areas */
+  --accent-bg: #90caf9;          /* A medium blue for accent elements */
+  --primary-color: #0d47a1;      /* Dark blue text for readability */
+  --secondary-color: #1976d2;    /* A vibrant blue for secondary text */
+  --hover-color: #64b5f6;        /* Lighter blue for hover effects */
+
+  /* Navbar and Links */
+  --navbar-bg: #bbdefb;
+  --navbar-link-color: var(--primary-color);
+  --link-color: #1565c0;         /* A slightly different blue accent for links */
+
+  /* Content Area and Buttons */
+  --content-bg: #e3f2fd;
+  --button-bg: var(--accent-bg);
+  --button-color: var(--primary-color);
+
+  /* Borders */
+  --border-color: #90caf9;
+  --border-style: #90caf9 solid thin;
+  --body-border-style: #90caf9 solid thin;
+
+  /* Additional */
+  --acc-body-bg: #bbdefb;
 }
+
 
 /*=======================================================================
     Disco Theme
     - Party time.
 =======================================================================*/
-html.disco-theme {
-    --primary-bg: #FF00FF;
-    --secondary-bg: #00CED1;
-    --acc-body-bg: #92fdff;
-    --accent-bg: #c8bca7;
-    --primary-color: #4B0082;
-    --secondary-color: #8d6e63;
-    --hover-color: #6d4c41;
-    --navbar-bg: #7FFF00;
-    --content-bg: #00CED1;
-    --link-color: #5d4037;
-    --border-style: none;
+   .disco-theme {
+  /* Base Colors */
+  --primary-bg: #FF00FF;
+  --secondary-bg: #00CED1;
+  --accent-bg: #c8bca7;
+  --primary-color: #4B0082;
+  --secondary-color: #d3d3d3;
+  --hover-color: #39ff14;
+
+  /* Navbar and Links */
+  --navbar-bg: #7FFF00;
+  --navbar-link-color: var(--primary-color);
+  --link-color: #ff00ff;         /* Neon pink for links */
+
+  /* Content Area and Buttons */
+  --content-bg: #000000;
+  --button-bg: #ff00ff;          /* Neon pink for button backgrounds */
+  --button-color: var(--primary-color);
+
+  /* Borders */
+  --border-color: #00ffff;       /* Neon cyan for borders */
+  --border-style: #00ffff solid thin;
+  --body-border-style: #00ffff solid thin;
+
+  /* Additional */
+  --acc-body-bg: #1a1a1a;
 }
+
 
 /*=======================================================================
     General Page Settings

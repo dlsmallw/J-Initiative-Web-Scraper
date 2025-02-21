@@ -2,29 +2,142 @@ import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
+const lsAPI = window.lsAPI
+const electronAPI = window.electronAPI
+
 export default function AnnotationPage() {
   const [lsUrl, setLsUrl] = useState(localStorage.getItem('lsURL') || '');
   const [apiToken, setApiToken] = useState(localStorage.getItem('apiToken') || '');
   const [isLsSet, setIsLsSet] = useState(!!lsUrl);
+  const [showExternal, setShowExternal] = useState(false)
 
+  // On mount or whenever lsUrl/token changes, store them in localStorage
   useEffect(() => {
     localStorage.setItem('lsURL', lsUrl);
     localStorage.setItem('apiToken', apiToken);
   }, [lsUrl, apiToken]);
 
-  const handleSubmitUrl = () => {
-    if (lsUrl.trim() === '') {
-      alert('Please enter a valid URL');
-      return;
+  // If we do have an LS URL on mount, call lsAPI methods (like your original code).
+  useEffect(() => {
+    if (lsUrl) {
+      if (apiToken) {
+        lsAPI.initVariables(lsUrl, apiToken)
+      } else {
+        lsAPI.updateURL(lsUrl)
+      }
     }
-    setIsLsSet(true);
-  };
+  }, [lsUrl, apiToken])
+
+  // Utility: Validate that the LS URL is https + includes ".hf" + not 404
+  const checkLSURL = (url) => {
+    let lsURL
+    try {
+      lsURL = new URL(url)
+    } catch (err) {
+      return false
+    }
+
+  // Allow localhost for development even if not HTTPS
+  if (lsURL.hostname === 'localhost') {
+    return true;
+  }
+
+  if (lsURL.protocol !== 'https:') return false;
+
+    // Quick check for .hf in the domain
+    if (!lsURL.host.split('.').find((st) => st === 'hf')) {
+      return false
+    }
+
+    // We won't do a blocking XHR here in React, but we could do fetch + 404 check
+    return true
+  }
+
+   const handleSubmitUrl = () => {
+    if (!lsUrl.trim()) {
+      postAlert(`The URL '${lsUrl}' is not valid`, 'Invalid URL')
+      setLsUrl('')
+      return
+    }
+    if (!checkLSURL(lsUrl)) {
+      postAlert(`The URL '${lsUrl}' is not valid`, 'Invalid URL')
+      setLsUrl('')
+      return
+    }
+    setIsLsSet(true)
+  }
 
   const handleClearProject = () => {
-    setLsUrl('');
-    setApiToken('');
-    setIsLsSet(false);
-  };
+    // Hide embedded
+    setIsLsSet(false)
+    setShowExternal(false)
+
+    // Clear local storage
+    localStorage.removeItem('lsURL')
+    localStorage.removeItem('apiToken')
+
+    // Clear React state
+    setLsUrl('')
+    setApiToken('')
+
+    // Call electron API
+    lsAPI.clearLinkedProject()
+  }
+
+  const handleOpenExternalWin = () => {
+    setShowExternal(true)
+    // In original code, we open an external LS window:
+    lsAPI.openExternal(lsUrl)
+  }
+
+  const handleCloseExternalWin = () => {
+    setShowExternal(false)
+  }
+
+  // If the external LS window closes, restore embedded view
+  useEffect(() => {
+    lsAPI?.extLSWinClosed(() => {
+      setShowExternal(false)
+    })
+  }, [])
+
+  // If the LS URL changes externally
+  useEffect(() => {
+    lsAPI?.urlChange((newUrl) => {
+      setLsUrl(newUrl)
+    })
+  }, [])
+
+  // Updating URL from the config input
+  const handleUpdateLsUrl = (newUrl) => {
+    if (!checkLSURL(newUrl)) {
+      postAlert(`The URL '${newUrl}' is not valid`, 'Invalid URL')
+      // revert to old value
+      return
+    }
+    setLsUrl(newUrl)
+  }
+
+  // Updating the API token from the config
+  const handleUpdateApiToken = (newToken) => {
+    // If you want a more robust token check, do it here
+    // For example: let regex = /^[A-Za-z0-9]+$/g;
+    // If (!regex.test(newToken)) { ... }
+    setApiToken(newToken)
+    lsAPI.updateToken(newToken)
+  }
+
+  // postAlert, logInfo, etc. If you have a custom logger, you can call it here
+  function postAlert(alertMsg, cause) {
+    const json = { msg: alertMsg, errType: cause || null }
+    if (!cause) {
+      electronAPI.postDialog.general(JSON.stringify(json))
+      console.info(alertMsg)
+    } else {
+      electronAPI.postDialog.error(JSON.stringify(json))
+      console.error(`${alertMsg} Cause: ${cause}`)
+    }
+  }
 
   return (
     <div className="my-5 container">

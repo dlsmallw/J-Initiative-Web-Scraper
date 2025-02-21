@@ -5,12 +5,23 @@ export default function NavBar() {
   const [theme, setTheme] = useState('dark-theme');
 
   useEffect(() => {
+    // Remove old theme classes, add the new one
     document.body.classList.remove('light-theme', 'dark-theme', 'blue-theme', 'disco-theme');
     document.body.classList.add(theme);
   }, [theme]);
 
   const handleThemeChange = (e) => {
     setTheme(e.target.value);
+  };
+
+  // Handler that calls your Electron IPC to open the external scrape window
+  const handleOpenScrape = () => {
+    if (window.electronAPI?.openScrapeWindow) {
+      // You can pass a default URL here, or leave it blank and handle in main
+      window.electronAPI.openScrapeWindow('https://en.wikipedia.org/wiki/GitHub');
+    } else {
+      console.warn('electronAPI.openScrapeWindow is not defined');
+    }
   };
 
   return (
@@ -31,8 +42,12 @@ export default function NavBar() {
             <li className="nav-item">
               <Link className="nav-link" to="/">Home</Link>
             </li>
+            {/* Remove or comment out the old <Link to="/scrape" ...> */}
             <li className="nav-item">
-              <Link className="nav-link" to="/scrape">Scrape</Link>
+              {/* Instead of a React route, call your Electron method */}
+              <a className="nav-link" href="#" onClick={handleOpenScrape}>
+                Scrape
+              </a>
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/annotation">Annotation</Link>

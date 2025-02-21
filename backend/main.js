@@ -249,7 +249,7 @@ function createMainWindow() {
         logInfo('Falling back to the production build (local build)...');
 
         // Use the correct fallback path
-        const fallbackPath = path.join(__dirname, '../../frontend/dist/index.html');
+        const fallbackPath = path.join(__dirname, '../frontend/dist/index.html');
         logInfo(`Attempting to load fallback file from: ${fallbackPath}`);
 
         mainWin.loadFile(fallbackPath)
@@ -267,7 +267,7 @@ function createMainWindow() {
     // Production build
     logDebug('Running in production mode. Loading local build...');
 
-    const productionPath = path.join(__dirname, '../../frontend/dist/index.html');
+    const productionPath = path.join(__dirname, '../frontend/dist/index.html');
     logDebug(`Attempting to load production build from: ${productionPath}`);
 
     mainWin.loadFile(productionPath)
@@ -284,101 +284,34 @@ function createMainWindow() {
   logDebug('Application menu has been disabled.');
 }
 
-
-
 function createURLWindow(url) {
-  try {
-    new URL(url);
-  } catch (err) {
-    logError(`Invalid URL: ${url}`);
-    return;
-  }
-
   logDebug(`Creating URL window for: ${url}`);
 
-  urlWindow = new BrowserWindow({
-    frame: false,
+  let preloadPath = path.join(__dirname, '../../../window-templates/scrape-webview-preload.js');
+
+  const urlWindow = new BrowserWindow({
     width: 1400,
     height: 1000,
-    minWidth: 1200,
-    minHeight: 800,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js'),
       webviewTag: true,
-    },
+      preload: preloadPath
+    }
   });
 
   urlWindow.hide();
 
-  if (isDev) {
-    // DEV: Load the Vite dev server route
-    urlWindow
-      .loadURL(`http://localhost:5173/#/scrape-window`)
-      .then(() => {
-        // (Optional) pass the `url` to the renderer
-        urlWindow.webContents.send('setUrl', url);
-        urlWindow.show();
-        logInfo(`URL window loaded in dev mode: ${url}`);
-      })
-      .catch((error) => {
-        closeScrapeWindow();
-        logError(`Failed to load dev URL: ${error}`);
-        dialog.showErrorBox(
-          'Invalid URL',
-          'Cannot open URL in dev mode!'
-        );
-      });
-
-    urlWindow.webContents.openDevTools();
-  } else {
-    // PROD: Load the built React app in /frontend/dist, with #/scrape-window
-    const distPath = path.join(__dirname, '../frontend/dist', 'index.html');
-
-    urlWindow
-      .loadURL(`file://${distPath}#/scrape-window`)
-      .then(() => {
-        // (Optional) pass the `url` to the renderer
-        urlWindow.webContents.send('setUrl', url);
-        urlWindow.show();
-        logInfo(`URL window loaded in production: ${url}`);
-      })
-      .catch((error) => {
-        closeScrapeWindow();
-        logError(`Failed to load URL: ${error}`);
-        dialog.showErrorBox(
-          'Invalid URL',
-          'Cannot open URL in production!'
-        );
-      });
-  }
-
-  // Optional: Block navigation to external sites once loaded
-  urlWindow.webContents.on('will-navigate', (event, navigateUrl) => {
-    if (navigateUrl !== url) {
-      event.preventDefault();
-      logWarn(`Navigation attempt to external URL blocked: ${navigateUrl}`);
-    }
-  });
-
-  // Optional: Block new windows
-  urlWindow.webContents.setWindowOpenHandler(() => {
-    logWarn('Attempt to open a new window was blocked.');
-    return { action: 'deny' };
-  });
+  urlWindow.loadFile(path.join(__dirname, '../../../window-templates/scrape-window.html'))
+    .then(() => {
+      // If you want to pass the URL to the webview:
+      urlWindow.webContents.send('setUrl', url);
+      urlWindow.show();
+    })
+    .catch((error) => {
+      console.error('Failed to load window:', error);
+    });
 }
-
-function closeScrapeWindow() {
-  if (urlWindow) {
-    urlWindow.close();
-    urlWindow = null;
-  }
-  mainWin.webContents.send('ext-url-win-closed'); // if you still want to notify the main window
-}
-
-module.exports = { createURLWindow, closeScrapeWindow };
-
 
 
 function closeLSWindow(url = null) {

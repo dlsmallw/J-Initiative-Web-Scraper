@@ -2,21 +2,13 @@ import React, { useState, useEffect } from 'react';
 
 const Scrape = () => {
   // ----- Component State -----
-  // false: URL mode (default); true: Manual mode.
   const [isManualMode, setIsManualMode] = useState(false);
-  // URL input field value (for URL mode)
   const [urlInput, setUrlInput] = useState('');
-  // Data items scraped (each item: { url, data, selected })
   const [scrapedItems, setScrapedItems] = useState([]);
-  // Whether the scraped results container is visible
   const [resultsVisible, setResultsVisible] = useState(false);
-  // Project selection for URL mode
   const [projectSelectUrl, setProjectSelectUrl] = useState('');
-  // Project selection for Manual mode
   const [projectSelectMan, setProjectSelectMan] = useState('');
-  // Manual data entry value (for Manual mode)
   const [manualData, setManualData] = useState('');
-  // Flag for export process (disable fields during export if desired)
   const [isExporting, setIsExporting] = useState(false);
 
   // ----- Mode Toggle Handler -----
@@ -24,8 +16,8 @@ const Scrape = () => {
     setIsManualMode(prev => !prev);
   };
 
-  // ----- URL Validation & Submit Handler -----
-  const handleUrlSubmit = async () => {
+  // ----- URL Submit Handler (without validation fetch) -----
+  const handleUrlSubmit = () => {
     let url = urlInput.trim();
     if (!url) {
       alert('Please enter a URL');
@@ -35,49 +27,18 @@ const Scrape = () => {
     if (!/^https?:\/\//i.test(url)) {
       url = 'https://' + url;
     }
-    const isValid = await checkURL(url);
-    if (!isValid) {
-      alert('Please enter a valid URL');
-      return;
-    }
-    // Call Electron’s openExternal if available
+    // Directly open the URL via Electron (no fetch validation)
     if (window.electronAPI?.openExternal) {
       window.electronAPI.openExternal(url);
     }
-    // (Optional) You might want to store the URL elsewhere or update state
-  };
-
-  // Validate URL by attempting to GET it
-  const checkURL = (url) => {
-    return new Promise((resolve) => {
-      try {
-        const urlObj = new URL(url);
-        if (urlObj.protocol !== "https:") {
-          resolve(false);
-          return;
-        }
-        const req = new XMLHttpRequest();
-        req.open('GET', url, true);
-        req.onreadystatechange = function () {
-          if (req.readyState === 4) {
-            resolve(req.status !== 404);
-          }
-        };
-        req.send();
-      } catch (e) {
-        resolve(false);
-      }
-    });
+    // (Optional) Store the URL or update state as needed
   };
 
   // ----- Export Handlers -----
-  // Common export function that formats data and calls the API
   const exportData = (dataArr, projID) => {
     setIsExporting(true);
     if (dataArr && dataArr.length > 0) {
       const lsFormattedArr = dataArr.map(item => ({ textData: item.data }));
-      // If needed, you can also format data for the database:
-      // const dbFormattedArr = dataArr.map(item => ({ url: item.url, textData: item.data }));
       if (window.lsAPI?.exportDataToLS) {
         window.lsAPI.exportDataToLS(JSON.stringify(lsFormattedArr), projID);
       }
@@ -86,7 +47,6 @@ const Scrape = () => {
     }
   };
 
-  // Called when the Export button in URL mode is pressed
   const handleExportUrl = () => {
     if (scrapedItems.length === 0) {
       alert('No Data to Export');
@@ -95,7 +55,6 @@ const Scrape = () => {
     exportData(scrapedItems, projectSelectUrl);
   };
 
-  // Called when the Export button in Manual mode is pressed
   const handleExportManual = () => {
     if (manualData.trim() === '') {
       alert('Data Field Cannot Be Empty!');
@@ -106,7 +65,6 @@ const Scrape = () => {
   };
 
   // ----- Scraped Items Handlers -----
-  // Toggle “selected” state for an item in the scraped list
   const toggleScrapedItem = (index) => {
     setScrapedItems(prevItems => {
       const newItems = [...prevItems];
@@ -115,12 +73,10 @@ const Scrape = () => {
     });
   };
 
-  // Remove all items that are currently selected
   const removeSelectedItems = () => {
     setScrapedItems(prevItems => prevItems.filter(item => !item.selected));
   };
 
-  // Remove all scraped items and hide the results container
   const clearScrapedList = () => {
     setScrapedItems([]);
     setResultsVisible(false);
@@ -128,18 +84,15 @@ const Scrape = () => {
 
   // ----- Integration with External API (Electron, LS) -----
   useEffect(() => {
-    // Listen for URL open errors
     if (window.electronAPI?.openURLErr) {
       window.electronAPI.openURLErr((errorMessage) => {
         alert('Failed to open URL: ' + errorMessage);
       });
     }
-    // Listen for scraped data updates
     if (window.electronAPI?.receive) {
       window.electronAPI.receive('scrapedData:update', (data) => {
         try {
           const jsonObj = JSON.parse(data);
-          // Add a "selected" flag for each new item
           const newItems = jsonObj.map(item => ({ ...item, selected: false }));
           setScrapedItems(prevItems => [...prevItems, ...newItems]);
           setResultsVisible(true);
@@ -148,7 +101,6 @@ const Scrape = () => {
         }
       });
     }
-    // Listen for export responses from LS API
     if (window.lsAPI?.onExportResponse) {
       window.lsAPI.onExportResponse((res) => {
         try {
@@ -169,7 +121,6 @@ const Scrape = () => {
         setIsExporting(false);
       });
     }
-    // Listen for external window close event
     if (window.electronAPI?.onExtWindowClose) {
       window.electronAPI.onExtWindowClose(() => {
         if (scrapedItems.length === 0) {
@@ -178,8 +129,7 @@ const Scrape = () => {
         }
       });
     }
-    // Cleanup listeners if necessary when the component unmounts…
-  }, []); // Note: dependency array is empty so listeners are set once
+  }, []);
 
   // ----- Render -----
   return (
