@@ -412,13 +412,15 @@ ipcMain.handle('get-websites-entries', async (event, url) => {
 ipcMain.handle('add-website', async (event, url) => {
 //adding website to database
   const encodedURL = encodeURIComponent(url);
-  const docRef = doc(db, "Websites", "Website List");
-  updateDoc(docRef, {
+  let docRef = doc(db, "Websites", "Website List");
+  await updateDoc(docRef, {
     List: arrayUnion(encodedURL)
 }).then(r => log.info(`website added to website list: ${encodedURL}`));
-  updateDoc(doc(db, "Websites", encodedURL), {
-    website_url: encodedURL,
-  }).then(r => log.info(`website document created: ${encodedURL}`));
+  docRef = doc(db, "Websites", encodedURL);
+  log.info('creating doc: ' + encodedURL);
+  await setDoc(docRef, {
+    website_url: encodedURL
+  }, { merge: true });
 
 });
 
