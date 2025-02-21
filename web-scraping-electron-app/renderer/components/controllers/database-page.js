@@ -154,12 +154,22 @@ export class DatabasePageController {
     websiteInfo.innerHTML = '';
     const websites = await this.databaseAPI.getWebsiteData();
     const websiteList = websites.split(/\n/);
-    websiteList.forEach(website => {
+    for (let website of websiteList) {
+      let entries = await this.databaseAPI.getWebsiteEntries(website);
+      entries = entries.split(/\n/);
+      website = decodeURIComponent(website);
+      let counter = 1;
+      for (const entry of entries) {
+        if(entry !== '') {
+          website += '\n    ' + 'Entry ' + counter + ': ' + entry;
+          counter++;
+        }
+      }
       const websiteEntry = document.createElement('div');
       websiteEntry.className = 'website-entry';
-      websiteEntry.textContent = website.trim();
+      websiteEntry.textContent = website;
       websiteInfo.appendChild(websiteEntry);
-    });
+    }
     this.logDebug('website data displayed in UI.');
   }
 }

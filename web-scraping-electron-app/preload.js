@@ -183,6 +183,9 @@ contextBridge.exposeInMainWorld('databaseAPI', {
   getWebsiteData: () => {
     return ipcRenderer.invoke('get-websites');
   },
+  getWebsiteEntries: (url) => {
+    return ipcRenderer.invoke('get-websites-entries', url);
+  },
   addWebsiteToDatabase: (url) => {
     return ipcRenderer.invoke('add-website', url);
   },

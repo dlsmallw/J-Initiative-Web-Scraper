@@ -392,6 +392,23 @@ ipcMain.handle('get-websites', async () => {
   }
 });
 
+ipcMain.handle('get-websites-entries', async (event, url) => {
+  let entries = '';
+  try {
+    const docRef = doc(db, "Websites", url);
+    const docSnap = await getDoc(docRef);
+    const documentData = docSnap.data();
+    const entryList = documentData.Entries;
+    entryList.forEach(entry => {
+      entries += entry + '\n';
+    });
+    return entries;
+  } catch (error) {
+    return ''; // Return empty string on error
+  }
+});
+
+
 ipcMain.handle('add-website', async (event, url) => {
 //adding website to database
   const encodedURL = encodeURIComponent(url);
