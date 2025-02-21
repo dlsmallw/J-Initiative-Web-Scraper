@@ -5,6 +5,7 @@ import { AnnotationPageController } from '../components/controllers/annotation-p
 import { DatabasePageController } from '../components/controllers/database-page.js';
 import { LogPageController } from '../components/controllers/log-page.js';
 import { AboutPageController } from '../components/controllers/about-page.js';
+import { SettingsPageController } from '../components/controllers/settings-page.js';
 
 
 const ipcRenderer = window.electronAPI;
@@ -17,7 +18,8 @@ const Pages = {
     Annotation: new AnnotationPageController(),
     Database: new DatabasePageController(),
     About: new AboutPageController(),
-    Logs: new LogPageController()
+    Logs: new LogPageController(),
+    Settings: new SettingsPageController()
 };
 
 let currentPage;
@@ -110,6 +112,7 @@ function getPage(value) {
  * @param {*} event     The event corresponding to a page change.
  */
 function changePage(event) {
+
     logDebug("Attempting to change page due to " + event.type);
     event.preventDefault(); // Prevent default link behavior
     const newPage = getPage(this.id.split('-')[0]);
@@ -120,7 +123,6 @@ function changePage(event) {
         newPage.setPageActive();
 
         currentPage = newPage;
-
         logInfo(`Page changed to ${currentPage.getName()}.`);
 
         // Load logs if the current page is the Logs page
