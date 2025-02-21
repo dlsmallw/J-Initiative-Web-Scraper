@@ -1,20 +1,32 @@
 
 <!-- HTML component used for the settings page in the application. -->
-<div id="settings-container" class="my-5 container" style="display: none;">
+<!-- re add the style="display: none;"-->
+<div id="settings-container" class="my-5 container" ><!--style="display: none;">-->
 <form>
+	<fieldset>
+		<legend id="settingsHeading">Settings</legend>
+	</fieldset>
 	<fieldset>
 		<legend>Search History</legend>
 
 		<fieldset>
-			<label for="saveLast">Save Last: </label>
-			<input type="text" id="saveLast" />
-		</fieldset>
-		<fieldset>
-			<select name="searchHistory" onclick="">
-				<option value="Option1">Option1</option>
-				<option value="Option2">Option2</option>
+			<ul>
+				<li>
+					<label for="viewLast">View Last: </label>
+					<input type="text" id="viewLast" />
+				</li>
+				<li>
+					<select name="searchHistory" onclick="">
+						<option value="Option1">Option1</option>
+						<option value="Option2">Option2</option>
 
 			</select>
+				</li>
+			</ul>
+			
+		</fieldset>
+		<fieldset>
+			
 		</fieldset>
 	</fieldset>
 	
@@ -22,16 +34,32 @@
 		<legend>Window Dimensions</legend>
 
 		<fieldset>
-			<label for="width">Width: </label>
-			<input type="text" id="width" />
+			<ul>
+				<li>
+					<label for="width">Width: </label>
+					<input type="text" id="width" />
+				</li>
+				<li>
+					<label for="height">Height: </label>
+					<input type="text" id="height" />
+				</li>
+			</ul>
+			
 
-			<label for="height">Height: </label>
-			<input type="text" id="height" />
+			
 		</fieldset>
 
-		<fieldset>
-			<button type="button" id="preset1" onclick="preset1()">Preset 1</button>
-			<button type="button" id="preset2" onclick="preset2()">Preset 2</button>
+		<fieldset id="dimensionPresets">
+			<ul>
+				<li>
+					<button type="button" id="preset1" onclick="preset1()">Preset 1</button>
+				</li>
+				<li>
+					<button type="button" id="preset2" onclick="preset2()">Preset 2</button>
+				</li>
+			</ul>
+			
+			
 		</fieldset>
 
 
