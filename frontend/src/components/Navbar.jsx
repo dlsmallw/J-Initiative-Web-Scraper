@@ -5,23 +5,12 @@ export default function NavBar() {
   const [theme, setTheme] = useState('dark-theme');
 
   useEffect(() => {
-    // Remove old theme classes, add the new one
     document.body.classList.remove('light-theme', 'dark-theme', 'blue-theme', 'disco-theme');
     document.body.classList.add(theme);
   }, [theme]);
 
   const handleThemeChange = (e) => {
     setTheme(e.target.value);
-  };
-
-  // Handler that calls your Electron IPC to open the external scrape window
-  const handleOpenScrape = () => {
-    if (window.electronAPI?.openScrapeWindow) {
-      // You can pass a default URL here, or leave it blank and handle in main
-      window.electronAPI.openScrapeWindow('https://en.wikipedia.org/wiki/GitHub');
-    } else {
-      console.warn('electronAPI.openScrapeWindow is not defined');
-    }
   };
 
   return (
@@ -39,27 +28,39 @@ export default function NavBar() {
 
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav mb-0 not-draggable me-auto" id="navbar-ul-1">
+            {/* Home link */}
             <li className="nav-item">
-              <Link className="nav-link" to="/">Home</Link>
+              <Link className="nav-link" to="/">
+                Home
+              </Link>
             </li>
-            {/* Remove or comment out the old <Link to="/scrape" ...> */}
+
+            {/* Scrape link => Takes you to /scrape route in React */}
             <li className="nav-item">
-              {/* Instead of a React route, call your Electron method */}
-              <a className="nav-link" href="#" onClick={handleOpenScrape}>
+              <Link className="nav-link" to="/scrape">
                 Scrape
-              </a>
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link className="nav-link" to="/annotation">
+                Annotation
+              </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/annotation">Annotation</Link>
+              <Link className="nav-link" to="/database">
+                Database
+              </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/database">Database</Link>
+              <Link className="nav-link" to="/about">
+                About
+              </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/about">About</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/logs">Logs</Link>
+              <Link className="nav-link" to="/logs">
+                Logs
+              </Link>
             </li>
           </ul>
 
@@ -78,7 +79,9 @@ export default function NavBar() {
               </select>
             </li>
             <li className="nav-item">
-              <a className="nav-link" id="exit-nav" href="#">Exit</a>
+              <a className="nav-link" id="exit-nav" href="#">
+                Exit
+              </a>
             </li>
           </ul>
         </div>
@@ -86,4 +89,6 @@ export default function NavBar() {
     </nav>
   );
 }
+
+
 

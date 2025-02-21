@@ -1,75 +1,63 @@
-// scrape-webview-preload.js
-const { contextBridge, ipcRenderer } = require('electron');
+// webview_preload.js
 
-// A small delay utility
+// Import the ipcRenderer module from Electron
+const { ipcRenderer } = require('electron');
+
+// Creates a time delay for events
 const delay = (timeDelay) => new Promise(resolve => setTimeout(resolve, timeDelay));
 
-// Expose an API to the "host" (i.e. the code in scrape-webview-renderer.js)
-contextBridge.exposeInMainWorld('urlScrape', {
-  // Equivalent to a custom “receive” – if you want to listen for, e.g., 'setUrl' in the webview
-  on: (channel, callback) => {
-    ipcRenderer.on(channel, (event, ...args) => callback(...args));
-  },
-
-  // Equivalent to "send" to the main process
-  emit: (channel, data) => {
-    ipcRenderer.send(channel, data);
-  },
-
-  // For scenario: close-scrape-win
-  sendCloseSignal: () => {
-    ipcRenderer.send('close-scrape-win');
-  }
-});
-
-// This script runs **inside** the <webview> context
+// Export button listener inside the webview
 document.addEventListener('DOMContentLoaded', () => {
-  initMouseEventListeners();
+    initMouseEventListeners();
 
-  // If the host calls webview.send('getSelected'), we catch it here
-  ipcRenderer.on('getSelected', function () {
-    const jsonObj = {
-      url: window.location.href.toString(),
-      data: getSelectedText(),
-    };
-    // Send the selected text back to the host script
-    ipcRenderer.sendToHost('selection', JSON.stringify(jsonObj));
-  });
+    // Listen for 'getSelected' messages from the host (renderer process)
+    ipcRenderer.on('getSelected', function () {
+        var jsonObj = {
+            url: window.location.href.toString(),
+            data: getSelectedText()
+        }
+        // When received, send the selected text back to the host using 'ipcRenderer.sendToHost'
+        ipcRenderer.sendToHost('selection', JSON.stringify(jsonObj));
+    });
 });
 
 /**
  * Function to get the currently selected text in the webview
- * @returns {string} - The current selection
+ * @returns String      The current selection.
  */
 function getSelectedText() {
-  return window.getSelection().toString().trim();
+    return window.getSelection().toString().trim();
 }
 
 /**
- * Checks if user has text selected and either enables or disables the import button
- * by sending a message (enable-import / disable-import) to the host script.
+ * Checks if their is currently text selected and either enables or diables the import button.
  */
 function selectedTextCheck() {
-  if (getSelectedText() !== '') {
-    ipcRenderer.sendToHost('enable-import');
-  } else {
-    ipcRenderer.sendToHost('disable-import');
-  }
+    if (getSelectedText() !== '') {
+        ipcRenderer.sendToHost('enable-import');
+    } else {
+        ipcRenderer.sendToHost('disable-import');
+    }
 }
 
 /**
- * Sets up listeners to track text selection
+ * This will initialize listeners that dynamically track whether text is selected or not.
+ * NOTE: Setting these three event listeners ensures that it is always checking whether text is selected.
  */
 function initMouseEventListeners() {
-  document.addEventListener('mousemove', () => {
-    selectedTextCheck();
-  });
-  document.addEventListener('mouseup', async () => {
-    await delay(50);
-    selectedTextCheck();
-  });
-  document.addEventListener('mousedown', async () => {
-    await delay(50);
-    selectedTextCheck();
-  });
+    document.addEventListener('mousemove', () => {
+        selectedTextCheck();
+    });
+
+    document.addEventListener('mouseup', async () => {
+        // Delay to allow selection to update
+        await delay(50);
+        selectedTextCheck();
+    });
+
+    document.addEventListener('mousedown', async () => {
+        // Delay to allow selection to update
+        await delay(50);
+        selectedTextCheck();
+    });
 }

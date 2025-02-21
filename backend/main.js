@@ -285,34 +285,99 @@ function createMainWindow() {
 }
 
 function createURLWindow(url) {
-  logDebug(`Creating URL window for: ${url}`);
+  try {
+    new URL(url)
+  } catch (err) {
+    logError(`Invalid URL: ${url}`)
+    return
+  }
 
-  let preloadPath = path.join(__dirname, '../../../window-templates/scrape-webview-preload.js');
-
-  const urlWindow = new BrowserWindow({
+  logDebug(`Creating URL window for: ${url}`)
+  urlWindow = new BrowserWindow({
+    frame: false,
     width: 1400,
     height: 1000,
+    minWidth: 1200,
+    minHeight: 800,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      webviewTag: true,
-      preload: preloadPath
+      preload: path.join(__dirname, 'preload.js'),
+      webviewTag: true
     }
-  });
+  })
 
-  urlWindow.hide();
-
-  urlWindow.loadFile(path.join(__dirname, '../../../window-templates/scrape-window.html'))
+  urlWindow.hide()
+  urlWindow.loadFile('./renderer/window-templates/scrape-window.html')
     .then(() => {
-      // If you want to pass the URL to the webview:
-      urlWindow.webContents.send('setUrl', url);
-      urlWindow.show();
+      urlWindow.webContents.send('setUrl', url)
+      urlWindow.show()
+      logInfo(`URL window loaded: ${url}`)
     })
-    .catch((error) => {
-      console.error('Failed to load window:', error);
-    });
+    .catch(error => {
+      closeScrapeWindow()
+      logError(`Failed to load URL: ${error}`)
+      dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!')
+    })
+
+  urlWindow.webContents.on('will-navigate', (event, navigateUrl) => {
+    if (navigateUrl !== url) {
+      event.preventDefault()
+      logWarn(`Navigation attempt to external URL blocked: ${navigateUrl}`)
+    }
+  })
+
+  urlWindow.webContents.setWindowOpenHandler(() => {
+    logWarn('Attempt to open a new window was blocked.')
+    return { action: 'deny' }
+  })
 }
 
+function createLSExternal(url) {
+  lsWindow = new BrowserWindow({
+    frame: false,
+    width: 1400,
+    height: 1000,
+    minWidth: 1200,
+    minHeight: 800,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      webviewTag: true
+    }
+  })
+  lsWindow.setMenu(null)
+
+  try {
+    lsWindow.loadFile('./renderer/window-templates/anno-window.html')
+      .then(() => {
+        lsWindow.webContents.send('set-ls-url', url)
+        lsWindow.show()
+      })
+      .catch(err => {
+        closeLSWindow()
+        logError('Failed to open external LS window')
+        dialog.showErrorBox('Failed to open external LS window', 'Window Initialization Error')
+      })
+
+    lsWindow.on('close', () => {
+      mainWin.webContents.send('open-ls-ext:response')
+    })
+
+    lsWindow.webContents.setWindowOpenHandler(() => {
+      return { action: 'deny' }
+    })
+  } catch (err) {
+    closeLSWindow()
+  }
+}
+
+function closeScrapeWindow() {
+  if (urlWindow) {
+    urlWindow.close()
+    urlWindow = null
+  }
+  mainWin.webContents.send('ext-url-win-closed')
+}
 
 function closeLSWindow(url = null) {
   if (lsWindow) {
