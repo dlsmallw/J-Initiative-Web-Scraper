@@ -417,6 +417,15 @@ body {
 
 }
 
+#settings-container #windowDimensions fieldset {
+    max-width: 25%;
+}
+
+#settings-container #windowDimensions label {
+    width: 44%;
+}
+
+
 #settings-container fieldset fieldset {
     float: center;
     display: block;
@@ -437,8 +446,10 @@ body {
 }
 
 #settings-container form li {
-    margin: 0;
+    margin-left: 0;
     padding: 0;
+    margin-top: 5px;
+    margin-bottom: 5px;
     list-style: none;
 }
 
