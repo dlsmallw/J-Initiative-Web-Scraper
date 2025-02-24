@@ -1,53 +1,32 @@
-Node.js and npm: Verify by running node -v and npm -v.
-Vite CLI: Install globally for ease of use.  
+Proposition:
 
-``` npm install -g create-vite ```
+Our current Electron application built with Vite and React has successfully implemented logging and annotation features.
+However, integrating a webview to open external URLs has proven problematic due to CORS restrictions—external URLs are 
+blocked when loaded directly from the renderer context.
 
-Navigate to renderer directory and list installed Vue packages:  
-``` npm ls vue ```
+Continue Pursuing Vite + React with Workarounds?
 
-Uninstall Vue Dependencies  
-```npm uninstall @vue/server-renderer@3.5.13 extraneous```
+Proposed Workarounds:
 
-Clean node_modules and Reinstall Dependencies  
-```rm -rf node_modules package-lock.json```
+Separate BrowserWindow: Open external URLs in a dedicated Electron BrowserWindow with a preload script. This window 
+would use the native Electron webview (or directly load the URL) to bypass CORS.  Main Process Fetching: Handle external 
+requests in the main process using Node APIs (e.g., node-fetch), then pass the fetched content to the renderer.
+Hybrid Approach: Maintain the React UI while isolating webview functionality in a separate window or via iframes 
+configured with Electron’s webPreferences (ensuring webviewTag: true).
 
-Reinstall  
-```npm install```
+Implications:
 
-Use Vite's CLI to scaffold a new React project within the renderer directory:
-```npm create vite@latest```
+Advantages:
+Leverages modern Vite + React tooling.
+Maintains a consistent React-based UI for internal components.
+Disadvantages:
+Increases architectural complexity by splitting functionality between renderer and main processes.
+Requires additional IPC bridging and maintenance overhead.
+Workarounds might not be as seamless as native integration.
 
-Set up Vite with React
-Project name: vite-demo
-Framework: React.
-Variant: JavaScript 
-```
-renderer/
-├── index.html
-├── src/
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── ...other React components
-├── package.json
-├── vite.config.js
-└── ...other Vite files
-```
-
-React setup
-```npm install @vitejs/plugin-react --save-dev```
-
-To run the demo you need to navigate to renderer/vite-demo
-Here is a list of commands:
-```
-Scripts available in vite-demo@0.0.0 via `npm run-script`:
-  dev
-    vite
-  build
-    vite build
-  lint
-    eslint .
-  preview
-    vite preview
-```
+Continuing with Vite + React offers modern development benefits but requires additional engineering effort to reliably 
+integrate external URL loading (via workarounds like a separate BrowserWindow or main-process fetching). Removing 
+external URL components simplifies the stack but may compromise core functionality. The decision should be based on 
+whether maintaining external scraping is essential to the application’s purpose or if a more internalized solution can 
+meet project requirements.
 
