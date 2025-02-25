@@ -161,6 +161,7 @@ function updateProjectOptions(projects) {
  * Initializes the theme based on the user's saved preference or defaults to light theme.
  */
 function initializeTheme() {
+    console.log("init")
     const themeSelect = $('#theme-select');
 
     // Load the saved theme from localStorage if it exists
