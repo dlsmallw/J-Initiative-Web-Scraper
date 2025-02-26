@@ -230,6 +230,19 @@ export class SettingsPageController {
     }
 
     /**
+     * Function to add an inputted link to the search history (stored locally) 
+     */
+    addToHistory(url) {
+        var history = localStorage.getItem('searchHistory');
+        if(history) {
+            var historyJSON = JSON.parse(history);
+            historyJSON.push(url);
+            var history2 = JSON.stringify(historyJSON);
+            localStorage.setItem('searchHistory', history2);
+        }
+    }
+
+    /**
      * Function for handling the event where a LS URL is entered and submitted.
      */
     initLSURL() {
@@ -237,6 +250,8 @@ export class SettingsPageController {
 
         if (urlInput !== '') {
             if (this.checkLSURL(urlInput)) {
+                addToHistory(urlInput);
+
                 this.setLSURL(urlInput);
                 this.showLSEmbeddedFrame();
             } else {

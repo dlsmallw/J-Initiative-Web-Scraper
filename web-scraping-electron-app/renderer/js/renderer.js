@@ -211,7 +211,7 @@ function changeTheme() {
 }
 
 /**
- * Changes the theme based on user selection and saves the choice to localStorage.
+ * Changes the theme based on user selection in the settings menu and saves the choice to localStorage.
  */
 function changeTheme2() {
     const theme = $('#theme-select-2').val();
@@ -228,6 +228,9 @@ function changeTheme2() {
 
 var hasAttachedSettings = false;
 
+/**
+ * Attaches settings to the settings menu objects during runtime
+*/
 function attachSettings() {
     if(!hasAttachedSettings) {
         hasAttachedSettings = true;
@@ -273,13 +276,26 @@ function attachSettings() {
         }
         else {
             logWarn(`Couldn't locate theme-select-2 to attach events to`);
-        }
-        
+        }   
     }
+}
 
+function loadHistory() {
+    const history = localStorage.getItem("searchHistory");
+    if(history) {
+        const historyJSON = JSON.parse(history);
+
+        const historyDropdown = $('#searchHistory');
+        if(isInDom(historyDropdown)) {
+            for(item in historyJSON) {
+                var option = document.createElement('option');
+                option.text = item;
+                option.value = item;
+                historyDropdown.add(option, 0);
+            }
+        }
+    }
     
-
-
 }
 
 function initializeSettingsAdjust() {
