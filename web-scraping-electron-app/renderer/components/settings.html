@@ -33,12 +33,12 @@
 		<fieldset>
 			<ul>
 				<li>
-					<label for="width">Width: </label>
-					<input type="number" min="200" max="2000" id="width" />
+					<label for="widthI">Width: </label>
+					<input type="number" min="200" max="3000" defaultValue="800" id="widthI" />
 				</li>
 				<li>
-					<label for="height">Height: </label>
-					<input type="number" min="200" max="2000" id="height" />
+					<label for="heightI">Height: </label>
+					<input type="number" min="200" max="3000" defaultValue="800" id="heightI" />
 				</li>
 			</ul>
 			
@@ -49,10 +49,10 @@
 		<fieldset id="dimensionPresets">
 			<ul>
 				<li>
-					<button type="button" id="preset1" onclick="preset1()">Preset 1</button>
+					<button type="button" id="preset1">Preset 1</button>
 				</li>
 				<li>
-					<button type="button" id="preset2" onclick="preset2()">Preset 2</button>
+					<button type="button" id="preset2">Preset 2</button>
 				</li>
 			</ul>
 			
@@ -66,7 +66,7 @@
 		<legend>Color Modes</legend>
 
 		<fieldset>
-			<select name="colorModes" id="theme-select">
+			<select name="colorModes" id="theme-select-2">
 				<option value="light-theme">Light Theme</option>
                 <option value="dark-theme">Dark Theme</option>
                 <option value="blue-theme">Blue Theme</option>
@@ -95,15 +95,22 @@
 
 	<fieldset>
 
-		<button type="button" onclick="return 0">Save</button>
+		<button type="button" id="save-settings">Save</button>
 
 	</fieldset>
 </form>
 
-<script>
+<!--<script>
 	// Placeholder: on load, call renderer.js's initializeTheme()
 
 	// Placeholder: confirm that #theme-select is registered with render.js's changeTheme() method.
+	
+
+
+	document.addEventListener('DOMContentLoaded', () => {
+		console.log("Settings loaded");
+	});
 
 	</script>
+-->
 </div>

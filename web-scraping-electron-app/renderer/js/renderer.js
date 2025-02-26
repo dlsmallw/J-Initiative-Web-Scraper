@@ -32,6 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize pages by loading their content
     initPages();
 
+    // Initialize listeners for settings page 
+    initializeSettingsAdjust();
+
     // Log that the renderer process is ready
     logInfo('Renderer process is ready.');
 });
@@ -161,7 +164,7 @@ function updateProjectOptions(projects) {
  * Initializes the theme based on the user's saved preference or defaults to light theme.
  */
 function initializeTheme() {
-    console.log("init")
+    
     const themeSelect = $('#theme-select');
 
     // Load the saved theme from localStorage if it exists
@@ -179,8 +182,14 @@ function initializeTheme() {
         // Set the dropdown to the saved value if available
         themeSelect.val(savedTheme || 'light-theme');
 
+        
+
         // Add an event listener to change the theme whenever the user selects a new option
         themeSelect.on('change', changeTheme);
+
+        
+
+        
     } else {
         logWarn('Theme select element not found.');
     }
@@ -199,6 +208,149 @@ function changeTheme() {
     localStorage.setItem('theme', theme);
 
     logInfo(`Theme changed to: ${theme}`);
+}
+
+/**
+ * Changes the theme based on user selection and saves the choice to localStorage.
+ */
+function changeTheme2() {
+    const theme = $('#theme-select-2').val();
+
+    // Set the selected theme class on the HTML element
+    document.documentElement.className = theme;
+
+    // Save the selected theme to localStorage so it persists across sessions
+    localStorage.setItem('theme', theme);
+
+    logInfo(`Theme changed to: ${theme}`);
+}
+
+
+var hasAttachedSettings = false;
+
+function attachSettings() {
+    if(!hasAttachedSettings) {
+        hasAttachedSettings = true;
+
+        const settingsBtn = $('#save-settings');
+
+        if(isInDom(settingsBtn)) {
+            settingsBtn.on('click', updateSettings);
+        }
+        else {
+            logWarn(`Couldn't locate settings button to attach events to`);
+        }
+
+        const preset1Btn = $('#preset1');
+        const preset2Btn = $('#preset2');
+
+        if(isInDom(preset1Btn)) {
+            preset1Btn.on('click', adjustWindowToPreset1);
+        }
+        else {
+            logWarn(`Couldn't locate Preset 1 button to attach events to`);
+        }
+
+        if(isInDom(preset2Btn)) {
+            preset2Btn.on('click', adjustWindowToPreset2);
+        }
+        else {
+            logWarn(`Couldn't locate Preset 2 button to attach events to`);
+        }
+
+        const themeSelect2 = $('#theme-select-2');
+
+        if(isInDom(themeSelect2)) {
+
+            // Load the saved theme from localStorage if it exists
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                themeSelect2.val(savedTheme || 'dark-theme');
+            }
+            
+
+            themeSelect2.on('change', changeTheme2);
+        }
+        else {
+            logWarn(`Couldn't locate theme-select-2 to attach events to`);
+        }
+        
+    }
+
+    
+
+
+}
+
+function initializeSettingsAdjust() {
+    const settingsBtn = $('#save-settings');
+    const themeSelect = $('#theme-select');
+    const settings = $('#settings');
+
+    settings.on('click', attachSettings);
+
+    if(isInDom(settingsBtn)) {
+        settingsBtn.on('click', updateSettings);
+    }
+}
+
+function isInDom(obj) {
+    var root = obj.parents('html')[0];
+
+
+    //var t = document.documentElement.contains(obj);
+    //console.log("T: " + t);
+
+    //console.log(root);
+    return !!(root && root === document.documentElement);
+}
+
+function updateSettings() {
+    adjustWindow();
+}
+
+function adjustWindowToPreset1() {
+    resize(802, 600);
+}
+
+function adjustWindowToPreset2() {
+    resize(window.screen.width, window.screen.height);
+}
+
+function adjustWindow() {
+    const widthInput = $('#widthI');
+    const heightInput = $('#heightI');
+
+    if(isInDom(widthInput) && isInDom(heightInput)) {
+        const newWidth = parseInt(widthInput.val());
+        const newHeight = parseInt(heightInput.val());
+
+        const minWidth = 400;
+        const maxWidth = window.screen.width;
+        const minHeight = 400;
+        const maxHeight = window.screen.height;
+
+        //console.log("attempted W: " + newWidth + ", H: " + newHeight);
+
+
+        if(Number.isInteger(newWidth) && Number.isInteger(newHeight)) {
+            if(((newWidth >= minWidth) && (newWidth <= maxWidth)) && 
+                ((newHeight >= minHeight) && (newHeight <= maxHeight))) {
+                resize(newWidth, newHeight);
+            }
+            else {
+                logWarn(`Out of range width/height value for resizing`);
+            }
+        }
+        else {
+            logWarn(`Invalid width/height value for resizing`);
+        }
+    }  
+}
+
+function resize(width, height) {
+    window.resizeTo(width, height);
+    logInfo("Resized window to w: " + width + ", h: " + height);
 }
 
 //============================================================================================================================
