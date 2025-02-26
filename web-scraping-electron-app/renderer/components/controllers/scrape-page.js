@@ -221,12 +221,36 @@ export class ScrapePageController {
 
             this.logInfo(`Opened URL successfully.`);
 
+            // Save the URL to history
+            this.addToHistory(url);
+
             // Additional code for scraping (if needed)
             // ...
         } else {
             alert('Please enter a URL.'); // Alert the user if no URL is entered
             this.logWarn('No URL entered.');
         }
+    }
+
+
+    /**
+     * Function to add an inputted link to the search history (stored locally) 
+     */
+    addToHistory(url) {
+        var history = localStorage.getItem('searchHistory');
+        var basicJSON = '{ "searchHistory":[' + url + ']}';
+        var historyJSON = JSON.parse(basicJSON); // default, will be overridden if there's an actual history
+        if(history) {
+            historyJSON = JSON.parse(history);
+            
+        }
+        else {
+            // nothing needed to be done here
+        }
+        historyJSON.history.push(url);
+            var history2 = JSON.stringify(historyJSON);
+            console.log(history2);
+            localStorage.setItem('searchHistory', history2);
     }
 
     /**

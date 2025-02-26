@@ -5,6 +5,8 @@ export class SettingsPageController {
 
     ipcRenderer = window.electronAPI;
 
+    hasAttachedSettings = false;
+
     /**
      * Returns the pages component html filepath.
      * @returns String          The html filepath.
@@ -81,7 +83,7 @@ export class SettingsPageController {
         $('#settings-container')
             .on('mouseenter', function() { $('#ext-win-btn').stop( true, true ).fadeTo(500, 0.2); })
             .on('mouseleave', function() { $('#ext-win-btn').stop( true, true ).fadeOut(500); });
-
+            /*
         // Handles openning the LS app in an external window
         $('#ext-win-btn').on('click', () => {
             $('#ls-embedded').hide();
@@ -119,6 +121,8 @@ export class SettingsPageController {
             $('#ls-external').hide();
             $('#ls-embedded').show();
         });
+        */
+        this.attachSettings();
     }
 
     /**
@@ -187,7 +191,7 @@ export class SettingsPageController {
     }
 
     //============================================================================================================================
-    // Page Specific Methods
+    // Page Specific Methods (probably unneeded atm)
     //============================================================================================================================
 
     /**
@@ -216,6 +220,7 @@ export class SettingsPageController {
         }
 
         var req = new XMLHttpRequest();
+
         req.open('GET', url, true);
         req.onreadystatechange = function() {
             if (req.readyState === 4) {
@@ -229,18 +234,7 @@ export class SettingsPageController {
         return true;
     }
 
-    /**
-     * Function to add an inputted link to the search history (stored locally) 
-     */
-    addToHistory(url) {
-        var history = localStorage.getItem('searchHistory');
-        if(history) {
-            var historyJSON = JSON.parse(history);
-            historyJSON.push(url);
-            var history2 = JSON.stringify(historyJSON);
-            localStorage.setItem('searchHistory', history2);
-        }
-    }
+    
 
     /**
      * Function for handling the event where a LS URL is entered and submitted.
@@ -250,7 +244,7 @@ export class SettingsPageController {
 
         if (urlInput !== '') {
             if (this.checkLSURL(urlInput)) {
-                addToHistory(urlInput);
+                
 
                 this.setLSURL(urlInput);
                 this.showLSEmbeddedFrame();
@@ -357,5 +351,134 @@ export class SettingsPageController {
         $('#ls-set').hide();
         $('#ls-config-accordion').hide();
         $('#ls-not-set').show();
+    }
+
+    /**
+     * Changes the theme based on user selection in the settings menu and saves the choice to localStorage.
+     */
+    changeTheme2() {
+        const theme = $('#theme-select-2').val();
+
+        // Set the selected theme class on the HTML element
+        document.documentElement.className = theme;
+
+        // Save the selected theme to localStorage so it persists across sessions
+        localStorage.setItem('theme', theme);
+
+        logInfo(`Theme changed to: ${theme}`);
+    }
+
+    isInDom(obj) {
+        var root = obj.parents('html')[0];
+
+
+        //var t = document.documentElement.contains(obj);
+        //console.log("T: " + t);
+
+        //console.log(root);
+        return !!(root && root === document.documentElement);
+    }
+
+    /**
+    * Attaches settings to the settings menu objects during runtime
+    */
+    attachSettings() {
+        if(!this.hasAttachedSettings) {
+            this.hasAttachedSettings = true;
+
+            const settingsBtn = $('#save-settings');
+
+            if(this.isInDom(settingsBtn)) {
+                // TODO: Fix this
+                //settingsBtn.on('click', updateSettings);
+            }
+            else {
+                logWarn(`Couldn't locate settings button to attach events to`);
+            }
+
+            const preset1Btn = $('#preset1');
+            const preset2Btn = $('#preset2');
+
+            if(this.isInDom(preset1Btn)) {
+                // TODO: Fix this
+                //preset1Btn.on('click', adjustWindowToPreset1);
+            }
+            else {
+                logWarn(`Couldn't locate Preset 1 button to attach events to`);
+            }
+
+            if(this.isInDom(preset2Btn)) {
+                // TODO: Fix this
+                //preset2Btn.on('click', adjustWindowToPreset2);
+            }
+            else {
+                logWarn(`Couldn't locate Preset 2 button to attach events to`);
+            }
+
+            const themeSelect2 = $('#theme-select-2');
+
+            if(this.isInDom(themeSelect2)) {
+
+                // Load the saved theme from localStorage if it exists
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme) {
+                    themeSelect2.val(savedTheme || 'dark-theme');
+                }
+                
+                // TODO: Fix this
+                //themeSelect2.on('change', changeTheme2);
+            }
+            else {
+                logWarn(`Couldn't locate theme-select-2 to attach events to`);
+            }   
+        }
+    }
+
+    updateSettings() {
+        this.adjustWindow();
+    }
+
+    adjustWindowToPreset1() {
+        this.resize(802, 600);
+    }
+
+    adjustWindowToPreset2() {
+        this.resize(window.screen.width, window.screen.height);
+    }
+
+    adjustWindow() {
+        const widthInput = $('#widthI');
+        const heightInput = $('#heightI');
+
+        if(isInDom(widthInput) && isInDom(heightInput)) {
+            const newWidth = parseInt(widthInput.val());
+            const newHeight = parseInt(heightInput.val());
+
+            const minWidth = 400;
+            const maxWidth = window.screen.width;
+            const minHeight = 400;
+            const maxHeight = window.screen.height;
+
+            //console.log("attempted W: " + newWidth + ", H: " + newHeight);
+
+
+            if(Number.isInteger(newWidth) && Number.isInteger(newHeight)) {
+                if(((newWidth >= minWidth) && (newWidth <= maxWidth)) && 
+                    ((newHeight >= minHeight) && (newHeight <= maxHeight))) {
+                    this.resize(newWidth, newHeight);
+                }
+                else {
+                    logWarn(`Out of range width/height value for resizing`);
+                }
+            }
+            else {
+                logWarn(`Invalid width/height value for resizing`);
+            }
+        }  
+    }
+
+    resize(width, height) {
+        window.resizeTo(width, height);
+        logInfo("Resized window to w: " + width + ", h: " + height);
     }
 }
