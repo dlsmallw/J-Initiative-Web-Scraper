@@ -53,7 +53,7 @@ export class HomePageController {
 
         insertElement().then(() => {
 
-            //this.addNotifications("Joe is going to be late.", "Meeting at 4:30 today."); example
+            //this.addNotifications("Joe is going to be late.", "Meeting at 4:30 today."); //example
             this.initPageListeners();
             this.checkForNotifications();
             window.setInterval(this.checkForNotifications, 500); //check notifications every 0.5 seconds.
@@ -156,22 +156,22 @@ export class HomePageController {
      * Helper method for displayNotifications().
      */
     displayNotificationsHelper() {
-            document.getElementById("notification-button").style.display = "block";
-            document.getElementById("notification-x-button").style.visibility="hidden";
-            document.getElementById("notification-box").style.visibility="hidden";
-            document.getElementById("notification-dismiss-button").style.visibility="hidden";
+        document.getElementById("notification-button").style.display = "block";
+        document.getElementById("notification-x-button").style.visibility="hidden";
+        document.getElementById("notification-box").style.visibility="hidden";
+        document.getElementById("notification-dismiss-button").style.visibility="hidden";
 
-            var notifs = document.getElementById('notification-box');
-            notifications.forEach((element) => (notifs.remove(element)));
+        var notifs = document.getElementById('notification-box');
+        notifications.forEach((element) => (notifs.remove(element)));
     }
 
     /**
      * Manages optional tutorial for new users.
      */
     manageTutorial() {
-        if(localStorage.getItem('tutorial') !== "disabled") {
+        //if(localStorage.getItem('tutorial') !== "disabled") {
             document.getElementById("tutorial").style.display = "block";
-        }
+        //}
     }
 
     /**
@@ -179,8 +179,7 @@ export class HomePageController {
      */
     runTutorialHome() {
         document.getElementById("tutorial").style.display = "none";
-
-        //embed video
+        document.getElementById("embed-tutorial").style.display = "block";
     }
 
     disableTutorial() {
