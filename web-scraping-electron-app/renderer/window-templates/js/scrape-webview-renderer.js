@@ -1,5 +1,7 @@
 //webview_renderer.js
 const ipcRenderer = window.urlScrape;
+//database API
+databaseAPI = window.databaseAPI;
 // Used for tracking what mode the tool is in
 var auto_scrape_mode = true
 
@@ -137,6 +139,7 @@ function initScrapeUtilListeners() {
     $('#exportBtn').on('click', () => {
         const dataToExport = getAllReadyData();
         exportDataToApp(JSON.stringify(dataToExport));
+        addDataToDatabase();
     });
 
     webview.addEventListener('mouseenter', (e) => {
@@ -240,6 +243,15 @@ function appendNewScrapedItem(data) {
     }
     
     $('#data-container').show();
+}
+
+/**
+ * Appends a new data item to the database
+ */
+function addDataToDatabase() {
+  const dataToExport = getAllReadyData();
+  this.databaseAPI.addScrapedDataToDatabase(dataToExport);
+  ipcRenderer.sendCloseSignal();
 }
 
 /**

@@ -392,15 +392,50 @@ ipcMain.handle('get-websites', async () => {
   }
 });
 
+ipcMain.handle('get-websites-entries', async (event, url) => {
+  let entries = '';
+  try {
+    const docRef = doc(db, "Websites", url);
+    const docSnap = await getDoc(docRef);
+    const documentData = docSnap.data();
+    const entryList = documentData.Entries;
+    entryList.forEach(entry => {
+      entries += entry + '\n';
+    });
+    return entries;
+  } catch (error) {
+    return ''; // Return empty string on error
+  }
+});
+
+
 ipcMain.handle('add-website', async (event, url) => {
 //adding website to database
-  const docRef = doc(db, "Websites", "Website List");
+  const encodedURL = encodeURIComponent(url);
+  let docRef = doc(db, "Websites", "Website List");
+  await updateDoc(docRef, {
+    List: arrayUnion(encodedURL)
+}).then(r => log.info(`website added to website list: ${encodedURL}`));
+  docRef = doc(db, "Websites", encodedURL);
+  log.info('creating doc: ' + encodedURL);
+  await setDoc(docRef, {
+    website_url: encodedURL
+  }, { merge: true });
+
+});
+
+ipcMain.handle('add-scraped-data', async (event, data) => {
+for (let i = 0; i < data.length; i++) {
+  const entry = data[i];
+  const url = entry.url;
+  const scrapedData = entry.data;
+  const encodedURL = encodeURIComponent(url);
+  const docRef = doc(db, "Websites", encodedURL);
   updateDoc(docRef, {
-    List: arrayUnion(url)
-  }).then(r => log.info(`website added to website list: ${url}`));
-  setDoc(doc(db, "Websites", url), {
-    website_url: url,
-  }).then(r => log.info(`website document created: ${url}`));
+    Entries: arrayUnion(scrapedData)
+  }).then(r => log.info(`entry "${scrapedData}" added to website: ${encodedURL}`));
+
+}
 });
 
 
