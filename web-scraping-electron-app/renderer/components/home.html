@@ -33,6 +33,9 @@
     <p>Welcome to our modern, elegant web scraping application!</p>
 </div>
 
-<iframe src="web-scraping-electron-app/renderer/components/tutorial.html" height="400" width = "600" style="display: none; text-align: center" id="embed-tutorial">
-    Video tutorial iframe failed to load.
-</iframe>
+<div id="embed-tutorial" style="display: none; position: relative">
+    <button style="position: absolute; height: 30px; left: 2px; padding: 2px 4px; font-weight: bold; background-color: brown" id="tutorial-x-button">X</button>
+    <iframe src="./components/tutorial.html" height="350" width="600" style="text-align: center">
+        Video tutorial iframe failed to load.
+    </iframe>
+</div>

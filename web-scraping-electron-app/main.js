@@ -118,7 +118,7 @@ function createURLWindow(url) {
         height: 800,
         webPreferences: {
             nodeIntegration: false, // Disable Node.js integration for security
-            contextIsolation: true, // Isolate context for securitya
+            contextIsolation: true, // Isolate context for security
         }
     });
 
@@ -184,7 +184,7 @@ app.on('window-all-closed', () => {
 ipcMain.on('open-url', (event, url) => {
     log.debug(`Received 'open-url' event for URL: ${url}`);
     try {
-        createURLWindow(url)
+        createURLWindow(url);
     } catch (error) {
         // Log error if URL cannot be opened and notify the renderer process
         log.error(`Error opening URL window: ${error.message}`);

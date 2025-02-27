@@ -53,6 +53,7 @@ export class HomePageController {
 
         insertElement().then(() => {
 
+            //localStorage.setItem('tutorial', "enabled"); //manually enable tutorial after in-program disable (for testing)
             //this.addNotifications("Joe is going to be late.", "Meeting at 4:30 today."); //example
             this.initPageListeners();
             this.checkForNotifications();
@@ -70,6 +71,7 @@ export class HomePageController {
         document.getElementById("notification-dismiss-button").addEventListener("click", this.removeNotifications);
         document.getElementById("yes-tutorial").addEventListener("click", this.runTutorialHome);
         document.getElementById("no-tutorial").addEventListener("click", this.disableTutorial);
+        document.getElementById("tutorial-x-button").addEventListener("click", this.disableTutorial);
     }
 
     /**
@@ -169,24 +171,28 @@ export class HomePageController {
      * Manages optional tutorial for new users.
      */
     manageTutorial() {
-        //if(localStorage.getItem('tutorial') !== "disabled") {
+        if(localStorage.getItem('tutorial') !== "disabled") {
             document.getElementById("tutorial").style.display = "block";
-        //}
+        }
     }
 
     /**
-     * Runs the tutorial's home section.
+     * Runs the tutorial.
      */
     runTutorialHome() {
         document.getElementById("tutorial").style.display = "none";
         document.getElementById("embed-tutorial").style.display = "block";
     }
 
+    /**
+     * Disables the tutorial.
+     */
     disableTutorial() {
         alert("Got it! Tutorial has been disabled.");
 
         localStorage.setItem('tutorial', "disabled");
         document.getElementById("tutorial").style.display = "none";
+        document.getElementById("embed-tutorial").style.display = "none";
     }
 
     /**
