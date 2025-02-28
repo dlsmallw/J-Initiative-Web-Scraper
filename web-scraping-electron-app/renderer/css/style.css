@@ -102,7 +102,7 @@ html.disco-theme {
     General Page Settings
 =======================================================================*/
 body {
-    font-family: var(--font-family);
+    font-family: var(--font-family), serif;
     background-color: var(--primary-bg);
     color: var(--primary-color);
     margin: 0;

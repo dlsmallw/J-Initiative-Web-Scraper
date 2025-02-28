@@ -171,7 +171,7 @@ function logDebug(log) {
 }
 
 /**
- * Makes an warn log entry.
+ * Makes a warn log entry.
  * @param {*} log       The log entry.
  */
 function logWarn(log) {
@@ -579,7 +579,7 @@ function createLSExternal(url) {
             });
 
         lsWindow.on('close', () => {
-            // tell renderer to redisplay embbedded content
+            // tell renderer to redisplay embedded content
             mainWin.webContents.send('open-ls-ext:response');
         });
     
@@ -614,9 +614,9 @@ function closeLSWindow(url = null) {
         lsWindow = null;
     }
 
-    var urlToSend = url ? url !== null : '';
+    var urlToSend = url ? true : '';
 
-    // tell renderer to redisplay embbedded content
+    // tell renderer to redisplay embedded content
     mainWin.webContents.send('ext-ls-win-closed', url);
 }
 
@@ -642,7 +642,7 @@ ipcMain.on('open-url', (event, url) => {
     }
 });
 
-// Handles openning the LS project in an external window
+// Handles opening the LS project in an external window
 ipcMain.on('open-ls-ext:request', (event, url) => {
     createLSExternal(url);
 });

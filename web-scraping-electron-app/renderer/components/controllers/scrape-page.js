@@ -302,11 +302,7 @@ export class ScrapePageController {
     }
     
     checkIfAnyActive() {
-        if ($('#results-list').children('.active').length > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return $('#results-list').children('.active').length > 0;
     }
 
     /**
