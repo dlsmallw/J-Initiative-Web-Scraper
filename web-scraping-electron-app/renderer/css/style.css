@@ -45,11 +45,6 @@ html.light-theme {
     --content-bg: #ffffff;
     --link-color: #007bff;
     --border-style: lightgray solid thin;
-
-    select, input[type="text"]::placeholder, input[type="text"], textarea {
-        color: #1e1e1e;
-        background-color: #ffffff;
-    }
 }
 
 /*=======================================================================
@@ -67,10 +62,6 @@ html.dark-theme {
     --content-bg: #121212;
     --link-color: #66b2ff;
     --border-style: none;
-
-    select, input[type="text"], textarea {
-        background-color: #121212;
-    }
 }
 
 /*=======================================================================
@@ -88,10 +79,6 @@ html.blue-theme {
     --content-bg: #e3f2fd;
     --link-color: #0d47a1;
     --border-style: lightgray solid thin;
-
-    select, input[type="text"], textarea {
-        background-color: #0d47a1;
-    }
 }
 
 /*=======================================================================
@@ -109,12 +96,6 @@ html.disco-theme {
     --content-bg: #00CED1;
     --link-color: #5d4037;
     --border-style: none;
-
-    select, input[type="text"]::placeholder, input[type="text"], textarea {
-        color: #ffffff;
-        opacity: 1;
-        background-color: #FF00FF;
-    }
 }
 
 /*=======================================================================

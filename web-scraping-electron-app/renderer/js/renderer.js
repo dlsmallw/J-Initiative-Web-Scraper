@@ -34,6 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Log that the renderer process is ready
     logInfo('Renderer process is ready.');
+
+    document.addEventListener('keypress', e => {
+        console.log(e.key)
+    })
 });
 
 //============================================================================================================================
@@ -111,7 +115,6 @@ function getPage(value) {
  * @param {*} event     The event corresponding to a page change.
  */
 function changePage(event) {
-    logDebug("Attempting to change page due to " + event.type);
     event.preventDefault(); // Prevent default link behavior
     const newPage = getPage(this.id.split('-')[0]);
 
@@ -137,14 +140,25 @@ function changePage(event) {
  * @param {*} projects      The returned list of available projects.
  */
 function updateProjectOptions(projects) {
-    $('#projectSelect').empty();
+    var urlSelect = $('#projectSelect-url');
+    var manSelect = $('#projectSelect-man');
 
-    $.each(projects, function(i, project) {
-        $('#projectSelect').append($('<option>', {
-            value: project.id,
-            text: `${project.id} - ${project.project_name}`
-        }));
-    });
+    $(urlSelect).empty();
+    $(manSelect).empty();
+
+    if (projects) {
+        $.each(projects, function(i, project) {
+            $(urlSelect).append($('<option>', {
+                value: project.id,
+                text: `${project.id} - ${project.project_name}`
+            }));
+    
+            $(manSelect).append($('<option>', {
+                value: project.id,
+                text: `${project.id} - ${project.project_name}`
+            }));
+        });
+    }  
 } 
 
 //============================================================================================================================
@@ -201,16 +215,23 @@ function changeTheme() {
 const logger = window.log;    // Variable created for ease of reading
 
 /**
- * Handles displaying an alert message for specific situations (error or otherwise).
- * @param {*} alertMsg          Message to display.
- * @param {*} cause             Cause if an error.
- */
+     * Handles displaying an alert message for specific situations (error or otherwise).
+     * @param {*} alertMsg          Message to display.
+     * @param {*} cause             Cause if an error.
+     */
 function postAlert(alertMsg, cause) {
+    var json = {
+        msg: alertMsg,
+        errType: null
+    }
+
     if (cause === undefined) {
-        alert(alertMsg);
+        ipcRenderer.postDialog.general(JSON.stringify(json));
         logInfo(alertMsg);
     } else {
-        alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+        json.errType = cause;
+
+        ipcRenderer.postDialog.error(JSON.stringify(json));
         logError(`${alertMsg} Cause: ${cause}`);
     }
 }

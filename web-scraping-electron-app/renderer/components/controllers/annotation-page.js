@@ -4,6 +4,7 @@ export class AnnotationPageController {
     compID = '#annotation-container';     // Page component container ID
 
     lsAPI = window.lsAPI;
+    electronAPI = window.electronAPI;
 
     /**
      * Returns the pages component html filepath.
@@ -55,7 +56,7 @@ export class AnnotationPageController {
             const api_token = localStorage.getItem('apiToken');
 
             if (ls_url) {   // Label Studio project linked
-                $('#annotation-iframe').attr('src', ls_url);
+                $('#annotation-webview').attr('src', ls_url);
                 this.showLSEmbeddedFrame();
 
                 $('#ls-link-option').val(ls_url);
@@ -88,7 +89,7 @@ export class AnnotationPageController {
         $('#ext-win-btn').on('click', () => {
             $('#ls-embedded').hide();
             $('#ls-external').show();
-            var url = $('#annotation-iframe').attr('src');
+            var url = $('#annotation-webview').attr('src');
             this.lsAPI.openExternal(url);
         });
 
@@ -117,7 +118,19 @@ export class AnnotationPageController {
             this.updateLSAPIToken();
         });
 
-        this.lsAPI.onOpenExtRes(() => {
+        $('#config-accordion').on('click', () => {
+            if ($('#config-accordion').hasClass('collapsed')) {
+                $('body').height($('body').height() - 270);
+            } else {
+                $('body').height($('body').height() + 270);
+            }
+        })
+
+        this.lsAPI.urlChange((url) => {
+            this.updatedLSWebviewSrc(url);
+        })
+
+        this.lsAPI.extLSWinClosed(() => {
             $('#ls-external').hide();
             $('#ls-embedded').show();
         });
@@ -150,11 +163,18 @@ export class AnnotationPageController {
      * @param {*} cause             Cause if an error.
      */
     postAlert(alertMsg, cause) {
+        var json = {
+            msg: alertMsg,
+            errType: null
+        }
+
         if (cause === undefined) {
-            alert(alertMsg);
+            this.electronAPI.postDialog.general(JSON.stringify(json));
             this.logInfo(alertMsg);
         } else {
-            alert(`ERROR: ${alertMsg}\nCAUSE: ${cause}`);
+            json.errType = cause;
+
+            this.electronAPI.postDialog.error(JSON.stringify(json));
             this.logError(`${alertMsg} Cause: ${cause}`);
         }
     }
@@ -245,7 +265,7 @@ export class AnnotationPageController {
                 this.setLSURL(urlInput);
                 this.showLSEmbeddedFrame();
             } else {
-                alert("The URL '" + urlInput + "' is not valid");
+                this.postAlert("The URL '" + urlInput + "' is not valid", 'Invalid URL');
                 $('#ls-link-input').val('');
             }
         }
@@ -261,11 +281,22 @@ export class AnnotationPageController {
         if (this.checkLSURL(urlInput)) {
             this.setLSURL(urlInput);
         } else {
-            alert("The URL '" + urlInput + "' is not valid");
+            this.postAlert("The URL '" + urlInput + "' is not valid", 'Invalid URL');
             $('#ls-link-option').val(currURL);
         }
     }
 
+    /**
+     * Updates the current url of the webview window.
+     * @param {*} url 
+     */
+    updatedLSWebviewSrc(url) {
+        var currURL = $('#annotation-webview').attr('src');
+
+        if (currURL !== url) {
+            $('#annotation-webview').attr('src', url);
+        }
+    }
 
     /**
      * Function for setting the LS project URL within local storage.
@@ -275,7 +306,7 @@ export class AnnotationPageController {
         if (url) {
             localStorage.setItem('lsURL', url);
             $('#ls-link-option').val(url);
-            $('#annotation-iframe').attr('src', url);
+            $('#annotation-webview').attr('src', url);
             this.lsAPI.updateURL(url);
         }
     }
@@ -293,7 +324,7 @@ export class AnnotationPageController {
             localStorage.setItem('apiToken', tokenVal);
             this.setLSAPIToken(tokenVal);
         } else {
-            alert('Invalid API Token');
+            this.postAlert('The API Token is not valid', 'Invalid API Token');
 
             if (currToken) {
                 $('#ls-api-token-option').val(currToken);
@@ -322,7 +353,7 @@ export class AnnotationPageController {
 
         localStorage.removeItem('lsURL');
         $('#ls-link-option').val('');
-        $('#annotation-iframe').attr('src', "");
+        $('#annotation-webview').attr('src', "");
 
         localStorage.removeItem('apiToken');
         $('#ls-api-token-option').val('');
