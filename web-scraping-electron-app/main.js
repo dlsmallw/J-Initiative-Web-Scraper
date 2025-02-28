@@ -419,7 +419,8 @@ ipcMain.handle('add-website', async (event, url) => {
   docRef = doc(db, "Websites", encodedURL);
   log.info('creating doc: ' + encodedURL);
   await setDoc(docRef, {
-    website_url: encodedURL
+    website_url: encodedURL,
+    lastAccessed: new Date().toLocaleString()
   }, { merge: true });
 
 });
@@ -432,7 +433,8 @@ for (let i = 0; i < data.length; i++) {
   const encodedURL = encodeURIComponent(url);
   const docRef = doc(db, "Websites", encodedURL);
   updateDoc(docRef, {
-    Entries: arrayUnion(scrapedData)
+    Entries: arrayUnion(scrapedData),
+    lastAccessed: new Date().toLocaleString()
   }).then(r => log.info(`entry "${scrapedData}" added to website: ${encodedURL}`));
 
 }
