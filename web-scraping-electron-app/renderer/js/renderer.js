@@ -230,6 +230,7 @@ var hasAttachedSettings = false;
 
 /**
  * Attaches settings to the settings menu objects during runtime
+ * TODO: Remove this method once it's working via settings-page.js
 */
 function attachSettings() {
     if(!hasAttachedSettings) {
@@ -280,6 +281,10 @@ function attachSettings() {
     }
 }
 
+/**
+ * 
+ * TODO Hook up to database and grab this info from there
+ */
 function loadHistory() {
     const history = localStorage.getItem("searchHistory");
     if(history) {
@@ -298,6 +303,7 @@ function loadHistory() {
     
 }
 
+// TODO: Remove this method once it's working via settings-page.js
 function initializeSettingsAdjust() {
     const settingsBtn = $('#save-settings');
     const themeSelect = $('#theme-select');
@@ -325,14 +331,18 @@ function updateSettings() {
     adjustWindow();
 }
 
+// TODO: Remove this method once it's working via settings-page.js
 function adjustWindowToPreset1() {
     resize(802, 600);
 }
 
+// TODO: Remove this method once it's working via settings-page.js
 function adjustWindowToPreset2() {
     resize(window.screen.width, window.screen.height);
 }
 
+// TODO: Remove this method once it's working via settings-page.js
+// TODO: keep the debug menu open when resizing
 function adjustWindow() {
     const widthInput = $('#widthI');
     const heightInput = $('#heightI');
@@ -364,6 +374,7 @@ function adjustWindow() {
     }  
 }
 
+// TODO: Remove this method once it's working via settings-page.js
 function resize(width, height) {
     window.resizeTo(width, height);
     logInfo("Resized window to w: " + width + ", h: " + height);
