@@ -390,7 +390,7 @@ export class SettingsPageController {
 
             if(this.isInDom(settingsBtn)) {
                 // TODO: Fix this
-                //settingsBtn.on('click', updateSettings);
+                settingsBtn.on('click', updateSettings);
             }
             else {
                 logWarn(`Couldn't locate settings button to attach events to`);
@@ -401,7 +401,7 @@ export class SettingsPageController {
 
             if(this.isInDom(preset1Btn)) {
                 // TODO: Fix this
-                //preset1Btn.on('click', adjustWindowToPreset1);
+                preset1Btn.on('click', adjustWindowToPreset1);
             }
             else {
                 logWarn(`Couldn't locate Preset 1 button to attach events to`);
@@ -409,7 +409,7 @@ export class SettingsPageController {
 
             if(this.isInDom(preset2Btn)) {
                 // TODO: Fix this
-                //preset2Btn.on('click', adjustWindowToPreset2);
+                preset2Btn.on('click', adjustWindowToPreset2);
             }
             else {
                 logWarn(`Couldn't locate Preset 2 button to attach events to`);
@@ -426,7 +426,7 @@ export class SettingsPageController {
                 }
                 
                 // TODO: Fix this
-                //themeSelect2.on('change', changeTheme2);
+                themeSelect2.on('change', changeTheme2);
             }
             else {
                 logWarn(`Couldn't locate theme-select-2 to attach events to`);
