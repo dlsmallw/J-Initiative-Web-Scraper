@@ -408,6 +408,18 @@ ipcMain.handle('get-websites-entries', async (event, url) => {
   }
 });
 
+ipcMain.handle('get-websites-LastAccessed', async (event, url) => {
+  let time = '';
+  try {
+    const docRef = doc(db, "Websites", url);
+    const docSnap = await getDoc(docRef);
+    const documentData = docSnap.data();
+    time = documentData.lastAccessed;
+    return time;
+  } catch (error) {
+    return ''; // Return empty string on error
+  }
+});
 
 ipcMain.handle('add-website', async (event, url) => {
 //adding website to database
