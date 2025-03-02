@@ -156,6 +156,7 @@ export class DatabasePageController {
     const websiteList = websites.split(/\n/);
     for (let website of websiteList) {
       let entries = await this.databaseAPI.getWebsiteEntries(website);
+      let time = await this.databaseAPI.getWebsiteLastAccessed(website);
       entries = entries.split(/\n/);
       website = decodeURIComponent(website);
       let counter = 1;
@@ -165,6 +166,7 @@ export class DatabasePageController {
           counter++;
         }
       }
+      if(time !== '') website += '\n        ' + 'Last Accessed: ' + time;
       const websiteEntry = document.createElement('div');
       websiteEntry.className = 'website-entry';
       websiteEntry.textContent = website;
