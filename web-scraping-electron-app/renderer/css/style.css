@@ -151,21 +151,6 @@ body {
     display: block;
 }
 
-.notification-box {
-    image-rendering: auto;
-    float: right;
-    background-color: #bbdefb;
-    font-weight: lighter;
-    color: black;
-    visibility: hidden;
-    text-decoration: none;
-    padding: 5px 6px;
-    position: relative;
-    top: 0;
-    right: 0;
-    display: inline-block;
-    border-radius: 10px;
-}
 
 div#tutorial, div#tutorial-home
 {

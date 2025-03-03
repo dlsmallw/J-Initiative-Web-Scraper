@@ -51,9 +51,9 @@ class Queue {
      */
     async enqueue(item) {
         await this.mutex.acquire().then(() => {
-            var containsItem = false;
+            let containsItem = false;
 
-            for (var elem in this.elements) {
+            for (let elem in this.elements) {
                 if (this.elements[elem] === item) {
                     containsItem = true;
                     break;
@@ -74,7 +74,7 @@ class Queue {
      * @returns         The head element of the Queue.
      */
     async peek() {
-        var item;
+        let item;
 
         await this.mutex.acquire().then(() => {
             item = this.elements[this.headIdx];
@@ -98,7 +98,7 @@ class Queue {
      * @returns         The removed item.
      */
     dequeue() {
-        var item = this.elements[this.headIdx];
+        let item = this.elements[this.headIdx];
         delete this.elements[this.headIdx];
         this.headIdx++;
 
@@ -110,11 +110,11 @@ class Queue {
      * @returns         A list.
      */
     async getPendingLogs() {
-        var logList = [];
+        let logList = [];
 
         await this.mutex.acquire().then(() => {
             while (this.hasElements()) {
-                var item = this.dequeue();
+                let item = this.dequeue();
                 logList.push(item);
             }
 
@@ -192,15 +192,15 @@ function logError(log) {
  * @returns                 The JSON log object.
  */
 function formLogObject(line) {
-    var [rawDateTime, rawType] = line.match(/\[(.*?)\]/g);
+    let [rawDateTime, rawType] = line.match(/\[(.*?)\]/g);
 
-    var [year, month, day] = rawDateTime.match(/\d{4}-\d{2}-\d{2}/)[0].split('-');
-    var [hr, min, sec, millisec] = rawDateTime.match(/\b(\d{1,2}):(\d{2}):(\d{2})\.(\d{1,3})\b/).slice(1);
+    let [year, month, day] = rawDateTime.match(/\d{4}-\d{2}-\d{2}/)[0].split('-');
+    let [hr, min, sec, millisec] = rawDateTime.match(/\b(\d{1,2}):(\d{2}):(\d{2})\.(\d{1,3})\b/).slice(1);
    
-    var dateObj = new Date(year, month - 1, day, hr, min, sec, millisec);
-    var type = rawType.replace(/[\[\]']+/g, '');
-    var msg = line.substring(line.lastIndexOf(']') + 1).trim();
-    var rawLogMsg = line;
+    let dateObj = new Date(year, month - 1, day, hr, min, sec, millisec);
+    let type = rawType.replace(/[\[\]']+/g, '');
+    let msg = line.substring(line.lastIndexOf(']') + 1).trim();
+    let rawLogMsg = line;
 
     // console.log(`${year}-${month}-${day}`);
     // console.log(`${hr}-${min}-${sec}-${millisec}`);
@@ -248,7 +248,7 @@ function writeNewLog(line, type) {
  * Function that sends the current queue of logs to be read to the renderer.
  */
 async function sendNewLogsToRenderer() {
-    var logList = await logReadQueue.getPendingLogs();
+    let logList = await logReadQueue.getPendingLogs();
 
     if (logList.length > 0) {
         mainWin.webContents.send('update-to-logs', logList);
@@ -326,18 +326,18 @@ ipcMain.on('log-error', (event, message) => {
 });
 
 ipcMain.handle('get-logs', async () => {
-    var logFilePath = log.transports.file.getFile().path;
+    let logFilePath = log.transports.file.getFile().path;
     logDebug(`Log file path: ${logFilePath}`);
 
-    var logArr = log.transports.file.readAllLogs(logFilePath)[0].lines
-    var logData = [];
+    let logArr = log.transports.file.readAllLogs(logFilePath)[0].lines
+    let logData = [];
 
-    for (var i = 0; i < logArr.length; i++) {
+    for (let i = 0; i < logArr.length; i++) {
         try {
-            var line = logArr[i];
+            let line = logArr[i];
 
             if (line !== null && line !== '') {
-                var logObj = formLogObject(line);
+                let logObj = formLogObject(line);
                 logData.push(logObj);
             }
         } catch (err) {
@@ -345,7 +345,7 @@ ipcMain.handle('get-logs', async () => {
         }
     }
 
-    var logList = await logReadQueue.getPendingLogs();
+    let logList = await logReadQueue.getPendingLogs();
 
     if (logList.length > 0) {
         logData.concat(logList);
@@ -614,7 +614,7 @@ function closeLSWindow(url = null) {
         lsWindow = null;
     }
 
-    var urlToSend = url ? true : '';
+    let urlToSend = url ? true : '';
 
     // tell renderer to redisplay embedded content
     mainWin.webContents.send('ext-ls-win-closed', url);
@@ -716,9 +716,9 @@ ipcMain.on('exit:request', () => {
 
 // Handles exporting data to the linked LS project
 ipcMain.on('export-to-ls:request', async (event, data, projectID) => {
-    var jsonObj = JSON.parse(data);
+    let jsonObj = JSON.parse(data);
     exportDataToLS(jsonObj, projectID).then((res) => {
-        var response = JSON.stringify(res);
+        let response = JSON.stringify(res);
         mainWin.webContents.send('export-to-ls:response', response);
     });
 });
@@ -751,7 +751,7 @@ ipcMain.on('update-ls-api-token:request', (event, token) => {
 
 // Handles clearing the linked LS project (URL and API)
 ipcMain.on('clear-linked-ls:request', () => {
-    var res = clearLinkedLSProject();
+    let res = clearLinkedLSProject();
     mainWin.webContents.send('ls-projects-update', JSON.stringify(res));
 });
 
@@ -771,11 +771,11 @@ ipcMain.on('scrapedData:export', (event, data) => {
 //####################################################################################
 
 ipcMain.on('gen-dialog', (event, message) => {
-    var json = JSON.parse(message);
+    let json = JSON.parse(message);
     dialog.showMessageBox({message: json.msg});
 });
 
 ipcMain.on('err-dialog', (event, message) => {
-    var json = JSON.parse(message);
+    let json = JSON.parse(message);
     dialog.showErrorBox(json.errType, json.msg);
 });

@@ -77,7 +77,7 @@ function attachPageEventListeners() {
 
     // Handles receipt of updated project list
     lsAPI.updateToProjectList((res) => {
-        var response = JSON.parse(res);
+        let response = JSON.parse(res);
 
         if (response.ok) {
             updateProjectOptions(response.data);
@@ -140,8 +140,8 @@ function changePage(event) {
  * @param {*} projects      The returned list of available projects.
  */
 function updateProjectOptions(projects) {
-    var urlSelect = $('#projectSelect-url');
-    var manSelect = $('#projectSelect-man');
+    let urlSelect = $('#projectSelect-url');
+    let manSelect = $('#projectSelect-man');
 
     $(urlSelect).empty();
     $(manSelect).empty();
@@ -220,7 +220,7 @@ const logger = window.log;    // Variable created for ease of reading
      * @param {*} cause             Cause if an error.
      */
 function postAlert(alertMsg, cause) {
-    var json = {
+    let json = {
         msg: alertMsg,
         errType: null
     }

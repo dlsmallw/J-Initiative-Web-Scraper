@@ -39,11 +39,11 @@ export class AnnotationPageController {
     }
 
     /**
-     * Method for intitializing the page in the application.
+     * Method for initializing the page in the application.
      */
     initPage() {
-        var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
-        var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
+        let navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
+        let navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
 
         $('#navbar-ul-1').append(navbarItem);
 
@@ -85,11 +85,11 @@ export class AnnotationPageController {
             .on('mouseenter', function() { $('#ext-win-btn').stop( true, true ).fadeTo(500, 0.2); })
             .on('mouseleave', function() { $('#ext-win-btn').stop( true, true ).fadeOut(500); });
 
-        // Handles openning the LS app in an external window
+        // Handles opening the LS app in an external window
         $('#ext-win-btn').on('click', () => {
             $('#ls-embedded').hide();
             $('#ls-external').show();
-            var url = $('#annotation-webview').attr('src');
+            let url = $('#annotation-webview').attr('src');
             this.lsAPI.openExternal(url);
         });
 
@@ -163,7 +163,7 @@ export class AnnotationPageController {
      * @param {*} cause             Cause if an error.
      */
     postAlert(alertMsg, cause) {
-        var json = {
+        let json = {
             msg: alertMsg,
             errType: null
         }
@@ -216,7 +216,7 @@ export class AnnotationPageController {
     //============================================================================================================================
 
     /**
-     * Method used to validate that the URL entered for linking a LS project is valid.
+     * Method used to validate that the URL entered for linking an LS project is valid.
      * @param {*} url       The URL.
      * @returns             A boolean indicating if it is valid or not.
      */
@@ -233,14 +233,14 @@ export class AnnotationPageController {
             return false;
         } 
         
-        var host = lsURL.host;
-        var strArr = host.split('.');
+        let host = lsURL.host;
+        let strArr = host.split('.');
         
         if (!strArr.find(st => st === 'hf')) {
             return false;
         }
 
-        var req = new XMLHttpRequest();
+        let req = new XMLHttpRequest();
         req.open('GET', url, true);
         req.onreadystatechange = function() {
             if (req.readyState === 4) {
@@ -255,10 +255,10 @@ export class AnnotationPageController {
     }
 
     /**
-     * Function for handling the event where a LS URL is entered and submitted.
+     * Function for handling the event where an LS URL is entered and submitted.
      */
     initLSURL() {
-        var urlInput = $('#ls-link-input').val();
+        let urlInput = $('#ls-link-input').val();
 
         if (urlInput !== '') {
             if (this.checkLSURL(urlInput)) {
@@ -275,8 +275,8 @@ export class AnnotationPageController {
      * Function for updating the LS URL using the URL field within the LS Config Menu.
      */
     updateLSURL() {
-        var currURL = localStorage.getItem('lsURL');
-        var urlInput = $('#ls-link-option').val();
+        let currURL = localStorage.getItem('lsURL');
+        let urlInput = $('#ls-link-option').val();
 
         if (this.checkLSURL(urlInput)) {
             this.setLSURL(urlInput);
@@ -291,7 +291,7 @@ export class AnnotationPageController {
      * @param {*} url 
      */
     updatedLSWebviewSrc(url) {
-        var currURL = $('#annotation-webview').attr('src');
+        let currURL = $('#annotation-webview').attr('src');
 
         if (currURL !== url) {
             $('#annotation-webview').attr('src', url);
@@ -317,8 +317,8 @@ export class AnnotationPageController {
     updateLSAPIToken() {
         let regex = /^[A-Za-z0-9]+$/g;
 
-        var tokenVal = $('#ls-api-token-option').val();
-        var currToken = localStorage.getItem('apiToken');
+        let tokenVal = $('#ls-api-token-option').val();
+        let currToken = localStorage.getItem('apiToken');
 
         if (regex.test(tokenVal)) {
             localStorage.setItem('apiToken', tokenVal);

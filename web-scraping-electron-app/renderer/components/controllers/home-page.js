@@ -5,7 +5,6 @@ export class HomePageController {
 
     electronAPI = window.electronAPI;
 
-
     /**
      * Returns the pages component html filepath.
      * @returns String          The html filepath.
@@ -42,8 +41,8 @@ export class HomePageController {
      * Method for intitializing the page in the application.
      */
     initPage() {
-        var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
-        var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
+        let navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
+        let navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
         window.notifications = ["No notifications."];
 
         $('#navbar-ul-1').append(navbarItem);
@@ -54,8 +53,6 @@ export class HomePageController {
 
         insertElement().then(() => {
 
-            //localStorage.setItem('tutorial', "enabled"); //manually enable tutorial after in-program disable (for testing)
-            //this.addNotifications("Joe is going to be late.", "Meeting at 4:30 today."); //example
             this.initPageListeners();
             this.checkForNotifications();
             window.setInterval(this.checkForNotifications, 500); //check notifications every 0.5 seconds.
@@ -85,7 +82,7 @@ export class HomePageController {
             document.getElementById("notification-button").style.visibility = "visible";
         }
 
-        document.getElementById("number-of-notifications").innerHTML = notifications.length;
+        document.getElementById("number-of-notifications").innerHTML = "" + notifications.length;
     }
 
     /**
@@ -116,7 +113,7 @@ export class HomePageController {
      * Method to remove notifications.
      */
     removeNotifications() {
-        var temp = document.getElementById("notification-box");
+        let temp = document.getElementById("notification-box");
 
         alert("Notification dismissed.");
         let i = notifications.indexOf(temp.options[temp.selectedIndex].text);
@@ -133,7 +130,7 @@ export class HomePageController {
             alert("No current notifications.");
             document.getElementById("notification-button").style.display = "hidden";
             document.getElementById("notification-x-button").style.visibility="hidden";
-            document.getElementById("notification-box").style.visibility="hidden"; //test
+            document.getElementById("notification-box").style.visibility="hidden";
             document.getElementById("notification-dismiss-button").style.visibility="hidden";
         }
     }
@@ -149,10 +146,9 @@ export class HomePageController {
             document.getElementById("notification-dismiss-button").style.visibility="visible";
         }
 
-        var notifs = document.getElementById('notification-box');
+        let notifs = document.getElementById('notification-box');
 
         notifications.forEach((element) => (notifs.add(new Option(element))));
-        //notifications.forEach((element) => (new Notification(element))); //Notifications on desktop
     }
 
     /**
@@ -164,7 +160,7 @@ export class HomePageController {
         document.getElementById("notification-box").style.visibility="hidden";
         document.getElementById("notification-dismiss-button").style.visibility="hidden";
 
-        var notifs = document.getElementById('notification-box');
+        let notifs = document.getElementById('notification-box');
         notifications.forEach((element) => (notifs.remove(element)));
     }
 
@@ -223,7 +219,7 @@ export class HomePageController {
      * @param {*} cause             Cause if an error.
      */
     postAlert(alertMsg, cause) {
-        var json = {
+        let json = {
             msg: alertMsg,
             errType: null
         }
