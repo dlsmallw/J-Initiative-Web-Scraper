@@ -1,5 +1,41 @@
 <!-- HTML component used for the home page in the application. -->
+<div class="notification-container" style="align-items: center">
+    <p><br><br></p>
+
+    <button class="notification" id="notification-button" style="visibility: visible">
+        <span>Notifications</span>
+        <span class="badge" id="number-of-notifications">3</span>
+    </button>
+
+    <select id="notification-box" style="visibility: hidden; float:right; background-color: white; color: black" class="notification-box"></select>
+
+    <button class="notification" id="notification-x-button">
+        <span class="badge">x</span>
+    </button>
+
+    <p><br></p>
+
+    <button class="notification" id="notification-dismiss-button">
+        <span class="badge">dismiss</span>
+    </button>
+</div>
+
+<div id="tutorial">
+    <h3 style="text-decoration: underline">Hello, and welcome to the program!<br></h3>
+    <p id="tutorial-dialog">If this is your first time, would you like to watch a brief tutorial?
+        On completion of tutorial, or on clicking "No", this prompt will not appear again.<br><br></p>
+    <button id="yes-tutorial" class="tutorial-button">Yes</button>
+    <button id="no-tutorial" class="tutorial-button">No</button>
+</div>
+
 <div id="home-container" class="my-5 container">
     <h1 class="display-4">Home</h1>
     <p>Welcome to our modern, elegant web scraping application!</p>
+</div>
+
+<div id="embed-tutorial" style="display: none; position: relative">
+    <button style="position: absolute; height: 30px; left: 2px; padding: 2px 4px; font-weight: bold; background-color: brown" id="tutorial-x-button">X</button>
+    <iframe src="./components/tutorial.html" height="350" width="600" style="text-align: center">
+        Video tutorial iframe failed to load.
+    </iframe>
 </div>
