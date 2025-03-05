@@ -390,7 +390,38 @@ export class SettingsPageController {
 
             if(this.isInDom(settingsBtn)) {
                 // TODO: Fix this
-                settingsBtn.on('click', updateSettings);
+                //settingsBtn.on('click', updateSettings);
+                settingsBtn.on('click', () => {
+                    let widthInput = $('#widthI');
+                    let heightInput = $('#heightI');
+
+                    if(isInDom(widthInput) && isInDom(heightInput)) {
+                        const newWidth = parseInt(widthInput.val());
+                        const newHeight = parseInt(heightInput.val());
+
+                        const minWidth = 400;
+                        const maxWidth = window.screen.width;
+                        const minHeight = 400;
+                        const maxHeight = window.screen.height;
+
+                        //console.log("attempted W: " + newWidth + ", H: " + newHeight);
+
+
+                        if(Number.isInteger(newWidth) && Number.isInteger(newHeight)) {
+                            if(((newWidth >= minWidth) && (newWidth <= maxWidth)) && 
+                                ((newHeight >= minHeight) && (newHeight <= maxHeight))) {
+                                this.resize(newWidth, newHeight);
+                            }
+                            else {
+                                logWarn(`Out of range width/height value for resizing`);
+                            }
+                        }
+                        else {
+                            logWarn(`Invalid width/height value for resizing`);
+                        }
+                    }  
+
+                });
             }
             else {
                 logWarn(`Couldn't locate settings button to attach events to`);

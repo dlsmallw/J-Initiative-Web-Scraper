@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initPages();
 
     // Initialize listeners for settings page 
-    initializeSettingsAdjust();
+    //initializeSettingsAdjust();
 
     // Log that the renderer process is ready
     logInfo('Renderer process is ready.');
@@ -304,6 +304,7 @@ function loadHistory() {
 }
 
 // TODO: Remove this method once it's working via settings-page.js
+/*
 function initializeSettingsAdjust() {
     const settingsBtn = $('#save-settings');
     const themeSelect = $('#theme-select');
@@ -379,6 +380,7 @@ function resize(width, height) {
     window.resizeTo(width, height);
     logInfo("Resized window to w: " + width + ", h: " + height);
 }
+*/
 
 //============================================================================================================================
 // Logging Helpers (WIP - Plan to move to a separate class that is imported)
