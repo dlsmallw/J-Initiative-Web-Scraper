@@ -41,11 +41,11 @@ export class LogPageController {
     }
 
     /**
-     * Method for intitializing the page in the application.
+     * Method for initializing the page in the application.
      */
     initPage() {
-        var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
-        var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
+        let navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
+        let navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
 
         $('#navbar-ul-1').append(navbarItem);
 
@@ -125,7 +125,7 @@ export class LogPageController {
      * @param {*} cause             Cause if an error.
      */
     postAlert(alertMsg, cause) {
-        var json = {
+        let json = {
             msg: alertMsg,
             errType: null
         }
@@ -236,7 +236,7 @@ export class LogPageController {
      * @param {*} log       The log to be inserted.
      */
     appendLog(log) {
-        var $logEntry = $('<div>', {class: "log-entry"});
+        let $logEntry = $('<div>', {class: "log-entry"});
         $logEntry.text(log);
         $('#log-wrapper').append($logEntry);
     }
@@ -245,21 +245,17 @@ export class LogPageController {
      * Display logs in the UI.
      */
     displayLogs() {
-        var typeFilter = $('#log-filter').val();
-        var dateFilter = new Date($('#date-filter').val());
+        let typeFilter = $('#log-filter').val();
+        let dateFilter = new Date($('#date-filter').val());
 
         const logOutput = $('#log-wrapper');
         logOutput.empty(); // Clear existing logs
 
-        var logs = this.logLines.filter(logObj => {
-            var meetsDateFilter = true ? (dateFilter === undefined || (logObj.logDateTime.toDateString() === dateFilter.toDateString())) : false;
-            var meetsTypeFilter = true ? (typeFilter === 'ALL' || logObj.logType === typeFilter) : false;
+        let logs = this.logLines.filter(logObj => {
+            let meetsDateFilter = (dateFilter === undefined || (logObj.logDateTime.toDateString() === dateFilter.toDateString()));
+            let meetsTypeFilter = (typeFilter === 'ALL' || logObj.logType === typeFilter);
 
-            if (meetsDateFilter && meetsTypeFilter) {
-                return true;
-            }
-
-            return false;
+            return meetsDateFilter && meetsTypeFilter;
         });
 
         if (logs.length === 0) {

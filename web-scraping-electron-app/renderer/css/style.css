@@ -156,7 +156,7 @@ div#tutorial, div#tutorial-home
 {
     position:absolute;
     text-align: center;
-    font-family:  var(--font-family);
+    font-family: var(--font-family), serif;
     font-weight: bold;
     display:none;
     top:200px;

@@ -38,11 +38,11 @@ export class AboutPageController {
     }
 
     /**
-     * Method for intitializing the page in the application.
+     * Method for initializing the page in the application.
      */
     initPage() {
-        var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
-        var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
+        let navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
+        let navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
 
         $('#navbar-ul-1').append(navbarItem);
 
@@ -93,7 +93,7 @@ export class AboutPageController {
      * @param {*} cause             Cause if an error.
      */
     postAlert(alertMsg, cause) {
-        var json = {
+        let json = {
             msg: alertMsg,
             errType: null
         }

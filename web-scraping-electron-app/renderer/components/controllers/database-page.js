@@ -41,8 +41,8 @@ export class DatabasePageController {
      * Method for intitializing the page in the application.
      */
     initPage() {
-        var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
-        var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
+        let navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
+        let navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
 
         $('#navbar-ul-1').append(navbarItem);
 
@@ -68,7 +68,7 @@ export class DatabasePageController {
      * Sets the page active (visible).
      */
     setPageActive() {
-        this.displayWebsiteData();
+        this.displayWebsiteData().then();
         $(`#${this.name}`).addClass('active-nav-item');
         $(this.compID).show();
     }

@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeTheme();
 
     // Initialize pages by loading their content
-    initPages();
+    initPages().then();
 
     // Log that the renderer process is ready
     logInfo('Renderer process is ready.');

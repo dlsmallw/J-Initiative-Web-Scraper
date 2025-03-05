@@ -192,7 +192,7 @@ function logError(log) {
  * @returns                 The JSON log object.
  */
 function formLogObject(line) {
-    let [rawDateTime, rawType] = line.match(/\[(.*?)\]/g);
+    let [rawDateTime, rawType] = line.match(/\[(.*?)]/g);
 
     let [year, month, day] = rawDateTime.match(/\d{4}-\d{2}-\d{2}/)[0].split('-');
     let [hr, min, sec, millisec] = rawDateTime.match(/\b(\d{1,2}):(\d{2}):(\d{2})\.(\d{1,3})\b/).slice(1);
@@ -200,7 +200,6 @@ function formLogObject(line) {
     let dateObj = new Date(year, month - 1, day, hr, min, sec, millisec);
     let type = rawType.replace(/[\[\]']+/g, '');
     let msg = line.substring(line.lastIndexOf(']') + 1).trim();
-    let rawLogMsg = line;
 
     // console.log(`${year}-${month}-${day}`);
     // console.log(`${hr}-${min}-${sec}-${millisec}`);
@@ -211,7 +210,7 @@ function formLogObject(line) {
         logDateTime: dateObj,
         logType: type,
         logMsg: msg,
-        rawLogStr: rawLogMsg
+        rawLogStr: line
     }
 }
 
@@ -280,7 +279,7 @@ function initLogListener(logFilePath) {
     tail.watch();
 
     tail.on('line', (data) => {
-        logReadQueue.enqueue(formLogObject(data));
+        logReadQueue.enqueue(formLogObject(data)).then();
     });
 }
 
@@ -415,7 +414,7 @@ ipcMain.handle('add-website', async (event, url) => {
   let docRef = doc(db, "Websites", "Website List");
   await updateDoc(docRef, {
     List: arrayUnion(encodedURL)
-}).then(r => log.info(`website added to website list: ${encodedURL}`));
+}).then(() => log.info(`website added to website list: ${encodedURL}`));
   docRef = doc(db, "Websites", encodedURL);
   log.info('creating doc: ' + encodedURL);
   await setDoc(docRef, {
@@ -433,7 +432,7 @@ for (let i = 0; i < data.length; i++) {
   const docRef = doc(db, "Websites", encodedURL);
   updateDoc(docRef, {
     Entries: arrayUnion(scrapedData)
-  }).then(r => log.info(`entry "${scrapedData}" added to website: ${encodedURL}`));
+  }).then(() => log.info(`entry "${scrapedData}" added to website: ${encodedURL}`));
 
 }
 });
@@ -772,7 +771,7 @@ ipcMain.on('scrapedData:export', (event, data) => {
 
 ipcMain.on('gen-dialog', (event, message) => {
     let json = JSON.parse(message);
-    dialog.showMessageBox({message: json.msg});
+    dialog.showMessageBox({message: json.msg}).then();
 });
 
 ipcMain.on('err-dialog', (event, message) => {
