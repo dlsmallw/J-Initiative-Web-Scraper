@@ -1,68 +1,83 @@
-J-Initiative-Web-Scraper
-├── .github
-├── .idea
-├── web-scraping-electron-app
-│   ├── database  
-│   │   ├── Database Logic
-│   │   │    ├── AddEntry.js
-│   │   │    ├── DeleteEntry.js
-│   │   │    ├── FirebaseConnection.js
-│   │   │    ├── ModifyEntry.js
-│   │   │    ├── SubCollectionEntry.mjs
-│   │   ├── FirebaseConfig.js
-│   │   ├── General DatabaseDiagram.png
-│   │   ├── SER 401 Task #103.pdf
-│   │   ├── Task #102 Database Research.pdf
-│   │   ├── Task105DatabaseWindow.png
-│   ├── js
-│   │   ├── label-studio-api.js
-│   ├── node_modules
-│   ├── renderer
-│   │   ├── assets
-│   │   │    ├── html
-│   │   │    │   ├── loadingscreen.html
-│   │   │    ├── icon8-settings.svg
-│   │   │    ├── open-new-window.svg
-│   │   ├── components
-│   │   │    ├── controllers
-│   │   │    │   ├── about-page.js
-│   │   │    │   ├── annotation-page.js
-│   │   │    │   ├── database-page.js
-│   │   │    │   ├── home-page.js
-│   │   │    │   ├── log-page.js
-│   │   │    │   ├── scrape-page.js
-│   │   │    ├── about.html
-│   │   │    ├── annotation.html
-│   │   │    ├── database.html
-│   │   │    ├── home.html
-│   │   │    ├── log.html
-│   │   │    ├── scrape.html
-│   │   │    ├── theme.html
-│   │   ├── css
-│   │   │    ├── style.css
-│   │   ├── js
-│   │   │    ├── renderer.js
-│   │   │    ├── sanitizer.js
-│   │   ├── window-templates
-│   │   │    ├── js
-│   │   │    │   ├── annotation-webview-renderer.js
-│   │   │    │   ├── scrape-webview-preload.js
-│   │   │    │   ├── scrape-webview-renderer.js
-│   │   │    ├── anno-window.html
-│   │   │    ├── scrape-window.html
-│   │   ├── index.html
-│   ├── tests
-│   ├── .npmrc
-│   ├── logger.js
-│   ├── LOGGING.md
-│   ├── main.js
-│   ├── package.json
-│   ├── pkgmgr.sh
-│   ├── preload.js
-│   ├── README.md
-│   ├── yarn.lock
-├── .gitignore
-├── J_Initiative_Web_Scraper_Colab_Notebook.ipynb
-├── LICENSE
-├── README.md
 
+
+---
+
+### 📁 **Project Structure Refactor Proposal**
+**🚀 Goal:** Improve maintainability, readability, and scalability of our J-Initiative Web Scraper project.
+
+---
+
+## 📂 **Proposed New Structure**
+```
+J-Initiative-Web-Scraper
+├── .github/  
+├── .idea/  
+├── web-scraping-electron-app/  
+│   ├── 📂 src/                     # Main source code  
+│   │   ├── 🛠️ backend/            # Backend logic (Database & APIs)  
+│   │   │   ├── 📂 database/  
+│   │   │   │   ├── 📄 AddEntry.js  
+│   │   │   │   ├── 📄 DeleteEntry.js  
+│   │   │   │   ├── 📄 FirebaseConnection.js  
+│   │   │   │   ├── 📄 ModifyEntry.js  
+│   │   │   │   ├── 📄 SubCollectionEntry.mjs  
+│   │   │   ├── 📂 services/  
+│   │   │   │   ├── 🔗 label-studio-api.js  
+│   │   │   ├── 📂 utils/  
+│   │   │   │   ├── 📝 logger.js  
+│   │   │   │   ├── 🔒 sanitizer.js  
+│   │   ├── 🎨 frontend/            # Frontend UI (Electron/React)  
+│   │   │   ├── 📂 assets/  
+│   │   │   │   ├── 🎨 icons/  
+│   │   │   │   │   ├── ⚙️ icon8-settings.svg  
+│   │   │   │   │   ├── 🖼️ open-new-window.svg  
+│   │   │   │   ├── 📄 loadingscreen.html  
+│   │   │   ├── 📂 components/  
+│   │   │   │   ├── 📂 views/  
+│   │   │   │   │   ├── 🏠 HomePage.js  
+│   │   │   │   │   ├── 📋 AnnotationPage.js  
+│   │   │   │   │   ├── 🔎 ScrapePage.js  
+│   │   │   │   │   ├── 🗄️ DatabasePage.js  
+│   │   │   │   │   ├── 📖 AboutPage.js  
+│   │   │   │   │   ├── 📝 LogPage.js  
+│   │   │   │   ├── 📂 templates/  
+│   │   │   │   │   ├── 📄 Home.html  
+│   │   │   │   │   ├── 📄 Scrape.html  
+│   │   │   │   │   ├── 📄 Database.html  
+│   │   │   │   │   ├── 📄 Annotation.html  
+│   │   │   │   │   ├── 📄 Log.html  
+│   │   │   │   │   ├── 🎨 Theme.html  
+│   │   │   ├── 🎨 css/  
+│   │   │   │   ├── 📄 style.css  
+│   │   │   ├── ⚙️ js/  
+│   │   │   │   ├── 🎭 renderer.js  
+│   │   ├── 🌐 webviews/             # Electron WebView Components  
+│   │   │   ├── 📝 annotation/  
+│   │   │   │   ├── 📄 annotation-webview-renderer.js  
+│   │   │   ├── 🔍 scraping/  
+│   │   │   │   ├── 📄 scrape-webview-preload.js  
+│   │   │   │   ├── 📄 scrape-webview-renderer.js  
+│   │   │   ├── 🖼️ templates/  
+│   │   │   │   ├── 📄 anno-window.html  
+│   │   │   │   ├── 📄 scrape-window.html  
+│   ├── 🔬 tests/  
+│   ├── 📂 public/                    # Static files  
+│   │   ├── 📄 index.html  
+│   ├── 🎯 main.js                     # Electron Main Process  
+│   ├── ⚡ preload.js                   # Preload scripts  
+│   ├── 📜 package.json  
+│   ├── 📖 README.md  
+│   ├── 📝 LOGGING.md  
+│   ├── 📦 yarn.lock  
+│   ├── 🛠️ .npmrc  
+│   ├── 📜 pkgmgr.sh  
+├── 📂 docs/                          # Documentation & Research  
+│   ├── 📌 GeneralDatabaseDiagram.png  
+│   ├── 📜 SER401_Task_103.pdf  
+│   ├── 📜 Task_102_Database_Research.pdf  
+│   ├── 📜 Task105DatabaseWindow.png  
+├── 📓 J_Initiative_Web_Scraper_Colab_Notebook.ipynb  
+├── 📜 LICENSE  
+├── 🔥 .gitignore  
+├── 📖 README.md  
+```
