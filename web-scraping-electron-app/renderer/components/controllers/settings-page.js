@@ -434,19 +434,19 @@ export class SettingsPageController {
         }
     }
 
-    updateSettings() {
+    static updateSettings() {
         this.adjustWindow();
     }
 
-    adjustWindowToPreset1() {
+    static adjustWindowToPreset1() {
         this.resize(802, 600);
     }
 
-    adjustWindowToPreset2() {
+    static adjustWindowToPreset2() {
         this.resize(window.screen.width, window.screen.height);
     }
 
-    adjustWindow() {
+    static adjustWindow() {
         const widthInput = $('#widthI');
         const heightInput = $('#heightI');
 
@@ -477,7 +477,7 @@ export class SettingsPageController {
         }  
     }
 
-    resize(width, height) {
+    static resize(width, height) {
         window.resizeTo(width, height);
         logInfo("Resized window to w: " + width + ", h: " + height);
     }
