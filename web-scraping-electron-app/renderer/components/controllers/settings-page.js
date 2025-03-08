@@ -432,15 +432,24 @@ export class SettingsPageController {
 
             if(this.isInDom(preset1Btn)) {
                 // TODO: Fix this
-                preset1Btn.on('click', adjustWindowToPreset1);
+                preset1Btn.on('click', () => {
+                    
+                    window.resizeTo(preset1w, preset1h);
+                    logInfo("Resized window to w: " + preset1w + ", h: " + preset1h);
+                });
             }
             else {
                 logWarn(`Couldn't locate Preset 1 button to attach events to`);
             }
 
             if(this.isInDom(preset2Btn)) {
-                // TODO: Fix this
-                preset2Btn.on('click', adjustWindowToPreset2);
+                preset2Btn.on('click', () => {
+                    let preset2w = window.screen.width;
+                    let preset2h = window.screen.height;
+
+                    window.resizeTo(preset2w, preset2h);
+                    logInfo("Resized window to w: " + preset2w + ", h: " + preset2h);
+                });
             }
             else {
                 logWarn(`Couldn't locate Preset 2 button to attach events to`);
