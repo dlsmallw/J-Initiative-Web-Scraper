@@ -120,7 +120,8 @@ body {
 .notification {
     image-rendering: auto;
     float: right;
-    background-color: #bbdefb;
+    background-color: #90caf9;
+    border-color: #495057;
     font-weight: lighter;
     color: black;
     visibility: hidden;

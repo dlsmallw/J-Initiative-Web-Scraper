@@ -38,7 +38,7 @@ export class HomePageController {
     }
 
    /**
-     * Method for intitializing the page in the application.
+     * Method for initializing the page in the application.
      */
     initPage() {
         let navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
@@ -124,7 +124,7 @@ export class HomePageController {
 
         temp.remove(temp.selectedIndex);
 
-        document.getElementById("number-of-notifications").innerHTML = notifications.length;
+        document.getElementById("number-of-notifications").innerHTML = notifications.size;
 
         if(notifications.length === 0) {
             alert("No current notifications.");
