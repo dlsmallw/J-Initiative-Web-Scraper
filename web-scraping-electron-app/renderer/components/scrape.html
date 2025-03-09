@@ -1,7 +1,7 @@
 <!-- scrape.html -->
 <div id="scrape-container" class="my-5 container position-relative" style="display: none;">
     <h1 class="display-4">Web Scraper</h1>
-    <button 
+    <!-- <button 
         class="
             btn 
             btn-outline-secondary 
@@ -16,7 +16,16 @@
         rel="popover" 
         data-placement="bottom"
         data-original-title="Title" 
-        data-trigger="hover">Manual Mode</button>
+        data-trigger="hover">Manual Mode</button> -->
+
+    <div id="toggle-container" class="position-absolute top-0 end-0">
+        <span id="mode-toggle-lbl">Data Scrape Mode</span>
+        <div id="scrape-tab-toggle-container" class="toggle">
+            <input id="scrape-mode-toggle" class="toggle__checkbox" type="checkbox">
+            <label id="scrape-mode-toggle-lbl" for="scrape-mode-toggle" class="toggle__label"></label>
+        </div>
+    </div>
+    
     
     <div id="url-scrape-container">
         <h4>URL Mode</h4>

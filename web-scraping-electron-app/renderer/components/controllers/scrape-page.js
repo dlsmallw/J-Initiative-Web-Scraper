@@ -4,6 +4,7 @@ export class ScrapePageController {
     compID = '#scrape-container';     // Page component container ID
 
     electronAPI = window.electronAPI;
+    databaseAPI = window.databaseAPI;
     lsAPI = window.lsAPI;
 
     /**
@@ -65,23 +66,17 @@ export class ScrapePageController {
         this.initResultsContainer();
 
         // Toggles a manual mode or a URL entry mode (URL entry is default)
-        $('#scrape-mode-toggle').on('click', () => {
-            let curr = $('#scrape-mode-toggle').html();
-            let next;
-
-            if (curr === 'Manual Mode') {
-                next = 'URL Mode';
-
+        $('#scrape-mode-toggle').on('change', async () => {
+            var isChecked = document.getElementById('scrape-mode-toggle').checked
+            console.log(isChecked)
+    
+            if (isChecked) {
                 $('#url-scrape-container').hide();
                 $('#manual-scrape-container').show();
             } else {
-                next = 'Manual Mode';
-
                 $('#manual-scrape-container').hide();
                 $('#url-scrape-container').show();
             }
-
-            $('#scrape-mode-toggle').html(next);
         });
 
         // Event listener for the "Submit" button on the Scrape page
@@ -401,10 +396,11 @@ export class ScrapePageController {
      * Function to handle the "Submit" button click on the Scrape page.
      */
     submitBtnPressed() {
+
         this.disableURLField();
 
         let url = $('#url-input').val();
-
+        this.databaseAPI.addWebsiteToDatabase(url).then(r => this.logWarn('added website to database'));
         // Check if a URL was entered
         if (url) {
             // Prepend 'https://' if no protocol is specified
@@ -429,6 +425,7 @@ export class ScrapePageController {
         } else {
             this.postAlert('Please enter a URL', 'Empty URL'); // Alert the user if no URL is entered
             this.logWarn('No URL entered.');
+            this.enableURLField();
         }
     }
 

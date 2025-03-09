@@ -15,6 +15,24 @@ const { Mutex } = require('async-mutex');
 // API Imports
 const { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject } = require('./js/label-studio-api.js');
 
+// Firebase Imports
+const { collection, getDocs, getFirestore, doc, getDoc, updateDoc, setDoc, arrayUnion} = require('firebase/firestore');
+const { initializeApp } = require('firebase/app');
+const firebaseConfig = {
+  apiKey: "AIzaSyAhqRcDSUGoTiEka890A53u7cjS0J1IH48",
+  authDomain: "ser-401-group8-firebase.firebaseapp.com",
+  projectId: "ser-401-group8-firebase",
+  storageBucket: "ser-401-group8-firebase.firebasestorage.app",
+  messagingSenderId: "346387119771",
+  appId: "1:346387119771:web:71d09aec636a6b1c06503e",
+  measurementId: "G-QX3095X9GX"
+};
+
+// Initialize Firebase
+const dbapp = initializeApp(firebaseConfig);
+// Initialize Cloud Firestore and get a reference to the service
+const db = getFirestore(dbapp);
+
 //====================================================================================
 // Helper class for handling processing of Queued events.
 //====================================================================================
@@ -354,6 +372,73 @@ ipcMain.on('logs:clear', (event) => {
     }
 });
 
+//====================================================================================
+// adding websites to database page methods
+//====================================================================================
+
+ipcMain.handle('get-websites', async () => {
+  let websiteData = '';
+  try {
+    const docRef = doc(db, "Websites", "Website List");
+    const docSnap = await getDoc(docRef);
+    const documentData = docSnap.data();
+    const websiteList = documentData.List;
+    websiteList.forEach(website => {
+      websiteData += website + '\n';
+    });
+    return websiteData;
+  } catch (error) {
+    return ''; // Return empty string on error
+  }
+});
+
+ipcMain.handle('get-websites-entries', async (event, url) => {
+  let entries = '';
+  try {
+    const docRef = doc(db, "Websites", url);
+    const docSnap = await getDoc(docRef);
+    const documentData = docSnap.data();
+    const entryList = documentData.Entries;
+    entryList.forEach(entry => {
+      entries += entry + '\n';
+    });
+    return entries;
+  } catch (error) {
+    return ''; // Return empty string on error
+  }
+});
+
+
+ipcMain.handle('add-website', async (event, url) => {
+//adding website to database
+  const encodedURL = encodeURIComponent(url);
+  let docRef = doc(db, "Websites", "Website List");
+  await updateDoc(docRef, {
+    List: arrayUnion(encodedURL)
+}).then(r => log.info(`website added to website list: ${encodedURL}`));
+  docRef = doc(db, "Websites", encodedURL);
+  log.info('creating doc: ' + encodedURL);
+  await setDoc(docRef, {
+    website_url: encodedURL
+  }, { merge: true });
+
+});
+
+ipcMain.handle('add-scraped-data', async (event, data) => {
+for (let i = 0; i < data.length; i++) {
+  const entry = data[i];
+  const url = entry.url;
+  const scrapedData = entry.data;
+  const encodedURL = encodeURIComponent(url);
+  const docRef = doc(db, "Websites", encodedURL);
+  updateDoc(docRef, {
+    Entries: arrayUnion(scrapedData)
+  }).then(r => log.info(`entry "${scrapedData}" added to website: ${encodedURL}`));
+
+}
+});
+
+
 
 
 //====================================================================================
@@ -427,8 +512,8 @@ function createURLWindow(url) {
         }
     });
 
+    urlWindow.webContents.openDevTools();
     urlWindow.hide();
-    // urlWindow.webContents.openDevTools();
 
     // Load the specified URL in the window, catch invalid url
     urlWindow.loadFile('./renderer/window-templates/scrape-window.html')
@@ -455,6 +540,8 @@ function createURLWindow(url) {
         logWarn('Attempt to open a new window was blocked.');
         return { action: 'deny' }; // Deny any requests to open new windows
     });
+
+    urlWindow.webContents.focus()
 }
 
 /**

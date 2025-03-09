@@ -178,3 +178,18 @@ contextBridge.exposeInMainWorld('urlScrape', {
         ipcRenderer.send('close-scrape-win');
     }
 });
+
+contextBridge.exposeInMainWorld('databaseAPI', {
+  getWebsiteData: () => {
+    return ipcRenderer.invoke('get-websites');
+  },
+  getWebsiteEntries: (url) => {
+    return ipcRenderer.invoke('get-websites-entries', url);
+  },
+  addWebsiteToDatabase: (url) => {
+    return ipcRenderer.invoke('add-website', url);
+  },
+  addScrapedDataToDatabase: (data) => {
+    return ipcRenderer.invoke('add-scraped-data', data);
+  }
+});

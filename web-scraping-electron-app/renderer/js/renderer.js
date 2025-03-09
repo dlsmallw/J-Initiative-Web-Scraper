@@ -33,6 +33,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Log that the renderer process is ready
     logInfo('Renderer process is ready.');
+
+    document.addEventListener('keypress', e => {
+        console.log(e.key)
+    })
 });
 
 //============================================================================================================================
