@@ -13,7 +13,7 @@ const { Tail } = require('tail');
 const { Mutex } = require('async-mutex');
 
 // API Imports
-const { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject } = require('./js/label-studio-api.js');
+const { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject } = require('../../backend/services/label-studio-api.js');
 
 // Firebase Imports
 const { collection, getDocs, getFirestore, doc, getDoc, updateDoc, setDoc, arrayUnion} = require('firebase/firestore');
@@ -475,9 +475,8 @@ function createMainWindow() {
     mainWin.setMenu(null);
 
     // Load the main HTML file for the renderer process
-    mainWin.loadFile('./renderer/index.html').then(() => {
-        logInfo('Main window loaded.');
-    }).catch((error) => {
+    mainWin.loadFile(path.join(__dirname, '../../frontend/public/index.html'))
+    .catch((error) => {
         logError(`Failed to load main window: ${error}`);
     });
 }
