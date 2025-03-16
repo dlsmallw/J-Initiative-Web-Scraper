@@ -515,7 +515,9 @@ function createURLWindow(url) {
     urlWindow.hide();
 
     // Load the specified URL in the window, catch invalid url
-    urlWindow.loadFile('./renderer/window-templates/scrape-window.html')
+    urlWindow.loadFile(
+        path.join(__dirname, '../webviews/templates/scrape-window.html')
+    )
         .then(() => {
             urlWindow.webContents.send('setUrl', url);
             urlWindow.show();
@@ -567,7 +569,7 @@ function createLSExternal(url) {
     // lsWindow.webContents.openDevTools();
 
     try {
-        lsWindow.loadFile('./renderer/window-templates/anno-window.html')
+        lsWindow.loadFile('../webviews/templates/anno-window.html')
             .then(() => {
                 lsWindow.webContents.send('set-ls-url', url);
                 lsWindow.show();

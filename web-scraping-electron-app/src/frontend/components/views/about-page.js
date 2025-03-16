@@ -1,5 +1,5 @@
 export class AboutPageController {
-    htmlFilePath = './components/about.html';  // Filepath to HTML component
+    htmlFilePath = '../components/templates/about.html';  // Filepath to HTML component
     name = 'about';                  // Page name
     compID = '#about-container';     // Page component container ID
 

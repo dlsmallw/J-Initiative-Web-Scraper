@@ -1,5 +1,5 @@
 export class HomePageController {
-    htmlFilePath = './components/home.html';  // Filepath to HTML component
+    htmlFilePath = '../components/templates/home.html';  // Filepath to HTML component
     name = 'home';                  // Page name
     compID = '#home-container';     // Page component container ID
 

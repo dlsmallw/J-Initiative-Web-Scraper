@@ -1,5 +1,5 @@
 export class ScrapePageController {
-    htmlFilePath = './components/scrape.html';  // Filepath to HTML component
+    htmlFilePath = '../components/templates/scrape.html';  // Filepath to HTML component
     name = 'scrape';                  // Page name
     compID = '#scrape-container';     // Page component container ID
 

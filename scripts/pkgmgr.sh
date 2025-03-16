@@ -2,7 +2,7 @@
 
 # Creastes the environment and installs all dependencies
 build() {
-    clean 
+    clean
     yarn install
 }
 
@@ -13,7 +13,7 @@ clean() {
         rm -rf package-lock.json
     fi
 
-    if [ -d ./.venv ]; 
+    if [ -d ./.venv ];
     then
         deactivate
         rm -rf ./.venv
@@ -21,7 +21,7 @@ clean() {
         rm -rf Pipfile.lock
     fi
 
-    if [ -d ./node_modules ]; 
+    if [ -d ./node_modules ];
     then
         rm -rf ./node_modules
     fi

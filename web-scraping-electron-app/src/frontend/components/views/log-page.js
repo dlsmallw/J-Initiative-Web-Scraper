@@ -1,5 +1,5 @@
 export class LogPageController {
-    htmlFilePath = './components/log.html';  // Filepath to HTML component
+    htmlFilePath = '../components/templates/log.html';  // Filepath to HTML component
     name = 'logs';                  // Page name
     compID = '#log-container';     // Page component container ID
 

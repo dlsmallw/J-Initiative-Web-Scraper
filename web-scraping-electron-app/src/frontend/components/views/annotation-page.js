@@ -1,5 +1,5 @@
 export class AnnotationPageController {
-    htmlFilePath = './components/annotation.html';  // Filepath to HTML component
+    htmlFilePath = '../components/templates/annotation.html';  // Filepath to HTML component
     name = 'annotation';                  // Page name
     compID = '#annotation-container';     // Page component container ID
 
