@@ -8,29 +8,29 @@ var APITOKEN = '';
 var BASEURL = '';
 
 const RequestType = {
-    GetProjects: {
-        id: 0,
-        name: 'GetProjects',
-        successMsg: 'Project List Successfully Retrieved from Label Studio',
-        failMsg: 'Failed to Retrieve Project List from Label Studio'
-    },
-    ExportTasks: {
-        id: 1,
-        name: 'ExportTasks',
-        successMsg: 'Data Successfully Exported to Label Studio',
-        failMsg: 'Error Exporting Scraped Data to Label Studio'
-    }
-}
+  GetProjects: {
+    id: 0,
+    name: 'GetProjects',
+    successMsg: 'Project List Successfully Retrieved from Label Studio',
+    failMsg: 'Failed to Retrieve Project List from Label Studio',
+  },
+  ExportTasks: {
+    id: 1,
+    name: 'ExportTasks',
+    successMsg: 'Data Successfully Exported to Label Studio',
+    failMsg: 'Error Exporting Scraped Data to Label Studio',
+  },
+};
 
 /**
  * Generates a request header for making requests to a specified Label Studio project.
  * @returns JSON        The request header.
  */
 function requestHeader() {
-    return {
-        'Content-Type': 'application/json',
-        'Authorization': `Token ${APITOKEN}`
-    }
+  return {
+    'Content-Type': 'application/json',
+    Authorization: `Token ${APITOKEN}`,
+  };
 }
 
 /**
@@ -39,21 +39,21 @@ function requestHeader() {
  * @returns                     A JSON object of the project info.
  */
 function formatProjectData(response) {
-    var numProjects = response.count;
-    var results = response.results;
-    var formattedResults = [];
-    var index = numProjects - 1;
+  var numProjects = response.count;
+  var results = response.results;
+  var formattedResults = [];
+  var index = numProjects - 1;
 
-    results.forEach(project => {
-        formattedResults[index] = {
-            id: project.id,
-            project_name: project.title
-        };
+  results.forEach((project) => {
+    formattedResults[index] = {
+      id: project.id,
+      project_name: project.title,
+    };
 
-        index -= 1;
-    });
+    index -= 1;
+  });
 
-    return formattedResults;
+  return formattedResults;
 }
 
 /**
@@ -61,13 +61,13 @@ function formatProjectData(response) {
  * @returns             The response of the API call.
  */
 function getProjects() {
-    var request = {
-        method: 'get',
-        url: `${BASEURL}/api/projects`,
-        headers: requestHeader()
-    }
+  var request = {
+    method: 'get',
+    url: `${BASEURL}/api/projects`,
+    headers: requestHeader(),
+  };
 
-    return makeRequestToLS(request, RequestType.GetProjects);
+  return makeRequestToLS(request, RequestType.GetProjects);
 }
 
 /**
@@ -77,51 +77,53 @@ function getProjects() {
  * @returns                     The response.
  */
 function makeRequestToLS(requestJSON, requestType) {
-    // Used to define an informative response to be sent back to the renderer
-    let jsonOBJ = {
-        ok: null,
-        requestType: requestType.name,
-        data: null,
-        resMsg: null,
-        errType: null
-    }
+  // Used to define an informative response to be sent back to the renderer
+  let jsonOBJ = {
+    ok: null,
+    requestType: requestType.name,
+    data: null,
+    resMsg: null,
+    errType: null,
+  };
 
-    return new Promise((resolve) => {
-        if (APITOKEN === '' || BASEURL === '') {
+  return new Promise((resolve) => {
+    if (APITOKEN === '' || BASEURL === '') {
+      jsonOBJ.ok = false;
+      jsonOBJ.resMsg = requestType.failMsg;
+      jsonOBJ.errType = 'Token/URL Missing';
+
+      resolve(jsonOBJ);
+    } else {
+      axios(requestJSON)
+        .then(function (res) {
+          var status = res.status;
+          var statusText = res.statusText;
+
+          if (status >= 200 && status < 300) {
+            jsonOBJ.ok = true;
+            jsonOBJ.resMsg = requestType.successMsg;
+            jsonOBJ.errType = 'NONE';
+
+            if (requestType === RequestType.GetProjects) {
+              jsonOBJ.data = formatProjectData(res.data);
+            }
+          } else {
             jsonOBJ.ok = false;
             jsonOBJ.resMsg = requestType.failMsg;
-            jsonOBJ.errType = 'Token/URL Missing';
+            jsonOBJ.errType = statusText;
+          }
 
-            resolve(jsonOBJ);
-        } else {
-            axios(requestJSON).then(function(res) {
-                var status = res.status;
-                var statusText = res.statusText;
-    
-                if (status >= 200 && status < 300) {
-                    jsonOBJ.ok = true;
-                    jsonOBJ.resMsg = requestType.successMsg;
-                    jsonOBJ.errType = 'NONE';
+          resolve(jsonOBJ);
+        })
+        .catch((err) => {
+          jsonOBJ.ok = false;
+          jsonOBJ.errType = 'Request Failure';
+          jsonOBJ.resMsg = 'Error Encountered Making Request to Label Studio Project';
 
-                    if (requestType === RequestType.GetProjects) {
-                        jsonOBJ.data = formatProjectData(res.data);
-                    }
-                } else {
-                    jsonOBJ.ok = false;
-                    jsonOBJ.resMsg = requestType.failMsg;
-                    jsonOBJ.errType = statusText;
-                }
-    
-                resolve(jsonOBJ);
-            }).catch(err => {
-                jsonOBJ.ok = false;
-                jsonOBJ.errType = 'Request Failure';
-                jsonOBJ.resMsg = 'Error Encountered Making Request to Label Studio Project';
-    
-                resolve(jsonOBJ);
-            });
-        }
-    });
+          resolve(jsonOBJ);
+        });
+    }
+  });
 }
 
 /**
@@ -130,36 +132,36 @@ function makeRequestToLS(requestJSON, requestType) {
  * @returns Array           An array split into individual sentences.
  */
 function formatTextData(textData) {
-    var regex = /(?:\([^()]*\)|\d+\.\d+|[^.?!])+[.?!]/g;
-    // can be used to check for ascii valid characters but this may not be what we want
-    // var asciiRegex = /^[\x00-\x7F]+$/;       
+  var regex = /(?:\([^()]*\)|\d+\.\d+|[^.?!])+[.?!]/g;
+  // can be used to check for ascii valid characters but this may not be what we want
+  // var asciiRegex = /^[\x00-\x7F]+$/;
 
-    var trimmedRawData = textData.trim();
-    
-    if (trimmedRawData && trimmedRawData !== '') {
-        var formattedData = [];
-        var sentArr = trimmedRawData.match(regex);
+  var trimmedRawData = textData.trim();
 
-        if (sentArr && sentArr.length > 0) {
-            sentArr.forEach(sent => {
-                var sentStr = sent.trim();
+  if (trimmedRawData && trimmedRawData !== '') {
+    var formattedData = [];
+    var sentArr = trimmedRawData.match(regex);
 
-                if (sentStr !== '') {
-                    formattedData.push({
-                        text: sentStr
-                    });
-                }
-            });
-        } else {
-            formattedData.push({
-                text: trimmedRawData
-            });
+    if (sentArr && sentArr.length > 0) {
+      sentArr.forEach((sent) => {
+        var sentStr = sent.trim();
+
+        if (sentStr !== '') {
+          formattedData.push({
+            text: sentStr,
+          });
         }
-
-        return formattedData;
+      });
+    } else {
+      formattedData.push({
+        text: trimmedRawData,
+      });
     }
 
-    return null;
+    return formattedData;
+  }
+
+  return null;
 }
 
 /**
@@ -168,25 +170,25 @@ function formatTextData(textData) {
  * @returns                 A formatted array of all data to export.
  */
 function formatDataArr(dataArr) {
-    var formattedResult = null;
+  var formattedResult = null;
 
-    if (dataArr !== null) {
-        var formattedArr = [];
+  if (dataArr !== null) {
+    var formattedArr = [];
 
-        for (var i = 0; i < dataArr.length; i++) {
-            var data = formatTextData(dataArr[i].textData);
+    for (var i = 0; i < dataArr.length; i++) {
+      var data = formatTextData(dataArr[i].textData);
 
-            for (var j = 0; j < data.length; j++) {
-                formattedArr.push(data[j]);
-            }
-        }
-
-        if (formattedArr.length !== 0) {
-            formattedResult = formattedArr;
-        }
+      for (var j = 0; j < data.length; j++) {
+        formattedArr.push(data[j]);
+      }
     }
 
-    return formattedResult;
+    if (formattedArr.length !== 0) {
+      formattedResult = formattedArr;
+    }
+  }
+
+  return formattedResult;
 }
 
 /**
@@ -195,41 +197,41 @@ function formatDataArr(dataArr) {
  * @returns JSON            The request object.
  */
 function requestJSON(rawData, projectID) {
-    var formattedData = formatDataArr(rawData);
+  var formattedData = formatDataArr(rawData);
 
-    if (formattedData !== null) {
-        return {
-            method: 'post',
-            url: `${BASEURL}/api/projects/${projectID}/import`,
-            headers: requestHeader(),
-            data: formattedData
-        }
-    } else {
-        throw new Error("Invalid Data Format From Null Data.");
-    }
+  if (formattedData !== null) {
+    return {
+      method: 'post',
+      url: `${BASEURL}/api/projects/${projectID}/import`,
+      headers: requestHeader(),
+      data: formattedData,
+    };
+  } else {
+    throw new Error('Invalid Data Format From Null Data.');
+  }
 }
 
 /**
-* Makes a post request to export data to the linked LS project.
+ * Makes a post request to export data to the linked LS project.
  * @param {*} rawData       The data to be exported.
  * @param {*} projectID     The ID of the project to export to.
  * @returns JSON            Object indicating success or failure.
  */
 function exportDataToLS(rawData, projectID) {
-    try {
-        var request = requestJSON(rawData, projectID);
+  try {
+    var request = requestJSON(rawData, projectID);
 
-        return makeRequestToLS(request, RequestType.ExportTasks);
-    } catch (err) {
-        return new Promise(resolve => {
-            resolve({
-                ok: false,
-                requestType: RequestType.ExportTasks,
-                resMsg: RequestType.ExportTasks.failMsg,
-                errType: err
-            });
-        });  
-    }
+    return makeRequestToLS(request, RequestType.ExportTasks);
+  } catch (err) {
+    return new Promise((resolve) => {
+      resolve({
+        ok: false,
+        requestType: RequestType.ExportTasks,
+        resMsg: RequestType.ExportTasks.failMsg,
+        errType: err,
+      });
+    });
+  }
 }
 
 /**
@@ -237,8 +239,8 @@ function exportDataToLS(rawData, projectID) {
  * @param {*} url       The new URL.
  */
 function updateLinkedLSProject(url) {
-    BASEURL = url;
-    APITOKEN = '';
+  BASEURL = url;
+  APITOKEN = '';
 }
 
 /**
@@ -247,21 +249,21 @@ function updateLinkedLSProject(url) {
  * @returns                 The updated list of projects.
  */
 function updateAPIToken(token) {
-    APITOKEN = token;
-    return getProjects();
+  APITOKEN = token;
+  return getProjects();
 }
 
 /**
  * Clears the linked LS project.
  */
 function clearLinkedLSProject() {
-    BASEURL = '';
-    APITOKEN = '';
+  BASEURL = '';
+  APITOKEN = '';
 
-    return {
-        ok: true,
-        data: null
-    }
+  return {
+    ok: true,
+    data: null,
+  };
 }
 
-module.exports= { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject };
+module.exports = { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject };

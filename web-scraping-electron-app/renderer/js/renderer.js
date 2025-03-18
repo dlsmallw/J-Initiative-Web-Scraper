@@ -6,37 +6,35 @@ import { DatabasePageController } from '../components/controllers/database-page.
 import { LogPageController } from '../components/controllers/log-page.js';
 import { AboutPageController } from '../components/controllers/about-page.js';
 
-
 const ipcRenderer = window.electronAPI;
 const lsAPI = window.lsAPI;
 
-
 // Pages object to manage different sections of the application
 const Pages = {
-    Home: new HomePageController(),
-    Scrape: new ScrapePageController(),
-    Annotation: new AnnotationPageController(),
-    Database: new DatabasePageController(),
-    About: new AboutPageController(),
-    Logs: new LogPageController()
+  Home: new HomePageController(),
+  Scrape: new ScrapePageController(),
+  Annotation: new AnnotationPageController(),
+  Database: new DatabasePageController(),
+  About: new AboutPageController(),
+  Logs: new LogPageController(),
 };
 
 let currentPage;
 
 document.addEventListener('DOMContentLoaded', () => {
-    logDebug('DOM loaded, initializing initial dynamic content.');
-    // Initialize theme when the document is fully loaded
-    initializeTheme();
+  logDebug('DOM loaded, initializing initial dynamic content.');
+  // Initialize theme when the document is fully loaded
+  initializeTheme();
 
-    // Initialize pages by loading their content
-    initPages();
+  // Initialize pages by loading their content
+  initPages();
 
-    // Log that the renderer process is ready
-    logInfo('Renderer process is ready.');
+  // Log that the renderer process is ready
+  logInfo('Renderer process is ready.');
 
-    document.addEventListener('keypress', e => {
-        console.log(e.key)
-    })
+  document.addEventListener('keypress', (e) => {
+    console.log(e.key);
+  });
 });
 
 //============================================================================================================================
@@ -47,48 +45,48 @@ document.addEventListener('DOMContentLoaded', () => {
  * Initializes all the pages by loading their HTML content and setting the default page to Home
  */
 async function initPages() {
-    // Set default page to Home and display its content
-    currentPage = Pages.Home;
+  // Set default page to Home and display its content
+  currentPage = Pages.Home;
 
-    try {
-        Object.keys(Pages).forEach(e => {
-            Pages[e].initPage();
-        });
+  try {
+    Object.keys(Pages).forEach((e) => {
+      Pages[e].initPage();
+    });
 
-        currentPage.setPageActive();
+    currentPage.setPageActive();
 
-        // Attach event listeners
-        attachPageEventListeners();
+    // Attach event listeners
+    attachPageEventListeners();
 
-        logInfo('Pages initialized successfully.');
-    } catch (error) {
-        logError(`Error initializing pages: ${error}`);
-    }
+    logInfo('Pages initialized successfully.');
+  } catch (error) {
+    logError(`Error initializing pages: ${error}`);
+  }
 }
 
 /**
  * Attach event listeners specific to the current page (e.g., buttons, input fields)
  */
 function attachPageEventListeners() {
-    Object.keys(Pages).forEach(e => {
-        $(`#${Pages[e].getName()}`).on('click', changePage);
-    });
+  Object.keys(Pages).forEach((e) => {
+    $(`#${Pages[e].getName()}`).on('click', changePage);
+  });
 
-    // Handles receipt of updated project list
-    lsAPI.updateToProjectList((res) => {
-        var response = JSON.parse(res);
+  // Handles receipt of updated project list
+  lsAPI.updateToProjectList((res) => {
+    var response = JSON.parse(res);
 
-        if (response.ok) {
-            updateProjectOptions(response.data);
-        } else {
-            postAlert(response.resMsg, response.errType);
-        }
-    });
+    if (response.ok) {
+      updateProjectOptions(response.data);
+    } else {
+      postAlert(response.resMsg, response.errType);
+    }
+  });
 
-    // Event listener for the "Exit" navigation link
-    $('#exit-nav').on('click', () => {
-        ipcRenderer.exitSignal();
-    });
+  // Event listener for the "Exit" navigation link
+  $('#exit-nav').on('click', () => {
+    ipcRenderer.exitSignal();
+  });
 }
 
 //============================================================================================================================
@@ -101,7 +99,7 @@ function attachPageEventListeners() {
  * @returns Page        The page.
  */
 function getPage(value) {
-    return Pages[Object.keys(Pages).find(e => Pages[e].getName() === value)];
+  return Pages[Object.keys(Pages).find((e) => Pages[e].getName() === value)];
 }
 
 /**
@@ -109,20 +107,20 @@ function getPage(value) {
  * @param {*} event     The event corresponding to a page change.
  */
 function changePage(event) {
-    event.preventDefault(); // Prevent default link behavior
-    const newPage = getPage(this.id.split('-')[0]);
+  event.preventDefault(); // Prevent default link behavior
+  const newPage = getPage(this.id.split('-')[0]);
 
-    // Only switch pages if the new page is different from the current page
-    if (currentPage.name !== newPage.name) {
-        currentPage.setPageInactive();
-        newPage.setPageActive();
+  // Only switch pages if the new page is different from the current page
+  if (currentPage.name !== newPage.name) {
+    currentPage.setPageInactive();
+    newPage.setPageActive();
 
-        currentPage = newPage;
+    currentPage = newPage;
 
-        logInfo(`Page changed to ${currentPage.getName()}.`);
-    } else {
-        logDebug(`Page not changed. Already on ${currentPage.getName()}.`);
-    }
+    logInfo(`Page changed to ${currentPage.getName()}.`);
+  } else {
+    logDebug(`Page not changed. Already on ${currentPage.getName()}.`);
+  }
 }
 
 //============================================================================================================================
@@ -134,26 +132,30 @@ function changePage(event) {
  * @param {*} projects      The returned list of available projects.
  */
 function updateProjectOptions(projects) {
-    var urlSelect = $('#projectSelect-url');
-    var manSelect = $('#projectSelect-man');
+  var urlSelect = $('#projectSelect-url');
+  var manSelect = $('#projectSelect-man');
 
-    $(urlSelect).empty();
-    $(manSelect).empty();
+  $(urlSelect).empty();
+  $(manSelect).empty();
 
-    if (projects) {
-        $.each(projects, function(i, project) {
-            $(urlSelect).append($('<option>', {
-                value: project.id,
-                text: `${project.id} - ${project.project_name}`
-            }));
-    
-            $(manSelect).append($('<option>', {
-                value: project.id,
-                text: `${project.id} - ${project.project_name}`
-            }));
-        });
-    }  
-} 
+  if (projects) {
+    $.each(projects, function (i, project) {
+      $(urlSelect).append(
+        $('<option>', {
+          value: project.id,
+          text: `${project.id} - ${project.project_name}`,
+        })
+      );
+
+      $(manSelect).append(
+        $('<option>', {
+          value: project.id,
+          text: `${project.id} - ${project.project_name}`,
+        })
+      );
+    });
+  }
+}
 
 //============================================================================================================================
 // Methods for managing initialization and control of app theme
@@ -163,70 +165,70 @@ function updateProjectOptions(projects) {
  * Initializes the theme based on the user's saved preference or defaults to light theme.
  */
 function initializeTheme() {
-    const themeSelect = $('#theme-select');
+  const themeSelect = $('#theme-select');
 
-    // Load the saved theme from localStorage if it exists
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        document.documentElement.className = savedTheme; // Apply saved theme to the document
-        logDebug(`Applied saved theme: ${savedTheme}`);
-    } else {
-        // Set default theme if none is saved
-        document.documentElement.className = 'light-theme';
-        logDebug('Applied default theme: light-theme');
-    }
+  // Load the saved theme from localStorage if it exists
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    document.documentElement.className = savedTheme; // Apply saved theme to the document
+    logDebug(`Applied saved theme: ${savedTheme}`);
+  } else {
+    // Set default theme if none is saved
+    document.documentElement.className = 'light-theme';
+    logDebug('Applied default theme: light-theme');
+  }
 
-    if (themeSelect) {
-        // Set the dropdown to the saved value if available
-        themeSelect.val(savedTheme || 'light-theme');
+  if (themeSelect) {
+    // Set the dropdown to the saved value if available
+    themeSelect.val(savedTheme || 'light-theme');
 
-        // Add an event listener to change the theme whenever the user selects a new option
-        themeSelect.on('change', changeTheme);
-    } else {
-        logWarn('Theme select element not found.');
-    }
+    // Add an event listener to change the theme whenever the user selects a new option
+    themeSelect.on('change', changeTheme);
+  } else {
+    logWarn('Theme select element not found.');
+  }
 }
 
 /**
  * Changes the theme based on user selection and saves the choice to localStorage.
  */
 function changeTheme() {
-    const theme = $('#theme-select').val();
+  const theme = $('#theme-select').val();
 
-    // Set the selected theme class on the HTML element
-    document.documentElement.className = theme;
+  // Set the selected theme class on the HTML element
+  document.documentElement.className = theme;
 
-    // Save the selected theme to localStorage so it persists across sessions
-    localStorage.setItem('theme', theme);
+  // Save the selected theme to localStorage so it persists across sessions
+  localStorage.setItem('theme', theme);
 
-    logInfo(`Theme changed to: ${theme}`);
+  logInfo(`Theme changed to: ${theme}`);
 }
 
 //============================================================================================================================
 // Logging Helpers (WIP - Plan to move to a separate class that is imported)
 //============================================================================================================================
-const logger = window.log;    // Variable created for ease of reading
+const logger = window.log; // Variable created for ease of reading
 
 /**
-     * Handles displaying an alert message for specific situations (error or otherwise).
-     * @param {*} alertMsg          Message to display.
-     * @param {*} cause             Cause if an error.
-     */
+ * Handles displaying an alert message for specific situations (error or otherwise).
+ * @param {*} alertMsg          Message to display.
+ * @param {*} cause             Cause if an error.
+ */
 function postAlert(alertMsg, cause) {
-    var json = {
-        msg: alertMsg,
-        errType: null
-    }
+  var json = {
+    msg: alertMsg,
+    errType: null,
+  };
 
-    if (cause === undefined) {
-        ipcRenderer.postDialog.general(JSON.stringify(json));
-        logInfo(alertMsg);
-    } else {
-        json.errType = cause;
+  if (cause === undefined) {
+    ipcRenderer.postDialog.general(JSON.stringify(json));
+    logInfo(alertMsg);
+  } else {
+    json.errType = cause;
 
-        ipcRenderer.postDialog.error(JSON.stringify(json));
-        logError(`${alertMsg} Cause: ${cause}`);
-    }
+    ipcRenderer.postDialog.error(JSON.stringify(json));
+    logError(`${alertMsg} Cause: ${cause}`);
+  }
 }
 
 /**
@@ -234,7 +236,7 @@ function postAlert(alertMsg, cause) {
  * @param {string} message - The message to log.
  */
 function logInfo(message) {
-    logger.info(message);
+  logger.info(message);
 }
 
 /**
@@ -242,7 +244,7 @@ function logInfo(message) {
  * @param {string} message - The message to log.
  */
 function logDebug(message) {
-    logger.debug(message);
+  logger.debug(message);
 }
 
 /**
@@ -250,7 +252,7 @@ function logDebug(message) {
  * @param {string} message - The message to log.
  */
 function logWarn(message) {
-    logger.warn(message);
+  logger.warn(message);
 }
 
 /**
@@ -258,5 +260,5 @@ function logWarn(message) {
  * @param {string} message - The message to log.
  */
 function logError(message) {
-    logger.error(message);
+  logger.error(message);
 }
