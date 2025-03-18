@@ -475,7 +475,7 @@ function createMainWindow() {
     mainWin.setMenu(null);
 
     // Load the main HTML file for the renderer process
-    mainWin.loadFile(path.join(__dirname, '../../frontend/public/index.html'))
+    mainWin.loadFile(path.join(__dirname, '../../../public/index.html'))
     .catch((error) => {
         logError(`Failed to load main window: ${error}`);
     });

@@ -1,5 +1,5 @@
 export class DatabasePageController {
-    htmlFilePath = '../components/templates/database.html';  // Filepath to HTML component
+    htmlFilePath = '../src/frontend/components/templates/database.html';  // Filepath to HTML component
     name = 'database';                  // Page name
     compID = '#database-container';     // Page component container ID
 
