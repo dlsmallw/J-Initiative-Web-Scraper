@@ -1,19 +1,43 @@
 # J-Initiative-Web-Scraper
-**How to run linting** and help maintain consistency.
 
 ---
 
 ### **Linting & Formatting**
-We use **ESLint** and **Prettier** to ensure consistent code style and quality.
+We will use **ESLint** and **Prettier** to ensure consistent code style and quality.
 
-###  **Run Linting**
-To check for code issues and fix fixable problems automatically:
-```bash
-npx eslint "**/*.{js,mjs}" --fix
-```
 
 ### Lint & Prettier Config
 - ESLint: [eslint.config.mjs](./eslint.config.mjs)
 - Prettier: [.prettierrc.json](./.prettierrc.json)
+
+---
+
+## ESLint + Prettier Scripts**
+
+```json
+"scripts": {
+  "lint": "eslint \"**/*.{js,mjs}\"",
+  "lint:fix": "eslint \"**/*.{js,mjs}\" --fix",
+  "format": "prettier --write .",
+  "format:check": "prettier --check ."
+}
+```
+
+This gives us:
+- `yarn lint`: check for lint issues
+- `yarn lint:fix`: auto-fix issues
+- `yarn format`: format codebase
+- `yarn format:check`: check if formatting is correct 
+
+---
+
+###  **2. Test the Scripts**
+Run these from `web-scraping-electron-app/`:
+
+```bash
+yarn lint
+yarn lint:fix
+yarn format
+```
 
 ---

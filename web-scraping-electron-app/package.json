@@ -5,7 +5,11 @@
   "main": "main.js",
   "scripts": {
     "dev": "npx electronmon .",
-    "start": "electron ."
+    "start": "electron .",
+    "lint": "eslint \"**/*.{js,mjs}\"",
+    "lint:fix": "eslint \"**/*.{js,mjs}\" --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "author": "ASU Capstone 2024 Group 8",
   "license": "UNLICENSED",

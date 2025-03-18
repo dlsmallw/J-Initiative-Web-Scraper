@@ -1,64 +1,69 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-bs-theme="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>J-Initiative Web Scraper</title>
 
-     <!-- Content Security Policy  -->
-    <meta http-equiv="Content-Security-Policy" content="
+    <!-- Content Security Policy  -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
         default-src 'self';
         script-src 'self';
         connect-src 'self' * 'unsafe-inline' 'unsafe-eval';
         frame-src * 'unsafe-inline' 'unsafe-eval';
         img-src 'self' data:;
-        style-src 'self' 'unsafe-inline';">
+        style-src 'self' 'unsafe-inline';"
+    />
 
     <!-- CSS Stylesheets -->
-    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
-    <link rel="stylesheet" href="../renderer/css/style.css">
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="../renderer/css/style.css" />
 
     <!-- jQuery -->
     <script src="../node_modules/jquery/dist/jquery.js"></script>
-</head>
+  </head>
 
-<body>
+  <body>
     <nav class="navbar navbar-expand-sm navbar-dark fixed-top draggable">
-        <div class="container-fluid">
-            <span class="navbar-brand mb-0 h1">Web Scraper</span>
-            <button class="navbar-toggler not-draggable" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <!-- Navigation Links -->
-                <ul class="navbar-nav mb-0 not-draggable" id="navbar-ul-1">
-                    
-                </ul>
+      <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1">Web Scraper</span>
+        <button
+          class="navbar-toggler not-draggable"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <!-- Navigation Links -->
+          <ul class="navbar-nav mb-0 not-draggable" id="navbar-ul-1"></ul>
 
-                <!-- Theme Selector and Exit aligned to the right -->
-                <ul class="navbar-nav ms-auto mb-0 not-draggable" id="navbar-ul-2">
-                    <li class="nav-item">
-                        <select id="theme-select" class="form-select form-select-sm">
-                            <option value="light-theme">Light Theme</option>
-                            <option value="dark-theme">Dark Theme</option>
-                            <option value="blue-theme">Blue Theme</option>
-                            <option value="disco-theme">Disco Theme</option>
-                        </select>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="exit-nav" href="#">Exit</a>
-                    </li>
-                </ul>
-            </div>
+          <!-- Theme Selector and Exit aligned to the right -->
+          <ul class="navbar-nav ms-auto mb-0 not-draggable" id="navbar-ul-2">
+            <li class="nav-item">
+              <select id="theme-select" class="form-select form-select-sm">
+                <option value="light-theme">Light Theme</option>
+                <option value="dark-theme">Dark Theme</option>
+                <option value="blue-theme">Blue Theme</option>
+                <option value="disco-theme">Disco Theme</option>
+              </select>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="exit-nav" href="#">Exit</a>
+            </li>
+          </ul>
         </div>
+      </div>
     </nav>
     <div id="d_content" class="container-fluid mt-4">
-        <!-- Each of the pages are loaded as individual components to separate the html -->
+      <!-- Each of the pages are loaded as individual components to separate the html -->
     </div>
     <!-- Bootstrap JS Bundle -->
     <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
     <!-- Include renderer.js -->
     <script type="module" src="../renderer/js/renderer.js"></script>
-</body>
+  </body>
 </html>
-
