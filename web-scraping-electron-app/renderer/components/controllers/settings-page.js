@@ -466,7 +466,17 @@ export class SettingsPageController {
                 }
                 
                 // TODO: Fix this
-                themeSelect2.on('change', changeTheme2);
+                themeSelect2.on('change', () => {
+                    const theme = $('#theme-select-2').val();
+
+                    // Set the selected theme class on the HTML element
+                    document.documentElement.className = theme;
+
+                    // Save the selected theme to localStorage so it persists across sessions
+                    localStorage.setItem('theme', theme);
+
+                    //logInfo(`Theme changed to: ${theme}`);
+                });
             }
             else {
                 logWarn(`Couldn't locate theme-select-2 to attach events to`);
