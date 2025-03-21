@@ -226,5 +226,4 @@ for a basic production-mode test.
 ### **How This Helps Developers**
 
 - The script logs **what’s missing** or **outdated**.
-- The **commands** (`build`, `run dev`, etc.) are loaded only in the shell that sourced the script.  
 - The **README** clarifies where to fix environment issues and how to optionally handle Python tasks with pipenv.

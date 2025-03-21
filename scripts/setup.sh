@@ -10,7 +10,6 @@ log_warn()   { echo -e "${YELLOW}[WARN] $1${NC}"; }
 log_error()  { echo -e "${RED}[ERROR] $1${NC}"; }
 log_help()   { echo -e "${CYAN}$1${NC}"; }
 
-
 # =========================
 # === Sourced-Only Check ==
 # =========================
@@ -26,7 +25,6 @@ fi
 PROJECT_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 APP_DIR="$PROJECT_ROOT/web-scraping-electron-app"
 
-
 # ================================
 # === 1) Python Version Check  ===
 # ================================
@@ -35,9 +33,10 @@ check_python_version() {
     if ! command -v python3 &> /dev/null; then
         log_warn "python3 not found. Python >= 3.7 is recommended if you need Python tasks."
     else
+        local PY_VER
         PY_VER=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
         if [[ $(printf '%s\n' "$REQUIRED" "$PY_VER" | sort -V | head -n1) != "$REQUIRED" ]]; then
-            log_warn "Detected Python version: $PY_VER (older than $REQUIRED). You may want to upgrade."
+            log_warn "Detected Python version: $PY_VER (older than $REQUIRED). Consider upgrading."
         else
             log_info "Detected Python version: $PY_VER"
         fi
@@ -49,7 +48,7 @@ check_python_version() {
 # =================================
 check_pipenv() {
     if ! command -v pipenv &> /dev/null; then
-        log_warn "pipenv not found. Install via 'pip install pipenv' if needed for Python venv."
+        log_warn "pipenv not found. Install via 'pip install pipenv' if you need a Python venv."
     else
         log_info "Detected pipenv."
     fi
@@ -60,7 +59,7 @@ check_pipenv() {
 # =================================
 check_node_yarn() {
     if ! command -v node &> /dev/null; then
-        log_warn "NodeJS not found. Install from: https://nodejs.org/"
+        log_warn "NodeJS not found. Download at: https://nodejs.org/"
     else
         log_info "Detected NodeJS version: $(node -v)"
     fi
@@ -79,30 +78,11 @@ check_virtualenv() {
     cd "$APP_DIR" || return 1
 
     if [ -d .venv ]; then
-        log_info "Local .venv found. (Activate via 'cd web-scraping-electron-app && pipenv shell')"
+        log_info "Local .venv found. Activate with: pipenv shell inside webscraping-electron-app"
     else
-        log_warn "No local .venv found. If you want a local Python env, run:"
-        echo "       cd web-scraping-electron-app && pipenv install"
+        log_warn "No local .venv found. If you need Python tasks, run:"
+        echo "       pipenv install inside web-scraping-electron-app"
     fi
-}
-
-# ===========================
-# === Help Command       ===
-# ===========================
-help() {
-    log_help "Usage: source ./scripts/setup.sh"
-    echo "Available commands:"
-    echo "  build       - Yarn install (no forced clean)."
-    echo "  clean       - Remove node_modules, .venv, Pipfile, etc."
-    echo "  rebuild     - Clean + build from scratch."
-    echo "  run dev     - Run Electron in dev mode (auto restart)."
-    echo "  run prod    - Run Electron in production mode."
-    echo "  package     - Package Electron app via electron-forge."
-    echo "  help        - Show this help message."
-    echo
-    echo "[Note]"
-    echo "  If you need Python-based tasks, consider 'pipenv install' and 'pipenv shell'."
-    echo "  Then re-source this script inside that shell if you want these 'build', 'run', etc. functions."
 }
 
 # ========================
@@ -110,24 +90,42 @@ help() {
 # ========================
 clean() {
     cd "$APP_DIR" || return 1
-    log_info "Cleaning node_modules and Python environment..."
+    log_info "Cleaning project: removing node_modules, any local Python env, etc."
 
-    [ -d node_modules ] && rm -rf node_modules && log_info "Removed node_modules/"
-    [ -f package-lock.json ] && rm -f package-lock.json && log_info "Removed package-lock.json"
+    # Remove node_modules
+    if [ -d node_modules ]; then
+        rm -rf node_modules
+        log_info "Removed node_modules/"
+    fi
+
+    # Remove package-lock.json
+    if [ -f package-lock.json ]; then
+        rm -f package-lock.json
+        log_info "Removed package-lock.json"
+    fi
+
+    # Remove local venv + Pipfiles
     if [ -d .venv ]; then
         log_info "Removing local .venv directory..."
         rm -rf .venv
     fi
-    [ -f Pipfile ] && rm -f Pipfile && log_info "Removed Pipfile"
-    [ -f Pipfile.lock ] && rm -f Pipfile.lock && log_info "Removed Pipfile.lock"
+    if [ -f Pipfile ]; then
+        rm -f Pipfile
+        log_info "Removed Pipfile"
+    fi
+    if [ -f Pipfile.lock ]; then
+        rm -f Pipfile.lock
+        log_info "Removed Pipfile.lock"
+    fi
 
+    # Deactivate if environment is active
     if [[ -n "$VIRTUAL_ENV" ]]; then
         if type deactivate &> /dev/null; then
-            log_info "Deactivating active virtualenv..."
+            log_info "Deactivating current virtual environment..."
             deactivate
         else
-            log_warn "Virtualenv is active but 'deactivate' not found in current shell."
-            log_info "Unsetting VIRTUAL_ENV variable..."
+            log_warn "Virtualenv seems active but 'deactivate' not found in this shell."
+            log_info "Unsetting VIRTUAL_ENV manually..."
             unset VIRTUAL_ENV
         fi
     else
@@ -139,15 +137,22 @@ clean() {
 # === Build Function      ===
 # ============================
 build() {
+    # Original logic: build calls clean first
+    log_info "Running 'build': cleaning, then installing Node dependencies..."
+    clean
+
     cd "$APP_DIR" || return 1
-    log_info "Installing NodeJS dependencies with yarn..."
     yarn install || { log_error "Yarn install failed."; return 1; }
+
+    log_info "Build complete. Node dependencies installed."
 }
 
 # ============================
 # === Rebuild Function     ===
 # ============================
 rebuild() {
+    # Original logic: rebuild is just 'clean + build'
+    log_info "Rebuilding project from scratch..."
     clean
     build
 }
@@ -167,7 +172,7 @@ run() {
             yarn run start
             ;;
         *)
-            log_error "Specify 'dev' or 'prod'. e.g.: run dev"
+            log_error "Specify 'dev' or 'prod'. For example: run dev"
             ;;
     esac
 }
@@ -177,17 +182,37 @@ run() {
 # ============================
 package() {
     cd "$APP_DIR" || return 1
-    log_info "Packaging Electron app (electron-forge)..."
+    log_info "Packaging Electron app via electron-forge..."
     yarn run electron-forge package
+    log_info "Package process complete. Check 'out/' folder for results."
 }
 
 # ============================
-# === Execute Checks      ===
+# === Help Command         ===
+# ============================
+help() {
+    log_help "Usage: source ./scripts/setup.sh"
+    echo "Available commands:"
+    echo "  build       - Cleans and installs Node deps."
+    echo "  clean       - Removes node_modules, .venv, Pipfile, etc."
+    echo "  rebuild     - Same as 'clean' + 'build'."
+    echo "  run dev     - Launch Electron in dev mode (auto reload)."
+    echo "  run prod    - Launch Electron in production mode."
+    echo "  package     - Package Electron app via electron-forge."
+    echo "  help        - Show this help message."
+    echo
+    echo "[Note]"
+    echo " - If you need Python tasks, consider: cd web-scraping-electron-app && pipenv install"
+    echo " - Then 'pipenv shell' to activate the environment, re-source this script if you want the build/run commands in that shell."
+}
+
+# ============================
+# === Environment Checks  ===
 # ============================
 check_python_version
 check_pipenv
 check_node_yarn
 check_virtualenv
 
-log_info "setup.sh loaded. Type 'help' for commands."
-log_info "To build & run the app: 'build' then 'run dev'."
+log_info "setup.sh loaded. Type 'help' for usage."
+log_info "Try 'build' then 'run dev' to get started."
