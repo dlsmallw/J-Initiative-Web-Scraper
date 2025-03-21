@@ -73,7 +73,7 @@ J-Initiative-Web-Scraper
 │   │   │   │   │   ├── home.html
 │   │   │   │   │   ├── log.html
 │   │   │   │   │   ├── scrape.html
-│   │   │   │   │   └── Theme.html
+│   │   │   │   │   └── theme.html
 │   │   │   │   ├── views/
 │   │   │   │   │   ├── about-page.js
 │   │   │   │   │   ├── annotation-page.js

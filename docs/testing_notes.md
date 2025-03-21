@@ -1,3 +1,5 @@
+Blackbox testing results
+
 Scrape page
 -Data scrape mode radio button is clean and intuitive
 -Under Manual mode, the "export to" field is not possible to type into (and is too narrow)
@@ -12,3 +14,8 @@ Log viewer:
 
 Annotation
 -Inputting certain inputs (ex. the text contents found on https://www.gutenberg.org/files/2701/2701-h/2701-h.htm ) into the URL text field causes the application to cease responding for an extended period, before returning an indecipherable error window.
+
+
+
+Project structure comments
+-The project restructuring seems solid overall. I've made one trivial change to the documentation to correct a typo in README.md.
