@@ -102,7 +102,7 @@ html.disco-theme {
     General Page Settings
 =======================================================================*/
 body {
-    font-family: var(--font-family);
+    font-family: var(--font-family), serif;
     background-color: var(--primary-bg);
     color: var(--primary-color);
     margin: 0;
@@ -112,6 +112,70 @@ body {
     width: 100%;
     display: flex;
     flex-direction: column;
+}
+
+/*=======================================================================
+    Notification Settings
+=======================================================================*/
+.notification {
+    image-rendering: auto;
+    float: right;
+    background-color: #90caf9;
+    border-color: #495057;
+    font-weight: lighter;
+    color: black;
+    visibility: hidden;
+    text-decoration: none;
+    padding: 5px 6px;
+    position: relative;
+    top: 0;
+    right: 0;
+    display: inline-block;
+    border-radius: 10px;
+}
+
+.notification .badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    padding: 5px 7px;
+    border-radius: 50%;
+    background: red;
+    color: white;
+}
+
+.notification:hover {
+    background: #3498db;
+}
+
+.notification:target {
+    display: block;
+}
+
+
+div#tutorial, div#tutorial-home
+{
+    position:absolute;
+    text-align: center;
+    font-family: var(--font-family), serif;
+    font-weight: bold;
+    display:none;
+    top:200px;
+    left:50%;
+    width:500px;
+    margin-left:-250px;
+    border:1px solid blue;
+    padding:20px;
+    background-color: #bbdefb;
+    color: #121212;
+}
+
+.tutorial-button {
+    font-size: smaller;
+    padding: 3px 4px;
+    background: darkslategray;
+    border: 1px solid blue;
+    color: white;
 }
 
 /*=======================================================================

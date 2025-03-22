@@ -40,11 +40,11 @@ export class ScrapePageController {
     }
 
     /**
-     * Method for intitializing the page in the application.
+     * Method for initializing the page in the application.
      */
     initPage() {
-        var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
-        var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
+        let navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
+        let navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
 
         $('#navbar-ul-1').append(navbarItem);
 
@@ -67,7 +67,7 @@ export class ScrapePageController {
 
         // Toggles a manual mode or a URL entry mode (URL entry is default)
         $('#scrape-mode-toggle').on('change', async () => {
-            var isChecked = document.getElementById('scrape-mode-toggle').checked
+            let isChecked = document.getElementById('scrape-mode-toggle').checked
             console.log(isChecked)
     
             if (isChecked) {
@@ -104,7 +104,7 @@ export class ScrapePageController {
 
         // Handles receiving scraped data from the external window
         this.electronAPI.receive('scrapedData:update', (data) => {
-            var jsonObj = JSON.parse(data);
+            let jsonObj = JSON.parse(data);
             this.parseScrapedDataToList(jsonObj);
             // Ensure the results container is visible
             this.showResultsContainer();
@@ -113,7 +113,7 @@ export class ScrapePageController {
 
         // Handles receiving the response from main regarding processing scraped data for export
         this.lsAPI.onExportResponse((res) => {
-            var response = JSON.parse(res);
+            let response = JSON.parse(res);
 
             if (response !== null) {
                 if (response.ok) {
@@ -164,7 +164,7 @@ export class ScrapePageController {
      * @param {*} cause             Cause if an error.
      */
     postAlert(alertMsg, cause) {
-        var json = {
+        let json = {
             msg: alertMsg,
             errType: null
         }
@@ -240,7 +240,7 @@ export class ScrapePageController {
      * @param {*} data          The data being parsed.
      */
     parseScrapedDataToList(data) {
-        for (var i = 0; i < data.length; i++) {
+        for (let i = 0; i < data.length; i++) {
             this.appendNewScrapedItem(data[i]);
         }
         this.showResultsContainer();
@@ -251,7 +251,7 @@ export class ScrapePageController {
      * @param {*} dataObj       The data being appended.
      */
     appendNewScrapedItem(dataObj) {
-        var $newLI = $('<a>', {
+        let $newLI = $('<a>', {
             href: '#', 
             class: 'list-group-item list-group-item-action scrape-item',
             style: 'border-width: 0px 0px 3px 0px;'
@@ -302,25 +302,21 @@ export class ScrapePageController {
     }
     
     checkIfAnyActive() {
-        if ($('#results-list').children('.active').length > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return $('#results-list').children('.active').length > 0;
     }
 
     /**
-     * Checks if there are any currently selected data itmes in the results list.
+     * Checks if there are any currently selected data items in the results list.
      * @returns         Boolean indicating if there are any selected items.
      */
     getAllReadyData() {
-        var scrapedData = [];
+        let scrapedData = [];
     
-        var elemArr = $('.scrape-item');
+        let elemArr = $('.scrape-item');
     
-        for (var i = 0; i < elemArr.length; i++) {
-            var dataURL = $(elemArr[i]).attr('data-url');
-            var textData = $(elemArr[i]).text();
+        for (let i = 0; i < elemArr.length; i++) {
+            let dataURL = $(elemArr[i]).attr('data-url');
+            let textData = $(elemArr[i]).text();
     
             scrapedData.push({
                 url: dataURL,
@@ -340,10 +336,10 @@ export class ScrapePageController {
         this.disableWhileExporting();
 
         if (dataArr !== null) {
-            var lsFormattedArr = [];
-            var dbFormattedArr = [];
+            let lsFormattedArr = [];
+            let dbFormattedArr = [];
 
-            for (var i = 0; i < dataArr.length; i++) {
+            for (let i = 0; i < dataArr.length; i++) {
                 lsFormattedArr.push({
                     textData: dataArr[i].data
                 });
@@ -364,8 +360,8 @@ export class ScrapePageController {
      * Logic that handles exporting data when using URL mode.
      */
     urlModeExport() {
-        var data = this.getAllReadyData();
-        var projID = $('#projectSelect-url').val();
+        let data = this.getAllReadyData();
+        let projID = $('#projectSelect-url').val();
 
         if (data !== null && data.length > 0) {
             this.exportData(data, projID);
@@ -378,12 +374,12 @@ export class ScrapePageController {
      * Logic that handles exporting data when using manual mode.
      */
     manModeExport() {
-        var data = [{
+        let data = [{
             url: null,
             data: $('#manual-scrape-textarea').val()
         }];
 
-        var projID = $('#projectSelect-man').val();
+        let projID = $('#projectSelect-man').val();
 
         if (data.textData !== '') {
             this.exportData(data, projID);
@@ -400,7 +396,7 @@ export class ScrapePageController {
         this.disableURLField();
 
         let url = $('#url-input').val();
-        this.databaseAPI.addWebsiteToDatabase(url).then(r => this.logWarn('added website to database'));
+        this.databaseAPI.addWebsiteToDatabase(url).then(() => this.logWarn('added website to database'));
         // Check if a URL was entered
         if (url) {
             // Prepend 'https://' if no protocol is specified
@@ -445,7 +441,7 @@ export class ScrapePageController {
                     return resolve(false);
                 } 
         
-                var req = new XMLHttpRequest();
+                let req = new XMLHttpRequest();
                 req.open('GET', url, true);
                 req.onreadystatechange = function() {
                     if (req.readyState === 4) {
@@ -482,7 +478,7 @@ export class ScrapePageController {
     }
 
     /**
-     * Reenables scrape page functions after exporting data.
+     * Re-enables scrape page functions after exporting data.
      */
     reenableScrapePageFunctions() {
         this.enableManualScrape();
@@ -532,7 +528,7 @@ export class ScrapePageController {
     }
 
     /**
-     * Reenables the URL mode windows url field.
+     * Re-enables the URL mode windows url field.
      */
     enableURLField() {
         $('#url-input').removeAttr('disabled');
@@ -550,7 +546,7 @@ export class ScrapePageController {
     }
 
     /**
-     * Reenables the results container buttons on the URL mode window.
+     * Re-enables the results container buttons on the URL mode window.
      */
     enableResultsBtns() {
         $('#rmv-all-btn').removeAttr('disabled');
