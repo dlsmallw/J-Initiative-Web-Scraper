@@ -13,7 +13,7 @@ const { Tail } = require('tail');
 const { Mutex } = require('async-mutex');
 
 // API Imports
-const { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject } = require('./js/label-studio-api.js');
+const { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject } = require('../../backend/services/label-studio-api.js');
 
 // Firebase Imports
 const { collection, getDocs, getFirestore, doc, getDoc, updateDoc, setDoc, arrayUnion} = require('firebase/firestore');
@@ -475,9 +475,8 @@ function createMainWindow() {
     mainWin.setMenu(null);
 
     // Load the main HTML file for the renderer process
-    mainWin.loadFile('./renderer/index.html').then(() => {
-        logInfo('Main window loaded.');
-    }).catch((error) => {
+    mainWin.loadFile(path.join(__dirname, '../../../public/index.html'))
+    .catch((error) => {
         logError(`Failed to load main window: ${error}`);
     });
 }
@@ -516,7 +515,9 @@ function createURLWindow(url) {
     urlWindow.hide();
 
     // Load the specified URL in the window, catch invalid url
-    urlWindow.loadFile('./renderer/window-templates/scrape-window.html')
+    urlWindow.loadFile(
+        path.join(__dirname, '../webviews/templates/scrape-window.html')
+    )
         .then(() => {
             urlWindow.webContents.send('setUrl', url);
             urlWindow.show();
@@ -568,7 +569,7 @@ function createLSExternal(url) {
     // lsWindow.webContents.openDevTools();
 
     try {
-        lsWindow.loadFile('./renderer/window-templates/anno-window.html')
+        lsWindow.loadFile('../webviews/templates/anno-window.html')
             .then(() => {
                 lsWindow.webContents.send('set-ls-url', url);
                 lsWindow.show();

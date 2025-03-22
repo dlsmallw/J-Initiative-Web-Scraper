@@ -1,10 +1,9 @@
-export class HomePageController {
-    htmlFilePath = './components/home.html';  // Filepath to HTML component
-    name = 'home';                  // Page name
-    compID = '#home-container';     // Page component container ID
+export class AboutPageController {
+    htmlFilePath = '../src/frontend/components/templates/about.html';  // Filepath to HTML component
+    name = 'about';                  // Page name
+    compID = '#about-container';     // Page component container ID
 
     electronAPI = window.electronAPI;
-
 
     /**
      * Returns the pages component html filepath.
@@ -38,7 +37,7 @@ export class HomePageController {
         return this.name.charAt(0).toUpperCase() + this.name.slice(1);
     }
 
-   /**
+    /**
      * Method for intitializing the page in the application.
      */
     initPage() {
@@ -62,7 +61,9 @@ export class HomePageController {
      * Method for initializing the pages event listeners.
      */
     initPageListeners() {
-        // Insert code for listeners here
+        $('#node-version').html(versions.node());
+        $('#chrome-version').html(versions.chrome());
+        $('#electron-version').html(versions.electron());
     }
 
     /**
