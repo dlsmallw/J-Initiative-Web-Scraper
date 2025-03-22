@@ -1,0 +1,13 @@
+{
+  "source": {
+    "include": ["src/backend", "src/electron", "src/frontend/components/views"],
+    "exclude": ["src/tests", "src/frontend/assets"],
+    "includePattern": ".+\\.js$",
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
+  "opts": {
+    "destination": "./docs",
+    "recurse": true,
+    "template": "templates/default"
+  }
+}

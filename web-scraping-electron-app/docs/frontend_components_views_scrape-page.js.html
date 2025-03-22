@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: frontend/components/views/scrape-page.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: frontend/components/views/scrape-page.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>export class ScrapePageController {
+    htmlFilePath = '../src/frontend/components/templates/scrape.html';  // Filepath to HTML component
+    name = 'scrape';                  // Page name
+    compID = '#scrape-container';     // Page component container ID
+
+    electronAPI = window.electronAPI;
+    databaseAPI = window.databaseAPI;
+    lsAPI = window.lsAPI;
+
+    /**
+     * Returns the pages component html filepath.
+     * @returns String          The html filepath.
+     */
+    getHtmlCompPath() {
+        return this.htmlFilePath;
+    }
+
+    /**
+     * Returns the pages name.
+     * @returns string          The pages name.
+     */
+    getName() {
+        return this.name;
+    }
+
+    /**
+     * Returns the pages component container ID.
+     * @returns String          The component container ID.
+     */
+    getCompID() {
+        return this.compID;
+    }
+
+    /**
+     * Generates the navbar name for the specific page.
+     * @returns String          The navbar name.
+     */
+    navbarName() {
+        return this.name.charAt(0).toUpperCase() + this.name.slice(1);
+    }
+
+    /**
+     * Method for intitializing the page in the application.
+     */
+    initPage() {
+        var navLink = $(`&lt;a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}&lt;/a>`);
+        var navbarItem = $(`&lt;li class="nav-item" id="${this.name}">&lt;/li>`).append(navLink);
+
+        $('#navbar-ul-1').append(navbarItem);
+
+        const insertElement = async () => {
+            $('#d_content').append( await $.get(this.htmlFilePath));
+        }
+
+        insertElement().then(() => {
+            $('#manual-scrape-container').hide();
+
+            this.initPageListeners();
+        });
+    }
+
+    /**
+     * Method for initializing the pages event listeners.
+     */
+    initPageListeners() {
+        this.initResultsContainer();
+
+        // Toggles a manual mode or a URL entry mode (URL entry is default)
+        $('#scrape-mode-toggle').on('change', async () => {
+            var isChecked = document.getElementById('scrape-mode-toggle').checked
+            console.log(isChecked)
+    
+            if (isChecked) {
+                $('#url-scrape-container').hide();
+                $('#manual-scrape-container').show();
+            } else {
+                $('#manual-scrape-container').hide();
+                $('#url-scrape-container').show();
+            }
+        });
+
+        // Event listener for the "Submit" button on the Scrape page
+        $('#submitURLBtn').on('click', () => {
+            this.submitBtnPressed();
+        });
+
+        // Event listener for the "Enter" key press in the input field
+        $('#url-input').on('keypress', (event) => {
+            if (event.key === 'Enter') {
+                this.submitBtnPressed();     // Call the submit function
+            }
+        });
+
+        // Submit button pressed while in Manual Data Entry Mode
+        $('#man-exportBtn').on('click', () => {
+            this.manModeExport();
+        });
+
+        // Listen for errors from main process related to URL opening
+        this.electronAPI.openURLErr((errorMessage) => {
+            this.postAlert('Failed to open URL', errorMessage); // Display alert if there was an error opening the URL
+            this.enableURLField();
+        });
+
+        // Handles receiving scraped data from the external window
+        this.electronAPI.receive('scrapedData:update', (data) => {
+            var jsonObj = JSON.parse(data);
+            this.parseScrapedDataToList(jsonObj);
+            // Ensure the results container is visible
+            this.showResultsContainer();
+        });
+        this.logDebug('Initialized listener for scraped data updates.');
+
+        // Handles receiving the response from main regarding processing scraped data for export
+        this.lsAPI.onExportResponse((res) => {
+            var response = JSON.parse(res);
+
+            if (response !== null) {
+                if (response.ok) {
+                    this.resetAllFields();
+                    this.postAlert(response.resMsg);
+                } else {
+                    this.postAlert(response.resMsg, response.errType);
+                    
+                }
+            } else {
+                this.postAlert('Null Response Received from Main Process', 'Invalid Data State');
+            }
+
+            this.reenableScrapePageFunctions();
+        });
+
+        this.electronAPI.onExtWindowClose(() => {
+            if ($('#results-list').children().length === 0) {
+                this.resetAllFields();
+            }
+        });
+    }
+
+    /**
+     * Sets the page active (visible).
+     */
+    setPageActive() {
+        $(`#${this.name}`).addClass('active-nav-item');
+        $(this.compID).show();
+    }
+
+    /**
+     * Sets the page inactive (hidden).
+     */
+    setPageInactive() {
+        $(this.compID).hide();
+        $(`#${this.name}`).removeClass('active-nav-item');
+    }
+
+    //============================================================================================================================
+    // Logging Helpers (WIP - Plan to move to a separate class that is imported)
+    //============================================================================================================================
+    logger = window.log;    // Variable created for ease of reading
+
+    /**
+     * Handles displaying an alert message for specific situations (error or otherwise).
+     * @param {*} alertMsg          Message to display.
+     * @param {*} cause             Cause if an error.
+     */
+    postAlert(alertMsg, cause) {
+        var json = {
+            msg: alertMsg,
+            errType: null
+        }
+
+        if (cause === undefined) {
+            this.electronAPI.postDialog.general(JSON.stringify(json));
+            this.logInfo(alertMsg);
+        } else {
+            json.errType = cause;
+
+            this.electronAPI.postDialog.error(JSON.stringify(json));
+            this.logError(`${alertMsg} Cause: ${cause}`);
+        }
+    }
+
+    /**
+     * Send an info log message to the main process.
+     * @param {string} message - The message to log.
+     */
+    logInfo(message) {
+        this.logger.info(message);
+    }
+
+    /**
+     * Send a debug log message to the main process.
+     * @param {string} message - The message to log.
+     */
+    logDebug(message) {
+        this.logger.debug(message);
+    }
+
+    /**
+     * Send a warning log message to the main process.
+     * @param {string} message - The message to log.
+     */
+    logWarn(message) {
+        this.logger.warn(message);
+    }
+
+    /**
+     * Send an error log message to the main process.
+     * @param {string} message - The message to log.
+     */
+    logError(message) {
+        this.logger.error(message);
+    }
+
+    //============================================================================================================================
+    // Page Specific Methods
+    //============================================================================================================================
+
+    /**
+     * Initializes the results container UI elements.
+     */
+    initResultsContainer() {
+        this.hideResultsContainer();
+    
+        $('#rmv-sel-btn').on('click', () => {
+            this.removeSelectedItems();
+        });
+    
+        $('#rmv-all-btn').on('click', () => {
+            this.clearScrapedList();
+        });
+
+        $('#url-exportBtn').on('click', () => {
+            this.urlModeExport();
+        });
+    }
+
+    /**
+     * Takes data returned from external scrape window and parses it into the results container.
+     * @param {*} data          The data being parsed.
+     */
+    parseScrapedDataToList(data) {
+        for (var i = 0; i &lt; data.length; i++) {
+            this.appendNewScrapedItem(data[i]);
+        }
+        this.showResultsContainer();
+    }
+
+    /**
+     * Adds a new data item to the results list.
+     * @param {*} dataObj       The data being appended.
+     */
+    appendNewScrapedItem(dataObj) {
+        var $newLI = $('&lt;a>', {
+            href: '#', 
+            class: 'list-group-item list-group-item-action scrape-item',
+            style: 'border-width: 0px 0px 3px 0px;'
+        });
+
+        $newLI.text(dataObj.data);
+        $newLI.attr('data-url', dataObj.url);
+    
+        $newLI.on('click', () => {
+            if ($newLI.hasClass('active')) {
+                $newLI.removeClass('active');
+    
+                if (!this.checkIfAnyActive()) {
+                    $('#rmv-sel-btn').hide();
+                }
+            } else {
+                $newLI.addClass('active');
+                $('#rmv-sel-btn').show();
+            }
+        });
+    
+        $('#results-list').append($newLI);
+    }
+    
+    /**
+     * Removes any currently selected items from the results list.
+     */
+    removeSelectedItems() {
+        $('.scrape-item.active').remove();
+    
+        if (!this.checkIfAnyActive()) {
+            $('#rmv-sel-btn').hide();
+        }
+    
+        if ($('#results-list').children().length === 0) {
+            this.hideResultsContainer();
+            this.enableURLField();
+        }
+    }
+    
+    /**
+     * Removes all items from the results list.
+     */
+    clearScrapedList() {
+        $('#results-list').empty();
+        this.hideResultsContainer();
+        this.enableURLField();
+    }
+    
+    checkIfAnyActive() {
+        if ($('#results-list').children('.active').length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if there are any currently selected data itmes in the results list.
+     * @returns         Boolean indicating if there are any selected items.
+     */
+    getAllReadyData() {
+        var scrapedData = [];
+    
+        var elemArr = $('.scrape-item');
+    
+        for (var i = 0; i &lt; elemArr.length; i++) {
+            var dataURL = $(elemArr[i]).attr('data-url');
+            var textData = $(elemArr[i]).text();
+    
+            scrapedData.push({
+                url: dataURL,
+                data: textData
+            });
+        }
+    
+        return scrapedData;
+    }
+
+    /**
+     * Method used to send the scraped data to main for exporting to Label Studio.
+     * @param {*} dataArr           Data to be exported.
+     * @param {*} projID            The LS project being exported to.
+     */
+    exportData(dataArr, projID) {
+        this.disableWhileExporting();
+
+        if (dataArr !== null) {
+            var lsFormattedArr = [];
+            var dbFormattedArr = [];
+
+            for (var i = 0; i &lt; dataArr.length; i++) {
+                lsFormattedArr.push({
+                    textData: dataArr[i].data
+                });
+
+                dbFormattedArr.push({
+                    url: dataArr[i].url,
+                    textData: dataArr[i].data
+                });
+            }
+
+            this.lsAPI.exportDataToLS(JSON.stringify(lsFormattedArr), projID);
+        } else {
+            this.postAlert('No Data to Export', 'Missing Export Data');
+        }
+    }
+
+    /**
+     * Logic that handles exporting data when using URL mode.
+     */
+    urlModeExport() {
+        var data = this.getAllReadyData();
+        var projID = $('#projectSelect-url').val();
+
+        if (data !== null &amp;&amp; data.length > 0) {
+            this.exportData(data, projID);
+        } else {
+            this.postAlert('No Data to Export', 'Missing Export Data');
+        }
+    }
+
+    /**
+     * Logic that handles exporting data when using manual mode.
+     */
+    manModeExport() {
+        var data = [{
+            url: null,
+            data: $('#manual-scrape-textarea').val()
+        }];
+
+        var projID = $('#projectSelect-man').val();
+
+        if (data.textData !== '') {
+            this.exportData(data, projID);
+        } else {
+            this.postAlert('Data Field Cannot Be Empty!', 'Empty String');
+        }
+    }
+
+    /**
+     * Function to handle the "Submit" button click on the Scrape page.
+     */
+    submitBtnPressed() {
+
+        this.disableURLField();
+
+        let url = $('#url-input').val();
+        this.databaseAPI.addWebsiteToDatabase(url).then(r => this.logWarn('added website to database'));
+        // Check if a URL was entered
+        if (url) {
+            // Prepend 'https://' if no protocol is specified
+            if (!url.match(/^https?:\/\//i)) {
+                url = 'https://' + url;
+            }
+
+            this.checkURL(url).then((res) => {
+                // Validate the URL format before sending
+                if (!res) {
+                    this.postAlert('Please enter a valid URL', 'Invalid URL');
+                    this.logWarn('Invalid URL entered.');
+                    this.enableURLField();
+                } else {
+                    // Send the URL to the main process to open it
+                    this.electronAPI.openExternal(url);
+
+                    // Update the results container to display the submitted URL
+                    $('#staticURL').val(url);
+                }
+            });
+        } else {
+            this.postAlert('Please enter a URL', 'Empty URL'); // Alert the user if no URL is entered
+            this.logWarn('No URL entered.');
+            this.enableURLField();
+        }
+    }
+
+    /**
+     * Method used to validate that the URL entered is valid.
+     * @param {*} url       The URL.
+     * @returns             A boolean indicating if it is valid or not.
+     */
+    checkURL(url) {
+        let urlObj;
+
+        return new Promise((resolve) => {
+            try {  
+                urlObj = new URL(url);
+    
+                if (urlObj.protocol !== "https:") {
+                    return resolve(false);
+                } 
+        
+                var req = new XMLHttpRequest();
+                req.open('GET', url, true);
+                req.onreadystatechange = function() {
+                    if (req.readyState === 4) {
+                        if (req.status === 404) {
+                            resolve(false);
+                        } else {
+                            resolve(true);
+                        }
+                    }
+                }
+                req.send();
+            } catch (err) {
+                resolve(false);
+            }
+        }); 
+    }
+
+    /**
+     * Method for resetting all scrape page fields.
+     */
+    resetAllFields() {
+        this.clearScrapedList();
+        $('#url-input').val('');
+        $('#manual-scrape-textarea').val('');
+    }
+
+    /**
+     * Disables all scrape page fields while performing a data export.
+     */
+    disableWhileExporting() {
+        this.disableManualScrape();
+        this.disableURLField();
+        this.disableResultsBtns();
+    }
+
+    /**
+     * Reenables scrape page functions after exporting data.
+     */
+    reenableScrapePageFunctions() {
+        this.enableManualScrape();
+        this.enableURLField();
+        this.enableResultsBtns();
+    }
+
+    /**
+     * Hides the URL mode results container.
+     */
+    hideResultsContainer() {
+        $('#results-container').hide();
+        $('#rmv-sel-btn').hide();
+    }
+
+    /**
+     * Shows the URL mode results container.
+     */
+    showResultsContainer() {
+        $('#results-container').show();
+    }
+
+    /**
+     * Method for disabling the input field and button while handling a request.
+     */
+    disableManualScrape() {
+        $('#projectSelect-man').prop('disabled', true);
+        $('#manual-submit-btn').prop('disabled', true);
+        $('#manual-scrape-textarea').prop('disabled', true);
+    }
+
+    /**
+     * Method for re-enabling the input field and button after handling a request.
+     */
+    enableManualScrape() {
+        $('#projectSelect-man').removeAttr('disabled');
+        $('#manual-submit-btn').removeAttr('disabled');
+        $('#manual-scrape-textarea').removeAttr('disabled');
+    }
+
+    /**
+     * Disables the URL mode windows url field.
+     */
+    disableURLField() {
+        $('#url-input').prop('disabled', true);
+        $('#submitURLBtn').prop('disabled', true);
+    }
+
+    /**
+     * Reenables the URL mode windows url field.
+     */
+    enableURLField() {
+        $('#url-input').removeAttr('disabled');
+        $('#submitURLBtn').removeAttr('disabled');
+    }
+
+    /**
+     * Disables the results container buttons on the URL mode window.
+     */
+    disableResultsBtns() {
+        $('#rmv-all-btn').prop('disabled', true);
+        $('#rmv-sel-btn').prop('disabled', true);
+        $('#projectSelect-url').prop('disabled', true);
+        $('#ls-export-btn').prop('disabled', true);
+    }
+
+    /**
+     * Reenables the results container buttons on the URL mode window.
+     */
+    enableResultsBtns() {
+        $('#rmv-all-btn').removeAttr('disabled');
+        $('#rmv-sel-btn').removeAttr('disabled');
+        $('#projectSelect-url').removeAttr('disabled');
+        $('#ls-export-btn').removeAttr('disabled');
+    }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Sanitizer.html">Sanitizer</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addDataToDatabase">addDataToDatabase</a></li><li><a href="global.html#appendNewScrapedItem">appendNewScrapedItem</a></li><li><a href="global.html#axios">axios</a></li><li><a href="global.html#checkAncestorSelected">checkAncestorSelected</a></li><li><a href="global.html#checkIfAnyActive">checkIfAnyActive</a></li><li><a href="global.html#clearLinkedLSProject">clearLinkedLSProject</a></li><li><a href="global.html#clearLogUpdateInterval">clearLogUpdateInterval</a></li><li><a href="global.html#clearScrapedList">clearScrapedList</a></li><li><a href="global.html#clearTextSelection">clearTextSelection</a></li><li><a href="global.html#closeAllWindows">closeAllWindows</a></li><li><a href="global.html#closeLSWindow">closeLSWindow</a></li><li><a href="global.html#closeScrapeWindow">closeScrapeWindow</a></li><li><a href="global.html#combineSelToResObj">combineSelToResObj</a></li><li><a href="global.html#createLSExternal">createLSExternal</a></li><li><a href="global.html#createMainWindow">createMainWindow</a></li><li><a href="global.html#createURLWindow">createURLWindow</a></li><li><a href="global.html#deselectAllElements">deselectAllElements</a></li><li><a href="global.html#deselectElement">deselectElement</a></li><li><a href="global.html#disableAutoImportBtns">disableAutoImportBtns</a></li><li><a href="global.html#disableManImportBtn">disableManImportBtn</a></li><li><a href="global.html#disableModeSelector">disableModeSelector</a></li><li><a href="global.html#disableWebview">disableWebview</a></li><li><a href="global.html#enableAutoImportBtns">enableAutoImportBtns</a></li><li><a href="global.html#enableManImportBtn">enableManImportBtn</a></li><li><a href="global.html#enableModeSelector">enableModeSelector</a></li><li><a href="global.html#enableWebview">enableWebview</a></li><li><a href="global.html#exportDataToApp">exportDataToApp</a></li><li><a href="global.html#exportDataToLS">exportDataToLS</a></li><li><a href="global.html#formIndivDataResObj">formIndivDataResObj</a></li><li><a href="global.html#formLogObject">formLogObject</a></li><li><a href="global.html#formatDataArr">formatDataArr</a></li><li><a href="global.html#formatProjectData">formatProjectData</a></li><li><a href="global.html#formatTextData">formatTextData</a></li><li><a href="global.html#getAllReadyData">getAllReadyData</a></li><li><a href="global.html#getProjects">getProjects</a></li><li><a href="global.html#getSelectedText">getSelectedText</a></li><li><a href="global.html#hotKeySettingChanging">hotKeySettingChanging</a></li><li><a href="global.html#hotKeySettingNormal">hotKeySettingNormal</a></li><li><a href="global.html#hotkeyChangeRequested">hotkeyChangeRequested</a></li><li><a href="global.html#hoveredElement">hoveredElement</a></li><li><a href="global.html#indivSelToResObj">indivSelToResObj</a></li><li><a href="global.html#initDataContainer">initDataContainer</a></li><li><a href="global.html#initKeyMouseEventListeners">initKeyMouseEventListeners</a></li><li><a href="global.html#initLogListener">initLogListener</a></li><li><a href="global.html#initScrapeUtilListeners">initScrapeUtilListeners</a></li><li><a href="global.html#initScrapeWindow">initScrapeWindow</a></li><li><a href="global.html#initTheme">initTheme</a></li><li><a href="global.html#initWinListeners">initWinListeners</a></li><li><a href="global.html#logDebug">logDebug</a></li><li><a href="global.html#logError">logError</a></li><li><a href="global.html#logInfo">logInfo</a></li><li><a href="global.html#logWarn">logWarn</a></li><li><a href="global.html#makeLog">makeLog</a></li><li><a href="global.html#makeRequestToLS">makeRequestToLS</a></li><li><a href="global.html#manualTextScrape">manualTextScrape</a></li><li><a href="global.html#processSelectedElems">processSelectedElems</a></li><li><a href="global.html#releaseHoveredElement">releaseHoveredElement</a></li><li><a href="global.html#removeSelectedItems">removeSelectedItems</a></li><li><a href="global.html#requestHeader">requestHeader</a></li><li><a href="global.html#requestJSON">requestJSON</a></li><li><a href="global.html#selectElement">selectElement</a></li><li><a href="global.html#selectedElementsCheck">selectedElementsCheck</a></li><li><a href="global.html#selectedTextCheck">selectedTextCheck</a></li><li><a href="global.html#sendNewLogsToRenderer">sendNewLogsToRenderer</a></li><li><a href="global.html#setHotKey">setHotKey</a></li><li><a href="global.html#startLoggingInterval">startLoggingInterval</a></li><li><a href="global.html#terminateApp">terminateApp</a></li><li><a href="global.html#terminateLogListener">terminateLogListener</a></li><li><a href="global.html#updateAPIToken">updateAPIToken</a></li><li><a href="global.html#updateLinkedLSProject">updateLinkedLSProject</a></li><li><a href="global.html#writeNewLog">writeNewLog</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Mar 22 2025 08:06:57 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
