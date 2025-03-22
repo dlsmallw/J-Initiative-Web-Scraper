@@ -1,4 +1,6 @@
 //webview_renderer.js
+console.log("🔥 webview_renderer.js loaded");
+
 const ipcRenderer = window.urlScrape;
 //database API
 databaseAPI = window.databaseAPI;
