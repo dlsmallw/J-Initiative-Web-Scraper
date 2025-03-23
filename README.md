@@ -24,7 +24,7 @@ J-Initiative-Web-Scraper
 │   ├── research-notes.md
 │   └── ...
 ├── scripts/
-│   └── pkgmgr.sh             # Any additional build/test/deploy scripts
+│   └── setup.sh             # Any additional build/test/deploy scripts
 │
 │
 ├── web-scraping-electron-app/
