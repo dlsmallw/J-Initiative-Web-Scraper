@@ -85,6 +85,26 @@ check_virtualenv() {
     fi
 }
 
+# ==========================================
+# === 5) Node Module Auto-Install Check ====
+# ==========================================
+check_node_modules() {
+    cd "$APP_DIR" || return 1
+
+    if [ ! -d "node_modules" ]; then
+        log_warn "node_modules directory not found. Running 'yarn install'..."
+        yarn install || { log_error "Yarn install failed."; return 1; }
+        log_info "Node modules installed."
+    elif [ ! -f "node_modules/.bin/jsdoc" ]; then
+        log_warn "jsdoc not found in node_modules. Running 'yarn install' to restore dependencies..."
+        yarn install || { log_error "Yarn install failed."; return 1; }
+        log_info "Node modules updated (jsdoc restored)."
+    else
+        log_info "All Node dependencies are present."
+    fi
+}
+
+
 # ========================
 # === Clean Function   ===
 # ========================
@@ -188,6 +208,17 @@ package() {
 }
 
 # ============================
+# === Generate Docs Command ==
+# ============================
+docs() {
+    cd "$APP_DIR" || return 1
+    log_info "Generating JSDoc documentation..."
+    npm run docs || { log_error "Failed to generate documentation."; return 1; }
+    log_info "Documentation generated in: $APP_DIR/jsdocs/"
+}
+
+
+# ============================
 # === Help Command         ===
 # ============================
 help() {
@@ -199,6 +230,7 @@ help() {
     echo "  run dev     - Launch Electron in dev mode (auto reload)."
     echo "  run prod    - Launch Electron in production mode."
     echo "  package     - Package Electron app via electron-forge."
+    echo "  docs        - Generate JSDoc documentation"
     echo "  help        - Show this help message."
     echo
     echo "[Note]"
@@ -213,6 +245,7 @@ check_python_version
 check_pipenv
 check_node_yarn
 check_virtualenv
+check_node_modules
 
 log_info "setup.sh loaded. Type 'help' for usage."
 log_info "Try 'build' then 'run dev' to get started."

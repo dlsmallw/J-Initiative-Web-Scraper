@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "npx electronmon .",
     "start": "electron .",
-      "docs": "jsdoc -c jsdoc.json"
+    "docs": "jsdoc -c jsdoc.json"
   },
   "author": "ASU Capstone 2024 Group 8",
   "license": "UNLICENSED",
