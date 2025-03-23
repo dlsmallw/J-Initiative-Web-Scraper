@@ -1,3 +1,12 @@
+/**
+ * @file FirebaseConnection.js
+ * @namespace Database
+ * @description Initializes the Firebase app and Firestore database connection.
+ *
+ * @requires firebase/app
+ * @requires firebase/firestore
+ */
+
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";

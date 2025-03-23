@@ -1,3 +1,12 @@
+/**
+ * @file AddEntry.js
+ * @namespace Database
+ * @description Demonstrates initializing Firebase and adding documents to Firestore.
+ *
+ * @requires firebase/app
+ * @requires firebase/firestore
+ */
+
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";

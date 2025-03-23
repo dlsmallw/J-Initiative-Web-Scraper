@@ -1,3 +1,12 @@
+/**
+ * @file ModifyEntry.js
+ * @namespace Database
+ * @description Initializes Firebase and modifies specific Firestore documents based on query conditions.
+ *
+ * @requires firebase/app
+ * @requires firebase/firestore
+ */
+
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";

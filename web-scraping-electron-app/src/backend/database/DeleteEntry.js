@@ -1,3 +1,12 @@
+/**
+ * @file DeleteEntry.js
+ * @namespace Database
+ * @description Initializes Firebase and deletes specific documents from Firestore based on query conditions.
+ *
+ * @requires firebase/app
+ * @requires firebase/firestore
+ */
+
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";

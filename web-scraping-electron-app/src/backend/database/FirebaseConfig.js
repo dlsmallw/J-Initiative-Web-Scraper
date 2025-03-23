@@ -1,3 +1,12 @@
+/**
+ * @file FirebaseConfig.js
+ * @namespace Database
+ * @description Initializes the Firebase app and analytics using provided configuration.
+ *
+ * @requires firebase/app
+ * @requires firebase/analytics
+ */
+
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
