@@ -147,6 +147,8 @@ export class DatabasePageController {
   async displayWebsiteData() {
     await new Promise(resolve => setTimeout(resolve, 50));
     const websiteInfo = document.getElementById('website-info');
+
+
     if (!websiteInfo) {
       this.logError('website-info element not found.');
       return;
@@ -154,21 +156,59 @@ export class DatabasePageController {
     websiteInfo.innerHTML = '';
     const websites = await this.databaseAPI.getWebsiteData();
     const websiteList = websites.split(/\n/);
+
+    let headerCheck = true;
     for (let website of websiteList) {
+
+      if(headerCheck) {
+        let headerRow = document.createElement('tr');
+        let headerWebsite = document.createElement("td");
+        let headerEntry = document.createElement("td");
+        let headerLastAccessed = document.createElement("td");
+
+        headerWebsite.textContent = "Website";
+        headerEntry.textContent = "Entries";
+        headerLastAccessed.textContent = "Last Accessed";
+
+        headerRow.appendChild(headerWebsite);
+        headerRow.appendChild(headerEntry);
+        headerRow.appendChild(headerLastAccessed);
+        websiteInfo.appendChild(headerRow);
+        headerCheck = false;
+      }
+
+
+
+
       let entries = await this.databaseAPI.getWebsiteEntries(website);
       entries = entries.split(/\n/);
       website = decodeURIComponent(website);
+      let newRow = document.createElement('tr');
+      let newTime = document.createElement("td");
+      let newURL = document.createElement("td");
+      let newEntry = document.createElement("td");
       let counter = 1;
-      for (const entry of entries) {
+      for (let entry of entries) {
         if(entry !== '') {
-          website += '\n    ' + 'Entry ' + counter + ': ' + entry;
+          newEntry.textContent += '\n    ' + 'Entry ' + counter + ': ' + entry;
           counter++;
         }
       }
+<<<<<<< Updated upstream
       const websiteEntry = document.createElement('div');
       websiteEntry.className = 'website-entry';
       websiteEntry.textContent = website;
       websiteInfo.appendChild(websiteEntry);
+=======
+
+      newURL.textContent = website;
+      newTime.textContent = time;
+
+      newRow.appendChild(newURL);
+      newRow.appendChild(newEntry);
+      newRow.appendChild(newTime);
+      websiteInfo.appendChild(newRow);
+>>>>>>> Stashed changes
     }
     this.logDebug('website data displayed in UI.');
   }
