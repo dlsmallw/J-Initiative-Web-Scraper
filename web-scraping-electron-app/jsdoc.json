@@ -6,7 +6,7 @@
     "excludePattern": "(^|\\/|\\\\)_"
   },
   "opts": {
-    "destination": "./docs",
+    "destination": "./jsdocs",
     "recurse": true,
     "template": "templates/default"
   }
