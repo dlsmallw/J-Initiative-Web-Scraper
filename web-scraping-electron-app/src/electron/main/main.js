@@ -1,5 +1,6 @@
 /**
- * main.js: This file will be used as the primary entry point for the application.
+ * @file main.js
+ * @description Entry point for the ElectronJS application. Handles window creation, logging, database interaction, and IPC communication.
  */
 
 //====================================================================================
@@ -36,6 +37,10 @@ const db = getFirestore(dbapp);
 //====================================================================================
 // Helper class for handling processing of Queued events.
 //====================================================================================
+/**
+ * A thread-safe queue for processing log entries or other events using async mutexes.
+ * @class Queue
+ */
 class Queue {
     elements = {};
     headIdx = 0;
@@ -69,9 +74,9 @@ class Queue {
         });
     }
 
-    /**
-     * Peeks the head of the Queue/
-     * @returns         The head element of the Queue.
+     /**
+     * Returns the item at the head of the queue without removing it.
+     * @returns {*} The head element.
      */
     async peek() {
         var item;
@@ -86,16 +91,16 @@ class Queue {
     }
 
     /**
-     * Checks if the Queue has elements
-     * @returns         A boolean indicating if the queue has elements.
+     * Checks if the queue has any elements.
+     * @returns {boolean} True if elements exist, else false.
      */
     hasElements() {
         return this.headIdx < this.tailIdx;
     }
 
     /**
-     * Method that removes the head-most element from the queue.
-     * @returns         The removed item.
+     * Removes and returns the head element from the queue.
+     * @returns {*} The dequeued item.
      */
     dequeue() {
         var item = this.elements[this.headIdx];
@@ -106,8 +111,8 @@ class Queue {
     }
 
     /**
-     * Returns a list of the pending logs.
-     * @returns         A list.
+     * Empties the queue and returns all pending log entries.
+     * @returns {Array} Array of pending log items.
      */
     async getPendingLogs() {
         var logList = [];
@@ -156,7 +161,7 @@ const logFileMutex = new Mutex();
 
 /**
  * Makes an info log entry.
- * @param {*} log       The log entry.
+ * @param {*} log - The log entry.
  */
 function logInfo(log) {
     writeNewLog(log, 'info');
@@ -164,7 +169,7 @@ function logInfo(log) {
 
 /**
  * Makes an debug log entry.
- * @param {*} log       The log entry.
+ * @param {*} log - The log entry.
  */
 function logDebug(log) {
     writeNewLog(log, 'debug');
@@ -172,7 +177,7 @@ function logDebug(log) {
 
 /**
  * Makes an warn log entry.
- * @param {*} log       The log entry.
+ * @param {*} log - The log entry.
  */
 function logWarn(log) {
     writeNewLog(log, 'warn');
@@ -180,7 +185,7 @@ function logWarn(log) {
 
 /**
  * Makes an error log entry.
- * @param {*} log       The log entry.
+ * @param {*} log - The log entry.
  */
 function logError(log) {
     writeNewLog(log, 'error');
@@ -188,8 +193,8 @@ function logError(log) {
 
 /**
  * Forms a JSON log object for managing log-related info.
- * @param {*} line          The log entry.
- * @returns                 The JSON log object.
+ * @param {string} line - Raw log line from file.
+ * @returns {Object} JSON representation of log.
  */
 function formLogObject(line) {
     var [rawDateTime, rawType] = line.match(/\[(.*?)\]/g);
@@ -217,8 +222,8 @@ function formLogObject(line) {
 
 /**
  * Facilitates writing a new log to the log file.
- * @param {*} line          The log entry.
- * @param {*} type          The log type.
+  * @param {*} line - Log message.
+ * @param {string} type - Log type ('info', 'debug', 'warn', 'error').
  */
 function writeNewLog(line, type) {
     logFileMutex.acquire().then(() => {
@@ -257,7 +262,7 @@ async function sendNewLogsToRenderer() {
 
 /**
  * Function that handles sending the renderer the new logs on a set periodicity.
- * @param {*} timeInterval          The desired periodicity.
+ * @param {*} timeInterval - The desired periodicity.
  */
 function startLoggingInterval(timeInterval) {
     logIntervalUpdater = setInterval(sendNewLogsToRenderer, timeInterval);
@@ -272,7 +277,7 @@ function clearLogUpdateInterval() {
 
 /**
  * Initializes the log file listener for detecting new log entries.
- * @param {*} logFilePath           The log file path. 
+ * @param {*} logFilePath - The log file path.
  */
 function initLogListener(logFilePath) {
     // File stream listener that watches for changes to log file and only sends the most recent line.
@@ -483,7 +488,7 @@ function createMainWindow() {
 
 /**
  * Function to create a new window to display the provided URL
- * @param {*} url       The URL.
+ * @param {string} url - The URL to display.
  */
 function createURLWindow(url) {
     // Validate that the provided string is a valid URL
@@ -547,7 +552,7 @@ function createURLWindow(url) {
 
 /**
  * Opens the LS project app in a separate window.
- * @param {*} url       The url of the LS project.
+ * @param {string} url - The url of the LS project.
  */
 function createLSExternal(url) {
     // Create the BrowserWindow instance with specific options
@@ -607,7 +612,7 @@ function closeScrapeWindow() {
 
 /**
  * Handles closing the external LS window if it exists.
- * @param {*} url           The URL of the LS window prior to closing.
+ * @param {string|null} url - Optional URL to send upon closing.
  */
 function closeLSWindow(url = null) {
     if (lsWindow) {
