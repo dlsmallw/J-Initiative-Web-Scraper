@@ -2,7 +2,6 @@
  * @file sanitizer.js
  * @description Provides utilities to sanitize text input using customizable protocols and mappings.
  * Includes HTML and SQL sanitization presets.
- * @module Sanitizer
  */
 
 /**

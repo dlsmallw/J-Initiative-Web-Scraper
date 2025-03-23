@@ -1,4 +1,15 @@
-// renderer.js
+/**
+ * @file renderer.js
+ * @namespace Renderer
+ * @description Initializes and controls the Electron renderer process.
+ * Handles dynamic page loading, theme management, inter-process communication (IPC),
+ * and user interface event handling.
+ *
+ * This module initializes all UI components, listens for user actions,
+ * manages navigation between views, and supports dynamic theme switching.
+ *
+ * Logging is abstracted to the main process using contextBridge and ipcRenderer.
+ */
 import { HomePageController } from '../components/views/home-page.js';
 import { ScrapePageController } from '../components/views/scrape-page.js';
 import { AnnotationPageController } from '../components/views/annotation-page.js';
@@ -11,7 +22,10 @@ const ipcRenderer = window.electronAPI;
 const lsAPI = window.lsAPI;
 
 
-// Pages object to manage different sections of the application
+/**
+ * Page controllers for different sections.
+ * @memberof Renderer
+ */
 const Pages = {
     Home: new HomePageController(),
     Scrape: new ScrapePageController(),
@@ -45,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /**
  * Initializes all the pages by loading their HTML content and setting the default page to Home
+ * @memberof Renderer
  */
 async function initPages() {
     // Set default page to Home and display its content
@@ -68,6 +83,7 @@ async function initPages() {
 
 /**
  * Attach event listeners specific to the current page (e.g., buttons, input fields)
+ * @memberof Renderer
  */
 function attachPageEventListeners() {
     Object.keys(Pages).forEach(e => {
@@ -97,8 +113,9 @@ function attachPageEventListeners() {
 
 /**
  * Returns the corresponding Page object based on the page name.
- * @param {*} value     The page name to be searched for.
- * @returns Page        The page.
+ * @param {string} value - The page name (e.g., "Home", "Scrape").
+ * @returns {Object} Page controller instance for the specified name.
+ * @memberof Renderer
  */
 function getPage(value) {
     return Pages[Object.keys(Pages).find(e => Pages[e].getName() === value)];
@@ -106,7 +123,8 @@ function getPage(value) {
 
 /**
  * Handles changing the page when a navigation link is clicked
- * @param {*} event     The event corresponding to a page change.
+ * @param {Event} event - The click event triggered by a navigation link.
+ * @memberof Renderer
  */
 function changePage(event) {
     event.preventDefault(); // Prevent default link behavior
@@ -131,7 +149,8 @@ function changePage(event) {
 
 /**
  * Updates the list of available projects to export to on the manual scrape page.
- * @param {*} projects      The returned list of available projects.
+ * @param {Array<{id: string, project_name: string}>} projects - List of project objects.
+ * @memberof Renderer
  */
 function updateProjectOptions(projects) {
     var urlSelect = $('#projectSelect-url');
@@ -160,7 +179,9 @@ function updateProjectOptions(projects) {
 //============================================================================================================================
 
 /**
- * Initializes the theme based on the user's saved preference or defaults to light theme.
+ * Initializes the application theme based on stored user preference or defaults to light theme.
+ * Applies the selected theme to the HTML document and sets up the theme selector.
+ * @memberof Renderer
  */
 function initializeTheme() {
     const themeSelect = $('#theme-select');
@@ -189,6 +210,7 @@ function initializeTheme() {
 
 /**
  * Changes the theme based on user selection and saves the choice to localStorage.
+ * @memberof Renderer
  */
 function changeTheme() {
     const theme = $('#theme-select').val();
@@ -205,13 +227,18 @@ function changeTheme() {
 //============================================================================================================================
 // Logging Helpers (WIP - Plan to move to a separate class that is imported)
 //============================================================================================================================
+/**
+ * Logging helper namespace.
+ * @namespace Renderer.LogHelpers
+ */
 const logger = window.log;    // Variable created for ease of reading
 
 /**
-     * Handles displaying an alert message for specific situations (error or otherwise).
-     * @param {*} alertMsg          Message to display.
-     * @param {*} cause             Cause if an error.
-     */
+* Handles displaying an alert message for specific situations (error or otherwise).
+* @param {string} alertMsg - The message to display.
+* @param {string} [cause] - Optional cause for the alert (used for error dialogs).
+* @memberof Renderer.LogHelpers
+*/
 function postAlert(alertMsg, cause) {
     var json = {
         msg: alertMsg,
@@ -232,6 +259,7 @@ function postAlert(alertMsg, cause) {
 /**
  * Send an info log message to the main process.
  * @param {string} message - The message to log.
+ * @memberof Renderer.LogHelpers
  */
 function logInfo(message) {
     logger.info(message);
@@ -240,6 +268,7 @@ function logInfo(message) {
 /**
  * Send a debug log message to the main process.
  * @param {string} message - The message to log.
+ * @memberof Renderer.LogHelpers
  */
 function logDebug(message) {
     logger.debug(message);
@@ -248,6 +277,7 @@ function logDebug(message) {
 /**
  * Send a warning log message to the main process.
  * @param {string} message - The message to log.
+ * @memberof Renderer.LogHelpers
  */
 function logWarn(message) {
     logger.warn(message);
@@ -256,6 +286,7 @@ function logWarn(message) {
 /**
  * Send an error log message to the main process.
  * @param {string} message - The message to log.
+ * @memberof Renderer.LogHelpers
  */
 function logError(message) {
     logger.error(message);

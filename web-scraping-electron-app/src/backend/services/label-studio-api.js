@@ -1,12 +1,21 @@
 /**
- * API for interacting with a linked label studio organization project.
+ * @file label-studio-api.js
+ * @description API utilities for interacting with a linked Label Studio project.
+ * Provides functions for exporting tasks, retrieving projects, and managing API credentials.
+ * @namespace LabelStudioAPI
  */
 
+/** @namespace */
 const axios = require('axios').default;
 
 var APITOKEN = '';
 var BASEURL = '';
 
+/**
+   * Enum for request types.
+   * @readonly
+   * @enum {Object}
+   */
 const RequestType = {
     GetProjects: {
         id: 0,

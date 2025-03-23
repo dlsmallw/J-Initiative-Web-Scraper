@@ -1,3 +1,14 @@
+/**
+ * @file annotation-page.js
+ * @namespace View-Annotation
+ * @description Controls the behavior and initialization of the Annotation page, including Label Studio integration.
+ */
+
+/**
+* Controller for managing the Annotation page, including its UI interactions and Label Studio project linking.
+* @class AnnotationPageController
+* @memberof View-Annotation
+*/
 export class AnnotationPageController {
     htmlFilePath = '../src/frontend/components/templates/annotation.html';  // Filepath to HTML component
     name = 'annotation';                  // Page name
@@ -6,40 +17,50 @@ export class AnnotationPageController {
     lsAPI = window.lsAPI;
     electronAPI = window.electronAPI;
 
-    /**
-     * Returns the pages component html filepath.
-     * @returns String          The html filepath.
+     /**
+     * Get the HTML component filepath for this page.
+     * @function getHtmlCompPath
+     * @memberof View-Annotation.AnnotationPageController
+     * @returns {string} The HTML file path.
      */
     getHtmlCompPath() {
         return this.htmlFilePath;
     }
 
     /**
-     * Returns the pages name.
-     * @returns string          The pages name.
+     * Get the name identifier for this page.
+     * @function getName
+     * @memberof View-Annotation.AnnotationPageController
+     * @returns {string} The page name.
      */
     getName() {
         return this.name;
     }
 
     /**
-     * Returns the pages component container ID.
-     * @returns String          The component container ID.
+     * Get the DOM container ID for this page component.
+     * @function getCompID
+     * @memberof View-Annotation.AnnotationPageController
+     * @returns {string} The component container ID.
      */
     getCompID() {
         return this.compID;
     }
 
     /**
-     * Generates the navbar name for the specific page.
-     * @returns String          The navbar name.
+     * Generate the capitalized navbar name for this page.
+     * @function navbarName
+     * @memberof View-Annotation.AnnotationPageController
+     * @returns {string} The navbar display name.
      */
     navbarName() {
         return this.name.charAt(0).toUpperCase() + this.name.slice(1);
     }
 
     /**
-     * Method for intitializing the page in the application.
+     * Initialize the Annotation page, load its HTML, and configure Label Studio project linking.
+     * @function initPage
+     * @memberof View-Annotation.AnnotationPageController
      */
     initPage() {
         var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
@@ -76,8 +97,11 @@ export class AnnotationPageController {
         });
     }
 
-    /**
-     * Method for initializing the pages event listeners.
+     /**
+     * Initialize event listeners for this page's DOM elements.
+     * Handles UI interactions such as linking Label Studio projects and external window management.
+     * @function initPageListeners
+     * @memberof View-Annotation.AnnotationPageController
      */
     initPageListeners() {
         // Fade in/out animation for button on annotation page
@@ -137,7 +161,9 @@ export class AnnotationPageController {
     }
 
     /**
-     * Sets the page active (visible).
+     * Set the Annotation page as active and visible in the UI.
+     * @function setPageActive
+     * @memberof View-Annotation.AnnotationPageController
      */
     setPageActive() {
         $(`#${this.name}`).addClass('active-nav-item');
@@ -145,7 +171,9 @@ export class AnnotationPageController {
     }
 
     /**
-     * Sets the page inactive (hidden).
+     * Set the Annotation page as inactive and hidden in the UI.
+     * @function setPageInactive
+     * @memberof View-Annotation.AnnotationPageController
      */
     setPageInactive() {
         $(this.compID).hide();
@@ -158,9 +186,11 @@ export class AnnotationPageController {
     logger = window.log;    // Variable created for ease of reading
 
     /**
-     * Handles displaying an alert message for specific situations (error or otherwise).
-     * @param {*} alertMsg          Message to display.
-     * @param {*} cause             Cause if an error.
+     * Display an alert message via Electron dialog and log it appropriately.
+     * @function postAlert
+     * @memberof View-Annotation.AnnotationPageController
+     * @param {*} alertMsg - Message to display.
+     * @param {*} [cause] - Optional cause of the alert.
      */
     postAlert(alertMsg, cause) {
         var json = {
@@ -179,8 +209,10 @@ export class AnnotationPageController {
         }
     }
 
-    /**
-     * Send an info log message to the main process.
+     /**
+     * Log an informational message.
+     * @function logInfo
+     * @memberof View-Annotation.AnnotationPageController
      * @param {string} message - The message to log.
      */
     logInfo(message) {
@@ -188,23 +220,29 @@ export class AnnotationPageController {
     }
 
     /**
-     * Send a debug log message to the main process.
+     * Log a debug message.
+     * @function logDebug
+     * @memberof View-Annotation.AnnotationPageController
      * @param {string} message - The message to log.
      */
     logDebug(message) {
         this.logger.debug(message);
     }
 
-    /**
-     * Send a warning log message to the main process.
+     /**
+     * Log a warning message.
+     * @function logWarn
+     * @memberof View-Annotation.AnnotationPageController
      * @param {string} message - The message to log.
      */
     logWarn(message) {
         this.logger.warn(message);
     }
 
-    /**
-     * Send an error log message to the main process.
+     /**
+     * Log an error message.
+     * @function logError
+     * @memberof View-Annotation.AnnotationPageController
      * @param {string} message - The message to log.
      */
     logError(message) {
@@ -216,9 +254,11 @@ export class AnnotationPageController {
     //============================================================================================================================
 
     /**
-     * Method used to validate that the URL entered for linking a LS project is valid.
-     * @param {*} url       The URL.
-     * @returns             A boolean indicating if it is valid or not.
+     * Validate that the entered Label Studio URL is valid and secure (must use HTTPS and contain 'hf').
+     * @function checkLSURL
+     * @memberof View-Annotation.AnnotationPageController
+     * @param {*} url - The URL to validate.
+     * @returns {boolean} True if valid, false otherwise.
      */
     checkLSURL(url) {
         let lsURL;
@@ -255,7 +295,9 @@ export class AnnotationPageController {
     }
 
     /**
-     * Function for handling the event where a LS URL is entered and submitted.
+     * Handle submission of a new Label Studio URL and store it if valid.
+     * @function initLSURL
+     * @memberof View-Annotation.AnnotationPageController
      */
     initLSURL() {
         var urlInput = $('#ls-link-input').val();
@@ -272,7 +314,9 @@ export class AnnotationPageController {
     }
 
     /**
-     * Function for updating the LS URL using the URL field within the LS Config Menu.
+     * Update the stored Label Studio URL based on user input.
+     * @function updateLSURL
+     * @memberof View-Annotation.AnnotationPageController
      */
     updateLSURL() {
         var currURL = localStorage.getItem('lsURL');
@@ -287,8 +331,10 @@ export class AnnotationPageController {
     }
 
     /**
-     * Updates the current url of the webview window.
-     * @param {*} url 
+     * Update the webview's displayed URL if it differs from the stored value.
+     * @function updatedLSWebviewSrc
+     * @memberof View-Annotation.AnnotationPageController
+     * @param {*} url - The new URL to display.
      */
     updatedLSWebviewSrc(url) {
         var currURL = $('#annotation-webview').attr('src');
@@ -299,8 +345,10 @@ export class AnnotationPageController {
     }
 
     /**
-     * Function for setting the LS project URL within local storage.
-     * @param {*} url 
+     * Set the Label Studio project URL in local storage and update the embedded view.
+     * @function setLSURL
+     * @memberof View-Annotation.AnnotationPageController
+     * @param {*} url - The Label Studio URL.
      */
     setLSURL(url) {
         if (url) {
@@ -311,8 +359,10 @@ export class AnnotationPageController {
         }
     }
 
-    /**
-     * Function for updating the API Token when using the API Field in the LS Config Menu.
+     /**
+     * Update the stored API token based on user input.
+     * @function updateLSAPIToken
+     * @memberof View-Annotation.AnnotationPageController
      */
     updateLSAPIToken() {
         let regex = /^[A-Za-z0-9]+$/g;
@@ -332,9 +382,11 @@ export class AnnotationPageController {
         }
     }
 
-    /**
-     * Handles the logic for changing the stored API Token value.
-     * @param {*} token         The new API Token.
+     /**
+     * Store a new API token and update the Label Studio API.
+     * @function setLSAPIToken
+     * @memberof View-Annotation.AnnotationPageController
+     * @param {*} token - The new API token.
      */
     setLSAPIToken(token) {
         if (token) {
@@ -344,9 +396,10 @@ export class AnnotationPageController {
         } 
     }
 
-    /**
-     * Function for handling clearing the linked LS project when clicking the "Clear Linked Project" button
-     * in the LS Config Menu.
+     /**
+     * Clear the currently linked Label Studio project and reset related UI elements.
+     * @function clearLinkedLSProject
+     * @memberof View-Annotation.AnnotationPageController
      */
     clearLinkedLSProject() {
         this.hideLSEmbeddedFrame();
@@ -361,8 +414,10 @@ export class AnnotationPageController {
         this.lsAPI.clearLinkedProject();
     }
 
-    /**
-     * Handles showing the LS embedded window (project linked).
+   /**
+     * Show the embedded Label Studio frame in the UI.
+     * @function showLSEmbeddedFrame
+     * @memberof View-Annotation.AnnotationPageController
      */
     showLSEmbeddedFrame() {
         $('#ls-not-set').hide();
@@ -371,8 +426,9 @@ export class AnnotationPageController {
     }
 
     /**
-     * Handles hiding the LS Embedded window (project not linked) and showing the form
-     * for taking a new URL.
+     * Hide the embedded Label Studio frame and show URL submission form.
+     * @function hideLSEmbeddedFrame
+     * @memberof View-Annotation.AnnotationPageController
      */
     hideLSEmbeddedFrame() {
         $('#ls-set').hide();

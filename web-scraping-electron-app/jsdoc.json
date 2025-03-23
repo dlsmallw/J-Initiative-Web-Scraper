@@ -1,6 +1,6 @@
 {
   "source": {
-    "include": ["src/backend", "src/electron", "src/frontend/components/views"],
+    "include": ["src/backend", "src/electron", "src/frontend/components/views", "src/frontend/js"],
     "exclude": ["src/tests", "src/frontend/assets"],
     "includePattern": ".+\\.js$",
     "excludePattern": "(^|\\/|\\\\)_"
