@@ -2,7 +2,7 @@
   "name": "web-scraping-electron-app",
   "version": "1.0.0",
   "description": "A web scraping application that is to be used for assisting in NLP model training",
-  "main": "main.js",
+  "main": "src/electron/main/main.js",
   "scripts": {
     "dev": "npx electronmon .",
     "start": "electron ."
@@ -16,12 +16,15 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
+    "async-mutex": "^0.5.0",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
     "electron-log": "^4.4.8",
     "electron-store": "^10.0.0",
     "firebase": "^11.0.2",
     "jquery": "^3.7.1",
+    "tail": "^2.2.6",
     "web-scraping-electron-app": "file:"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
