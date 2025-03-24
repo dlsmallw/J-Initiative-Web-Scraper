@@ -1,37 +1,67 @@
 /**
  * @file logger.js
- * @description Configures and exports a centralized logger using electron-log.
+ * @fileoverview Configures and exports a centralized logger using electron-log.
  * Provides consistent logging format and settings for both file and console output.
+ *
+ * @module Logger
+ * @see {@link https://github.com/megahertz/electron-log|electron-log documentation}
  */
+
 
 const log = require('electron-log');
 
 /**
- * Configure log transport settings for file and console logging.
- * - Sets logging levels and formats.
- * - Limits log file size to prevent disk bloat.
+ * Logger configuration settings.
+ * Defines log levels, formats, and file size limits for both file and console output.
+ *
+ * @namespace Config
+ * @memberof module:Logger
  */
 
-// Set log level for file output
+/**
+ * Sets the log level for file output.
+ * Options: 'debug', 'info', 'warn', 'error'.
+ * Default is 'debug'.
+ *
+ * @memberof module:Logger.Config
+ * @type {string}
+ */
 log.transports.file.level = 'debug'; // Logs debug, info, warn, error
 //log.transports.file.level = 'info';  // Logs info, warn, error
 //log.transports.file.level = 'warn';  // Logs warn, error
 //log.transports.file.level = 'error'; // Logs error only
 
-// Set log format for file output
+/**
+ * Defines the log format for file output.
+ * Format: `{y}-{m}-{d} {h}:{i}:{s} [{level}] {text}`
+ *
+ * @memberof module:Logger.Config
+ * @type {string}
+ */
 log.transports.file.format = '{y}-{m}-{d} {h}:{i}:{s} [{level}] {text}';
 
-// Set log format for console output
+/**
+ * Defines the log format for console output.
+ * Format: `{h}:{i}:{s} [{level}] {text}`
+ *
+ * @memberof module:Logger.Config
+ * @type {string}
+ */
 log.transports.console.format = '{h}:{i}:{s} [{level}] {text}';
 
-// Limit the size of log files (5 MB max per file)
+/**
+ * Limits log file size to 5 MB per file to prevent disk space issues.
+ *
+ * @memberof module:Logger.Config
+ * @type {number}
+ */
 log.transports.file.maxSize = 5 * 1024 * 1024;
 
 /**
- * Export the configured logger for use in other modules.
- * @module logger
- * @type {Object}
- * @see {@link https://github.com/megahertz/electron-log|electron-log documentation}
+ * Exports the configured logger instance.
+ *
+ * @memberof module:Logger
+ * @returns {Object} The configured electron-log instance.
  */
 module.exports = log;
 

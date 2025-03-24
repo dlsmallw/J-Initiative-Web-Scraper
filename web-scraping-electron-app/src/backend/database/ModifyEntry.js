@@ -1,11 +1,11 @@
 /**
- * @file ModifyEntry.js
- * @namespace Database
- * @description Initializes Firebase and modifies specific Firestore documents based on query conditions.
- *
- * @requires firebase/app
- * @requires firebase/firestore
- */
+* @file ModifyEntry.js
+* @fileoverview Initializes Firebase and modifies specific Firestore documents based on query conditions.
+*
+* @module Database.ModifyEntry
+* @requires firebase/app
+* @requires firebase/firestore
+*/
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
@@ -14,8 +14,11 @@ import { collection, addDoc, getDocs, where, deleteDoc, query, updateDoc} from "
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+/**
+* Firebase configuration for Group 8's Firestore instance.
+* @constant {Object} firebaseConfig
+* @memberof module:Database.ModifyEntry
+*/
 const firebaseConfig = {
   apiKey: "AIzaSyAhqRcDSUGoTiEka890A53u7cjS0J1IH48",
   authDomain: "ser-401-group8-firebase.firebaseapp.com",

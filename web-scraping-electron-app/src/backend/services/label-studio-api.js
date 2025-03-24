@@ -1,276 +1,316 @@
 /**
- * @file label-studio-api.js
- * @description API utilities for interacting with a linked Label Studio project.
- * Provides functions for exporting tasks, retrieving projects, and managing API credentials.
- * @namespace LabelStudioAPI
- */
+* @file label-studio-api.js
+* @fileoverview Provides utility functions for interacting with a linked Label Studio project.
+* Supports task export, project retrieval, and API credential management.
+*
+* @module LabelStudioAPI
+* @requires axios
+*/
 
-/** @namespace */
+
 const axios = require('axios').default;
-
 var APITOKEN = '';
 var BASEURL = '';
 
-/**
-   * Enum for request types.
-   * @readonly
-   * @enum {Object}
-   */
-const RequestType = {
-    GetProjects: {
-        id: 0,
-        name: 'GetProjects',
-        successMsg: 'Project List Successfully Retrieved from Label Studio',
-        failMsg: 'Failed to Retrieve Project List from Label Studio'
-    },
-    ExportTasks: {
-        id: 1,
-        name: 'ExportTasks',
-        successMsg: 'Data Successfully Exported to Label Studio',
-        failMsg: 'Error Exporting Scraped Data to Label Studio'
-    }
-}
-
-/**
- * Generates a request header for making requests to a specified Label Studio project.
- * @returns JSON        The request header.
- */
-function requestHeader() {
-    return {
-        'Content-Type': 'application/json',
-        'Authorization': `Token ${APITOKEN}`
-    }
-}
-
-/**
- * Formats the returned project information into a JSON object.
- * @param {*} response          The response object.
- * @returns                     A JSON object of the project info.
- */
-function formatProjectData(response) {
-    var numProjects = response.count;
-    var results = response.results;
-    var formattedResults = [];
-    var index = numProjects - 1;
-
-    results.forEach(project => {
-        formattedResults[index] = {
-            id: project.id,
-            project_name: project.title
-        };
-
-        index -= 1;
-    });
-
-    return formattedResults;
-}
-
-/**
- * Handles the logic for making a project request api call to the linked LS project.
- * @returns             The response of the API call.
- */
-function getProjects() {
-    var request = {
-        method: 'get',
-        url: `${BASEURL}/api/projects`,
-        headers: requestHeader()
+    /**
+    * Enum for Label Studio API request types.
+    *
+    * @readonly
+    * @enum {Object}
+    * @memberof module:LabelStudioAPI
+    */
+    const RequestType = {
+        GetProjects: {
+            id: 0,
+            name: 'GetProjects',
+            successMsg: 'Project List Successfully Retrieved from Label Studio',
+            failMsg: 'Failed to Retrieve Project List from Label Studio'
+        },
+        ExportTasks: {
+            id: 1,
+            name: 'ExportTasks',
+            successMsg: 'Data Successfully Exported to Label Studio',
+            failMsg: 'Error Exporting Scraped Data to Label Studio'
+        }
     }
 
-    return makeRequestToLS(request, RequestType.GetProjects);
-}
-
-/**
- * Handles making any number of LS API calls.
- * @param {*} requestJSON       The request object.
- * @param {*} requestType       The type of request.
- * @returns                     The response.
- */
-function makeRequestToLS(requestJSON, requestType) {
-    // Used to define an informative response to be sent back to the renderer
-    let jsonOBJ = {
-        ok: null,
-        requestType: requestType.name,
-        data: null,
-        resMsg: null,
-        errType: null
+    /**
+    * Generate request headers for authenticated Label Studio API calls.
+    *
+    * @function requestHeader
+    * @memberof module:LabelStudioAPI
+    * @returns {Object} Header object with Content-Type and Authorization.
+    */
+    function requestHeader() {
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${APITOKEN}`
+        }
     }
 
-    return new Promise((resolve) => {
-        if (APITOKEN === '' || BASEURL === '') {
-            jsonOBJ.ok = false;
-            jsonOBJ.resMsg = requestType.failMsg;
-            jsonOBJ.errType = 'Token/URL Missing';
+    /**
+    * Format the response data from Label Studio's projects API.
+    *
+    * @function formatProjectData
+    * @memberof module:LabelStudioAPI
+    * @param {Object} response - Raw response object from Label Studio API.
+    * @returns {Array<Object>} Formatted array of project info with `id` and `project_name`.
+    */
+    function formatProjectData(response) {
+        var numProjects = response.count;
+        var results = response.results;
+        var formattedResults = [];
+        var index = numProjects - 1;
 
-            resolve(jsonOBJ);
-        } else {
-            axios(requestJSON).then(function(res) {
-                var status = res.status;
-                var statusText = res.statusText;
-    
-                if (status >= 200 && status < 300) {
-                    jsonOBJ.ok = true;
-                    jsonOBJ.resMsg = requestType.successMsg;
-                    jsonOBJ.errType = 'NONE';
+        results.forEach(project => {
+            formattedResults[index] = {
+                id: project.id,
+                project_name: project.title
+            };
 
-                    if (requestType === RequestType.GetProjects) {
-                        jsonOBJ.data = formatProjectData(res.data);
-                    }
-                } else {
-                    jsonOBJ.ok = false;
-                    jsonOBJ.resMsg = requestType.failMsg;
-                    jsonOBJ.errType = statusText;
-                }
-    
-                resolve(jsonOBJ);
-            }).catch(err => {
+            index -= 1;
+        });
+
+        return formattedResults;
+    }
+
+    /**
+    * Retrieve all Label Studio projects linked via current API token and URL.
+    *
+    * @function getProjects
+    * @memberof module:LabelStudioAPI
+    * @returns {Promise<Object>} JSON response with project list or error.
+    */
+    function getProjects() {
+        var request = {
+            method: 'get',
+            url: `${BASEURL}/api/projects`,
+            headers: requestHeader()
+        }
+
+        return makeRequestToLS(request, RequestType.GetProjects);
+    }
+
+    /**
+    * Make an HTTP request to the Label Studio API.
+    *
+    * @function makeRequestToLS
+    * @memberof module:LabelStudioAPI
+    * @param {Object} requestJSON - Axios request configuration.
+    * @param {Object} requestType - Type of request from `RequestType` enum.
+    * @returns {Promise<Object>} JSON response with status, message, and data.
+    */
+    function makeRequestToLS(requestJSON, requestType) {
+        // Used to define an informative response to be sent back to the renderer
+        let jsonOBJ = {
+            ok: null,
+            requestType: requestType.name,
+            data: null,
+            resMsg: null,
+            errType: null
+        }
+
+        return new Promise((resolve) => {
+            if (APITOKEN === '' || BASEURL === '') {
                 jsonOBJ.ok = false;
-                jsonOBJ.errType = 'Request Failure';
-                jsonOBJ.resMsg = 'Error Encountered Making Request to Label Studio Project';
-    
+                jsonOBJ.resMsg = requestType.failMsg;
+                jsonOBJ.errType = 'Token/URL Missing';
+
                 resolve(jsonOBJ);
-            });
-        }
-    });
-}
+            } else {
+                axios(requestJSON).then(function(res) {
+                    var status = res.status;
+                    var statusText = res.statusText;
 
-/**
- * Formats raw string data by splitting it into an array of individual sentences.
- * @param {*} textData       The data to be formatted.
- * @returns Array           An array split into individual sentences.
- */
-function formatTextData(textData) {
-    var regex = /(?:\([^()]*\)|\d+\.\d+|[^.?!])+[.?!]/g;
-    // can be used to check for ascii valid characters but this may not be what we want
-    // var asciiRegex = /^[\x00-\x7F]+$/;       
+                    if (status >= 200 && status < 300) {
+                        jsonOBJ.ok = true;
+                        jsonOBJ.resMsg = requestType.successMsg;
+                        jsonOBJ.errType = 'NONE';
 
-    var trimmedRawData = textData.trim();
-    
-    if (trimmedRawData && trimmedRawData !== '') {
-        var formattedData = [];
-        var sentArr = trimmedRawData.match(regex);
+                        if (requestType === RequestType.GetProjects) {
+                            jsonOBJ.data = formatProjectData(res.data);
+                        }
+                    } else {
+                        jsonOBJ.ok = false;
+                        jsonOBJ.resMsg = requestType.failMsg;
+                        jsonOBJ.errType = statusText;
+                    }
 
-        if (sentArr && sentArr.length > 0) {
-            sentArr.forEach(sent => {
-                var sentStr = sent.trim();
+                    resolve(jsonOBJ);
+                }).catch(err => {
+                    jsonOBJ.ok = false;
+                    jsonOBJ.errType = 'Request Failure';
+                    jsonOBJ.resMsg = 'Error Encountered Making Request to Label Studio Project';
 
-                if (sentStr !== '') {
-                    formattedData.push({
-                        text: sentStr
-                    });
-                }
-            });
-        } else {
-            formattedData.push({
-                text: trimmedRawData
-            });
-        }
-
-        return formattedData;
+                    resolve(jsonOBJ);
+                });
+            }
+        });
     }
 
-    return null;
-}
+    /**
+    * Format raw text into an array of sentences for task export.
+    *
+    * @function formatTextData
+    * @memberof module:LabelStudioAPI
+    * @param {string} textData - Raw text to be split and formatted.
+    * @returns {Array<Object>|null} Array of { text: sentence } objects or null if input is empty.
+    */
+    function formatTextData(textData) {
+        var regex = /(?:\([^()]*\)|\d+\.\d+|[^.?!])+[.?!]/g;
+        // can be used to check for ascii valid characters but this may not be what we want
+        // var asciiRegex = /^[\x00-\x7F]+$/;
 
-/**
- * Processes the raw data received from the application into a format acceptable for Label Studio.
- * @param {*} dataArr       The raw data.
- * @returns                 A formatted array of all data to export.
- */
-function formatDataArr(dataArr) {
-    var formattedResult = null;
+        var trimmedRawData = textData.trim();
 
-    if (dataArr !== null) {
-        var formattedArr = [];
+        if (trimmedRawData && trimmedRawData !== '') {
+            var formattedData = [];
+            var sentArr = trimmedRawData.match(regex);
 
-        for (var i = 0; i < dataArr.length; i++) {
-            var data = formatTextData(dataArr[i].textData);
+            if (sentArr && sentArr.length > 0) {
+                sentArr.forEach(sent => {
+                    var sentStr = sent.trim();
 
-            for (var j = 0; j < data.length; j++) {
-                formattedArr.push(data[j]);
+                    if (sentStr !== '') {
+                        formattedData.push({
+                            text: sentStr
+                        });
+                    }
+                });
+            } else {
+                formattedData.push({
+                    text: trimmedRawData
+                });
+            }
+
+            return formattedData;
+        }
+
+        return null;
+    }
+
+    /**
+    * Format an array of raw data objects for Label Studio import.
+    *
+    * @function formatDataArr
+    * @memberof module:LabelStudioAPI
+    * @param {Array<Object>} dataArr - Array with `textData` fields.
+    * @returns {Array<Object>|null} Array of formatted { text: sentence } objects or null.
+    */
+    function formatDataArr(dataArr) {
+        var formattedResult = null;
+
+        if (dataArr !== null) {
+            var formattedArr = [];
+
+            for (var i = 0; i < dataArr.length; i++) {
+                var data = formatTextData(dataArr[i].textData);
+
+                for (var j = 0; j < data.length; j++) {
+                    formattedArr.push(data[j]);
+                }
+            }
+
+            if (formattedArr.length !== 0) {
+                formattedResult = formattedArr;
             }
         }
 
-        if (formattedArr.length !== 0) {
-            formattedResult = formattedArr;
+        return formattedResult;
+    }
+
+    /**
+    * Create a POST request object for importing tasks into Label Studio.
+    *
+    * @function requestJSON
+    * @memberof module:LabelStudioAPI
+    * @param {Array<Object>} rawData - Formatted data array.
+    * @param {string} projectID - Target Label Studio project ID.
+    * @returns {Object} Axios-compatible request object.
+    * @throws {Error} If rawData is null or invalid.
+    */
+    function requestJSON(rawData, projectID) {
+        var formattedData = formatDataArr(rawData);
+
+        if (formattedData !== null) {
+            return {
+                method: 'post',
+                url: `${BASEURL}/api/projects/${projectID}/import`,
+                headers: requestHeader(),
+                data: formattedData
+            }
+        } else {
+            throw new Error("Invalid Data Format From Null Data.");
         }
     }
 
-    return formattedResult;
-}
+    /**
+    * Export task data to a specific Label Studio project.
+    *
+    * @function exportDataToLS
+    * @memberof module:LabelStudioAPI
+    * @param {Array<Object>} rawData - Raw task data with `textData`.
+    * @param {string} projectID - Target project ID.
+    * @returns {Promise<Object>} JSON response indicating success or failure.
+    */
+    function exportDataToLS(rawData, projectID) {
+        try {
+            var request = requestJSON(rawData, projectID);
 
-/**
- * Generates a JSON request object for exporting data to Label Studio.
- * @param {*} rawData       The data to be exported.
- * @returns JSON            The request object.
- */
-function requestJSON(rawData, projectID) {
-    var formattedData = formatDataArr(rawData);
-
-    if (formattedData !== null) {
-        return {
-            method: 'post',
-            url: `${BASEURL}/api/projects/${projectID}/import`,
-            headers: requestHeader(),
-            data: formattedData
-        }
-    } else {
-        throw new Error("Invalid Data Format From Null Data.");
-    }
-}
-
-/**
-* Makes a post request to export data to the linked LS project.
- * @param {*} rawData       The data to be exported.
- * @param {*} projectID     The ID of the project to export to.
- * @returns JSON            Object indicating success or failure.
- */
-function exportDataToLS(rawData, projectID) {
-    try {
-        var request = requestJSON(rawData, projectID);
-
-        return makeRequestToLS(request, RequestType.ExportTasks);
-    } catch (err) {
-        return new Promise(resolve => {
-            resolve({
-                ok: false,
-                requestType: RequestType.ExportTasks,
-                resMsg: RequestType.ExportTasks.failMsg,
-                errType: err
+            return makeRequestToLS(request, RequestType.ExportTasks);
+        } catch (err) {
+            return new Promise(resolve => {
+                resolve({
+                    ok: false,
+                    requestType: RequestType.ExportTasks,
+                    resMsg: RequestType.ExportTasks.failMsg,
+                    errType: err
+                });
             });
-        });  
+        }
     }
-}
 
-/**
- * Handles updating the LS URL.
- * @param {*} url       The new URL.
- */
-function updateLinkedLSProject(url) {
-    BASEURL = url;
-    APITOKEN = '';
-}
-
-/**
- * Handles updating the API token.
- * @param {*} token         The new token.
- * @returns                 The updated list of projects.
- */
-function updateAPIToken(token) {
-    APITOKEN = token;
-    return getProjects();
-}
-
-/**
- * Clears the linked LS project.
- */
-function clearLinkedLSProject() {
-    BASEURL = '';
-    APITOKEN = '';
-
-    return {
-        ok: true,
-        data: null
+    /**
+    * Update the base URL for the linked Label Studio instance.
+    *
+    * @function updateLinkedLSProject
+    * @memberof module:LabelStudioAPI
+    * @param {string} url - New Label Studio base URL.
+    * @returns {void}
+    */
+    function updateLinkedLSProject(url) {
+        BASEURL = url;
+        APITOKEN = '';
     }
-}
+
+    /**
+    * Update the API token for authenticated requests and fetch available projects.
+    *
+    * @function updateAPIToken
+    * @memberof module:LabelStudioAPI
+    * @param {string} token - New API token.
+    * @returns {Promise<Object>} JSON response with updated project list.
+    */
+    function updateAPIToken(token) {
+        APITOKEN = token;
+        return getProjects();
+    }
+
+    /**
+    * Clear the stored base URL and API token for the Label Studio instance.
+    *
+    * @function clearLinkedLSProject
+    * @memberof module:LabelStudioAPI
+    * @returns {Object} JSON object with `ok: true` and `data: null`.
+    */
+    function clearLinkedLSProject() {
+        BASEURL = '';
+        APITOKEN = '';
+
+        return {
+            ok: true,
+            data: null
+        }
+    }
 
 module.exports= { exportDataToLS, updateLinkedLSProject, updateAPIToken, clearLinkedLSProject };

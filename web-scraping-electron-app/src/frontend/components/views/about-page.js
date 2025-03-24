@@ -1,13 +1,15 @@
 /**
- * @file about-page.js
- * @namespace View-About
- * @description Controls the behavior and initialization of the About page in the UI.
- */
+* @file about-page.js
+* @fileoverview Controls the behavior and initialization of the About page in the UI.
+*
+* @module PageController-About
+*/
 
- /**
-* Controller for managing the Annotation page, including its UI interactions and Label Studio project linking.
+/**
+* Controller for managing the Scrape page.
+*
 * @class AboutPageController
-* @memberof View-About
+* @memberof module:PageController-About
 */
 export class AboutPageController {
     htmlFilePath = '../src/frontend/components/templates/about.html';  // Filepath to HTML component
@@ -17,50 +19,51 @@ export class AboutPageController {
     electronAPI = window.electronAPI;
 
     /**
-     * Get the HTML component filepath for this page.
-     * @function getHtmlCompPath
-     * @memberof View-About.AboutPageController
-     * @returns {string} The HTML file path.
-     */
+    * Get the HTML component filepath for this page.
+    * @function getHtmlCompPath
+    * @memberof module:PageController-About.AboutPageController
+    * @returns {string} The HTML file path.
+    */
     getHtmlCompPath() {
         return this.htmlFilePath;
     }
 
     /**
-     * Get the name identifier for this page.
-     * @function getName
-     * @memberof View-About.AboutPageController
-     * @returns {string} The page name.
-     */
+    * Get the name identifier for this page.
+    * @function getName
+    * @memberof module:PageController-About.AboutPageController
+    * @returns {string} The page name.
+    */
     getName() {
         return this.name;
     }
 
-     /**
-     * Get the DOM container ID for this page component.
-     * @function getCompID
-     * @memberof View-About.AboutPageController
-     * @returns {string} The component container ID.
-     */
+    /**
+    * Get the DOM container ID for this page component.
+    * @function getCompID
+    * @memberof module:PageController-About.AboutPageController
+    * @returns {string} The component container ID.
+    */
     getCompID() {
         return this.compID;
     }
 
-     /**
-     * Generate the capitalized navbar name for this page.
-     * @function navbarName
-     * @memberof View-About.AboutPageController
-     * @returns {string} The navbar display name.
-     */
+    /**
+    * Generate the capitalized navbar name for this page.
+    * @function navbarName
+    * @memberof module:PageController-About.AboutPageController
+    * @returns {string} The navbar display name.
+    */
     navbarName() {
         return this.name.charAt(0).toUpperCase() + this.name.slice(1);
     }
 
-     /**
-     * Initialize the Annotation page, load its HTML, and configure Label Studio project linking.
-     * @function initPage
-     * @memberof View-About.AboutPageController
-     */
+    /**
+    * Initialize the About page.
+    * @function initPage
+    * @memberof module:PageController-About.AboutPageController
+    * @returns {void}
+    */
     initPage() {
         var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
         var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
@@ -78,12 +81,13 @@ export class AboutPageController {
         });
     }
 
-   /**
-     * Initialize event listeners for this page's DOM elements.
-     * Handles UI interactions such as linking Label Studio projects and external window management.
-     * @function initPageListeners
-     * @memberof View-About.AboutPageController
-     */
+    /**
+    * Initialize event listeners for this page's DOM elements.
+    * Handles UI interactions such as linking Label Studio projects and external window management.
+    * @function initPageListeners
+    * @memberof module:PageController-About.AboutPageController
+    * @returns {void}
+    */
     initPageListeners() {
         $('#node-version').html(versions.node());
         $('#chrome-version').html(versions.chrome());
@@ -91,20 +95,22 @@ export class AboutPageController {
     }
 
     /**
-     * Set the Annotation page as active and visible in the UI.
-     * @function setPageActive
-     * @memberof View-About.AboutPageController
-     */
+    * Set the Annotation page as active and visible in the UI.
+    * @function setPageActive
+    * @memberof module:PageController-About.AboutPageController
+    * @returns {void}
+    */
     setPageActive() {
         $(`#${this.name}`).addClass('active-nav-item');
         $(this.compID).show();
     }
 
     /**
-     * Set the Annotation page as inactive and hidden in the UI.
-     * @function setPageInactive
-     * @memberof View-Annotation.AnnotationPageController
-     */
+    * Deactivate the page, hide its content, and remove navigation highlight.
+    * @function setPageInactive
+    * @memberof module:PageController-About.AboutPageController
+    * @returns {void}
+    */
     setPageInactive() {
         $(this.compID).hide();
         $(`#${this.name}`).removeClass('active-nav-item');
@@ -115,13 +121,14 @@ export class AboutPageController {
     //============================================================================================================================
     logger = window.log;    // Variable created for ease of reading
 
-     /**
-     * Display an alert message via Electron dialog and log it appropriately.
-     * @function postAlert
-     * @memberof View-About.AboutPageController
-     * @param {*} alertMsg - Message to display.
-     * @param {*} [cause] - Optional cause of the alert.
-     */
+    /**
+    * Display an alert message or error dialog, and log the event.
+    * @function postAlert
+    * @memberof module:PageController-About.AboutPageController
+    * @param {*} alertMsg - The message to display in the alert.
+    * @param {*} [cause] - Optional cause of the alert, used for error dialogs.
+    * @returns {void}
+    */
     postAlert(alertMsg, cause) {
         var json = {
             msg: alertMsg,
@@ -140,41 +147,45 @@ export class AboutPageController {
     }
 
     /**
-     * Log an informational message.
-     * @function logInfo
-     * @memberof View-About.AboutPageController
-     * @param {string} message - The message to log.
-     */
+    * Send an info log message to the main process.
+    * @function logInfo
+    * @memberof module:PageController-About.AboutPageController
+    * @param {string} message - The message to log.
+    * @returns {void}
+    */
     logInfo(message) {
         this.logger.info(message);
     }
 
     /**
-     * Log a debug message.
-     * @function logDebug
-     * @memberof View-About.AboutPageController
-     * @param {string} message - The message to log.
-     */
+    * Send a debug log message to the main process.
+    * @function logDebug
+    * @memberof module:PageController-About.AboutPageController
+    * @param {string} message - The message to log.
+    * @returns {void}
+    */
     logDebug(message) {
         this.logger.debug(message);
     }
 
    /**
-     * Log a warning message.
-     * @function logWarn
-     * @memberof View-About.AboutPageController
-     * @param {string} message - The message to log.
-     */
+    * Send a warning log message to the main process.
+    * @function logWarn
+    * @memberof module:PageController-About.AboutPageController
+    * @param {string} message - The message to log.
+    * @returns {void}
+    */
     logWarn(message) {
         this.logger.warn(message);
     }
 
     /**
-     * Log an error message.
-     * @function logError
-     * @memberof View-About.AboutPageController
-     * @param {string} message - The message to log.
-     */
+    * Send an error log message to the main process.
+    * @function logError
+    * @memberof module:PageController-About.AboutPageController
+    * @param {string} message - The message to log.
+    * @returns {void}
+    */
     logError(message) {
         this.logger.error(message);
     }

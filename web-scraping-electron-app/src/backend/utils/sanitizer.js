@@ -2,11 +2,16 @@
  * @file sanitizer.js
  * @description Provides utilities to sanitize text input using customizable protocols and mappings.
  * Includes HTML and SQL sanitization presets.
+ *
+ * @module Sanitizer
  */
 
 /**
  * Class representing a text sanitizer.
  * Apply custom sanitization protocols or use presets for HTML/SQL.
+ *
+ * @class
+ * @memberof module:Sanitizer
  *
  * @example
  * const s = new Sanitizer('<li class="%toggle %"\'ESCAPE^>', new SanitizeProtocol(), {
@@ -15,14 +20,16 @@
  * });
  * const sanitized = s.sanitize();
  */
-
 class Sanitizer {
     /**
-     * Create a Sanitizer.
-     * @param {string} input - The text to sanitize.
-     * @param {SanitizeProtocol} sanitizeProtocol - The protocol describing character replacements.
-     * @param {Object.<string, string>} [expressionMap={}] - Additional expression mappings for replacement.
-     */
+    * Create a Sanitizer instance.
+    * @constructor
+    * @param {string} input - The text to sanitize.
+    * @param {SanitizeProtocol} sanitizeProtocol - The protocol describing character replacements.
+    * @param {Object.<string, string>} [expressionMap={}] - Additional expression mappings for replacement.
+    *
+    * @memberof module:Sanitizer.Sanitizer
+    */
 	constructor(input, sanitizeProtocol, expressionMap = {}) {
 		// If any structures need initializing, do that here
 		this.input = input;
@@ -33,48 +40,96 @@ class Sanitizer {
 		this.expressionMap = expressionMap;
 	}
 
-	/** @returns {string} The current input text. */
+	/**
+    * Get the current input text to be sanitized.
+    *
+    * @function getInput
+    * @memberof module:Sanitizer.Sanitizer
+    * @returns {string} The current input text.
+    */
     getInput() {
         return this.input;
     }
 
-    /** @param {string} input - Set the input text to sanitize. */
+    /**
+    * Set the input text to be sanitized.
+    *
+    * @function setInput
+    * @memberof module:Sanitizer.Sanitizer
+    * @param {string} input - New input text.
+    * @returns {void}
+    */
     setInput(input) {
         this.input = input;
     }
 
-    /** @returns {SanitizeProtocol} The current sanitize protocol. */
+    /**
+    * Get the current sanitization protocol.
+    *
+    * @function getProtocol
+    * @memberof module:Sanitizer.Sanitizer
+    * @returns {SanitizeProtocol} The current sanitize protocol instance.
+    */
     getProtocol() {
         return this.sanitizeProtocol;
     }
 
-    /** @param {SanitizeProtocol} sanitizeProtocol - Set a new sanitize protocol. */
+    /**
+    * Set a new sanitization protocol.
+    *
+    * @function setProtocol
+    * @memberof module:Sanitizer.Sanitizer
+    * @param {SanitizeProtocol} sanitizeProtocol - New protocol instance to apply.
+    * @returns {void}
+    */
     setProtocol(sanitizeProtocol) {
         this.sanitizeProtocol = sanitizeProtocol;
     }
 
-    /** @returns {Object.<string, string>} The current expression map. */
+    /**
+    * Get the current expression map used for additional string replacements.
+    *
+    * @function getExpressionMap
+    * @memberof module:Sanitizer.Sanitizer
+    * @returns {Object.<string, string>} The current expression map.
+    */
     getExpressionMap() {
         return this.expressionMap;
     }
 
-    /** @param {Object.<string, string>} expressionMap - Set a new expression map. */
+    /**
+    * Set a new expression map for additional replacements.
+    *
+    * @function setExpressionMap
+    * @memberof module:Sanitizer.Sanitizer
+    * @param {Object.<string, string>} expressionMap - New mapping of expressions to replacements.
+    * @returns {void}
+    */
     setExpressionMap(expressionMap) {
         this.expressionMap = expressionMap;
     }
 
     /**
-     * Add a key-value pair to the expression map.
-     * @param {string} key - The expression key.
-     * @param {string} value - The replacement value.
-     */
+    * Add a key-value pair to the expression map.
+    *
+    * @function addToExpressionMap
+    * @memberof module:Sanitizer.Sanitizer
+    * @param {string} key - Expression to be replaced.
+    * @param {string} value - Replacement string.
+    * @returns {void}
+    */
     addToExpressionMap(key, value) {
         this.expressionMap[key] = value;
     }
 
 	/**
-     * Use preset settings to sanitize HTML by escaping common special characters.
-     */
+    * Use preset settings to sanitize HTML by escaping common special characters.
+    * Replaces characters like `<`, `>`, `&`, `'`, and `"` with their HTML-encoded equivalents.
+    *
+    * @function htmlMode
+    * @memberof module:Sanitizer.Sanitizer
+    * @returns {void}
+    */
 	htmlMode() {
 		this.sanitizeProtocol = new SanitizeProtocol("[&<>\"'/“”‘’]", 
 			{
@@ -92,9 +147,14 @@ class Sanitizer {
 		this.expressionMap = {};
 	}
 
-	/**
-     * Use preset settings to sanitize SQL by escaping special characters and expressions.
-     */
+    /**
+    * Use preset settings to sanitize SQL by escaping special characters and expressions.
+    * Prevents SQL injection vulnerabilities by encoding characters like `%`, `_`, `'`, `/`, and brackets.
+    *
+    * @function sqlMode
+    * @memberof module:Sanitizer.Sanitizer
+    * @returns {void}
+    */
 	sqlMode() {
 		const sqlMap = {
 	      '%': '&#x25;',
@@ -111,6 +171,9 @@ class Sanitizer {
 
 	/**
      * Sanitize text using the configured protocol and expression map.
+     *
+     * @function sanitize
+     * @memberof module:Sanitizer.Sanitizer
      * @param {string} [input=""] - Optional input. Defaults to constructor input.
      * @returns {string} The sanitized text.
      */
@@ -135,12 +198,15 @@ class Sanitizer {
 		return regexTransformed;
 	}
 
-	 /**
-     * Remove HTML tags from input text. Optionally sanitize the output.
-     * @param {string} [input=""] - Optional input text. Defaults to constructor input.
-     * @param {boolean} [alsoSanitize=true] - Whether to also apply sanitize().
-     * @returns {string} The processed text.
-     */
+	/**
+    * Remove HTML tags from input text. Optionally applies sanitization afterward.
+    *
+    * @function removeTags
+    * @memberof module:Sanitizer.Sanitizer
+    * @param {string} [input=""] - Optional input text. Defaults to constructor input if empty.
+    * @param {boolean} [alsoSanitize=true] - Whether to apply `sanitize()` after tag removal.
+    * @returns {string} The processed text, with HTML tags removed and optionally sanitized.
+    */
 	removeTags(input = "", alsoSanitize = true) {
 		if(input == "") {
 			input = this.input;
@@ -198,6 +264,13 @@ class Sanitizer {
 /**
  * Class representing a sanitization protocol using regular expressions and replacement mappings.
  * Used by Sanitizer to apply transformations.
+ *
+ * @class
+ * @memberof module:Sanitizer
+ *
+ * @example
+ * const protocol = new SanitizeProtocol("[&<>]", { '&': '&amp;', '<': '&lt;', '>': '&gt;' });
+ * const result = protocol.sanitize("<div>Test</div>"); // "&lt;div&gt;Test&lt;/div&gt;"
  */
 class SanitizeProtocol {
 
@@ -207,6 +280,14 @@ class SanitizeProtocol {
 
 	}
 
+    /**
+    * Sanitize text using the internal regex and replacement mappings.
+    *
+    * @function sanitize
+    * @memberof module:Sanitizer.SanitizeProtocol
+    * @param {string} textToSanitize - Input text to be sanitized.
+    * @returns {string} Sanitized output text.
+    */
 	sanitize(textToSanitize) {
 		const reg = new RegExp(this.regexString, "ig");
 		return textToSanitize.replace(reg, (match)=>(this.sanitizationMapping[match]));

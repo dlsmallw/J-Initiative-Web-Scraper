@@ -1,8 +1,8 @@
 /**
  * @file SubCollectionEntry.mjs
- * @namespace Database
- * @description Initializes Firebase and adds documents to a Firestore subcollection.
+ * @fileoverview Initializes Firebase and adds documents to a Firestore subcollection.
  *
+ * @module Database.SubCollectionsEntry
  * @requires firebase/app
  * @requires firebase/firestore
  */
@@ -14,8 +14,11 @@ import { collection, addDoc } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+/**
+* Firebase configuration for Group 8's Firestore instance.
+* @constant {Object} firebaseConfig
+* @memberof module:Database.DeleteEntry
+*/
 const firebaseConfig = {
   apiKey: "AIzaSyAhqRcDSUGoTiEka890A53u7cjS0J1IH48",
   authDomain: "ser-401-group8-firebase.firebaseapp.com",

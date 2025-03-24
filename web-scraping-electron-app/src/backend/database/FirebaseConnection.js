@@ -1,11 +1,11 @@
 /**
- * @file FirebaseConnection.js
- * @namespace Database
- * @description Initializes the Firebase app and Firestore database connection.
- *
- * @requires firebase/app
- * @requires firebase/firestore
- */
+* @file FirebaseConnection.js
+* @fileoverview Initializes the Firebase app and Firestore database connection.
+*
+* @module Database.FirebaseConnection
+* @requires firebase/app
+* @requires firebase/firestore
+*/
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
@@ -13,8 +13,11 @@ import { getFirestore } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+/**
+* Firebase configuration for Group 8's Firestore instance.
+* @constant {Object} firebaseConfig
+* @memberof module:Database.FirebaseConnection
+*/
 const firebaseConfig = {
   apiKey: "AIzaSyAhqRcDSUGoTiEka890A53u7cjS0J1IH48",
   authDomain: "ser-401-group8-firebase.firebaseapp.com",
