@@ -1,3 +1,6 @@
+/**
+ * Manages the about page's internal function.
+ */
 export class AboutPageController {
     htmlFilePath = '../src/frontend/components/templates/about.html';  // Filepath to HTML component
     name = 'about';                  // Page name
@@ -38,7 +41,7 @@ export class AboutPageController {
     }
 
     /**
-     * Method for intitializing the page in the application.
+     * Method for initializing the page in the application.
      */
     initPage() {
         var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);

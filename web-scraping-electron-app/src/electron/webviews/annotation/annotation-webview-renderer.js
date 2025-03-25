@@ -1,3 +1,8 @@
+/**
+ * Manages rendering the annotation webview.
+ */
+
+
 const ipcRenderer = window.lsAPI;
 
 var webview = null;

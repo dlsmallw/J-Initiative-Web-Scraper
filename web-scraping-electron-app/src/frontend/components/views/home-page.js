@@ -1,3 +1,6 @@
+/**
+ * Manages the home page's internal function.
+ */
 export class HomePageController {
     htmlFilePath = '../src/frontend/components/templates/home.html';  // Filepath to HTML component
     name = 'home';                  // Page name
@@ -39,7 +42,7 @@ export class HomePageController {
     }
 
    /**
-     * Method for intitializing the page in the application.
+     * Method for initializing the page in the application.
      */
     initPage() {
         var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);

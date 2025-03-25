@@ -1,3 +1,7 @@
+/**
+ * Manages early setup for the scrape webview.
+ */
+
 // webview_preload.js
 
 // Import the ipcRenderer module from Electron
@@ -131,7 +135,7 @@ function getSelectedText() {
 }
 
 /**
- * Checks if there is currently text selected and either enables or diables the import button.
+ * Checks if there is currently text selected and either enables or disables the import button.
  */
 function selectedTextCheck() {
     if (getSelectedText() !== '') {

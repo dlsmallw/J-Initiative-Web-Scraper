@@ -40,7 +40,7 @@ export class ScrapePageController {
     }
 
     /**
-     * Method for intitializing the page in the application.
+     * Method for initializing the page in the application.
      */
     initPage() {
         var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
@@ -310,7 +310,7 @@ export class ScrapePageController {
     }
 
     /**
-     * Checks if there are any currently selected data itmes in the results list.
+     * Checks if there are any currently selected data items in the results list.
      * @returns         Boolean indicating if there are any selected items.
      */
     getAllReadyData() {

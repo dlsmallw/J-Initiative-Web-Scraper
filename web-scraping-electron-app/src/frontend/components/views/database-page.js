@@ -1,3 +1,6 @@
+/**
+ * Manages the database page's internal function.
+ */
 export class DatabasePageController {
     htmlFilePath = '../src/frontend/components/templates/database.html';  // Filepath to HTML component
     name = 'database';                  // Page name
@@ -5,6 +8,7 @@ export class DatabasePageController {
 
     electronAPI = window.electronAPI;
     databaseAPI = window.databaseAPI;
+
     /**
      * Returns the pages component html filepath.
      * @returns String          The html filepath.
@@ -38,7 +42,7 @@ export class DatabasePageController {
     }
 
     /**
-     * Method for intitializing the page in the application.
+     * Method for initializing the page in the application.
      */
     initPage() {
         var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
@@ -144,32 +148,36 @@ export class DatabasePageController {
     // Page Specific Methods
     //============================================================================================================================
 
-  async displayWebsiteData() {
-    await new Promise(resolve => setTimeout(resolve, 50));
-    const websiteInfo = document.getElementById('website-info');
-    if (!websiteInfo) {
-      this.logError('website-info element not found.');
-      return;
-    }
-    websiteInfo.innerHTML = '';
-    const websites = await this.databaseAPI.getWebsiteData();
-    const websiteList = websites.split(/\n/);
-    for (let website of websiteList) {
-      let entries = await this.databaseAPI.getWebsiteEntries(website);
-      entries = entries.split(/\n/);
-      website = decodeURIComponent(website);
-      let counter = 1;
-      for (const entry of entries) {
-        if(entry !== '') {
-          website += '\n    ' + 'Entry ' + counter + ': ' + entry;
-          counter++;
+    /**
+     * Manage showing website data.
+     * @returns {Promise<void>}
+     */
+    async displayWebsiteData() {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        const websiteInfo = document.getElementById('website-info');
+        if (!websiteInfo) {
+            this.logError('website-info element not found.');
+            return;
         }
-      }
-      const websiteEntry = document.createElement('div');
-      websiteEntry.className = 'website-entry';
-      websiteEntry.textContent = website;
-      websiteInfo.appendChild(websiteEntry);
+        websiteInfo.innerHTML = '';
+        const websites = await this.databaseAPI.getWebsiteData();
+        const websiteList = websites.split(/\n/);
+        for (let website of websiteList) {
+            let entries = await this.databaseAPI.getWebsiteEntries(website);
+            entries = entries.split(/\n/);
+            website = decodeURIComponent(website);
+            let counter = 1;
+            for (const entry of entries) {
+                if (entry !== '') {
+                    website += '\n    ' + 'Entry ' + counter + ': ' + entry;
+                    counter++;
+                }
+            }
+            const websiteEntry = document.createElement('div');
+            websiteEntry.className = 'website-entry';
+            websiteEntry.textContent = website;
+            websiteInfo.appendChild(websiteEntry);
+        }
+        this.logDebug('website data displayed in UI.');
     }
-    this.logDebug('website data displayed in UI.');
-  }
 }

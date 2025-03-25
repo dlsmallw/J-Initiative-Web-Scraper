@@ -1,3 +1,6 @@
+/**
+ * Manages the annotation page's internal function.
+ */
 export class AnnotationPageController {
     htmlFilePath = '../src/frontend/components/templates/annotation.html';  // Filepath to HTML component
     name = 'annotation';                  // Page name
@@ -39,7 +42,7 @@ export class AnnotationPageController {
     }
 
     /**
-     * Method for intitializing the page in the application.
+     * Method for initializing the page in the application.
      */
     initPage() {
         var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
@@ -85,7 +88,7 @@ export class AnnotationPageController {
             .on('mouseenter', function() { $('#ext-win-btn').stop( true, true ).fadeTo(500, 0.2); })
             .on('mouseleave', function() { $('#ext-win-btn').stop( true, true ).fadeOut(500); });
 
-        // Handles openning the LS app in an external window
+        // Handles opening the LS app in an external window
         $('#ext-win-btn').on('click', () => {
             $('#ls-embedded').hide();
             $('#ls-external').show();
@@ -216,7 +219,7 @@ export class AnnotationPageController {
     //============================================================================================================================
 
     /**
-     * Method used to validate that the URL entered for linking a LS project is valid.
+     * Method used to validate that the URL entered for linking an LS project is valid.
      * @param {*} url       The URL.
      * @returns             A boolean indicating if it is valid or not.
      */
@@ -255,7 +258,7 @@ export class AnnotationPageController {
     }
 
     /**
-     * Function for handling the event where a LS URL is entered and submitted.
+     * Function for handling the event where an LS URL is entered and submitted.
      */
     initLSURL() {
         var urlInput = $('#ls-link-input').val();

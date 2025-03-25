@@ -1,3 +1,8 @@
+/**
+ * Manages system logs.
+ */
+
+
 // logger.js
 const log = require('electron-log');
 

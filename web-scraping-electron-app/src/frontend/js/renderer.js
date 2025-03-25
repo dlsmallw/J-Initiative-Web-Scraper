@@ -1,3 +1,7 @@
+/**
+ * Manages rendering and start up of the program.
+ */
+
 // renderer.js
 import { HomePageController } from '../components/views/home-page.js';
 import { ScrapePageController } from '../components/views/scrape-page.js';

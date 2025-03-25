@@ -68,7 +68,7 @@ contextBridge.exposeInMainWorld(
         //=================================================================================================
         // External LS Window IPC Methods
         //=================================================================================================
-        // Used for openning an instance of the LS project in a separate window
+        // Used for opening an instance of the LS project in a separate window
         openExternal: (url) => {
             ipcRenderer.send('open-ls-ext:request', url);
         },

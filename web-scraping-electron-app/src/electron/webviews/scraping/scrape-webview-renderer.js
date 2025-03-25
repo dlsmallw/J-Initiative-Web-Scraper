@@ -1,3 +1,8 @@
+/**
+ * Manages rendering and setup of the scrape webview.
+ */
+
+
 //webview_renderer.js
 console.log("🔥 webview_renderer.js loaded");
 
@@ -282,7 +287,7 @@ function clearScrapedList() {
 }
 
 /**
- * Checks if there are any currently selected data itmes in the list.
+ * Checks if there are any currently selected data items in the list.
  * @returns         Boolean indicating if there are any selected items.
  */
 function checkIfAnyActive() {

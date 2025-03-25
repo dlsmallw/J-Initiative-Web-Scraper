@@ -1,3 +1,6 @@
+/**
+ * Manages the log page's internal function.
+ */
 export class LogPageController {
     htmlFilePath = '../src/frontend/components/templates/log.html';  // Filepath to HTML component
     name = 'logs';                  // Page name
@@ -41,7 +44,7 @@ export class LogPageController {
     }
 
     /**
-     * Method for intitializing the page in the application.
+     * Method for initializing the page in the application.
      */
     initPage() {
         var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
