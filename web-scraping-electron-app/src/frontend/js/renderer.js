@@ -9,7 +9,6 @@ import { AboutPageController } from '../components/views/about-page.js';
 const ipcRenderer = window.electronAPI;
 const lsAPI = window.lsAPI;
 
-
 // Pages object to manage different sections of the application
 const Pages = {
     Home: new HomePageController(),
