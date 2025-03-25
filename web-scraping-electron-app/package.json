@@ -2,7 +2,7 @@
   "name": "web-scraping-electron-app",
   "version": "1.0.0",
   "description": "A web scraping application that is to be used for assisting in NLP model training",
-  "main": "main.js",
+  "main": "src/electron/main/main.js",
   "scripts": {
     "dev": "npx electronmon .",
     "start": "electron ."
