@@ -5,7 +5,6 @@ import { AnnotationPageController } from '../components/controllers/annotation-p
 import { DatabasePageController } from '../components/controllers/database-page.js';
 import { LogPageController } from '../components/controllers/log-page.js';
 import { AboutPageController } from '../components/controllers/about-page.js';
-import { SettingsPageController } from '../components/controllers/settings-page.js';
 
 const ipcRenderer = window.electronAPI;
 const lsAPI = window.lsAPI;
@@ -18,8 +17,7 @@ const Pages = {
     Annotation: new AnnotationPageController(),
     Database: new DatabasePageController(),
     About: new AboutPageController(),
-    Logs: new LogPageController(),
-    Settings: new SettingsPageController()
+    Logs: new LogPageController()
 };
 
 let currentPage;
