@@ -6,10 +6,8 @@ import { DatabasePageController } from '../components/views/database-page.js';
 import { LogPageController } from '../components/views/log-page.js';
 import { AboutPageController } from '../components/views/about-page.js';
 
-
 const ipcRenderer = window.electronAPI;
 const lsAPI = window.lsAPI;
-
 
 // Pages object to manage different sections of the application
 const Pages = {
