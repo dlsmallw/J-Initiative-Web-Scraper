@@ -181,6 +181,7 @@ export class DatabasePageController {
 
 
       let entries = await this.databaseAPI.getWebsiteEntries(website);
+      let time = await this.databaseAPI.getWebsiteLastAccessed(website);
       entries = entries.split(/\n/);
       website = decodeURIComponent(website);
       let newRow = document.createElement('tr');
@@ -194,12 +195,8 @@ export class DatabasePageController {
           counter++;
         }
       }
-<<<<<<< Updated upstream
-      const websiteEntry = document.createElement('div');
-      websiteEntry.className = 'website-entry';
-      websiteEntry.textContent = website;
-      websiteInfo.appendChild(websiteEntry);
-=======
+
+
 
       newURL.textContent = website;
       newTime.textContent = time;
@@ -208,7 +205,7 @@ export class DatabasePageController {
       newRow.appendChild(newEntry);
       newRow.appendChild(newTime);
       websiteInfo.appendChild(newRow);
->>>>>>> Stashed changes
+
     }
     this.logDebug('website data displayed in UI.');
   }
