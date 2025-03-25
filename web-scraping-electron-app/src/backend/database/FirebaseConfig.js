@@ -2,7 +2,7 @@
 * @file FirebaseConfig.js
 * @fileoverview Initializes the Firebase app and analytics using provided configuration.
 *
-* @module Database.FirebaseConfig
+* @module Database-FirebaseConfig
 * @requires firebase/app
 * @requires firebase/analytics
 */
@@ -16,7 +16,7 @@ import { getAnalytics } from "firebase/analytics";
 /**
 * Firebase configuration for Group 8's Firestore instance.
 * @constant {Object} firebaseConfig
-* @memberof module:Database.FirebaseConfig
+* @memberof module:Database-FirebaseConfig
 */
 const firebaseConfig = {
   apiKey: "AIzaSyAhqRcDSUGoTiEka890A53u7cjS0J1IH48",

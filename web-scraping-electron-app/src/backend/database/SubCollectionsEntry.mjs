@@ -2,7 +2,7 @@
  * @file SubCollectionEntry.mjs
  * @fileoverview Initializes Firebase and adds documents to a Firestore subcollection.
  *
- * @module Database.SubCollectionsEntry
+ * @module Database-SubCollectionsEntry
  * @requires firebase/app
  * @requires firebase/firestore
  */
@@ -17,7 +17,7 @@ import { collection, addDoc } from "firebase/firestore";
 /**
 * Firebase configuration for Group 8's Firestore instance.
 * @constant {Object} firebaseConfig
-* @memberof module:Database.DeleteEntry
+* @memberof module:Database-DeleteEntry
 */
 const firebaseConfig = {
   apiKey: "AIzaSyAhqRcDSUGoTiEka890A53u7cjS0J1IH48",

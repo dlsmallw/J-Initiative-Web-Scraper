@@ -2,7 +2,7 @@
 * @file FirebaseConnection.js
 * @fileoverview Initializes the Firebase app and Firestore database connection.
 *
-* @module Database.FirebaseConnection
+* @module Database-FirebaseConnection
 * @requires firebase/app
 * @requires firebase/firestore
 */
@@ -16,7 +16,7 @@ import { getFirestore } from "firebase/firestore";
 /**
 * Firebase configuration for Group 8's Firestore instance.
 * @constant {Object} firebaseConfig
-* @memberof module:Database.FirebaseConnection
+* @memberof module:Database-FirebaseConnection
 */
 const firebaseConfig = {
   apiKey: "AIzaSyAhqRcDSUGoTiEka890A53u7cjS0J1IH48",

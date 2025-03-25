@@ -2,7 +2,7 @@
 * @file AddEntry.js
 * @fileoverview Demonstrates initializing Firebase and adding documents to Firestore.
 *
-* @module Database.AddEntry
+* @module Database-AddEntry
 * @requires firebase/app
 * @requires firebase/firestore
 */
@@ -17,7 +17,7 @@ import { collection, addDoc } from "firebase/firestore";
 /**
 * Firebase configuration for Group 8's Firestore instance.
 * @constant {Object} firebaseConfig
-* @memberof module:Database.AddEntry
+* @memberof module:Database-AddEntry
 */
 const firebaseConfig = {
   apiKey: "AIzaSyAhqRcDSUGoTiEka890A53u7cjS0J1IH48",

@@ -2,7 +2,7 @@
 * @file ModifyEntry.js
 * @fileoverview Initializes Firebase and modifies specific Firestore documents based on query conditions.
 *
-* @module Database.ModifyEntry
+* @module Database-ModifyEntry
 * @requires firebase/app
 * @requires firebase/firestore
 */
@@ -17,7 +17,7 @@ import { collection, addDoc, getDocs, where, deleteDoc, query, updateDoc} from "
 /**
 * Firebase configuration for Group 8's Firestore instance.
 * @constant {Object} firebaseConfig
-* @memberof module:Database.ModifyEntry
+* @memberof module:Database-ModifyEntry
 */
 const firebaseConfig = {
   apiKey: "AIzaSyAhqRcDSUGoTiEka890A53u7cjS0J1IH48",
