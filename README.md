@@ -28,6 +28,22 @@ J-Initiative-Web-Scraper
 │
 │
 ├── web-scraping-electron-app/
+│   ├── docs/                           <-- All Docsify-related content lives here
+│   │   ├── index.html                  <-- Docsify entry point
+│   │   ├── README.md                   <-- Docs landing page
+│   │   ├── _sidebar.md                <-- Docsify navigation
+│   │   ├── setup.md
+│   │   ├── usage/
+│   │   │   ├── README.md
+│   │   │   ├── scrape-page.md
+│   │   │   ├── annotation-page.md
+│   │   │   ├── workflows.md
+│   │   │   └── update-token.md
+│   │   ├── api/
+│   │   │   ├── api.md                 <-- JSDoc generated Markdown
+│   │   │   └── _sidebar.md            <-- Optional: scoped nav just for API docs
+│   │   └── research-notes.md
+│   ├── jsdocs/                         <-- (remove or repurpose)
 │   ├── node_modules/
 │   ├── public/
 │   │   └── index.html         # Static entry for front-end

@@ -14,8 +14,10 @@
     "@electron-forge/cli": "^7.5.0",
     "axios": "^1.7.7",
     "docdash": "^2.0.2",
+    "docsify-cli": "^4.4.4",
     "electron": "^33.0.0",
-    "jsdoc": "^4.0.4"
+    "jsdoc": "^4.0.4",
+    "jsdoc-to-markdown": "^9.1.1"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
