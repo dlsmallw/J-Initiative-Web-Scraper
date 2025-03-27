@@ -5,7 +5,6 @@ export class HomePageController {
 
     electronAPI = window.electronAPI;
 
-
     /**
      * Returns the pages component html filepath.
      * @returns String          The html filepath.
@@ -39,11 +38,12 @@ export class HomePageController {
     }
 
    /**
-     * Method for intitializing the page in the application.
+     * Method for initializing the page in the application.
      */
     initPage() {
-        var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
-        var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
+        let navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
+        let navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
+        window.notifications = ["No notifications."];
 
         $('#navbar-ul-1').append(navbarItem);
 
@@ -52,9 +52,11 @@ export class HomePageController {
         }
 
         insertElement().then(() => {
-            
 
             this.initPageListeners();
+            this.checkForNotifications();
+            window.setInterval(this.checkForNotifications, 500); //check notifications every 0.5 seconds.
+            this.manageTutorial();
         });
     }
 
@@ -62,7 +64,132 @@ export class HomePageController {
      * Method for initializing the pages event listeners.
      */
     initPageListeners() {
-        // Insert code for listeners here
+        document.getElementById("notification-button").addEventListener("click", this.displayNotifications);
+        document.getElementById("notification-x-button").addEventListener("click", this.displayNotificationsHelper);
+        document.getElementById("notification-dismiss-button").addEventListener("click", this.removeNotifications);
+        document.getElementById("yes-tutorial").addEventListener("click", this.runTutorialHome);
+        document.getElementById("no-tutorial").addEventListener("click", this.disableTutorial);
+        document.getElementById("tutorial-x-button").addEventListener("click", this.disableTutorial);
+    }
+
+    /**
+     * Method to check for notifications.
+     */
+    checkForNotifications() {
+        if(notifications[0] === "No notifications.") {
+            document.getElementById("notification-button").style.visibility = "hidden";
+        } else {
+            document.getElementById("notification-button").style.visibility = "visible";
+        }
+
+        document.getElementById("number-of-notifications").innerHTML = "" + notifications.length;
+    }
+
+    /**
+     * Method to populate notifications.
+     * @param notification to add.
+     */
+    addNotifications(...notification) {
+        if(notifications[0] === "No notifications.") {
+            notifications[0] = notification[0];
+
+            for(let i = 1; i < notification.length; i++) {
+                notifications[i] = notification[i];
+            }
+        } else {
+            let temp = notifications.length, i = 0;
+            while((notification.length + temp) > notifications.length) {
+                notifications.push(notification[i]);
+                i++;
+            }
+
+            notifications.length = (notification.length + temp);
+        }
+
+        return 0;
+    };
+
+    /**
+     * Method to remove notifications.
+     */
+    removeNotifications() {
+        let temp = document.getElementById("notification-box");
+
+        alert("Notification dismissed.");
+        let i = notifications.indexOf(temp.options[temp.selectedIndex].text);
+
+        if (i > -1) {
+            notifications.splice(i, 1);
+        }
+
+        temp.remove(temp.selectedIndex);
+
+        document.getElementById("number-of-notifications").innerHTML = notifications.size;
+
+        if(notifications.length === 0) {
+            alert("No current notifications.");
+            document.getElementById("notification-button").style.display = "hidden";
+            document.getElementById("notification-x-button").style.visibility="hidden";
+            document.getElementById("notification-box").style.visibility="hidden";
+            document.getElementById("notification-dismiss-button").style.visibility="hidden";
+        }
+    }
+
+    /**
+     * Method for showing notifications.
+     */
+    displayNotifications() {
+        if(notifications[0] !== "No notifications.") {
+            document.getElementById("notification-button").style.display = "none";
+            document.getElementById("notification-x-button").style.visibility = "visible";
+            document.getElementById("notification-box").style.visibility="visible";
+            document.getElementById("notification-dismiss-button").style.visibility="visible";
+        }
+
+        let notifs = document.getElementById('notification-box');
+
+        notifications.forEach((element) => (notifs.add(new Option(element))));
+    }
+
+    /**
+     * Helper method for displayNotifications().
+     */
+    displayNotificationsHelper() {
+        document.getElementById("notification-button").style.display = "block";
+        document.getElementById("notification-x-button").style.visibility="hidden";
+        document.getElementById("notification-box").style.visibility="hidden";
+        document.getElementById("notification-dismiss-button").style.visibility="hidden";
+
+        let notifs = document.getElementById('notification-box');
+        notifications.forEach((element) => (notifs.remove(element)));
+    }
+
+    /**
+     * Manages optional tutorial for new users.
+     */
+    manageTutorial() {
+        if(localStorage.getItem('tutorial') !== "disabled") {
+            document.getElementById("tutorial").style.display = "block";
+        }
+    }
+
+    /**
+     * Runs the tutorial.
+     */
+    runTutorialHome() {
+        document.getElementById("tutorial").style.display = "none";
+        document.getElementById("embed-tutorial").style.display = "block";
+    }
+
+    /**
+     * Disables the tutorial.
+     */
+    disableTutorial() {
+        alert("Got it! Tutorial has been disabled.");
+
+        localStorage.setItem('tutorial', "disabled");
+        document.getElementById("tutorial").style.display = "none";
+        document.getElementById("embed-tutorial").style.display = "none";
     }
 
     /**
@@ -92,7 +219,7 @@ export class HomePageController {
      * @param {*} cause             Cause if an error.
      */
     postAlert(alertMsg, cause) {
-        var json = {
+        let json = {
             msg: alertMsg,
             errType: null
         }

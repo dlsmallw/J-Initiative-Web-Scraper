@@ -3,11 +3,11 @@
  * along with a SanitizeProtocol object that describes how to transform the text to sanitize it.
  * 
  * How to use:
- * var sanitizer = new Sanitizer([text], new SanitizeProtocol([regex string], {[character]: [replacement], [character]: [replacement]}), {[expression]: [replacement], [expression]: [replacement],...});
+ * let sanitizer = new Sanitizer([text], new SanitizeProtocol([regex string], {[character]: [replacement], [character]: [replacement]}), {[expression]: [replacement], [expression]: [replacement],...});
  * return sanitizer.sanitize();
  * 
  * ex.
- * var s = new Sanitizer('<li class="%toggle %"\'ESCAPE^>', new SanitizeProtocol(), {"ESCAPE": "escape", "toggle": "TOGGLE"});
+ * let s = new Sanitizer('<li class="%toggle %"\'ESCAPE^>', new SanitizeProtocol(), {"ESCAPE": "escape", "toggle": "TOGGLE"});
  * 
  * If you just want the presets already built in, call [sanitizerObject].htmlMode() or [sanitizerObject].sqlMode().
  * */
@@ -95,20 +95,20 @@ class Sanitizer {
 	 * @return String 		The sanitized text.
 	 */
 	sanitize(input = "") {
-		if(input == "") {
+		if(input === "") {
 			input = this.input;
 		}
-		var regexTransformed = this.sanitizeProtocol.sanitize(input);
+		let regexTransformed = this.sanitizeProtocol.sanitize(input);
 		/*
 		// Unused, as the expressionMap is now an object literal, not a Map object.
 		const iterator = this.expressionMap.keys();
-		for(var i = 0; i < this.expressionMap.size; ++i) {
-			var key = iterator.next().value;
+		for(let i = 0; i < this.expressionMap.size; ++i) {
+			let key = iterator.next().value;
 
 			regexTransformed = regexTransformed.replaceAll(key,this.expressionMap.get(key));
 		}*/
 
-		for(var key in this.expressionMap) {
+		for(let key in this.expressionMap) {
 			regexTransformed = regexTransformed.replaceAll(key, this.expressionMap[key]);
 		}
 
@@ -122,15 +122,15 @@ class Sanitizer {
 	 * @return String 		The sanitized text.
 	 */
 	removeTags(input = "", alsoSanitize = true) {
-		if(input == "") {
+		if(input === "") {
 			input = this.input;
 		}
 
-		var min = 0;
-		var transformedInput = "";
-		var substringInput = input;
+		let min = 0;
+		let transformedInput = "";
+		let substringInput = input;
 
-		var keepGoing = true;
+		let keepGoing = true;
 		while(keepGoing) {
 			if(substringInput.indexOf('<') < min) {
 				keepGoing = false;
@@ -146,8 +146,8 @@ class Sanitizer {
 					substringInput = substringInput.slice(substringInput.indexOf('<') + 1);
 				}
 				else if(substringInput.indexOf('>') >= min) {
-					var start = substringInput.indexOf('<');
-					var end = substringInput.indexOf('>') + 1;
+					let start = substringInput.indexOf('<');
+					let end = substringInput.indexOf('>') + 1;
 					
 					transformedInput += substringInput.slice(min, start);
 					substringInput = substringInput.slice(end);
@@ -159,9 +159,9 @@ class Sanitizer {
 			}
 		}
 		if(alsoSanitize) {
-			var regexTransformed = this.sanitizeProtocol.sanitize(input);
+			let regexTransformed = this.sanitizeProtocol.sanitize(input);
 
-			for(var key in this.expressionMap) {
+			for(let key in this.expressionMap) {
 				regexTransformed = regexTransformed.replaceAll(key, this.expressionMap[key]);
 			}
 

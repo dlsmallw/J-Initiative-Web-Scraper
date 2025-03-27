@@ -4,8 +4,8 @@
 
 const axios = require('axios').default;
 
-var APITOKEN = '';
-var BASEURL = '';
+let APITOKEN = '';
+let BASEURL = '';
 
 const RequestType = {
     GetProjects: {
@@ -39,10 +39,10 @@ function requestHeader() {
  * @returns                     A JSON object of the project info.
  */
 function formatProjectData(response) {
-    var numProjects = response.count;
-    var results = response.results;
-    var formattedResults = [];
-    var index = numProjects - 1;
+    let numProjects = response.count;
+    let results = response.results;
+    let formattedResults = [];
+    let index = numProjects - 1;
 
     results.forEach(project => {
         formattedResults[index] = {
@@ -61,7 +61,7 @@ function formatProjectData(response) {
  * @returns             The response of the API call.
  */
 function getProjects() {
-    var request = {
+    let request = {
         method: 'get',
         url: `${BASEURL}/api/projects`,
         headers: requestHeader()
@@ -95,8 +95,8 @@ function makeRequestToLS(requestJSON, requestType) {
             resolve(jsonOBJ);
         } else {
             axios(requestJSON).then(function(res) {
-                var status = res.status;
-                var statusText = res.statusText;
+                let status = res.status;
+                let statusText = res.statusText;
     
                 if (status >= 200 && status < 300) {
                     jsonOBJ.ok = true;
@@ -130,19 +130,19 @@ function makeRequestToLS(requestJSON, requestType) {
  * @returns Array           An array split into individual sentences.
  */
 function formatTextData(textData) {
-    var regex = /(?:\([^()]*\)|\d+\.\d+|[^.?!])+[.?!]/g;
+    let regex = /(?:\([^()]*\)|\d+\.\d+|[^.?!])+[.?!]/g;
     // can be used to check for ascii valid characters but this may not be what we want
-    // var asciiRegex = /^[\x00-\x7F]+$/;       
+    // let asciiRegex = /^[\x00-\x7F]+$/;
 
-    var trimmedRawData = textData.trim();
+    let trimmedRawData = textData.trim();
     
     if (trimmedRawData && trimmedRawData !== '') {
-        var formattedData = [];
-        var sentArr = trimmedRawData.match(regex);
+        let formattedData = [];
+        let sentArr = trimmedRawData.match(regex);
 
         if (sentArr && sentArr.length > 0) {
             sentArr.forEach(sent => {
-                var sentStr = sent.trim();
+                let sentStr = sent.trim();
 
                 if (sentStr !== '') {
                     formattedData.push({
@@ -168,15 +168,15 @@ function formatTextData(textData) {
  * @returns                 A formatted array of all data to export.
  */
 function formatDataArr(dataArr) {
-    var formattedResult = null;
+    let formattedResult = null;
 
     if (dataArr !== null) {
-        var formattedArr = [];
+        let formattedArr = [];
 
-        for (var i = 0; i < dataArr.length; i++) {
-            var data = formatTextData(dataArr[i].textData);
+        for (let i = 0; i < dataArr.length; i++) {
+            let data = formatTextData(dataArr[i].textData);
 
-            for (var j = 0; j < data.length; j++) {
+            for (let j = 0; j < data.length; j++) {
                 formattedArr.push(data[j]);
             }
         }
@@ -195,7 +195,7 @@ function formatDataArr(dataArr) {
  * @returns JSON            The request object.
  */
 function requestJSON(rawData, projectID) {
-    var formattedData = formatDataArr(rawData);
+    let formattedData = formatDataArr(rawData);
 
     if (formattedData !== null) {
         return {
@@ -217,7 +217,7 @@ function requestJSON(rawData, projectID) {
  */
 function exportDataToLS(rawData, projectID) {
     try {
-        var request = requestJSON(rawData, projectID);
+        let request = requestJSON(rawData, projectID);
 
         return makeRequestToLS(request, RequestType.ExportTasks);
     } catch (err) {
