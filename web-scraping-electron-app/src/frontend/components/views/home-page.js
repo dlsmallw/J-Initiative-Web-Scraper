@@ -2,6 +2,7 @@ export class HomePageController {
     htmlFilePath = '../src/frontend/components/templates/home.html';  // Filepath to HTML component
     name = 'home';                  // Page name
     compID = '#home-container';     // Page component container ID
+    tutorialID = '#embed-tutorial'; // Embedded tutorial container ID
 
     electronAPI = window.electronAPI;
 
@@ -27,6 +28,14 @@ export class HomePageController {
      */
     getCompID() {
         return this.compID;
+    }
+
+    /**
+     * Returns the embedded tutorial container ID.
+     * @returns String          The embedded tutorial container ID.
+     */
+    getTutorialID() {
+        return this.tutorialID;
     }
 
     /**
@@ -179,6 +188,8 @@ export class HomePageController {
     runTutorialHome() {
         document.getElementById("tutorial").style.display = "none";
         document.getElementById("embed-tutorial").style.display = "block";
+
+        $(this.tutorialID).show("../templates/tutorial.txt");
     }
 
     /**
