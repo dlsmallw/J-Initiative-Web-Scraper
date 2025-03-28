@@ -212,9 +212,21 @@ package() {
 # ============================
 docs() {
     cd "$APP_DIR" || return 1
-    log_info "Generating JSDoc documentation..."
-    npm run docs || { log_error "Failed to generate documentation."; return 1; }
-    log_info "Documentation generated in: $APP_DIR/jsdocs/"
+
+    log_info "Generating JSDoc Markdown files for API docs..."
+
+    mkdir -p docs/api
+    # Run jsdoc2md per group:
+    npx jsdoc2md src/backend/database/*.js > docs/api/database.md
+    npx jsdoc2md src/backend/services/*.js > docs/api/services.md
+    npx jsdoc2md src/backend/utils/*.js > docs/api/utils.md
+    npx jsdoc2md src/frontend/components/views/*.js > docs/api/ui.md
+    npx jsdoc2md src/frontend/js/renderer.js > docs/api/renderer.md
+    npx jsdoc2md src/electron/main/*.js > docs/api/electron-main.md
+    npx jsdoc2md src/electron/webviews/**/*.js > docs/api/webviews.md
+
+    log_info "API documentation generated at: $APP_DIR/docs/api/"
+    log_info "You can serve the Docsify site locally via: npx docsify serve docs"
 }
 
 
@@ -230,7 +242,7 @@ help() {
     echo "  run dev     - Launch Electron in dev mode (auto reload)."
     echo "  run prod    - Launch Electron in production mode."
     echo "  package     - Package Electron app via electron-forge."
-    echo "  docs        - Generate JSDoc documentation"
+    echo "  docs        - Generate JSDoc Markdown files in docs/api/ for Docsify"
     echo "  help        - Show this help message."
     echo
     echo "[Note]"

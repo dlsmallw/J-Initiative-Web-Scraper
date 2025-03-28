@@ -3,14 +3,13 @@
 
 ---
 
-## 📁 **Project Structure Refactor Proposal**
-Below is a comprehensive README that references a final project structure and the new, prompt-free setup.sh (was pkgmgr.sh)   
-script. It provides clear guidance making it ideal for developers that want to get familiar with the project but need   
+## 📁 **Project Structure**
+Below is a comprehensive README that references the project structure and the new, prompt-free setup.sh (was pkgmgr.sh) 
+script. It provides clear guidance making it ideal for developers that want to get familiar with the project but need 
 structured instructions and quick references.  
 
 ---
 
-## 📂 **Proposed New Structure**
 ```
 J-Initiative-Web-Scraper
 ├── .github/
@@ -29,21 +28,27 @@ J-Initiative-Web-Scraper
 │
 ├── web-scraping-electron-app/
 │   ├── docs/                           <-- All Docsify-related content lives here
-│   │   ├── index.html                  <-- Docsify entry point
-│   │   ├── README.md                   <-- Docs landing page
-│   │   ├── _sidebar.md                <-- Docsify navigation
-│   │   ├── setup.md
+│   │   ├── api/                        <-- JSDoc generated Markdown
+│   │   │   ├── _sidebar.md  
+│   │   │   ├── _database.md                    
+│   │   │   ├── electron-main.md       
+│   │   │   ├── README.md
+│   │   │   ├── renderer.md
+│   │   │   ├── services.md
+│   │   │   ├── ui.md
+│   │   │   ├── utils.md                     
+│   │   │   └── webviews.md            
 │   │   ├── usage/
 │   │   │   ├── README.md
 │   │   │   ├── scrape-page.md
 │   │   │   ├── annotation-page.md
 │   │   │   ├── workflows.md
 │   │   │   └── update-token.md
-│   │   ├── api/
-│   │   │   ├── api.md                 <-- JSDoc generated Markdown
-│   │   │   └── _sidebar.md            <-- Optional: scoped nav just for API docs
-│   │   └── research-notes.md
-│   ├── jsdocs/                         <-- (remove or repurpose)
+│   │   ├── .nojekyll   
+│   │   ├── _sidebar.md                <-- Docsify navigation
+│   │   ├── index.html                 <-- Docsify entry point
+│   │   ├── README.md                  <-- Docs landing page
+│   │   ├── setup.md
 │   ├── node_modules/
 │   ├── public/
 │   │   └── index.html         # Static entry for front-end
@@ -226,6 +231,83 @@ Uses **electron-forge** to create distributable packages in an `out/` folder. Or
 run prod
 ```
 for a basic production-mode test.
+
+---
+Yes — your root `README.md` is the perfect place to include a section about:
+
+- your **comment style guide**,
+- how to **generate and view documentation**, and
+- the tooling choices: **JSDoc** + **Docsify**.
+
+It’s important context for contributors and makes the setup feel polished and professional. Here's a clean section you can append to the bottom of your existing README:
+
+---
+
+## Developer Docs & Commenting Guide
+
+### Comment Style (JSDoc Standard)
+
+We use [JSDoc](https://jsdoc.app/) to document JavaScript modules and functions.
+
+**Basic example:**
+```js
+/**
+ * Fetches data from a given URL.
+ * @function fetchData
+ * @param {string} url - The target URL.
+ * @returns {Promise<Object>} Parsed JSON data.
+ */
+async function fetchData(url) {
+  const response = await fetch(url);
+  return response.json();
+}
+```
+
+- Use `@function`, `@param`, `@returns`, `@memberof`, and `@async` where applicable.
+- Keep descriptions concise but clear.
+- Use full sentences for clarity, especially for public modules or shared logic.
+
+---
+
+### Generate API Docs (Markdown Format)
+
+Our API documentation is generated via [`jsdoc2md`](https://github.com/jsdoc2md/jsdoc-to-markdown) into Markdown files, scoped by module.
+
+To regenerate:
+
+```bash
+# Inside the Electron app folder:
+cd web-scraping-electron-app
+
+# Create /docs/api/ if it doesn't exist
+mkdir -p docs/api
+
+# Generate module-based docs
+npx jsdoc2md src/backend/database/*.js > docs/api/database.md
+npx jsdoc2md src/backend/services/*.js > docs/api/services.md
+npx jsdoc2md src/frontend/components/views/*.js > docs/api/ui.md
+```
+
+These Markdown files are then rendered by Docsify in the in-app `/docs/` site.
+
+---
+
+### Viewing the Docs
+
+We use [Docsify](https://docsify.js.org) for an interactive, navigable site experience.
+
+To preview the full documentation locally:
+
+```bash
+cd web-scraping-electron-app
+npx docsify serve docs
+```
+
+This will start a local server at [http://localhost:3000](http://localhost:3000), where you can browse:
+
+- `docs/setup.md` – install and configuration
+- `docs/usage/*` – usage walkthroughs
+- `docs/api/*` – auto-generated API docs
 
 ---
 
