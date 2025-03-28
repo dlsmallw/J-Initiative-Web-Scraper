@@ -1,0 +1,8 @@
+* [📄 API Docs](api/README.md)
+  * [Database](api/database.md)
+  * [Services](api/services.md)
+  * [Utils](api/utils.md)
+  * [Controllers](api/ui.md)
+  * [Renderer](api/renderer.md)
+  * [Electron Main Process](api/electron-main.md)
+  * [Webviews](api/webviews.md)
