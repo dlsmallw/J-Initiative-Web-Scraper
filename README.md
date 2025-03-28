@@ -232,15 +232,6 @@ run prod
 for a basic production-mode test.
 
 ---
-Yes — your root `README.md` is the perfect place to include a section about:
-
-- your **comment style guide**,
-- how to **generate and view documentation**, and
-- the tooling choices: **JSDoc** + **Docsify**.
-
-It’s important context for contributors and makes the setup feel polished and professional. Here's a clean section you can append to the bottom of your existing README:
-
----
 
 ## Developer Docs & Commenting Guide
 

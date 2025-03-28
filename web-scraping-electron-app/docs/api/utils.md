@@ -14,7 +14,7 @@ Includes HTML and SQL sanitization presets.</p>
 <a name="module_Logger"></a>
 
 ## Logger
-Configures and exports a centralized logger using electron-log.Provides consistent logging format and settings for both file and console output.
+Configures and exports a centralized logger using electron-log. Provides consistent logging format and settings for both file and console output.
 
 **See**: [electron-log documentation](https://github.com/megahertz/electron-log)  
 
@@ -36,7 +36,8 @@ Exports the configured logger instance.
 <a name="module_Logger.Config"></a>
 
 ### Logger.Config : <code>object</code>
-Logger configuration settings.Defines log levels, formats, and file size limits for both file and console output.
+Logger configuration settings.
+Defines log levels, formats, and file size limits for both file and console output.
 
 **Kind**: static namespace of [<code>Logger</code>](#module_Logger)  
 
@@ -49,19 +50,23 @@ Logger configuration settings.Defines log levels, formats, and file size limits
 <a name="module_Logger.Config.log.transports.file.level"></a>
 
 #### Config.log.transports.file.level : <code>string</code>
-Sets the log level for file output.Options: 'debug', 'info', 'warn', 'error'.Default is 'debug'.
+Sets the log level for file output.
+Options: 'debug', 'info', 'warn', 'error'.
+Default is 'debug'.
 
 **Kind**: static property of [<code>Config</code>](#module_Logger.Config)  
 <a name="module_Logger.Config.log.transports.file.format"></a>
 
 #### Config.log.transports.file.format : <code>string</code>
-Defines the log format for file output.Format: `{y}-{m}-{d} {h}:{i}:{s} [{level}] {text}`
+Defines the log format for file output.
+Format: `{y}-{m}-{d} {h}:{i}:{s} [{level}] {text}`
 
 **Kind**: static property of [<code>Config</code>](#module_Logger.Config)  
 <a name="module_Logger.Config.log.transports.console.format"></a>
 
 #### Config.log.transports.console.format : <code>string</code>
-Defines the log format for console output.Format: `{h}:{i}:{s} [{level}] {text}`
+Defines the log format for console output.
+Format: `{h}:{i}:{s} [{level}] {text}`
 
 **Kind**: static property of [<code>Config</code>](#module_Logger.Config)  
 <a name="module_Logger.Config.log.transports.file.maxSize"></a>
@@ -73,7 +78,8 @@ Limits log file size to 5 MB per file to prevent disk space issues.
 <a name="module_Sanitizer"></a>
 
 ## Sanitizer
-Provides utilities to sanitize text input using customizable protocols and mappings.Includes HTML and SQL sanitization presets.
+Provides utilities to sanitize text input using customizable protocols and mappings.
+Includes HTML and SQL sanitization presets.
 
 
 * [Sanitizer](#module_Sanitizer)
@@ -97,7 +103,8 @@ Provides utilities to sanitize text input using customizable protocols and mappi
 <a name="module_Sanitizer.Sanitizer"></a>
 
 ### Sanitizer.Sanitizer
-Class representing a text sanitizer.Apply custom sanitization protocols or use presets for HTML/SQL.
+Class representing a text sanitizer.
+Apply custom sanitization protocols or use presets for HTML/SQL.
 
 **Kind**: static class of [<code>Sanitizer</code>](#module_Sanitizer)  
 
@@ -129,7 +136,11 @@ Create a Sanitizer instance.
 
 **Example**  
 ```js
-const s = new Sanitizer('<li class="%toggle %"\'ESCAPE^>', new SanitizeProtocol(), {  "ESCAPE": "escape",  "toggle": "TOGGLE"});const sanitized = s.sanitize();
+const s = new Sanitizer('<li class="%toggle %"\'ESCAPE^>', new SanitizeProtocol(), {
+  "ESCAPE": "escape",
+  "toggle": "TOGGLE"
+});
+const sanitized = s.sanitize();
 ```
 <a name="module_Sanitizer.Sanitizer.getInput"></a>
 
@@ -200,13 +211,15 @@ Add a key-value pair to the expression map.
 <a name="module_Sanitizer.Sanitizer.htmlMode"></a>
 
 #### Sanitizer.htmlMode() ⇒ <code>void</code>
-Use preset settings to sanitize HTML by escaping common special characters.Replaces characters like `<`, `>`, `&`, `'`, and `"` with their HTML-encoded equivalents.
+Use preset settings to sanitize HTML by escaping common special characters.
+Replaces characters like `<`, `>`, `&`, `'`, and `"` with their HTML-encoded equivalents.
 
 **Kind**: static method of [<code>Sanitizer</code>](#module_Sanitizer.Sanitizer)  
 <a name="module_Sanitizer.Sanitizer.sqlMode"></a>
 
 #### Sanitizer.sqlMode() ⇒ <code>void</code>
-Use preset settings to sanitize SQL by escaping special characters and expressions.Prevents SQL injection vulnerabilities by encoding characters like `%`, `_`, `'`, `/`, and brackets.
+Use preset settings to sanitize SQL by escaping special characters and expressions.
+Prevents SQL injection vulnerabilities by encoding characters like `%`, `_`, `'`, `/`, and brackets.
 
 **Kind**: static method of [<code>Sanitizer</code>](#module_Sanitizer.Sanitizer)  
 <a name="module_Sanitizer.Sanitizer.sanitize"></a>
@@ -237,7 +250,8 @@ Remove HTML tags from input text. Optionally applies sanitization afterward.
 <a name="module_Sanitizer.SanitizeProtocol"></a>
 
 ### Sanitizer.SanitizeProtocol
-Class representing a sanitization protocol using regular expressions and replacement mappings.Used by Sanitizer to apply transformations.
+Class representing a sanitization protocol using regular expressions and replacement mappings.
+Used by Sanitizer to apply transformations.
 
 **Kind**: static class of [<code>Sanitizer</code>](#module_Sanitizer)  
 
@@ -250,7 +264,8 @@ Class representing a sanitization protocol using regular expressions and replace
 #### new SanitizeProtocol()
 **Example**  
 ```js
-const protocol = new SanitizeProtocol("[&<>]", { '&': '&amp;', '<': '&lt;', '>': '&gt;' });const result = protocol.sanitize("<div>Test</div>"); // "&lt;div&gt;Test&lt;/div&gt;"
+const protocol = new SanitizeProtocol("[&<>]", { '&': '&amp;', '<': '&lt;', '>': '&gt;' });
+const result = protocol.sanitize("<div>Test</div>"); // "&lt;div&gt;Test&lt;/div&gt;"
 ```
 <a name="module_Sanitizer.SanitizeProtocol.sanitize"></a>
 
