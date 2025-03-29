@@ -423,6 +423,9 @@ ipcMain.handle('get-websites-LastAccessed', async (event, url) => {
 
 ipcMain.handle('add-website', async (event, url) => {
 //adding website to database
+if(!url.includes("www.")) url = "www." + url;
+if(!url.includes("https://")) url = "https://" + url;
+if(!url.endsWith("/")) url = url + "/";
   const encodedURL = encodeURIComponent(url);
   let docRef = doc(db, "Websites", "Website List");
   await updateDoc(docRef, {
