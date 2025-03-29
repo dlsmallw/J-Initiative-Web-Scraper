@@ -177,9 +177,9 @@ export class HomePageController {
      * Manages optional tutorial for new users.
      */
     manageTutorial() {
-        if(localStorage.getItem('tutorial') !== "disabled") {
+        //if(localStorage.getItem('tutorial') !== "disabled") {
             document.getElementById("tutorial").style.display = "block";
-        }
+        //}
     }
 
     /**
@@ -187,9 +187,9 @@ export class HomePageController {
      */
     runTutorialHome() {
         document.getElementById("tutorial").style.display = "none";
-        document.getElementById("embed-tutorial").style.display = "block";
+        document.getElementById("tutorial-content").style.display = "block";
 
-        $(this.tutorialID).show("../templates/tutorial.txt");
+        $('#embed-tutorial').load("../src/frontend/components/templates/tutorial.html");
     }
 
     /**
@@ -200,7 +200,7 @@ export class HomePageController {
 
         localStorage.setItem('tutorial', "disabled");
         document.getElementById("tutorial").style.display = "none";
-        document.getElementById("embed-tutorial").style.display = "none";
+        document.getElementById("tutorial-content").style.display = "none";
     }
 
     /**
