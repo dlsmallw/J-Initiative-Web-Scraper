@@ -159,52 +159,55 @@ export class DatabasePageController {
 
     let headerCheck = true;
     for (let website of websiteList) {
+      if(website !== "") {
+        this.logDebug("website: " + website);
+        if(headerCheck) {
+          let headerRow = document.createElement('tr');
+          let headerWebsite = document.createElement("td");
+          let headerEntry = document.createElement("td");
+          let headerLastAccessed = document.createElement("td");
 
-      if(headerCheck) {
-        let headerRow = document.createElement('tr');
-        let headerWebsite = document.createElement("td");
-        let headerEntry = document.createElement("td");
-        let headerLastAccessed = document.createElement("td");
+          headerWebsite.textContent = "Website";
+          headerEntry.textContent = "Entries";
+          headerLastAccessed.textContent = "Last Accessed";
 
-        headerWebsite.textContent = "Website";
-        headerEntry.textContent = "Entries";
-        headerLastAccessed.textContent = "Last Accessed";
-
-        headerRow.appendChild(headerWebsite);
-        headerRow.appendChild(headerEntry);
-        headerRow.appendChild(headerLastAccessed);
-        websiteInfo.appendChild(headerRow);
-        headerCheck = false;
-      }
-
-
-
-
-      let entries = await this.databaseAPI.getWebsiteEntries(website);
-      let time = await this.databaseAPI.getWebsiteLastAccessed(website);
-      entries = entries.split(/\n/);
-      website = decodeURIComponent(website);
-      let newRow = document.createElement('tr');
-      let newTime = document.createElement("td");
-      let newURL = document.createElement("td");
-      let newEntry = document.createElement("td");
-      let counter = 1;
-      for (let entry of entries) {
-        if(entry !== '') {
-          newEntry.textContent += '\n    ' + 'Entry ' + counter + ': ' + entry;
-          counter++;
+          headerRow.appendChild(headerWebsite);
+          headerRow.appendChild(headerEntry);
+          headerRow.appendChild(headerLastAccessed);
+          websiteInfo.appendChild(headerRow);
+          headerCheck = false;
         }
+
+
+
+
+        let entries = await this.databaseAPI.getWebsiteEntries(website);
+        let time = await this.databaseAPI.getWebsiteLastAccessed(website);
+        entries = entries.split(/\n/);
+        website = decodeURIComponent(website);
+        let newRow = document.createElement('tr');
+        let newTime = document.createElement("td");
+        let newURL = document.createElement("td");
+        let newEntry = document.createElement("td");
+        let counter = 1;
+        for (let entry of entries) {
+          if(entry !== '') {
+            newEntry.textContent += '\n    ' + 'Entry ' + counter + ': ' + entry;
+            counter++;
+          }
+        }
+
+
+
+        newURL.textContent = website;
+        newTime.textContent = time;
+
+        newRow.appendChild(newURL);
+        newRow.appendChild(newEntry);
+        newRow.appendChild(newTime);
+        websiteInfo.appendChild(newRow);
+
       }
-
-
-
-      newURL.textContent = website;
-      newTime.textContent = time;
-
-      newRow.appendChild(newURL);
-      newRow.appendChild(newEntry);
-      newRow.appendChild(newTime);
-      websiteInfo.appendChild(newRow);
 
     }
     this.logDebug('website data displayed in UI.');
