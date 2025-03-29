@@ -2,7 +2,6 @@ export class HomePageController {
     htmlFilePath = '../src/frontend/components/templates/home.html';  // Filepath to HTML component
     name = 'home';                  // Page name
     compID = '#home-container';     // Page component container ID
-    tutorialID = '#embed-tutorial'; // Embedded tutorial container ID
 
     electronAPI = window.electronAPI;
 
@@ -177,9 +176,9 @@ export class HomePageController {
      * Manages optional tutorial for new users.
      */
     manageTutorial() {
-        //if(localStorage.getItem('tutorial') !== "disabled") {
+        if(localStorage.getItem('tutorial') !== "disabled") {
             document.getElementById("tutorial").style.display = "block";
-        //}
+        }
     }
 
     /**
@@ -201,6 +200,7 @@ export class HomePageController {
         localStorage.setItem('tutorial', "disabled");
         document.getElementById("tutorial").style.display = "none";
         document.getElementById("tutorial-content").style.display = "none";
+        $('#embed-tutorial').remove();
     }
 
     /**
