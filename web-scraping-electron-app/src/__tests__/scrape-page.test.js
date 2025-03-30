@@ -6,7 +6,7 @@
 */
 
 
-/*const ScrapePageCotnroller = require('../frontend/components/views/scrape-page.js');
+import { ScrapePageController } from '../frontend/components/views/scrape-page.js';
 
 
 /**

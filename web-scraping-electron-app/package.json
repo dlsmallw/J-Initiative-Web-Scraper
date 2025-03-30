@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "A web scraping application that is to be used for assisting in NLP model training",
   "main": "src/electron/main/main.js",
+  "type": "module", 
   "scripts": {
     "dev": "npx electronmon .",
     "start": "electron .",
     "docs": "jsdoc -c jsdoc.json",
-    "test": "tsc --module commonjs && jest"
+    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" npx jest"
 
   },
   "author": "ASU Capstone 2024 Group 8",
