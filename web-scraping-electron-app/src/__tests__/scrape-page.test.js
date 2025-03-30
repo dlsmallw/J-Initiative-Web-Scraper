@@ -8,6 +8,7 @@
 
 import { ScrapePageController } from '../frontend/components/views/scrape-page.js';
 
+const scrapePageController = new ScrapePageController();
 
 /**
 * Collection of all page controller instances used for dynamic navigation.
@@ -27,4 +28,10 @@ import { ScrapePageController } from '../frontend/components/views/scrape-page.j
 */
 test('basic test', () => {
     expect((0+1)).toBe(1);
+  });
+
+test('basic URL test', () => {
+    let url = "https://www.youtube.com/";
+
+    expect(scrapePageController.checkURL(url).then((res))).toBe(true);
   });
