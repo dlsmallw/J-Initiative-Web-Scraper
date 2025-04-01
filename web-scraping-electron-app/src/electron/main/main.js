@@ -417,12 +417,6 @@ try {
 //====================================================================================
 // adding websites to database page methods
 //====================================================================================
-/**
-* IPC handlers for interacting with Firestore: manage website list, website entries, and data insertion.
-*
-* @namespace FirebaseWebsites
-* @memberof module:ElectronApp
-*/
 
 ipcMain.handle('get-websites', async () => {
   let websiteData = '';
@@ -456,34 +450,51 @@ ipcMain.handle('get-websites-entries', async (event, url) => {
   }
 });
 
+ipcMain.handle('get-websites-LastAccessed', async (event, url) => {
+  let time = '';
+  try {
+    const docRef = doc(db, "Websites", url);
+    const docSnap = await getDoc(docRef);
+    const documentData = docSnap.data();
+    time = documentData.lastAccessed;
+    return time;
+  } catch (error) {
+    return ''; // Return empty string on error
+  }
+});
 
 ipcMain.handle('add-website', async (event, url) => {
 //adding website to database
+  if(!url.includes("www.")) url = "www." + url;
+  if(!url.includes("https://")) url = "https://" + url;
+  if(!url.endsWith("/")) url = url + "/";
   const encodedURL = encodeURIComponent(url);
   let docRef = doc(db, "Websites", "Website List");
   await updateDoc(docRef, {
     List: arrayUnion(encodedURL)
-}).then(r => log.info(`website added to website list: ${encodedURL}`));
+  }).then(r => log.info(`website added to website list: ${encodedURL}`));
   docRef = doc(db, "Websites", encodedURL);
   log.info('creating doc: ' + encodedURL);
   await setDoc(docRef, {
-    website_url: encodedURL
+    website_url: encodedURL,
+    lastAccessed: new Date().toLocaleString()
   }, { merge: true });
 
 });
 
 ipcMain.handle('add-scraped-data', async (event, data) => {
-for (let i = 0; i < data.length; i++) {
-  const entry = data[i];
-  const url = entry.url;
-  const scrapedData = entry.data;
-  const encodedURL = encodeURIComponent(url);
-  const docRef = doc(db, "Websites", encodedURL);
-  updateDoc(docRef, {
-    Entries: arrayUnion(scrapedData)
-  }).then(r => log.info(`entry "${scrapedData}" added to website: ${encodedURL}`));
+  for (let i = 0; i < data.length; i++) {
+    const entry = data[i];
+    const url = entry.url;
+    const scrapedData = entry.data;
+    const encodedURL = encodeURIComponent(url);
+    const docRef = doc(db, "Websites", encodedURL);
+    updateDoc(docRef, {
+      Entries: arrayUnion(scrapedData),
+      lastAccessed: new Date().toLocaleString()
+    }).then(r => log.info(`entry "${scrapedData}" added to website: ${encodedURL}`));
 
-}
+  }
 });
 
 
