@@ -22,7 +22,6 @@ import { AboutPageController } from '../components/views/about-page.js';
 const ipcRenderer = window.electronAPI;
 const lsAPI = window.lsAPI;
 
-
 /**
 * Collection of all page controller instances used for dynamic navigation.
 *
