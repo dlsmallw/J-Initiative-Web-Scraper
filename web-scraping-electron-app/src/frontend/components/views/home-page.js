@@ -1,3 +1,16 @@
+/**
+* @file home-page.js
+* @fileoverview Controls the behavior and initialization of the Home page in the UI.
+*
+* @module PageController-Home
+*/
+
+/**
+* Controller for managing the Home page.
+*
+* @class HomePageController
+* @memberof module:PageController-Home
+*/
 export class HomePageController {
     htmlFilePath = '../src/frontend/components/templates/home.html';  // Filepath to HTML component
     name = 'home';                  // Page name
@@ -7,40 +20,51 @@ export class HomePageController {
 
 
     /**
-     * Returns the pages component html filepath.
-     * @returns String          The html filepath.
-     */
+    * Get the HTML file path for this page.
+    * @function getHtmlCompPath
+    * @memberof module:PageController-Home.HomePageController
+    * @returns {string} The HTML file path.
+    */
     getHtmlCompPath() {
         return this.htmlFilePath;
     }
 
     /**
-     * Returns the pages name.
-     * @returns string          The pages name.
-     */
+    * Get the name identifier for this page.
+    * @function getName
+    * @memberof module:PageController-Home.HomePageController
+    * @returns {string} The page name.
+    */
     getName() {
         return this.name;
     }
 
     /**
-     * Returns the pages component container ID.
-     * @returns String          The component container ID.
-     */
+    * Get the DOM container ID for this page component.
+    * @function getCompID
+    * @memberof module:PageController-Home.HomePageController
+    * @returns {string} The component container ID.
+    */
     getCompID() {
         return this.compID;
     }
 
     /**
-     * Generates the navbar name for the specific page.
-     * @returns String          The navbar name.
-     */
+    * Generate the formatted navbar display name for this page.
+    * @function navbarName
+    * @memberof module:PageController-Home.HomePageController
+    * @returns {string} The navbar display name.
+    */
     navbarName() {
         return this.name.charAt(0).toUpperCase() + this.name.slice(1);
     }
 
-   /**
-     * Method for intitializing the page in the application.
-     */
+    /**
+    * Initialize the Home page.
+    * @function initPage
+    * @memberof module:PageController-Home.HomePageController
+    * @returns {void}
+    */
     initPage() {
         var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
         var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
@@ -59,23 +83,33 @@ export class HomePageController {
     }
 
     /**
-     * Method for initializing the pages event listeners.
-     */
+    * Initialize event listeners for this page's DOM elements.
+    * Handles UI interactions such as linking Label Studio projects and external window management.
+    * @function initPageListeners
+    * @memberof module:PageController-Home.HomePageController
+    * @returns {void}
+    */
     initPageListeners() {
         // Insert code for listeners here
     }
 
     /**
-     * Sets the page active (visible).
-     */
+    * Set the Annotation page as active and visible in the UI.
+    * @function setPageActive
+    * @memberof module:PageController-Home.HomePageController
+    * @returns {void}
+    */
     setPageActive() {
         $(`#${this.name}`).addClass('active-nav-item');
         $(this.compID).show();
     }
 
     /**
-     * Sets the page inactive (hidden).
-     */
+    * Deactivate the page, hide its content, and remove navigation highlight.
+    * @function setPageInactive
+    * @memberof module:PageController-Home.HomePageController
+    * @returns {void}
+    */
     setPageInactive() {
         $(this.compID).hide();
         $(`#${this.name}`).removeClass('active-nav-item');
@@ -87,10 +121,13 @@ export class HomePageController {
     logger = window.log;    // Variable created for ease of reading
 
     /**
-     * Handles displaying an alert message for specific situations (error or otherwise).
-     * @param {*} alertMsg          Message to display.
-     * @param {*} cause             Cause if an error.
-     */
+    * Display an alert message or error dialog, and log the event.
+    * @function postAlert
+    * @memberof module:PageController-Home.HomePageController
+    * @param {*} alertMsg - The message to display in the alert.
+    * @param {*} [cause] - Optional cause of the alert, used for error dialogs.
+    * @returns {void}
+    */
     postAlert(alertMsg, cause) {
         var json = {
             msg: alertMsg,
@@ -109,33 +146,45 @@ export class HomePageController {
     }
 
     /**
-     * Send an info log message to the main process.
-     * @param {string} message - The message to log.
-     */
+    * Send an info log message to the main process.
+    * @function logInfo
+    * @memberof module:PageController-Home.HomePageController
+    * @param {string} message - The message to log.
+    * @returns {void}
+    */
     logInfo(message) {
         this.logger.info(message);
     }
 
-    /**
-     * Send a debug log message to the main process.
-     * @param {string} message - The message to log.
-     */
+   /**
+    * Send a debug log message to the main process.
+    * @function logDebug
+    * @memberof module:PageController-Home.HomePageController
+    * @param {string} message - The message to log.
+    * @returns {void}
+    */
     logDebug(message) {
         this.logger.debug(message);
     }
 
     /**
-     * Send a warning log message to the main process.
-     * @param {string} message - The message to log.
-     */
+    * Send a warning log message to the main process.
+    * @function logWarn
+    * @memberof module:PageController-Home.HomePageController
+    * @param {string} message - The message to log.
+    * @returns {void}
+    */
     logWarn(message) {
         this.logger.warn(message);
     }
 
-    /**
-     * Send an error log message to the main process.
-     * @param {string} message - The message to log.
-     */
+   /**
+    * Send an error log message to the main process.
+    * @function logError
+    * @memberof module:PageController-Home.HomePageController
+    * @param {string} message - The message to log.
+    * @returns {void}
+    */
     logError(message) {
         this.logger.error(message);
     }
