@@ -5,6 +5,8 @@
 * @module PageController-Home
 */
 
+import { LoggerHelper } from '../../../backend/utils/logger-helper.js';
+
 /**
 * Controller for managing the Home page.
 *
@@ -16,6 +18,7 @@ export class HomePageController {
     name = 'home';                  // Page name
     compID = '#home-container';     // Page component container ID
 
+    logger = new LoggerHelper(this.name);
     electronAPI = window.electronAPI;
 
 
@@ -115,78 +118,13 @@ export class HomePageController {
         $(`#${this.name}`).removeClass('active-nav-item');
     }
 
-    //============================================================================================================================
-    // Logging Helpers (WIP - Plan to move to a separate class that is imported)
-    //============================================================================================================================
-    logger = window.log;    // Variable created for ease of reading
-
     /**
-    * Display an alert message or error dialog, and log the event.
-    * @function postAlert
-    * @memberof module:PageController-Home.HomePageController
-    * @param {*} alertMsg - The message to display in the alert.
-    * @param {*} [cause] - Optional cause of the alert, used for error dialogs.
-    * @returns {void}
+    * Wrapper for alert + logging.
+    * @param {string} alertMsg - The alert message.
+    * @param {*} [cause] - Optional error cause.
     */
     postAlert(alertMsg, cause) {
-        var json = {
-            msg: alertMsg,
-            errType: null
-        }
-
-        if (cause === undefined) {
-            this.electronAPI.postDialog.general(JSON.stringify(json));
-            this.logInfo(alertMsg);
-        } else {
-            json.errType = cause;
-
-            this.electronAPI.postDialog.error(JSON.stringify(json));
-            this.logError(`${alertMsg} Cause: ${cause}`);
-        }
-    }
-
-    /**
-    * Send an info log message to the main process.
-    * @function logInfo
-    * @memberof module:PageController-Home.HomePageController
-    * @param {string} message - The message to log.
-    * @returns {void}
-    */
-    logInfo(message) {
-        this.logger.info(message);
-    }
-
-   /**
-    * Send a debug log message to the main process.
-    * @function logDebug
-    * @memberof module:PageController-Home.HomePageController
-    * @param {string} message - The message to log.
-    * @returns {void}
-    */
-    logDebug(message) {
-        this.logger.debug(message);
-    }
-
-    /**
-    * Send a warning log message to the main process.
-    * @function logWarn
-    * @memberof module:PageController-Home.HomePageController
-    * @param {string} message - The message to log.
-    * @returns {void}
-    */
-    logWarn(message) {
-        this.logger.warn(message);
-    }
-
-   /**
-    * Send an error log message to the main process.
-    * @function logError
-    * @memberof module:PageController-Home.HomePageController
-    * @param {string} message - The message to log.
-    * @returns {void}
-    */
-    logError(message) {
-        this.logger.error(message);
+        this.logger.postAlert(alertMsg, cause);
     }
 
     //============================================================================================================================

@@ -7,7 +7,6 @@
  * @see {@link https://github.com/megahertz/electron-log|electron-log documentation}
  */
 
-
 const log = require('electron-log');
 
 /**
