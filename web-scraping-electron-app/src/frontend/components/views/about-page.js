@@ -64,6 +64,7 @@ export class AboutPageController {
         $('#node-version').html(versions.node());
         $('#chrome-version').html(versions.chrome());
         $('#electron-version').html(versions.electron());
+        document.getElementById("enable-tutorial").addEventListener("click", this.enableTutorial);
     }
 
     /**
@@ -80,6 +81,21 @@ export class AboutPageController {
     setPageInactive() {
         $(this.compID).hide();
         $(`#${this.name}`).removeClass('active-nav-item');
+    }
+
+    /**
+     * Enables tutorial regardless of previous status.
+     */
+    enableTutorial() {
+        if(confirm("To reflect this change you will have to relaunch the app. As such, this will close the program. Press OK to confirm and cancel to stop this from occurring.")) {
+            alert("Okay, terminating program. Please launch the app again whenever you wish!");
+
+            localStorage.setItem('tutorial', "enabled");
+            $('#exit-nav').click();
+        } else {
+            alert("Okay, cancelled termination. To see the tutorial once more, please restart at your own leisure.");
+            localStorage.setItem('tutorial', "enabled");
+        }
     }
 
     //============================================================================================================================

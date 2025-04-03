@@ -12,7 +12,7 @@
   "devDependencies": {
     "@electron-forge/cli": "^7.5.0",
     "axios": "^1.7.7",
-    "electron": "^33.0.0"
+    "electron": "^33.4.8"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
