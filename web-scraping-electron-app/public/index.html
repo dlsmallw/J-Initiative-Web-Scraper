@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>J-Initiative Web Scraper</title>
 
-     <!-- Content Security Policy  -->
+    <!-- Content Security Policy -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self';
@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="../src/frontend/css/style.css">
 
     <!-- jQuery -->
-     <script src="../node_modules/jquery/dist/jquery.js"></script>
+    <script src="../node_modules/jquery/dist/jquery.js"></script>
 </head>
 
 <body>
@@ -29,13 +29,22 @@
             <button class="navbar-toggler not-draggable" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <!-- Navigation Links -->
+                <!-- Left-aligned Nav -->
                 <ul class="navbar-nav mb-0 not-draggable" id="navbar-ul-1">
-                    
+                    <!-- Pages Dropdown -->
+                    <li class="nav-item dropdown" id="nav-dropdown-wrapper">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="pagesDropdown" aria-expanded="false">
+                            Pages
+                        </a>
+                        <ul class="dropdown-menu" id="navbar-dropdown-list">
+                            <!-- Dynamic page links will be inserted here -->
+                        </ul>
+                    </li>
                 </ul>
 
-                <!-- Theme Selector and Exit aligned to the right -->
+                <!-- Right-aligned controls -->
                 <ul class="navbar-nav ms-auto mb-0 not-draggable" id="navbar-ul-2">
                     <li class="nav-item">
                         <select id="theme-select" class="form-select form-select-sm">
@@ -52,13 +61,18 @@
             </div>
         </div>
     </nav>
+
+    <!-- Main Content -->
     <div id="d_content" class="container-fluid mt-4">
-        <!-- Each of the pages are loaded as individual components to separate the html -->
+        <!-- Page components will be injected here -->
     </div>
+
     <!-- Bootstrap JS Bundle -->
     <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
-    <!-- Include renderer.js -->
+
+    <!-- Entry Script -->
     <script type="module" src="../src/frontend/js/renderer.js"></script>
 </body>
 </html>
+
 
