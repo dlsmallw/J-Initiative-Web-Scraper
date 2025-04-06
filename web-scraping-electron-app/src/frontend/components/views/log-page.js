@@ -1,3 +1,16 @@
+/**
+* @file log-page.js
+* @fileoverview Controls the behavior and initialization of the Log page in the UI.
+*
+* @module PageController-Log
+*/
+
+/**
+* Controller for managing the Log page.
+*
+* @class LogPageController
+* @memberof module:PageController-Log
+*/
 export class LogPageController {
     htmlFilePath = '../src/frontend/components/templates/log.html';  // Filepath to HTML component
     name = 'logs';                  // Page name
@@ -9,43 +22,54 @@ export class LogPageController {
     logger = window.log;
 
     /**
-     * Returns the pages component html filepath.
-     * @returns String          The html filepath.
-     */
+    * Get the HTML file path for this page.
+    * @function getHtmlCompPath
+    * @memberof module:PageController-Log.LogPageController
+    * @returns {string} The HTML file path.
+    */
     getHtmlCompPath() {
         return this.htmlFilePath;
     }
 
     /**
-     * Returns the pages name.
-     * @returns string          The pages name.
-     */
+    * Get the name identifier for this page.
+    * @function getName
+    * @memberof module:PageController-Log.LogPageController
+    * @returns {string} The page name.
+    */
     getName() {
         return this.name;
     }
 
     /**
-     * Returns the pages component container ID.
-     * @returns String          The component container ID.
-     */
+    * Get the DOM container ID for this page component.
+    * @function getCompID
+    * @memberof module:PageController-Log.LogPageController
+    * @returns {string} The component container ID.
+    */
     getCompID() {
         return this.compID;
     }
 
     /**
-     * Generates the navbar name for the specific page.
-     * @returns String          The navbar name.
-     */
+    * Generate the formatted navbar display name for this page.
+    * @function navbarName
+    * @memberof module:PageController-Log.LogPageController
+    * @returns {string} The navbar display name.
+    */
     navbarName() {
         return this.name.charAt(0).toUpperCase() + this.name.slice(1);
     }
 
     /**
-     * Method for initializing the page in the application.
-     */
+    * Initialize the Log page.
+    * @function initPage
+    * @memberof module:PageController-Log.LogPageController
+    * @returns {void}
+    */
     initPage() {
-        let navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
-        let navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
+        var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
+        var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
 
         $('#navbar-ul-1').append(navbarItem);
 
@@ -63,8 +87,12 @@ export class LogPageController {
     }
 
     /**
-     * Method for initializing the pages event listeners.
-     */
+    * Initialize event listeners for this page's DOM elements.
+    * Handles UI interactions such as linking Label Studio projects and external window management.
+    * @function initPageListeners
+    * @memberof module:PageController-Log.LogPageController
+    * @returns {void}
+    */
     initPageListeners() {
         $('#log-filter').on('change', () => {
             this.displayLogs();
@@ -100,16 +128,22 @@ export class LogPageController {
 
 
     /**
-     * Sets the page active (visible).
-     */
+    * Set the Annotation page as active and visible in the UI.
+    * @function setPageActive
+    * @memberof module:PageController-Log.LogPageController
+    * @returns {void}
+    */
     setPageActive() {
         $(`#${this.name}`).addClass('active-nav-item');
         $(this.compID).show();
     }
 
     /**
-     * Sets the page inactive (hidden).
-     */
+    * Deactivate the page, hide its content, and remove navigation highlight.
+    * @function setPageInactive
+    * @memberof module:PageController-Log.LogPageController
+    * @returns {void}
+    */
     setPageInactive() {
         $(this.compID).hide();
         $(`#${this.name}`).removeClass('active-nav-item');
@@ -120,12 +154,15 @@ export class LogPageController {
     //============================================================================================================================
 
     /**
-     * Handles displaying an alert message for specific situations (error or otherwise).
-     * @param {*} alertMsg          Message to display.
-     * @param {*} cause             Cause if an error.
-     */
+    * Display an alert message or error dialog, and log the event.
+    * @function postAlert
+    * @memberof module:PageController-Log.LogPageController
+    * @param {*} alertMsg - The message to display in the alert.
+    * @param {*} [cause] - Optional cause of the alert, used for error dialogs.
+    * @returns {void}
+    */
     postAlert(alertMsg, cause) {
-        let json = {
+        var json = {
             msg: alertMsg,
             errType: null
         }
@@ -142,40 +179,55 @@ export class LogPageController {
     }
 
     /**
-     * Send an info log message to the main process.
-     * @param {string} message - The message to log.
-     */
+    * Send an info log message to the main process.
+    * @function logInfo
+    * @memberof module:PageController-Log.LogPageController
+    * @param {string} message - The message to log.
+    * @returns {void}
+    */
     logInfo(message) {
         this.logger.info(message);
     }
 
     /**
-     * Send a debug log message to the main process.
-     * @param {string} message - The message to log.
-     */
+    * Send a debug log message to the main process.
+    * @function logDebug
+    * @memberof module:PageController-Log.LogPageController
+    * @param {string} message - The message to log.
+    * @returns {void}
+    */
     logDebug(message) {
         this.logger.debug(message);
     }
 
     /**
-     * Send a warning log message to the main process.
-     * @param {string} message - The message to log.
-     */
+    * Send a warning log message to the main process.
+    * @function logWarn
+    * @memberof module:PageController-Log.LogPageController
+    * @param {string} message - The message to log.
+    * @returns {void}
+    */
     logWarn(message) {
         this.logger.warn(message);
     }
 
     /**
-     * Send an error log message to the main process.
-     * @param {string} message - The message to log.
-     */
+    * Send an error log message to the main process.
+    * @function logError
+    * @memberof module:PageController-Log.LogPageController
+    * @param {string} message - The message to log.
+    * @returns {void}
+    */
     logError(message) {
         this.logger.error(message);
     }
 
     /**
-     * Method for making an IPC log request.
-     */
+    * Request logs from the main process via IPC.
+    * @function requestLogs
+    * @memberof module:PageController-Log.LogPageController
+    * @returns {void}
+    */
     requestLogs() {
         this.logger.requestLogs();
     }
@@ -185,10 +237,12 @@ export class LogPageController {
     //============================================================================================================================
 
     /**
-     * Takes a date object and converts it into the localized datetime.
-     * @param {*} dateObj           The date object.
-     * @returns                     The localized date time.
-     */
+    * Convert a Date object into a localized date string (YYYY-MM-DD).
+    * @function localizeDateValue
+    * @memberof module:PageController-Log.LogPageController
+    * @param {Date} dateObj - The date object to localize.
+    * @returns {string} Localized date in YYYY-MM-DD format.
+    */
     localizeDateValue(dateObj){
         const local = new Date(dateObj);
         local.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset());
@@ -196,8 +250,14 @@ export class LogPageController {
     };
 
     /**
-     * Load and display logs.
-     */
+    * Asynchronously load logs from the main process and display them in the UI.
+    * Handles errors and logs debug/warning messages based on response.
+    *
+    * @async
+    * @function loadLogs
+    * @memberof module:PageController-Log.LogPageController
+    * @returns {Promise<void>}
+    */
     async loadLogs() {
         try {
             // Wait for the DOM to be updated
@@ -217,10 +277,13 @@ export class LogPageController {
         }
     }
 
-    /**
-     * Updates the logLines with a new log entry.
-     * @param {*} line          The new log.
-     */
+   /**
+    * Add new log entries to the internal logLines array and refresh the display.
+    * @function addLogLine
+    * @memberof module:PageController-Log.LogPageController
+    * @param {Array<Object>} logs - Array of log objects to add.
+    * @returns {void}
+    */
     addLogLine(logs) {
         if (logs) {
             logs.forEach(logObj => {
@@ -232,30 +295,41 @@ export class LogPageController {
     }
 
     /**
-     * Method for appending a new log line into the UI.
-     * @param {*} log       The log to be inserted.
-     */
+    * Append a single raw log string as a new log entry in the UI.
+    * @function appendLog
+    * @memberof module:PageController-Log.LogPageController
+    * @param {string} log - Raw log string to display.
+    * @returns {void}
+    */
     appendLog(log) {
-        let $logEntry = $('<div>', {class: "log-entry"});
+        var $logEntry = $('<div>', {class: "log-entry"});
         $logEntry.text(log);
         $('#log-wrapper').append($logEntry);
     }
 
     /**
-     * Display logs in the UI.
-     */
+    * Display filtered logs in the UI based on selected type and date.
+    * If no logs match filters, a message is shown.
+    * @function displayLogs
+    * @memberof module:PageController-Log.LogPageController
+    * @returns {void}
+    */
     displayLogs() {
-        let typeFilter = $('#log-filter').val();
-        let dateFilter = new Date($('#date-filter').val());
+        var typeFilter = $('#log-filter').val();
+        var dateFilter = new Date($('#date-filter').val());
 
         const logOutput = $('#log-wrapper');
         logOutput.empty(); // Clear existing logs
 
-        let logs = this.logLines.filter(logObj => {
-            let meetsDateFilter = (dateFilter === undefined || (logObj.logDateTime.toDateString() === dateFilter.toDateString()));
-            let meetsTypeFilter = (typeFilter === 'ALL' || logObj.logType === typeFilter);
+        var logs = this.logLines.filter(logObj => {
+            var meetsDateFilter = true ? (dateFilter === undefined || (logObj.logDateTime.toDateString() === dateFilter.toDateString())) : false;
+            var meetsTypeFilter = true ? (typeFilter === 'ALL' || logObj.logType === typeFilter) : false;
 
-            return meetsDateFilter && meetsTypeFilter;
+            if (meetsDateFilter && meetsTypeFilter) {
+                return true;
+            }
+
+            return false;
         });
 
         if (logs.length === 0) {
@@ -276,9 +350,14 @@ export class LogPageController {
         }
     }
 
-     /**
-     * Clear logs both in the UI and on the backend.
-     */
+    /**
+    * Clear all logs both from the UI and via backend request.
+    * Disables the clear button if no logs remain.
+    *
+    * @function clearLogs
+    * @memberof module:PageController-Log.LogPageController
+    * @returns {void}
+    */
     clearLogs() {
         this.logger.clearLogs();
     }

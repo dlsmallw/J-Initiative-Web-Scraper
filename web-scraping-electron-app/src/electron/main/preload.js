@@ -1,12 +1,20 @@
-//preload.js
 /**
- * This file is used to bridge separate Electron processes together
+ * @file preload.js
+ * @description Securely bridges Electron's main and renderer processes via contextBridge.
+ * Exposes limited, safe APIs for logging, Label Studio integration, URL scraping, and database interaction.
  */
+
 
 // Import necessary modules from Electron
 const { contextBridge, ipcRenderer} = require('electron');
 
-// Expose version information to the renderer process through the context bridge
+/**
+ * Exposes version information for Node.js, Chrome, and Electron to the renderer.
+ * @namespace versions
+ * @property {function(): string} node - Returns Node.js version.
+ * @property {function(): string} chrome - Returns Chrome version.
+ * @property {function(): string} electron - Returns Electron version.
+ */
 contextBridge.exposeInMainWorld(
     'versions', {       
         // Method to get the Node.js version
@@ -18,7 +26,19 @@ contextBridge.exposeInMainWorld(
     }
 );
 
-// Methods for logging
+/**
+ * Logging API exposed to renderer for sending log messages to the main process.
+ * @namespace log
+ * @property {function(string): void} info - Logs an info-level message.
+ * @property {function(string): void} debug - Logs a debug-level message.
+ * @property {function(string): void} warn - Logs a warning.
+ * @property {function(string): void} error - Logs an error message.
+ * @property {function(): Promise<Array>} requestLogs - Requests all current logs.
+ * @property {function(Function): void} logUpdate - Listener for new log updates.
+ * @property {function(): void} clearLogs - Clears log file content.
+ * @property {function(Function): void} logsClearedUpdate - Listener for log-clear success.
+ * @property {function(Function): void} logClearError - Listener for log-clear error.
+ */
 contextBridge.exposeInMainWorld(
     'log', {
         info: (message) => {
@@ -52,6 +72,23 @@ contextBridge.exposeInMainWorld(
     }
 );
 
+/**
+ * Label Studio (LS) API exposed to renderer for interacting with LS projects and windows.
+ * @namespace lsAPI
+ * @property {function(Object, string): void} exportDataToLS - Export data to linked LS project.
+ * @property {function(Function): void} onExportResponse - Listener for LS export responses.
+ * @property {function(string): void} openExternal - Opens LS project in external window.
+ * @property {function(Function): void} setExtLSURL - Listener to receive URL in LS window.
+ * @property {function(Function): void} extLSWinClosed - Listener for LS window close event.
+ * @property {function(string): void} extLSURLChange - Sends LS URL change to main process.
+ * @property {function(Function): void} urlChange - Listener for LS URL updates.
+ * @property {function(): void} sendCloseSignal - Requests closing LS external window.
+ * @property {function(Function): void} updateToProjectList - Listener for LS project list updates.
+ * @property {function(string, string): void} initVariables - Initialize LS URL and token.
+ * @property {function(string): void} updateURL - Update linked LS project URL.
+ * @property {function(string): void} updateToken - Update LS project API token.
+ * @property {function(): void} clearLinkedProject - Clears linked LS project data.
+ */
 contextBridge.exposeInMainWorld(
     'lsAPI', {
         //=================================================================================================
@@ -117,7 +154,20 @@ contextBridge.exposeInMainWorld(
     }
 );
 
-// Expose a safe API for IPC communication between renderer and main processes
+/**
+ * General IPC API for communicating between renderer and main processes.
+ * Restricts access to allowed channels for security.
+ * @namespace electronAPI
+ * @property {function(string, any): void} send - Send data to main process (validated channels).
+ * @property {function(string, Function): void} receive - Listen for data from main (validated channels).
+ * @property {function(string): void} openExternal - Request opening a URL in external window.
+ * @property {function(Function): void} openURLErr - Listen for URL open error.
+ * @property {function(Function): void} onExtWindowClose - Listen for external window close.
+ * @property {function(): void} exitSignal - Request app termination.
+ * @property {Object} postDialog - Dialog utilities.
+ * @property {function(string): void} postDialog.general - Shows general message dialog.
+ * @property {function(string): void} postDialog.error - Shows error dialog.
+ */
 contextBridge.exposeInMainWorld(
     'electronAPI', {    // Expose a safe API for IPC communication between renderer and main processes
         // Method to send messages from renderer to main process
@@ -161,6 +211,13 @@ contextBridge.exposeInMainWorld(
     }
 );
 
+/**
+ * URL Scraping API for sending and receiving data during scraping sessions.
+ * @namespace urlScrape
+ * @property {function(string, any): void} send - Send data via IPC.
+ * @property {function(string, Function): void} receive - Listen for data.
+ * @property {function(): void} sendCloseSignal - Requests scrape window closure.
+ */
 contextBridge.exposeInMainWorld('urlScrape', {
     send: (channel, data) => {
         const validChannels = ['scrapedData:export'];
@@ -179,6 +236,14 @@ contextBridge.exposeInMainWorld('urlScrape', {
     }
 });
 
+/**
+ * Database API for interacting with Firebase-hosted website data.
+ * @namespace databaseAPI
+ * @property {function(): Promise<string>} getWebsiteData - Get list of websites.
+ * @property {function(string): Promise<string>} getWebsiteEntries - Get entries for a given website.
+ * @property {function(string): Promise<void>} addWebsiteToDatabase - Add new website URL.
+ * @property {function(Array): Promise<void>} addScrapedDataToDatabase - Add scraped data for a website.
+ */
 contextBridge.exposeInMainWorld('databaseAPI', {
   getWebsiteData: () => {
     return ipcRenderer.invoke('get-websites');

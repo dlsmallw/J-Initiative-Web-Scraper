@@ -1,6 +1,10 @@
 /**
- * main.js: This file will be used as the primary entry point for the application.
- */
+* @file main.js
+* @description Entry point for the ElectronJS application. Handles window creation, logging, database interaction, and IPC communication.
+*
+* @module ElectronApp
+*/
+
 
 //====================================================================================
 // Import necessary modules from Electron and Node.js
@@ -36,6 +40,11 @@ const db = getFirestore(dbapp);
 //====================================================================================
 // Helper class for handling processing of Queued events.
 //====================================================================================
+/**
+* A thread-safe queue for processing log entries or other events using async mutexes.
+* @memberof module:ElectronApp
+* @class Queue
+*/
 class Queue {
     elements = {};
     headIdx = 0;
@@ -51,9 +60,9 @@ class Queue {
      */
     async enqueue(item) {
         await this.mutex.acquire().then(() => {
-            let containsItem = false;
+            var containsItem = false;
 
-            for (let elem in this.elements) {
+            for (var elem in this.elements) {
                 if (this.elements[elem] === item) {
                     containsItem = true;
                     break;
@@ -69,12 +78,12 @@ class Queue {
         });
     }
 
-    /**
-     * Peeks the head of the Queue/
-     * @returns         The head element of the Queue.
+     /**
+     * Returns the item at the head of the queue without removing it.
+     * @returns {*} The head element.
      */
     async peek() {
-        let item;
+        var item;
 
         await this.mutex.acquire().then(() => {
             item = this.elements[this.headIdx];
@@ -86,19 +95,19 @@ class Queue {
     }
 
     /**
-     * Checks if the Queue has elements
-     * @returns         A boolean indicating if the queue has elements.
+     * Checks if the queue has any elements.
+     * @returns {boolean} True if elements exist, else false.
      */
     hasElements() {
         return this.headIdx < this.tailIdx;
     }
 
     /**
-     * Method that removes the head-most element from the queue.
-     * @returns         The removed item.
+     * Removes and returns the head element from the queue.
+     * @returns {*} The dequeued item.
      */
     dequeue() {
-        let item = this.elements[this.headIdx];
+        var item = this.elements[this.headIdx];
         delete this.elements[this.headIdx];
         this.headIdx++;
 
@@ -106,15 +115,15 @@ class Queue {
     }
 
     /**
-     * Returns a list of the pending logs.
-     * @returns         A list.
+     * Empties the queue and returns all pending log entries.
+     * @returns {Array} Array of pending log items.
      */
     async getPendingLogs() {
-        let logList = [];
+        var logList = [];
 
         await this.mutex.acquire().then(() => {
             while (this.hasElements()) {
-                let item = this.dequeue();
+                var item = this.dequeue();
                 logList.push(item);
             }
 
@@ -147,151 +156,178 @@ let logListenerEnabled = true;
 
 const logFileMutex = new Mutex();
 
-//====================================================================================
-// Log-making functionality and listeners
-//====================================================================================
+    //====================================================================================
+    // Log-making functionality and listeners
+    //====================================================================================
+    /**
+    * Logging utility functions for writing and parsing log entries.
+    *
+    * @namespace Logger
+    * @memberof module:ElectronApp
+    */
 
-// Log Functions
-//####################################################################################
 
-/**
- * Makes an info log entry.
- * @param {*} log       The log entry.
- */
-function logInfo(log) {
-    writeNewLog(log, 'info');
-}
-
-/**
- * Makes an debug log entry.
- * @param {*} log       The log entry.
- */
-function logDebug(log) {
-    writeNewLog(log, 'debug');
-}
-
-/**
- * Makes a warn log entry.
- * @param {*} log       The log entry.
- */
-function logWarn(log) {
-    writeNewLog(log, 'warn');
-}
-
-/**
- * Makes an error log entry.
- * @param {*} log       The log entry.
- */
-function logError(log) {
-    writeNewLog(log, 'error');
-}
-
-/**
- * Forms a JSON log object for managing log-related info.
- * @param {*} line          The log entry.
- * @returns                 The JSON log object.
- */
-function formLogObject(line) {
-    let [rawDateTime, rawType] = line.match(/\[(.*?)]/g);
-
-    let [year, month, day] = rawDateTime.match(/\d{4}-\d{2}-\d{2}/)[0].split('-');
-    let [hr, min, sec, millisec] = rawDateTime.match(/\b(\d{1,2}):(\d{2}):(\d{2})\.(\d{1,3})\b/).slice(1);
-   
-    let dateObj = new Date(year, month - 1, day, hr, min, sec, millisec);
-    let type = rawType.replace(/[\[\]']+/g, '');
-    let msg = line.substring(line.lastIndexOf(']') + 1).trim();
-
-    // console.log(`${year}-${month}-${day}`);
-    // console.log(`${hr}-${min}-${sec}-${millisec}`);
-    // console.log(type)
-    // console.log(msg)
-
-    return {
-        logDateTime: dateObj,
-        logType: type,
-        logMsg: msg,
-        rawLogStr: line
+    /**
+    * Makes an info log entry.
+    * @function logInfo
+    * @memberof module:ElectronApp.Logger
+    * @param {*} log - The log entry.
+    */
+    function logInfo(log) {
+        writeNewLog(log, 'info');
     }
-}
 
-/**
- * Facilitates writing a new log to the log file.
- * @param {*} line          The log entry.
- * @param {*} type          The log type.
- */
-function writeNewLog(line, type) {
-    logFileMutex.acquire().then(() => {
+    /**
+    * Makes an debug log entry.
+    * @function logDebug
+    * @memberof module:ElectronApp.Logger
+    * @param {*} log - The log entry.
+    */
+    function logDebug(log) {
+        writeNewLog(log, 'debug');
+    }
 
-        switch (type) {
-            case 'info':
-                log.info(line);
-                break;
-            case 'debug':
-                log.debug(line);
-                break;
-            case 'warn':
-                log.warn(line);
-                break;
-            case 'error':
-                log.error(line);
-                break;
-            default:
-                break;
+    /**
+    * Makes an warn log entry.
+    * @function logWarn
+    * @memberof module:ElectronApp.Logger
+    * @param {*} log - The log entry.
+    */
+    function logWarn(log) {
+        writeNewLog(log, 'warn');
+    }
+
+    /**
+    * Makes an error log entry.
+    * @function logError
+    * @memberof module:ElectronApp.Logger
+    * @param {*} log - The log entry.
+    */
+    function logError(log) {
+        writeNewLog(log, 'error');
+    }
+
+    /**
+    * Forms a JSON log object for managing log-related info.
+    * @function formLogObject
+    * @memberof module:ElectronApp.Logger
+    * @param {string} line - Raw log line from file.
+    * @returns {Object} JSON representation of log.
+    */
+    function formLogObject(line) {
+        var [rawDateTime, rawType] = line.match(/\[(.*?)\]/g);
+
+        var [year, month, day] = rawDateTime.match(/\d{4}-\d{2}-\d{2}/)[0].split('-');
+        var [hr, min, sec, millisec] = rawDateTime.match(/\b(\d{1,2}):(\d{2}):(\d{2})\.(\d{1,3})\b/).slice(1);
+
+        var dateObj = new Date(year, month - 1, day, hr, min, sec, millisec);
+        var type = rawType.replace(/[\[\]']+/g, '');
+        var msg = line.substring(line.lastIndexOf(']') + 1).trim();
+        var rawLogMsg = line;
+
+        // console.log(`${year}-${month}-${day}`);
+        // console.log(`${hr}-${min}-${sec}-${millisec}`);
+        // console.log(type)
+        // console.log(msg)
+
+        return {
+            logDateTime: dateObj,
+            logType: type,
+            logMsg: msg,
+            rawLogStr: rawLogMsg
         }
-
-        logFileMutex.release();
-    });
-}
-
-/**
- * Function that sends the current queue of logs to be read to the renderer.
- */
-async function sendNewLogsToRenderer() {
-    let logList = await logReadQueue.getPendingLogs();
-
-    if (logList.length > 0) {
-        mainWin.webContents.send('update-to-logs', logList);
     }
-}
 
-/**
- * Function that handles sending the renderer the new logs on a set periodicity.
- * @param {*} timeInterval          The desired periodicity.
- */
-function startLoggingInterval(timeInterval) {
-    logIntervalUpdater = setInterval(sendNewLogsToRenderer, timeInterval);
-}
+    /**
+    * Facilitates writing a new log to the log file.
+    * @function writeNewLog
+    * @memberof module:ElectronApp.Logger
+    * @param {*} line - Log message.
+    * @param {string} type - Log type ('info', 'debug', 'warn', 'error').
+    */
+    function writeNewLog(line, type) {
+        logFileMutex.acquire().then(() => {
 
-/**
- * Function for clearing the log update interval.
- */
-function clearLogUpdateInterval() {
-    clearInterval(logIntervalUpdater);
-}
+            switch (type) {
+                case 'info':
+                    log.info(line);
+                    break;
+                case 'debug':
+                    log.debug(line);
+                    break;
+                case 'warn':
+                    log.warn(line);
+                    break;
+                case 'error':
+                    log.error(line);
+                    break;
+                default:
+                    break;
+            }
 
-/**
- * Initializes the log file listener for detecting new log entries.
- * @param {*} logFilePath           The log file path. 
- */
-function initLogListener(logFilePath) {
-    // File stream listener that watches for changes to log file and only sends the most recent line.
-    tail = new Tail(logFilePath);
-    tail.watch();
-
-    tail.on('line', (data) => {
-        logReadQueue.enqueue(formLogObject(data)).then();
-    });
-}
-
-/**
- * Function for terminating the log file listener.
- */
-function terminateLogListener() {
-    if (tail) {
-        tail.unwatch()
-        tail = null;
+            logFileMutex.release();
+        });
     }
-}
+
+    /**
+    * Function that sends the current queue of logs to be read to the renderer.
+    * @function sendNewLogsToRenderer
+    * @memberof module:ElectronApp.Logger
+    */
+    async function sendNewLogsToRenderer() {
+        var logList = await logReadQueue.getPendingLogs();
+
+        if (logList.length > 0) {
+            mainWin.webContents.send('update-to-logs', logList);
+        }
+    }
+
+    /**
+    * Function that handles sending the renderer the new logs on a set periodicity.
+    * @function startLoggingInterval
+    * @memberof module:ElectronApp.Logger
+    * @param {*} timeInterval - The desired periodicity.
+    */
+    function startLoggingInterval(timeInterval) {
+        logIntervalUpdater = setInterval(sendNewLogsToRenderer, timeInterval);
+    }
+
+    /**
+    * Function for clearing the log update interval.
+    * @function clearLogUpdateInterval
+    * @memberof module:ElectronApp.Logger
+    */
+    function clearLogUpdateInterval() {
+        clearInterval(logIntervalUpdater);
+    }
+
+    /**
+    * Initializes the log file listener for detecting new log entries.
+    * @function initLogListener
+    * @memberof module:ElectronApp.Logger
+    * @param {*} logFilePath - The log file path.
+    */
+    function initLogListener(logFilePath) {
+        // File stream listener that watches for changes to log file and only sends the most recent line.
+        tail = new Tail(logFilePath);
+        tail.watch();
+
+        tail.on('line', (data) => {
+            logReadQueue.enqueue(formLogObject(data));
+        });
+    }
+
+    /**
+    * Function for terminating the log file listener.
+    * @function terminateLogListener
+    * @memberof module:ElectronApp.Logger
+    */
+    function terminateLogListener() {
+        if (tail) {
+            tail.unwatch()
+            tail = null;
+        }
+    }
 
 // function enableLogger() {
 //     loggerEnabled = true;
@@ -301,8 +337,15 @@ function terminateLogListener() {
 //     loggerEnabled = false;
 // }
 
+
 // Log Listeners
 //####################################################################################
+/**
+* IPC handlers for log communication between renderer and main process.
+*
+* @namespace LogIPC
+* @memberof module:ElectronApp
+*/
 
 // Info log handler
 ipcMain.on('log-info', (event, message) => {
@@ -325,55 +368,61 @@ ipcMain.on('log-error', (event, message) => {
 });
 
 ipcMain.handle('get-logs', async () => {
-    let logFilePath = log.transports.file.getFile().path;
-    logDebug(`Log file path: ${logFilePath}`);
+var logFilePath = log.transports.file.getFile().path;
+logDebug(`Log file path: ${logFilePath}`);
 
-    let logArr = log.transports.file.readAllLogs(logFilePath)[0].lines
-    let logData = [];
+var logArr = log.transports.file.readAllLogs(logFilePath)[0].lines
+var logData = [];
 
-    for (let i = 0; i < logArr.length; i++) {
-        try {
-            let line = logArr[i];
+for (var i = 0; i < logArr.length; i++) {
+    try {
+        var line = logArr[i];
 
-            if (line !== null && line !== '') {
-                let logObj = formLogObject(line);
-                logData.push(logObj);
-            }
-        } catch (err) {
-            console.log(err);
+        if (line !== null && line !== '') {
+            var logObj = formLogObject(line);
+            logData.push(logObj);
         }
+    } catch (err) {
+        console.log(err);
     }
+}
 
-    let logList = await logReadQueue.getPendingLogs();
+var logList = await logReadQueue.getPendingLogs();
 
-    if (logList.length > 0) {
-        logData.concat(logList);
-    }
+if (logList.length > 0) {
+    logData.concat(logList);
+}
 
-    initLogListener(logFilePath.toString());
-    startLoggingInterval(5000);
+initLogListener(logFilePath.toString());
+startLoggingInterval(5000);
 
-    return logData;
+return logData;
 });
 
 ipcMain.on('logs:clear', (event) => {
-    const logFilePath = log.transports.file.getFile().path;
-    try {
-        terminateLogListener();
-        fs.writeFileSync(logFilePath, ''); // Overwrite the log file with an empty string
-        initLogListener(logFilePath);
+const logFilePath = log.transports.file.getFile().path;
+try {
+    terminateLogListener();
+    fs.writeFileSync(logFilePath, ''); // Overwrite the log file with an empty string
+    initLogListener(logFilePath);
 
-        log.info('Logs cleared successfully.');
-        event.sender.send('logs:cleared'); // Notify renderer process that logs were cleared
-    } catch (error) {
-        log.error(`Error clearing log file: ${error}`);
-        event.sender.send('logs:cleared-error', error.message); // Notify renderer process of the error
-    }
+    log.info('Logs cleared successfully.');
+    event.sender.send('logs:cleared'); // Notify renderer process that logs were cleared
+} catch (error) {
+    log.error(`Error clearing log file: ${error}`);
+    event.sender.send('logs:cleared-error', error.message); // Notify renderer process of the error
+}
 });
 
 //====================================================================================
 // adding websites to database page methods
 //====================================================================================
+/**
+* IPC handlers for interacting with Firestore: manage website list, website entries, and data insertion.
+*
+* @namespace FirebaseWebsites
+* @memberof module:ElectronApp
+*/
 
 ipcMain.handle('get-websites', async () => {
   let websiteData = '';
@@ -414,7 +463,7 @@ ipcMain.handle('add-website', async (event, url) => {
   let docRef = doc(db, "Websites", "Website List");
   await updateDoc(docRef, {
     List: arrayUnion(encodedURL)
-}).then(() => log.info(`website added to website list: ${encodedURL}`));
+}).then(r => log.info(`website added to website list: ${encodedURL}`));
   docRef = doc(db, "Websites", encodedURL);
   log.info('creating doc: ' + encodedURL);
   await setDoc(docRef, {
@@ -432,7 +481,7 @@ for (let i = 0; i < data.length; i++) {
   const docRef = doc(db, "Websites", encodedURL);
   updateDoc(docRef, {
     Entries: arrayUnion(scrapedData)
-  }).then(() => log.info(`entry "${scrapedData}" added to website: ${encodedURL}`));
+  }).then(r => log.info(`entry "${scrapedData}" added to website: ${encodedURL}`));
 
 }
 });
@@ -440,193 +489,211 @@ for (let i = 0; i < data.length; i++) {
 
 
 
-//====================================================================================
-// Window creation methods
-//====================================================================================
+    //====================================================================================
+    // Window creation methods
+    //====================================================================================
+    /**
+     * Functions for creating and managing application windows, including main, URL, and Label Studio windows.
+     *
+     * @namespace WindowManager
+     * @memberof module:ElectronApp
+     */
 
-/**
- * Function to create the main application window.
- */
-function createMainWindow() {
-    logDebug('Creating main application window.');
+    /**
+    * Function to create the main application window.
+    * @function createMainWindow
+    * @memberof module:ElectronApp.WindowManager
+    */
+    function createMainWindow() {
+        logDebug('Creating main application window.');
 
-    // Create the BrowserWindow instance with specific options
-    mainWin = new BrowserWindow({
-        frame: false,
-        transparent: true, 
-        width: isDev ? 1400 : 1200, // Set width: larger size for development
-        height: 800, // Set height for the window
-        minWidth: isDev ? 1400 : 1200, // Set minimum width to prevent shrinking beyond a set size
-        minHeight: 800, // Set minimum height
-        webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
-            webviewTag: true
-        }
-    });
-
-    // Open developer tools automatically if in development mode
-    if (isDev) {
-        logDebug('Opening developer tools.');
-        mainWin.webContents.openDevTools();
-    }
-
-    // Disable the default application menu
-    mainWin.setMenu(null);
-
-    // Load the main HTML file for the renderer process
-    mainWin.loadFile(path.join(__dirname, '../../../public/index.html'))
-    .catch((error) => {
-        logError(`Failed to load main window: ${error}`);
-    });
-}
-
-/**
- * Function to create a new window to display the provided URL
- * @param {*} url       The URL.
- */
-function createURLWindow(url) {
-    // Validate that the provided string is a valid URL
-    try {
-        new URL(url);
-    } catch (err) {
-        logError(`Invalid URL: ${url}`);
-        return;
-    }
-
-    logDebug(`Creating URL window for: ${url}`);
-
-    // Create a new BrowserWindow instance for the URL
-    urlWindow = new BrowserWindow({
-        frame: false,
-        width: 1400, // Set width of the URL window
-        height: 1000, // Set height of the URL window
-        minWidth: 1200, // Set minimum width to prevent shrinking beyond a set size
-        minHeight: 800, // Set minimum height
-        webPreferences: {
-            nodeIntegration: false, // Disable Node.js integration for security
-            contextIsolation: true, // Isolate context for security
-            preload: path.join(__dirname, 'preload.js'),
-            webviewTag: true
-        }
-    });
-
-    urlWindow.webContents.openDevTools();
-    urlWindow.hide();
-
-    // Load the specified URL in the window, catch invalid url
-    urlWindow.loadFile(
-        path.join(__dirname, '../webviews/templates/scrape-window.html')
-    )
-        .then(() => {
-            urlWindow.webContents.send('setUrl', url);
-            urlWindow.show();
-            logInfo(`URL window loaded: ${url}`);
-    }).catch((error) => {
-            closeScrapeWindow();
-            logError(`Failed to load URL: ${error}`);
-            dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!');
-    });
-
-    // Prevent the window from navigating away from the original URL
-    urlWindow.webContents.on('will-navigate', (event, navigateUrl) => {
-        if (navigateUrl !== url) {
-            event.preventDefault(); // Cancel any navigation to external URLs
-            logWarn(`Navigation attempt to external URL blocked: ${navigateUrl}`);
-        }
-    });
-
-    // Prevent the window from opening any new windows (e.g., pop-ups)
-    urlWindow.webContents.setWindowOpenHandler(() => {
-        logWarn('Attempt to open a new window was blocked.');
-        return { action: 'deny' }; // Deny any requests to open new windows
-    });
-
-    urlWindow.webContents.focus()
-}
-
-/**
- * Opens the LS project app in a separate window.
- * @param {*} url       The url of the LS project.
- */
-function createLSExternal(url) {
-    // Create the BrowserWindow instance with specific options
-    lsWindow = new BrowserWindow({
-        frame: false,
-        width: 1400, // Set width of the LS window
-        height: 1000, // Set height of the LS window
-        minWidth: 1200, // Set minimum width to prevent shrinking beyond a set size
-        minHeight: 800, // Set minimum height
-        webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
-            webviewTag: true
-        }
-    });
-
-    // Disable the default application menu
-    lsWindow.setMenu(null);
-
-    // lsWindow.webContents.openDevTools();
-
-    try {
-        lsWindow.loadFile('../webviews/templates/anno-window.html')
-            .then(() => {
-                lsWindow.webContents.send('set-ls-url', url);
-                lsWindow.show();
-            }).catch((err) => {
-                closeLSWindow();
-                logError('Failed to open external LS window');
-                dialog.showErrorBox('Failed to open external LS window', 'Window Initialization Error');
-            });
-
-        lsWindow.on('close', () => {
-            // tell renderer to redisplay embedded content
-            mainWin.webContents.send('open-ls-ext:response');
+        // Create the BrowserWindow instance with specific options
+        mainWin = new BrowserWindow({
+            frame: false,
+            transparent: true,
+            width: isDev ? 1400 : 1200, // Set width: larger size for development
+            height: 800, // Set height for the window
+            minWidth: isDev ? 1400 : 1200, // Set minimum width to prevent shrinking beyond a set size
+            minHeight: 800, // Set minimum height
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js'),
+                webviewTag: true
+            }
         });
-    
+
+        // Open developer tools automatically if in development mode
+        if (isDev) {
+            logDebug('Opening developer tools.');
+            mainWin.webContents.openDevTools();
+        }
+
+        // Disable the default application menu
+        mainWin.setMenu(null);
+
+        // Load the main HTML file for the renderer process
+        mainWin.loadFile(path.join(__dirname, '../../../public/index.html'))
+        .catch((error) => {
+            logError(`Failed to load main window: ${error}`);
+        });
+    }
+
+    /**
+    * Function to create a new window to display the provided URL
+    * @function createURLWindow
+    * @memberof module:ElectronApp.WindowManager
+    * @param {string} url - The URL to display.
+    */
+    function createURLWindow(url) {
+        // Validate that the provided string is a valid URL
+        try {
+            new URL(url);
+        } catch (err) {
+            logError(`Invalid URL: ${url}`);
+            return;
+        }
+
+        logDebug(`Creating URL window for: ${url}`);
+
+        // Create a new BrowserWindow instance for the URL
+        urlWindow = new BrowserWindow({
+            frame: false,
+            width: 1400, // Set width of the URL window
+            height: 1000, // Set height of the URL window
+            minWidth: 1200, // Set minimum width to prevent shrinking beyond a set size
+            minHeight: 800, // Set minimum height
+            webPreferences: {
+                nodeIntegration: false, // Disable Node.js integration for security
+                contextIsolation: true, // Isolate context for security
+                preload: path.join(__dirname, 'preload.js'),
+                webviewTag: true
+            }
+        });
+
+        urlWindow.webContents.openDevTools();
+        urlWindow.hide();
+
+        // Load the specified URL in the window, catch invalid url
+        urlWindow.loadFile(
+            path.join(__dirname, '../webviews/templates/scrape-window.html')
+        )
+            .then(() => {
+                urlWindow.webContents.send('setUrl', url);
+                urlWindow.show();
+                logInfo(`URL window loaded: ${url}`);
+        }).catch((error) => {
+                closeScrapeWindow();
+                logError(`Failed to load URL: ${error}`);
+                dialog.showErrorBox('Invalid URL', 'Cannot open URL: the URL you entered was invalid!');
+        });
+
+        // Prevent the window from navigating away from the original URL
+        urlWindow.webContents.on('will-navigate', (event, navigateUrl) => {
+            if (navigateUrl !== url) {
+                event.preventDefault(); // Cancel any navigation to external URLs
+                logWarn(`Navigation attempt to external URL blocked: ${navigateUrl}`);
+            }
+        });
+
         // Prevent the window from opening any new windows (e.g., pop-ups)
-        lsWindow.webContents.setWindowOpenHandler(() => {
+        urlWindow.webContents.setWindowOpenHandler(() => {
+            logWarn('Attempt to open a new window was blocked.');
             return { action: 'deny' }; // Deny any requests to open new windows
         });
-    } catch (err) {
+
+        urlWindow.webContents.focus()
+    }
+
+    /**
+    * Opens the LS project app in a separate window.
+    * @function createLSExternal
+    * @memberof module:ElectronApp.WindowManager
+    * @param {string} url - The url of the LS project.
+    */
+    function createLSExternal(url) {
+        // Create the BrowserWindow instance with specific options
+        lsWindow = new BrowserWindow({
+            frame: false,
+            width: 1400, // Set width of the LS window
+            height: 1000, // Set height of the LS window
+            minWidth: 1200, // Set minimum width to prevent shrinking beyond a set size
+            minHeight: 800, // Set minimum height
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js'),
+                webviewTag: true
+            }
+        });
+
+        // Disable the default application menu
+        lsWindow.setMenu(null);
+
+        // lsWindow.webContents.openDevTools();
+
+        try {
+            lsWindow.loadFile('../webviews/templates/anno-window.html')
+                .then(() => {
+                    lsWindow.webContents.send('set-ls-url', url);
+                    lsWindow.show();
+                }).catch((err) => {
+                    closeLSWindow();
+                    logError('Failed to open external LS window');
+                    dialog.showErrorBox('Failed to open external LS window', 'Window Initialization Error');
+                });
+
+            lsWindow.on('close', () => {
+                // tell renderer to redisplay embbedded content
+                mainWin.webContents.send('open-ls-ext:response');
+            });
+
+            // Prevent the window from opening any new windows (e.g., pop-ups)
+            lsWindow.webContents.setWindowOpenHandler(() => {
+                return { action: 'deny' }; // Deny any requests to open new windows
+            });
+        } catch (err) {
+            closeLSWindow();
+        }
+    }
+
+    /**
+    * Handles closing the external scrape window if it exists.
+    * @function closeScrapeWindow
+    * @memberof module:ElectronApp.WindowManager
+    */
+    function closeScrapeWindow() {
+        if (urlWindow) {
+            urlWindow.close();
+            urlWindow = null;
+        }
+
+        mainWin.webContents.send('ext-url-win-closed');
+    }
+
+    /**
+    * Handles closing the external LS window if it exists.
+    * @function closeLSWindow
+    * @memberof module:ElectronApp.WindowManager
+    * @param {string|null} url - Optional URL to send upon closing.
+    */
+    function closeLSWindow(url = null) {
+        if (lsWindow) {
+            lsWindow.close();
+            lsWindow = null;
+        }
+
+        var urlToSend = url ? url !== null : '';
+
+        // tell renderer to redisplay embbedded content
+        mainWin.webContents.send('ext-ls-win-closed', url);
+    }
+
+    /**
+    * Method for closing all external windows.
+    * @function closeAllWindows
+    * @memberof module:ElectronApp.WindowManager
+    */
+    function closeAllWindows() {
+        closeScrapeWindow();
         closeLSWindow();
     }
-}
-
-/**
- * Handles closing the external scrape window if it exists.
- */
-function closeScrapeWindow() {
-    if (urlWindow) {
-        urlWindow.close();
-        urlWindow = null;
-    }
-
-    mainWin.webContents.send('ext-url-win-closed');
-}
-
-/**
- * Handles closing the external LS window if it exists.
- * @param {*} url           The URL of the LS window prior to closing.
- */
-function closeLSWindow(url = null) {
-    if (lsWindow) {
-        lsWindow.close();
-        lsWindow = null;
-    }
-
-    let urlToSend = url ? true : '';
-
-    // tell renderer to redisplay embedded content
-    mainWin.webContents.send('ext-ls-win-closed', url);
-}
-
-/**
- * Method for closing all external windows.
- */
-function closeAllWindows() {
-    closeScrapeWindow();
-    closeLSWindow();
-}
 
 // Listen for 'open-url' event from renderer to open a new window with the provided URL
 ipcMain.on('open-url', (event, url) => {
@@ -642,7 +709,7 @@ ipcMain.on('open-url', (event, url) => {
     }
 });
 
-// Handles opening the LS project in an external window
+// Handles openning the LS project in an external window
 ipcMain.on('open-ls-ext:request', (event, url) => {
     createLSExternal(url);
 });
@@ -663,6 +730,12 @@ ipcMain.on('close-anno-win', (event) => {
 //====================================================================================
 // Application Initialization/Termination Functions and Listeners
 //====================================================================================
+/**
+ * Application lifecycle handlers and event listeners.
+ *
+ * @namespace Lifecycle
+ * @memberof module:ElectronApp
+ */
 
 /**
  * Method that handles termination of any processes prior to closing the application.
@@ -710,15 +783,19 @@ ipcMain.on('exit:request', () => {
 //====================================================================================
 // Additional IPC channel listeners
 //====================================================================================
+/**
+ * IPC listeners and handlers for Label Studio integration: export, project updates, token management.
+ *
+ * @namespace LabelStudioIPC
+ * @memberof module:ElectronApp
+ */
 
-// Label Studio related listeners
-//####################################################################################
 
 // Handles exporting data to the linked LS project
 ipcMain.on('export-to-ls:request', async (event, data, projectID) => {
-    let jsonObj = JSON.parse(data);
+    var jsonObj = JSON.parse(data);
     exportDataToLS(jsonObj, projectID).then((res) => {
-        let response = JSON.stringify(res);
+        var response = JSON.stringify(res);
         mainWin.webContents.send('export-to-ls:response', response);
     });
 });
@@ -751,12 +828,18 @@ ipcMain.on('update-ls-api-token:request', (event, token) => {
 
 // Handles clearing the linked LS project (URL and API)
 ipcMain.on('clear-linked-ls:request', () => {
-    let res = clearLinkedLSProject();
+    var res = clearLinkedLSProject();
     mainWin.webContents.send('ls-projects-update', JSON.stringify(res));
 });
 
 // Scraping related listeners
 //####################################################################################
+/**
+ * IPC listeners for scraping operations and UI dialogs.
+ *
+ * @namespace ScrapeAndDialogs
+ * @memberof module:ElectronApp
+ */
 
 // Handles a scrape request
 ipcMain.on('scrapedData:export', (event, data) => {
@@ -771,11 +854,11 @@ ipcMain.on('scrapedData:export', (event, data) => {
 //####################################################################################
 
 ipcMain.on('gen-dialog', (event, message) => {
-    let json = JSON.parse(message);
-    dialog.showMessageBox({message: json.msg}).then();
+    var json = JSON.parse(message);
+    dialog.showMessageBox({message: json.msg});
 });
 
 ipcMain.on('err-dialog', (event, message) => {
-    let json = JSON.parse(message);
+    var json = JSON.parse(message);
     dialog.showErrorBox(json.errType, json.msg);
 });

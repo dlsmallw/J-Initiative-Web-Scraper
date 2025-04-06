@@ -1,4 +1,24 @@
-// webview_preload.js
+/**
+* @file scrape-webview-preload.js
+* @description
+* Preload script for the scrape webview in the Electron application.
+* This script runs in the context of the webview and is responsible for:
+*
+* - Managing selection modes (manual and auto) for scraping text content.
+* - Tracking keyboard and mouse input (e.g., hotkey selection, cursor location).
+* - Highlighting DOM elements for scraping and filtering non-textual content.
+* - Communicating with the renderer process via `ipcRenderer.sendToHost`.
+* - Handling data extraction from the DOM (single and multi-element selections).
+* - Ensuring secure and controlled interactions inside the webview sandbox.
+*
+* The script uses a custom hotkey to trigger element selection and tracks
+* current selection state to prepare data for export.
+*
+* @module Preload-ScrapeWebview
+* @see window.urlScrape – Communication bridge with the main renderer.
+* @see Electron ipcRenderer – For sending messages between contexts.
+*/
+
 
 // Import the ipcRenderer module from Electron
 const { ipcRenderer } = require('electron');
@@ -13,7 +33,12 @@ const EXCLUDED_TAGS = new Set([
     "TBODY", "TFOOT", "TR", "TH", "TD", "COL", "COLGROUP"
 ]);
 
-// Creates a time delay for events
+/**
+* Utility function to create a delay.
+* @memberof module:Preload-ScrapeWebview
+* @param {number} timeDelay - Delay in milliseconds.
+* @returns {Promise<void>}
+*/
 const delay = (timeDelay) => new Promise(resolve => setTimeout(resolve, timeDelay));
 const SEL_CLASS = 'jiws-selected';
 
@@ -100,6 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /**
  * Forms an individual data object for a single piece of text data (with the associated URL).
+ * @function formIndivDataResObj
+ * @memberof module:Preload-ScrapeWebview
  * @param {*} dataURL String        The url the data was taken from.
  * @param {*} textData String       The data.
  * @returns JSONObject      The data object with the data.
@@ -113,6 +140,8 @@ function formIndivDataResObj(dataURL, textData) {
 
 /**
  * Forms a response object to return selected data from manual scrape to the main process.
+ * @function manualTextScrape
+ * @memberof module:Preload-ScrapeWebview
  * @returns JSONObject      The response with the data.
  */
 function manualTextScrape() {
@@ -124,6 +153,8 @@ function manualTextScrape() {
 
 /**
  * Function to get the currently selected text in the webview
+ * @function getSelectedText
+ * @memberof module:Preload-ScrapeWebview
  * @returns Array      The formatted response object.
  */
 function getSelectedText() {
@@ -132,6 +163,8 @@ function getSelectedText() {
 
 /**
  * Checks if there is currently text selected and either enables or diables the import button.
+ * @function selectedTextCheck
+ * @memberof module:Preload-ScrapeWebview
  */
 function selectedTextCheck() {
     if (getSelectedText() !== '') {
@@ -143,6 +176,8 @@ function selectedTextCheck() {
 
 /**
  * Clears currently highlighted text (manual mode).
+ * @function clearTextSelection
+ * @memberof module:Preload-ScrapeWebview
  */
 function clearTextSelection() {
     if (window.getSelection) {
@@ -154,6 +189,8 @@ function clearTextSelection() {
 
 /**
  * Checks if there are elements that are currently highlighted.
+ * @function selectedElementsCheck
+ * @memberof module:Preload-ScrapeWebview
  */
 function selectedElementsCheck() {
     if (document.querySelectorAll(`.${SEL_CLASS}`).length > 0) {
@@ -166,6 +203,8 @@ function selectedElementsCheck() {
 /**
  * This will initialize listeners that dynamically track whether text is selected or not.
  * NOTE: Setting these three event listeners ensures that it is always checking whether text is selected.
+ * @function initKeyMouseEventListeners
+ * @memberof module:Preload-ScrapeWebview
  */
 function initKeyMouseEventListeners() {
     // This is specifically used to prevent browser key-combination events when selecting elements
@@ -250,6 +289,8 @@ function initKeyMouseEventListeners() {
 
 /**
  * Used to filter out text data when a child element is elected along with their parent element.
+ * @function checkAncestorSelected
+ * @memberof module:Preload-ScrapeWebview
  * @param {*} element       The element to be checked.
  * @returns Boolean         If the elements parent is selected.
  */
@@ -268,6 +309,8 @@ function checkAncestorSelected(element) {
 
 /**
  * Applies a hovered 'highlight' effect.
+ * @function hoveredElement
+ * @memberof module:Preload-ScrapeWebview
  * @param {*} element       The element hovered.
  */
 function hoveredElement(element) {
@@ -279,6 +322,8 @@ function hoveredElement(element) {
 
 /**
  * Removes the hovered effect.
+ * @function releaseHoveredElement
+ * @memberof module:Preload-ScrapeWebview
  */
 function releaseHoveredElement() {
     if (currElementOver !== null) {
@@ -289,6 +334,8 @@ function releaseHoveredElement() {
 
 /**
  * Applies a selected effect to elements that are selected when in auto mode.
+ * @function selectElement
+ * @memberof module:Preload-ScrapeWebview
  * @param {*} element       The element to be selected.
  */
 function selectElement(element) {
@@ -300,6 +347,8 @@ function selectElement(element) {
 
 /**
  * Removes the selected effect from a selected element.
+ * @function deselectElement
+ * @memberof module:Preload-ScrapeWebview
  * @param {*} element       The element to be deselected.
  */
 function deselectElement(element) {
@@ -311,6 +360,8 @@ function deselectElement(element) {
 
 /**
  * Removes the selected effect from all selected elements.
+ * @function deselectAllElements
+ * @memberof module:Preload-ScrapeWebview
  */
 function deselectAllElements() {
     document.querySelectorAll(`.${SEL_CLASS}`).forEach(element => {
@@ -321,6 +372,8 @@ function deselectAllElements() {
 
 /**
  * Extracts the text data from all selected elements while also filtering out duplicate data.
+ * @function processSelectedElems
+ * @memberof module:Preload-ScrapeWebview
  * @returns Array[String]       The array of text data.
  */
 function processSelectedElems() {
@@ -341,6 +394,8 @@ function processSelectedElems() {
 
 /**
  * Combines all text data pulled from the page into a single data item.
+ * @function combineSelToResObj
+ * @memberof module:Preload-ScrapeWebview
  * @returns JSONObject          The response object containing the data.
  */
 function combineSelToResObj() {
@@ -358,6 +413,8 @@ function combineSelToResObj() {
 
 /**
  * Extracts all text data pulled from the page into individual data items.
+ * @function indivSelToResObk
+ * @memberof module:Preload-ScrapeWebview
  * @returns JSONObject          The response object containing the extracted data.
  */
 function indivSelToResObj() {
@@ -375,6 +432,8 @@ function indivSelToResObj() {
 
 /**
  * Helper function to facilitate logs from within the webview context.
+ * @function makeLog
+ * @memberof module:Preload-ScrapeWebview
  * @param {*} log String        The log.
  */
 function makeLog(log) {

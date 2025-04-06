@@ -1,3 +1,16 @@
+/**
+* @file scrape-page.js
+* @fileoverview Controls the behavior and initialization of Scrape page in the UI.
+*
+* @module PageController-Scrape
+*/
+
+/**
+* Controller for managing the Scrape page.
+*
+* @class ScrapePageController
+* @memberof module:PageController-Scrape
+*/
 export class ScrapePageController {
     htmlFilePath = '../src/frontend/components/templates/scrape.html';  // Filepath to HTML component
     name = 'scrape';                  // Page name
@@ -8,43 +21,54 @@ export class ScrapePageController {
     lsAPI = window.lsAPI;
 
     /**
-     * Returns the pages component html filepath.
-     * @returns String          The html filepath.
-     */
+    * Get the HTML file path for this page.
+    * @function getHtmlCompPath
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {string} The HTML file path.
+    */
     getHtmlCompPath() {
         return this.htmlFilePath;
     }
 
     /**
-     * Returns the pages name.
-     * @returns string          The pages name.
-     */
+    * Get the name identifier for this page.
+    * @function getName
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {string} The page name.
+    */
     getName() {
         return this.name;
     }
 
     /**
-     * Returns the pages component container ID.
-     * @returns String          The component container ID.
-     */
+    * Get the DOM container ID for this page component.
+    * @function getCompID
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {string} The component container ID.
+    */
     getCompID() {
         return this.compID;
     }
 
     /**
-     * Generates the navbar name for the specific page.
-     * @returns String          The navbar name.
-     */
+    * Generate the formatted navbar display name for this page.
+    * @function navbarName
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {string} The navbar display name.
+    */
     navbarName() {
         return this.name.charAt(0).toUpperCase() + this.name.slice(1);
     }
 
     /**
-     * Method for initializing the page in the application.
-     */
+    * Initialize the Scrape page.
+    * @function initPage
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     initPage() {
-        let navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
-        let navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
+        var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
+        var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
 
         $('#navbar-ul-1').append(navbarItem);
 
@@ -60,14 +84,18 @@ export class ScrapePageController {
     }
 
     /**
-     * Method for initializing the pages event listeners.
-     */
+    * Initialize event listeners for this page's DOM elements.
+    * Handles UI interactions such as linking Label Studio projects and external window management.
+    * @function initPageListeners
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     initPageListeners() {
         this.initResultsContainer();
 
         // Toggles a manual mode or a URL entry mode (URL entry is default)
         $('#scrape-mode-toggle').on('change', async () => {
-            let isChecked = document.getElementById('scrape-mode-toggle').checked
+            var isChecked = document.getElementById('scrape-mode-toggle').checked
             console.log(isChecked)
     
             if (isChecked) {
@@ -104,7 +132,7 @@ export class ScrapePageController {
 
         // Handles receiving scraped data from the external window
         this.electronAPI.receive('scrapedData:update', (data) => {
-            let jsonObj = JSON.parse(data);
+            var jsonObj = JSON.parse(data);
             this.parseScrapedDataToList(jsonObj);
             // Ensure the results container is visible
             this.showResultsContainer();
@@ -113,7 +141,7 @@ export class ScrapePageController {
 
         // Handles receiving the response from main regarding processing scraped data for export
         this.lsAPI.onExportResponse((res) => {
-            let response = JSON.parse(res);
+            var response = JSON.parse(res);
 
             if (response !== null) {
                 if (response.ok) {
@@ -138,16 +166,22 @@ export class ScrapePageController {
     }
 
     /**
-     * Sets the page active (visible).
-     */
+    * Set the Annotation page as active and visible in the UI.
+    * @function setPageActive
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     setPageActive() {
         $(`#${this.name}`).addClass('active-nav-item');
         $(this.compID).show();
     }
 
     /**
-     * Sets the page inactive (hidden).
-     */
+    * Deactivate the page, hide its content, and remove navigation highlight.
+    * @function setPageInactive
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     setPageInactive() {
         $(this.compID).hide();
         $(`#${this.name}`).removeClass('active-nav-item');
@@ -159,12 +193,15 @@ export class ScrapePageController {
     logger = window.log;    // Variable created for ease of reading
 
     /**
-     * Handles displaying an alert message for specific situations (error or otherwise).
-     * @param {*} alertMsg          Message to display.
-     * @param {*} cause             Cause if an error.
-     */
+    * Display an alert message or error dialog, and log the event.
+    * @function postAlert
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @param {*} alertMsg - The message to display in the alert.
+    * @param {*} [cause] - Optional cause of the alert, used for error dialogs.
+    * @returns {void}
+    */
     postAlert(alertMsg, cause) {
-        let json = {
+        var json = {
             msg: alertMsg,
             errType: null
         }
@@ -180,34 +217,47 @@ export class ScrapePageController {
         }
     }
 
+
     /**
-     * Send an info log message to the main process.
-     * @param {string} message - The message to log.
-     */
+    * Send an info log message to the main process.
+    * @function logInfo
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @param {string} message - The message to log.
+    * @returns {void}
+    */
     logInfo(message) {
         this.logger.info(message);
     }
 
     /**
-     * Send a debug log message to the main process.
-     * @param {string} message - The message to log.
-     */
+    * Send a debug log message to the main process.
+    * @function logDebug
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @param {string} message - The message to log.
+    * @returns {void}
+    */
     logDebug(message) {
         this.logger.debug(message);
     }
 
     /**
-     * Send a warning log message to the main process.
-     * @param {string} message - The message to log.
-     */
+    * Send a warning log message to the main process.
+    * @function logWarn
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @param {string} message - The message to log.
+    * @returns {void}
+    */
     logWarn(message) {
         this.logger.warn(message);
     }
 
     /**
-     * Send an error log message to the main process.
-     * @param {string} message - The message to log.
-     */
+    * Send an error log message to the main process.
+    * @function logError
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @param {string} message - The message to log.
+    * @returns {void}
+    */
     logError(message) {
         this.logger.error(message);
     }
@@ -217,8 +267,11 @@ export class ScrapePageController {
     //============================================================================================================================
 
     /**
-     * Initializes the results container UI elements.
-     */
+    * Initializes the results container UI elements.
+    * @function initResultsContainer
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     initResultsContainer() {
         this.hideResultsContainer();
     
@@ -236,22 +289,28 @@ export class ScrapePageController {
     }
 
     /**
-     * Takes data returned from external scrape window and parses it into the results container.
-     * @param {*} data          The data being parsed.
-     */
+    * Parse and display scraped data items in the results container.
+    * @function parseScrapedDataToList
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @param {Array<Object>} data - Array of scraped data objects.
+    * @returns {void}
+    */
     parseScrapedDataToList(data) {
-        for (let i = 0; i < data.length; i++) {
+        for (var i = 0; i < data.length; i++) {
             this.appendNewScrapedItem(data[i]);
         }
         this.showResultsContainer();
     }
 
     /**
-     * Adds a new data item to the results list.
-     * @param {*} dataObj       The data being appended.
-     */
+    * Add a new scraped data item to the results list with interactive selection behavior.
+    * @function appendNewScrapedItem
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @param {Object} dataObj - Scraped data object with `data` and `url` fields.
+    * @returns {void}
+    */
     appendNewScrapedItem(dataObj) {
-        let $newLI = $('<a>', {
+        var $newLI = $('<a>', {
             href: '#', 
             class: 'list-group-item list-group-item-action scrape-item',
             style: 'border-width: 0px 0px 3px 0px;'
@@ -277,8 +336,11 @@ export class ScrapePageController {
     }
     
     /**
-     * Removes any currently selected items from the results list.
-     */
+    * Remove selected data items from the results list. Hides results if empty.
+    * @function removeSelectedItems
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     removeSelectedItems() {
         $('.scrape-item.active').remove();
     
@@ -293,30 +355,45 @@ export class ScrapePageController {
     }
     
     /**
-     * Removes all items from the results list.
-     */
+    * Clear all items from the results list and reset the UI.
+    * @function clearScrapedList
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     clearScrapedList() {
         $('#results-list').empty();
         this.hideResultsContainer();
         this.enableURLField();
     }
-    
+
+    /**
+    * Check if any data items are currently selected.
+    * @function checkIfAnyActive
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {boolean} True if at least one item is selected, otherwise false.
+    */
     checkIfAnyActive() {
-        return $('#results-list').children('.active').length > 0;
+        if ($('#results-list').children('.active').length > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
-     * Checks if there are any currently selected data items in the results list.
-     * @returns         Boolean indicating if there are any selected items.
-     */
+    * Retrieve all data items from the results list for export.
+    * @function getAllReadyData
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {Array<Object>} Array of scraped data objects with `url` and `data` fields.
+    */
     getAllReadyData() {
-        let scrapedData = [];
+        var scrapedData = [];
     
-        let elemArr = $('.scrape-item');
+        var elemArr = $('.scrape-item');
     
-        for (let i = 0; i < elemArr.length; i++) {
-            let dataURL = $(elemArr[i]).attr('data-url');
-            let textData = $(elemArr[i]).text();
+        for (var i = 0; i < elemArr.length; i++) {
+            var dataURL = $(elemArr[i]).attr('data-url');
+            var textData = $(elemArr[i]).text();
     
             scrapedData.push({
                 url: dataURL,
@@ -328,18 +405,21 @@ export class ScrapePageController {
     }
 
     /**
-     * Method used to send the scraped data to main for exporting to Label Studio.
-     * @param {*} dataArr           Data to be exported.
-     * @param {*} projID            The LS project being exported to.
-     */
+    * Format and export scraped data to Label Studio.
+    * @function exportData
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @param {Array<Object>} dataArr - Data array to export.
+    * @param {string} projID - Target Label Studio project ID.
+    * @returns {void}
+    */
     exportData(dataArr, projID) {
         this.disableWhileExporting();
 
         if (dataArr !== null) {
-            let lsFormattedArr = [];
-            let dbFormattedArr = [];
+            var lsFormattedArr = [];
+            var dbFormattedArr = [];
 
-            for (let i = 0; i < dataArr.length; i++) {
+            for (var i = 0; i < dataArr.length; i++) {
                 lsFormattedArr.push({
                     textData: dataArr[i].data
                 });
@@ -357,11 +437,14 @@ export class ScrapePageController {
     }
 
     /**
-     * Logic that handles exporting data when using URL mode.
-     */
+    * Handle export logic for data collected in URL scrape mode.
+    * @function urlModeExport
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     urlModeExport() {
-        let data = this.getAllReadyData();
-        let projID = $('#projectSelect-url').val();
+        var data = this.getAllReadyData();
+        var projID = $('#projectSelect-url').val();
 
         if (data !== null && data.length > 0) {
             this.exportData(data, projID);
@@ -371,15 +454,18 @@ export class ScrapePageController {
     }
 
     /**
-     * Logic that handles exporting data when using manual mode.
-     */
+    * Handle export logic for manually entered data in manual scrape mode.
+    * @function manModeExport
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     manModeExport() {
-        let data = [{
+        var data = [{
             url: null,
             data: $('#manual-scrape-textarea').val()
         }];
 
-        let projID = $('#projectSelect-man').val();
+        var projID = $('#projectSelect-man').val();
 
         if (data.textData !== '') {
             this.exportData(data, projID);
@@ -389,14 +475,18 @@ export class ScrapePageController {
     }
 
     /**
-     * Function to handle the "Submit" button click on the Scrape page.
-     */
+    * Handle the submit button press event in URL scrape mode.
+    * Validates the URL and initiates scraping via Electron IPC.
+    * @function submitBtnPressed
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     submitBtnPressed() {
 
         this.disableURLField();
 
         let url = $('#url-input').val();
-        this.databaseAPI.addWebsiteToDatabase(url).then(() => this.logWarn('added website to database'));
+        this.databaseAPI.addWebsiteToDatabase(url).then(r => this.logWarn('added website to database'));
         // Check if a URL was entered
         if (url) {
             // Prepend 'https://' if no protocol is specified
@@ -426,10 +516,13 @@ export class ScrapePageController {
     }
 
     /**
-     * Method used to validate that the URL entered is valid.
-     * @param {*} url       The URL.
-     * @returns             A boolean indicating if it is valid or not.
-     */
+    * Validate a given URL by checking its format and availability.
+    * @async
+    * @function checkURL
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @param {string} url - The URL to validate.
+    * @returns {Promise<boolean>} Resolves true if valid and accessible, else false.
+    */
     checkURL(url) {
         let urlObj;
 
@@ -441,7 +534,7 @@ export class ScrapePageController {
                     return resolve(false);
                 } 
         
-                let req = new XMLHttpRequest();
+                var req = new XMLHttpRequest();
                 req.open('GET', url, true);
                 req.onreadystatechange = function() {
                     if (req.readyState === 4) {
@@ -460,8 +553,11 @@ export class ScrapePageController {
     }
 
     /**
-     * Method for resetting all scrape page fields.
-     */
+    * Reset all input fields and clear the results list on the Scrape page.
+    * @function resetAllFields
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     resetAllFields() {
         this.clearScrapedList();
         $('#url-input').val('');
@@ -469,8 +565,11 @@ export class ScrapePageController {
     }
 
     /**
-     * Disables all scrape page fields while performing a data export.
-     */
+    * Disable all input fields and buttons during export to prevent interactions.
+    * @function disableWhileExporting
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     disableWhileExporting() {
         this.disableManualScrape();
         this.disableURLField();
@@ -478,8 +577,11 @@ export class ScrapePageController {
     }
 
     /**
-     * Re-enables scrape page functions after exporting data.
-     */
+    * Re-enable all input fields and buttons after export completion.
+    * @function reenableScrapePageFunctions
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     reenableScrapePageFunctions() {
         this.enableManualScrape();
         this.enableURLField();
@@ -487,23 +589,32 @@ export class ScrapePageController {
     }
 
     /**
-     * Hides the URL mode results container.
-     */
+    * Hide the results container UI element.
+    * @function hideResultsContainer
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     hideResultsContainer() {
         $('#results-container').hide();
         $('#rmv-sel-btn').hide();
     }
 
     /**
-     * Shows the URL mode results container.
-     */
+    * Show the results container UI element.
+    * @function showResultsContainer
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     showResultsContainer() {
         $('#results-container').show();
     }
 
     /**
-     * Method for disabling the input field and button while handling a request.
-     */
+    * Disable manual scrape input fields and buttons.
+    * @function disableManualScrape
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     disableManualScrape() {
         $('#projectSelect-man').prop('disabled', true);
         $('#manual-submit-btn').prop('disabled', true);
@@ -511,8 +622,11 @@ export class ScrapePageController {
     }
 
     /**
-     * Method for re-enabling the input field and button after handling a request.
-     */
+    * Enable manual scrape input fields and buttons.
+    * @function enableManualScrape
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     enableManualScrape() {
         $('#projectSelect-man').removeAttr('disabled');
         $('#manual-submit-btn').removeAttr('disabled');
@@ -520,24 +634,33 @@ export class ScrapePageController {
     }
 
     /**
-     * Disables the URL mode windows url field.
-     */
+    * Disable URL input field and submit button.
+    * @function disableURLField
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     disableURLField() {
         $('#url-input').prop('disabled', true);
         $('#submitURLBtn').prop('disabled', true);
     }
 
     /**
-     * Re-enables the URL mode windows url field.
-     */
+    * Enable URL input field and submit button.
+    * @function enableURLField
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     enableURLField() {
         $('#url-input').removeAttr('disabled');
         $('#submitURLBtn').removeAttr('disabled');
     }
 
     /**
-     * Disables the results container buttons on the URL mode window.
-     */
+    * Disable buttons in the results container (URL mode).
+    * @function disableResultsBtns
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     disableResultsBtns() {
         $('#rmv-all-btn').prop('disabled', true);
         $('#rmv-sel-btn').prop('disabled', true);
@@ -546,8 +669,11 @@ export class ScrapePageController {
     }
 
     /**
-     * Re-enables the results container buttons on the URL mode window.
-     */
+    * Enable buttons in the results container (URL mode).
+    * @function enableResultsBtns
+    * @memberof module:PageController-Scrape.ScrapePageController
+    * @returns {void}
+    */
     enableResultsBtns() {
         $('#rmv-all-btn').removeAttr('disabled');
         $('#rmv-sel-btn').removeAttr('disabled');

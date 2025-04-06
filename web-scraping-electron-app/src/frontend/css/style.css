@@ -4,30 +4,30 @@
     - They can be overridden by theme-specific variables.
 =======================================================================*/
 :root {
-    /* Base Colors */
-    --primary-bg: #f8f9fa;        /* Default background color */
-    --secondary-bg: #e9ecef;      /* Secondary background color */
-    --accent-bg: #dee2e6;         /* Accent elements background */
-    --primary-color: #000000;     /* Primary text color */
-    --secondary-color: #6c757d;   /* Secondary text color */
-    --hover-color: #495057;       /* Hover state color */
+  /* Base Colors */
+  --primary-bg: #f8f9fa; /* Default background color */
+  --secondary-bg: #e9ecef; /* Secondary background color */
+  --accent-bg: #dee2e6; /* Accent elements background */
+  --primary-color: #000000; /* Primary text color */
+  --secondary-color: #6c757d; /* Secondary text color */
+  --hover-color: #495057; /* Hover state color */
 
-    /* Fonts and Borders */
-    --font-family: 'Poppins', sans-serif;
-    --border-color: #ced4da;
+  /* Fonts and Borders */
+  --font-family: 'Poppins', sans-serif;
+  --border-color: #ced4da3d;
 
-    /* Navbar and Links */
-    --navbar-bg: var(--secondary-bg);
-    --navbar-link-color: var(--primary-color);
-    --link-color: #007bff;        /* Default link color */
+  /* Navbar and Links */
+  --navbar-bg: var(--secondary-bg);
+  --navbar-link-color: var(--primary-color);
+  --link-color: #007bff; /* Default link color */
 
-    /* Buttons */
-    --button-bg: var(--accent-bg);
-    --button-color: var(--primary-color);
+  /* Buttons */
+  --button-bg: var(--accent-bg);
+  --button-color: var(--primary-color);
 
-    /* Content Area */
-    --content-bg: var(--primary-bg);
-    --text-color: var(--primary-color);
+  /* Content Area */
+  --content-bg: var(--primary-bg);
+  --text-color: var(--primary-color);
 }
 
 /*=======================================================================
@@ -35,16 +35,18 @@
     - A clean and minimalistic theme with light colors.
 =======================================================================*/
 html.light-theme {
-    --primary-bg: #ffffff;
-    --secondary-bg: #f8f9fa;
-    --accent-bg: #e9ecef;
-    --primary-color: #212529;
-    --secondary-color: #6c757d;
-    --hover-color: #adb5bd;
-    --navbar-bg: #f8f9fa;
-    --content-bg: #ffffff;
-    --link-color: #007bff;
-    --border-style: lightgray solid thin;
+  --primary-bg: #ffffff;
+  --secondary-bg: #f8f9fade;
+  --acc-body-bg: #fffffff7;
+  --accent-bg: #e9ecef;
+  --primary-color: #212529;
+  --secondary-color: #6c757d;
+  --hover-color: #adb5bd;
+  --navbar-bg: #f8f9fa;
+  --content-bg: #ffffff;
+  --link-color: #007bff;
+  --border-style: lightgray solid thin;
+  --body-border-style: black solid thin;
 }
 
 /*=======================================================================
@@ -52,16 +54,18 @@ html.light-theme {
     - A modern theme with dark backgrounds and light text.
 =======================================================================*/
 html.dark-theme {
-    --primary-bg: #121212;
-    --secondary-bg: #1e1e1e;
-    --accent-bg: #2c2c2c;
-    --primary-color: #f8f9fa;
-    --secondary-color: #ced4da;
-    --hover-color: #495057;
-    --navbar-bg: #1e1e1e;
-    --content-bg: #121212;
-    --link-color: #66b2ff;
-    --border-style: none;
+  --primary-bg: #2b2b2b;
+  --secondary-bg: #1e1e1e;
+  --acc-body-bg: #212529ab;
+  --accent-bg: #2c2c2c;
+  --primary-color: #f8f9fa;
+  --secondary-color: #ced4da;
+  --hover-color: #495057;
+  --navbar-bg: #1e1e1e;
+  --content-bg: #121212;
+  --link-color: #66b2ff;
+  --border-style: none;
+  --body-border-style: #d3d3d32e solid thin;
 }
 
 /*=======================================================================
@@ -69,16 +73,17 @@ html.dark-theme {
     - A calm theme with shades of blue.
 =======================================================================*/
 html.blue-theme {
-    --primary-bg: #e3f2fd;
-    --secondary-bg: #bbdefb;
-    --accent-bg: #90caf9;
-    --primary-color: #0d47a1;
-    --secondary-color: #1976d2;
-    --hover-color: #1565c0;
-    --navbar-bg: #bbdefb;
-    --content-bg: #e3f2fd;
-    --link-color: #0d47a1;
-    --border-style: lightgray solid thin;
+  --primary-bg: #e3f2fd;
+  --secondary-bg: #bbdefb;
+  --acc-body-bg: #c7e3ff;
+  --accent-bg: #90caf9;
+  --primary-color: #0d47a1;
+  --secondary-color: #1976d2;
+  --hover-color: #1565c0;
+  --navbar-bg: #bbdefb;
+  --content-bg: #e3f2fd;
+  --link-color: #0d47a1;
+  --border-style: none;
 }
 
 /*=======================================================================
@@ -86,161 +91,103 @@ html.blue-theme {
     - Party time.
 =======================================================================*/
 html.disco-theme {
-    --primary-bg: #FF00FF;
-    --secondary-bg: #00CED1;
-    --accent-bg: #c8bca7;
-    --primary-color: #4B0082;
-    --secondary-color: #8d6e63;
-    --hover-color: #6d4c41;
-    --navbar-bg: #7FFF00;
-    --content-bg: #00CED1;
-    --link-color: #5d4037;
-    --border-style: none;
+  --primary-bg: #ff00ff;
+  --secondary-bg: #00ced1;
+  --acc-body-bg: #92fdff;
+  --accent-bg: #c8bca7;
+  --primary-color: #4b0082;
+  --secondary-color: #8d6e63;
+  --hover-color: #6d4c41;
+  --navbar-bg: #7fff00;
+  --content-bg: #00ced1;
+  --link-color: #5d4037;
+  --border-style: none;
 }
 
 /*=======================================================================
     General Page Settings
 =======================================================================*/
 body {
-    font-family: var(--font-family), serif;
-    background-color: var(--primary-bg);
-    color: var(--primary-color);
-    margin: 0;
-    padding: 0;
-    line-height: 1.6;
-    min-height: 100vh;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-/*=======================================================================
-    Notification Settings
-=======================================================================*/
-.notification {
-    image-rendering: auto;
-    float: right;
-    background-color: #90caf9;
-    border-color: #495057;
-    font-weight: lighter;
-    color: black;
-    visibility: hidden;
-    text-decoration: none;
-    padding: 5px 6px;
-    position: relative;
-    top: 0;
-    right: 0;
-    display: inline-block;
-    border-radius: 10px;
-}
-
-.notification .badge {
-    position: absolute;
-    top: -10px;
-    right: -10px;
-    padding: 5px 7px;
-    border-radius: 50%;
-    background: red;
-    color: white;
-}
-
-.notification:hover {
-    background: #3498db;
-}
-
-.notification:target {
-    display: block;
-}
-
-
-div#tutorial, div#tutorial-home
-{
-    position:absolute;
-    text-align: center;
-    font-family: var(--font-family), serif;
-    font-weight: bold;
-    display:none;
-    top:200px;
-    left:50%;
-    width:500px;
-    margin-left:-250px;
-    border:1px solid blue;
-    padding:20px;
-    background-color: #bbdefb;
-    color: #121212;
-}
-
-.tutorial-button {
-    font-size: smaller;
-    padding: 3px 4px;
-    background: darkslategray;
-    border: 1px solid blue;
-    color: white;
+  font-family: var(--font-family);
+  background-color: var(--primary-bg);
+  color: var(--primary-color);
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  border: var(--body-border-style);
 }
 
 /*=======================================================================
     Navbar Styling
 =======================================================================*/
 .draggable {
-    -webkit-app-region: drag;
+  -webkit-app-region: drag;
 }
 
 .not-draggable {
-    -webkit-app-region: no-drag;
+  -webkit-app-region: no-drag;
 }
 
 .navbar {
-    display: flex;
-    justify-content: space-between; /* Space between brand and nav items */
-    align-items: center; /* Vertically align navbar items */
-    background-color: var(--navbar-bg);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    transition: background-color 0.3s ease-in-out;
+  display: flex;
+  justify-content: space-between; /* Space between brand and nav items */
+  align-items: center; /* Vertically align navbar items */
+  background-color: var(--navbar-bg);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 99.8%;
+  transition: background-color 0.3s ease-in-out;
+  margin-left: 0.1%;
+  border-top: var(--body-border-style);
 }
 
 /* Flexbox container for nav links */
 .navbar-nav {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem; /* Space between nav items */
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem; /* Space between nav items */
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 /* Navbar links styling */
 .navbar .nav-link {
-    color: var(--navbar-link-color);
-    font-weight: 500;
-    text-decoration: none; /* Remove underline */
-    padding: 0.5rem 0.75rem; /* Add padding for clickable area */
-    transition: color 0.3s ease, background-color 0.3s ease; /* Transition for smoother hover effect */
+  color: var(--navbar-link-color);
+  font-weight: 500;
+  text-decoration: none; /* Remove underline */
+  padding: 0.5rem 0.75rem; /* Add padding for clickable area */
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease; /* Transition for smoother hover effect */
 }
 
 /* Specific hover effect for all nav links */
 .navbar .nav-link:hover {
-    color: var(--hover-color);
-    background-color: var(--accent-bg); /* Add subtle background change on hover */
-    border-radius: 4px; /* Add rounded corners for better UI */
+  color: var(--hover-color);
+  background-color: var(--accent-bg); /* Add subtle background change on hover */
+  border-radius: 4px; /* Add rounded corners for better UI */
 }
 
 /* Navbar Brand Styling */
 .navbar-brand {
-    font-weight: 600;
-    color: var(--primary-color);
-    text-decoration: none;
-    padding: 0.5rem 1rem; /* Add padding to balance with other links */
+  font-weight: 600;
+  color: var(--primary-color);
+  text-decoration: none;
+  padding: 0.5rem 1rem; /* Add padding to balance with other links */
 }
 
 /* Prevent hover effect on navbar brand */
 .navbar-brand:hover {
-    color: var(--primary-color); /* Keep color the same on hover */
+  color: var(--primary-color); /* Keep color the same on hover */
 }
 
 /* Maintains the current page highlighted */
 .active-nav-item {
-    background-color: var(--accent-bg);
+  background-color: var(--accent-bg);
 }
 /*=======================================================================
     Specific Link Colors for Navbar
@@ -250,11 +197,13 @@ div#tutorial, div#tutorial-home
 #scrape-nav,
 #about-nav,
 #exit-nav {
-    color: var(--navbar-link-color);
-    cursor: pointer; /* Indicate clickable items */
-    transition: color 0.3s ease, background-color 0.3s ease;
-    padding: 0.5rem 0.75rem;
-    border-radius: 4px; /* Match the rounded corners for consistency */
+  color: var(--navbar-link-color);
+  cursor: pointer; /* Indicate clickable items */
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px; /* Match the rounded corners for consistency */
 }
 
 /* Hover effect for ID-linked navbar items */
@@ -262,211 +211,534 @@ div#tutorial, div#tutorial-home
 #scrape-nav:hover,
 #about-nav:hover,
 #exit-nav:hover {
-    color: var(--hover-color);
-    background-color: var(--accent-bg);
+  color: var(--hover-color);
+  background-color: var(--accent-bg);
 }
 
 /* Custom style for Theme Select dropdown to keep a constant size and theme consistency */
 #theme-select {
-    background-color: var(--primary-bg); /* Use the current theme's background */
-    color: var(--primary-color); /* Use the current theme's text color */
-    border: 2px solid var(--border-color); /* Match the border color with the current theme */
-    border-radius: 4px; /* Rounded corners for a better look */
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; /* Smooth transitions for color changes */
+  background-color: var(--primary-bg); /* Use the current theme's background */
+  color: var(--primary-color); /* Use the current theme's text color */
+  border: 2px solid var(--border-color); /* Match the border color with the current theme */
+  border-radius: 4px; /* Rounded corners for a better look */
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease; /* Smooth transitions for color changes */
 }
 
 /* Change hover behavior for dropdown to match the theme */
 #theme-select:hover {
-    background-color: var(--accent-bg); /* Use accent color for a hover effect */
-    color: var(--primary-color); /* Keep text color consistent */
+  background-color: var(--accent-bg); /* Use accent color for a hover effect */
+  color: var(--primary-color); /* Keep text color consistent */
 }
 /*=======================================================================
     Content Area Styling
 =======================================================================*/
 #d_content {
-    background-color: var(--content-bg);
-    padding: 1%;
-    max-width: 90%;
-    margin: auto;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s ease-in-out;
+  padding: 1%;
+  max-width: 90%;
+  margin: auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease-in-out;
 }
 
 /*=======================================================================
     Button Styling
 =======================================================================*/
 .btn-outline-secondary {
-    border: 2px solid var(--secondary-color);
-    color: var(--secondary-color);
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 500;
-    background-color: transparent;
-    transition: background-color 0.3s, color 0.3s;
+  border: 2px solid var(--secondary-color);
+  color: var(--secondary-color);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  background-color: transparent;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
 
 .btn-outline-secondary:hover {
-    background-color: var(--accent-bg);
-    color: var(--primary-color);
+  background-color: var(--accent-bg);
+  color: var(--primary-color);
 }
 
 #scrape-mode-toggle {
-    transform: translateY(20%) translateX(-20%);
+  transform: translateY(20%) translateX(-20%);
 }
 
 /*=======================================================================
     Form Styling
 =======================================================================*/
 .form-label {
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: var(--primary-color);
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--primary-color);
 }
 
 .input-group {
-    max-width: 600px;
+  max-width: 600px;
 }
 
 /*=======================================================================
     Accordion Styling
 =======================================================================*/
 .accordion-item {
-    border: none;
-    margin-bottom: 1rem;
+  border: none;
+  margin-bottom: 1rem;
 }
 
 .accordion-header .accordion-button {
-    background-color: var(--secondary-bg);
-    color: var(--primary-color);
-    border: none;
-    border-radius: 4px;
-    padding: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--secondary-bg);
+  color: var(--primary-color);
+  border: none;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .accordion-button.collapsed {
-    background-color: var(--accent-bg);
-    color: var(--primary-color);
+  color: var(--primary-color);
 }
 
 .accordion-button::after {
-    filter: brightness(0) invert(1);
+  filter: brightness(0) invert(1);
 }
 
 .accordion-body {
-    background-color: var(--primary-bg);
-    padding: 20px;
-    border-top: 2px solid var(--border-color);
+  background-color: var(--acc-body-bg);
+  padding: 20px;
+  border-top: 2px solid var(--border-color);
 }
 
 /*=======================================================================
     Container and Layout Adjustments
 =======================================================================*/
 .container {
-    max-width: 1200px;
-    margin: auto;
+  max-width: 1200px;
+  margin: auto;
 }
 
 .container-fluid {
-    padding: 0 20px;
+  padding: 0 20px;
 }
 
 /*=======================================================================
     Footer Styling (if applicable)
 =======================================================================*/
 .footer {
-    background-color: var(--secondary-bg);
-    color: var(--primary-color);
-    text-align: center;
-    padding: 20px;
-    margin-top: 40px;
+  background-color: var(--secondary-bg);
+  color: var(--primary-color);
+  text-align: center;
+  padding: 20px;
+  margin-top: 40px;
 }
 
 .footer a {
-    color: var(--link-color);
-    text-decoration: none;
+  color: var(--link-color);
+  text-decoration: none;
 }
 
 .footer a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
+}
+
+/*=======================================================================
+    Scrape Page and External Window Styling
+=======================================================================*/
+
+.scrape-btn-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-sel-btn {
+  background: #3b4145;
+  width: 40%;
+  margin: 0 10px 0 10px;
+}
+
+.import-btn-container {
+  display: flex;
+  justify-content: center;
+}
+
+#content-container {
+  transform: translateY(59px);
+}
+
+.content-container {
+  transform: translateY(59px);
+}
+
+#webview-outer-container {
+  height: 60vh;
+  position: relative;
+}
+
+#webview-container {
+  height: 100%;
+  position: relative;
+}
+
+#webview-overlay,
+#webview-element {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#webview-overlay {
+  z-index: 10;
+  background: grey;
+  opacity: 0.3;
+  display: none;
+}
+
+#sel-data-outer-cont {
+  position: relative;
+  height: 34vh;
+}
+
+#sel-cont-overlay,
+#selected-data-container {
+  height: 100%;
+  position: absolute;
+}
+
+#sel-cont-overlay {
+  z-index: 5;
+  background: grey;
+  opacity: 0.05;
+  width: 100%;
+}
+
+#selected-data-container {
+  margin: 0 10px 0 10px;
+  z-index: 0;
+  width: 98%;
+}
+
+#data-container {
+  padding-top: 1rem;
+}
+
+.scraped-list {
+  height: 20vh;
+  background-color: var(--bs-list-group-bg);
+}
+
+.list-header {
+  display: flex;
+  align-items: center;
+  padding-bottom: 10px;
+  margin-left: 10px;
+}
+
+.list-btn-container {
+  margin-left: 20px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.scrape-data-btn {
+  border-style: solid;
+}
+
+.hdr-lbl {
+  min-width: 140px;
+  font-size: calc(1.275rem + 0.1vw);
+  display: flex;
+  align-items: center;
+}
+
+.exp-to-btn-grp {
+  display: flex;
+  align-items: center;
+}
+
+#results-list {
+  height: 30vh;
+}
+
+#ls-exp-btn-container {
+  margin-top: 15px;
+}
+
+.exp-lbl-container {
+  width: 95px;
+  font-size: large;
+  font-weight: 600;
+}
+
+#url-exp-btn-grp {
+  margin-left: 10px;
+}
+
+#url-exp-btn-lbl {
+  padding-right: 10%;
+}
+
+#projectSelect-url {
+  width: fit-content;
+  margin-right: 15px;
+}
+
+#projectSelect-man {
+  width: fit-content;
+  margin-left: 5px;
 }
 
 /*=======================================================================
     Annotation Page Styling
 =======================================================================*/
 #annotation-container {
-    min-width: 900px;
-    height: 68vh;
-    max-height: 70vh;
-    min-height: 60vh;
+  min-width: 900px;
+  height: 68vh;
+  max-height: 70vh;
+  min-height: 60vh;
+}
+
+#annotation-webview {
+  height: 100%;
+  border: solid #d3d3d34d;
+  border-radius: 0.5%;
 }
 
 .embedded-content {
-    width: 100%;
-    height: 100%;
-    border: var(--border-style);
-    background-color: var(--primary-bg);
-    z-index: -1;
+  width: 100%;
+  height: 100%;
+  border: var(--border-style);
+  background-color: var(--primary-bg);
+  z-index: -1;
 }
 
 #ext-win-btn {
-    opacity: 0;
-    color: black;
-    cursor: pointer;
-    transform: translateY(-45%) translateX(-20%);
+  opacity: 0;
+  color: black;
+  cursor: pointer;
+  transform: translateY(-35%) translateX(-20%);
 }
 
-#ls-embedded, #ls-external, #ls-set, #ls-not-set {
-    height: 100%;
+#ls-embedded,
+#ls-external,
+#ls-set,
+#ls-not-set {
+  height: 100%;
 }
 
 #ls-not-set {
-    display: flex;
+  display: flex;
 }
 
 #ls-set {
-    padding-bottom: 10px;
+  background-color: var(--secondary-bg);
 }
 
 #ls-external {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 #ls-external-text {
-    align-self: center;
-    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: xx-large;
-    opacity: 0.5;
+  align-self: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: xx-large;
+  opacity: 0.5;
 }
 
 #ls-form {
-    width: 80vw;
-    max-width: 750px;
-    min-width: 405px;
+  width: 80vw;
+  max-width: 750px;
+  min-width: 405px;
+}
+
+#anno-webview {
+  height: 90vh;
+  padding-bottom: 15px;
+}
+
+#anno-element {
+  height: 100%;
+}
+
+#ls-config-accordion {
+  margin-top: 10px;
+}
+
+/*=======================================================================
+    Log Page Styling
+=======================================================================*/
+
+#log-output {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+#header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /*=======================================================================
     Responsive Utilities for Modern Design
 =======================================================================*/
 @media (max-width: 768px) {
-    /*#d_content {
+  /*#d_content {
         padding: 20px;
         max-width: 90%;
     }*/
 
-    .btn-outline-secondary {
-        padding: 8px 15px;
-    }
+  .btn-outline-secondary {
+    padding: 8px 15px;
+  }
 
-    .navbar-brand {
-        font-size: 1.25rem;
-    }
+  .navbar-brand {
+    font-size: 1.25rem;
+  }
 }
 
 input[readonly].default-cursor {
-    cursor: default;
+  cursor: default;
+}
+
+/*=======================================================================
+    Custom Toggle Button Styling
+=======================================================================*/
+#hotkey-change-btn {
+  border-radius: 50%;
+  cursor: pointer;
+  color: transparent;
+}
+
+#hotkey-set-icon {
+  fill: var(--primary-color);
+}
+
+#hotkey-change-btn:hover > #hotkey-set-icon {
+  fill: var(--primary-bg);
+}
+
+#hotkey-text {
+  color: var(--primary-color);
+  font-size: 13px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+#exit-scrape-win-btn {
+  margin-left: 50px;
+  font-weight: bold;
+}
+
+#text-mode-label,
+#mode-toggle-lbl {
+  color: var(--primary-color);
+  font-size: 13px;
+  font-weight: bold;
+}
+
+#mode-toggle-lbl {
+  padding-right: 8px;
+  font-size: 15px;
+}
+
+.toggle {
+  position: relative;
+  width: 110px;
+  height: 40px;
+  border-radius: 20px;
+  box-shadow: inset 0 2px 1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+#toggle-container {
+  display: flex;
+  align-items: center;
+}
+
+#scrape-mode-toggle-container {
+  background-color: var(--primary-bg);
+}
+
+#scrape-tab-toggle-container {
+  background-color: var(--secondary-bg);
+}
+
+.toggle__checkbox {
+  position: absolute;
+  left: -9999px;
+}
+
+.toggle__label {
+  position: relative;
+  display: inline-block;
+  top: 4px;
+  left: 4px;
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  background-color: var(--secondary-color);
+  transition: all 0.25s ease-in-out;
+  cursor: pointer;
+}
+
+.toggle__label:before,
+.toggle__label:after {
+  position: absolute;
+  top: 0;
+  color: var(--primary-color);
+  font-size: 13px;
+  font-weight: bold;
+  text-transform: uppercase;
+  line-height: 32px;
+  transition: all 0.15s ease-in-out;
+}
+
+.toggle__label:before {
+  left: -62px;
+  opacity: 0;
+}
+
+#text-sel-toggle-lbl:before,
+#scrape-mode-toggle-lbl:before {
+  content: 'Manual';
+}
+
+#text-sel-toggle-lbl:after {
+  content: 'Auto';
+}
+
+#scrape-mode-toggle-lbl:after {
+  content: 'URL';
+}
+
+.toggle__label:after {
+  left: 45px;
+  opacity: 1;
+}
+
+.toggle__checkbox:checked ~ .toggle__label {
+  left: 75px;
+}
+
+.toggle__checkbox:checked ~ .toggle__label:before {
+  opacity: 1;
+}
+
+.toggle__checkbox:checked ~ .toggle__label:after {
+  opacity: 0;
+}
+
+.element-disabled {
+  filter: brightness(50%);
 }
