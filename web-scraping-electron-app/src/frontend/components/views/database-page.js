@@ -65,21 +65,28 @@ export class DatabasePageController {
     * @memberof module:PageController-Database.DatabasePageController
     * @returns {void}
     */
-    initPage() {
-        var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
-        // Append to the Pages dropdown
-        $('#navbar-dropdown-list').append(navLink);
+     async initPage() {
+        // Create a <li> inside the dropdown
+        const li = $(`
+          <li>
+            <a class="dropdown-item" id="${this.name}" href="#">
+              ${this.navbarName()}
+            </a>
+          </li>
+        `);
 
+        // Append <li> into the "Pages" <ul id="navbar-dropdown-list">
+        $('#navbar-dropdown-list').append(li);
 
-        const insertElement = async () => {
-            $('#d_content').append( await $.get(this.htmlFilePath));
-        }
+        // Insert our container into #d_content so it's in the DOM from the get-go
+        const htmlFragment = await $.get(this.htmlFilePath);
+        $('#d_content').append(htmlFragment);
 
-        insertElement().then(() => {
+        // Hide it by default; only show it once setPageActive() is called
+        $(this.compID).hide();
 
-
-            this.initPageListeners();
-        });
+        // Initialize any event listeners that rely on #about-container being in the DOM
+        this.initPageListeners();
     }
 
     /**
