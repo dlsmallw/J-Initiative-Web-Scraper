@@ -36,33 +36,41 @@
       <ul class="navbar-nav me-auto mb-2 mb-sm-0 not-draggable" id="navbar-ul-2">
         <!-- annotation and scrape will get appended here -->
       </ul>
-        <!-- Pages Dropdown -->
-        <ul class="navbar-nav ms-auto mb-0 not-draggable" id="navbar-ul-right">
+      <!-- “Other” Dropdown -->
+      <ul class="navbar-nav ms-auto mb-0 not-draggable" id="navbar-ul-right">
         <li class="nav-item dropdown" id="nav-dropdown-wrapper">
-          <a class="nav-link dropdown-toggle" href="#" role="button"
-             data-bs-toggle="dropdown" id="pagesDropdown" aria-expanded="false">
-            Pages
+        <!-- Style the <a> so it looks more like a “box” -->
+          <a class="nav-link dropdown-toggle"
+          href="#"
+          role="button"
+          data-bs-toggle="dropdown"
+          id="otherDropdown"
+          aria-expanded="false"
+          >
+          Other
           </a>
-          <ul class="dropdown-menu dropdown-menu-end" id="navbar-dropdown-list">
-            <!-- about, database, home, log will get appended here -->
-          </ul>
-        </li>
+    <ul class="dropdown-menu dropdown-menu-end" id="navbar-dropdown-list">
+      <!-- about, database, home, log appended here -->
+    </ul>
+  </li>
 
-        <!-- Theme Selector -->
-        <li class="nav-item">
-          <select id="theme-select" class="form-select form-select-sm">
-            <option value="light-theme">Light Theme</option>
-            <option value="dark-theme">Dark Theme</option>
-            <option value="blue-theme">Blue Theme</option>
-            <option value="disco-theme">Disco Theme</option>
-          </select>
-        </li>
+  <!-- Theme Selector -->
+  <li class="nav-item">
+    <!-- Inline style to match the “Other” anchor above -->
+    <select id="theme-select">
+      <option value="light-theme">Light Theme</option>
+      <option value="dark-theme">Dark Theme</option>
+      <option value="blue-theme">Blue Theme</option>
+      <option value="disco-theme">Disco Theme</option>
+    </select>
+  </li>
 
-        <!-- Exit Link -->
-        <li class="nav-item">
-          <a class="nav-link" id="exit-nav" href="#">Exit</a>
-        </li>
-      </ul>
+  <!-- Exit Link -->
+  <li class="nav-item">
+    <a class="nav-link" id="exit-nav" href="#">Exit</a>
+  </li>
+</ul>
+
     </div>
   </div>
 </nav>
