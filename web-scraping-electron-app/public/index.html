@@ -23,58 +23,56 @@
 </head>
 
 <body>
- <nav class="navbar navbar-expand-sm navbar-dark fixed-top draggable">
-  <div class="container-fluid">
-    <span class="navbar-brand mb-0 h1">Web Scraper</span>
-    <button class="navbar-toggler not-draggable" type="button" data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+  <nav class="navbar navbar-expand-sm navbar-dark fixed-top draggable">
+    <div class="container-fluid">
+      <span class="navbar-brand mb-0 h1">Web Scraper</span>
+      <button class="navbar-toggler not-draggable" type="button" data-bs-toggle="collapse"
+              data-bs-target="#navbarSupportedContent">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <!-- Right-aligned Controls -->
-      <ul class="navbar-nav me-auto mb-2 mb-sm-0 not-draggable" id="navbar-ul-2">
-        <!-- annotation and scrape will get appended here -->
-      </ul>
-      <!-- “Other” Dropdown -->
-      <ul class="navbar-nav ms-auto mb-0 not-draggable" id="navbar-ul-right">
-        <li class="nav-item dropdown" id="nav-dropdown-wrapper">
-        <!-- Style the <a> so it looks more like a “box” -->
-          <a class="nav-link dropdown-toggle"
-          href="#"
-          role="button"
-          data-bs-toggle="dropdown"
-          id="otherDropdown"
-          aria-expanded="false"
-          >
-          Other
-          </a>
-    <ul class="dropdown-menu dropdown-menu-end" id="navbar-dropdown-list">
-      <!-- about, database, home, log appended here -->
-    </ul>
-  </li>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <!-- Right-aligned Controls -->
+        <ul class="navbar-nav me-auto mb-2 mb-sm-0 not-draggable" id="navbar-ul-2">
+          <!-- annotation and scrape will get appended here -->
+        </ul>
+        <!-- “Other” Dropdown -->
+        <ul class="navbar-nav ms-auto mb-0 not-draggable" id="navbar-ul-right">
+          <li class="nav-item dropdown" id="nav-dropdown-wrapper">
+            <!-- Style the <a> so it looks more like a “box” -->
+            <a class="nav-link dropdown-toggle" href="#" role="button"
+               data-bs-toggle="dropdown" id="otherDropdown" aria-expanded="false">
+              Other
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" id="navbar-dropdown-list">
+              <!-- about, database, home, log appended here -->
+            </ul>
+          </li>
 
-  <!-- Theme Selector -->
-  <li class="nav-item">
-    <!-- Inline style to match the “Other” anchor above -->
-    <select id="theme-select">
-      <option value="light-theme">Light Theme</option>
-      <option value="dark-theme">Dark Theme</option>
-      <option value="blue-theme">Blue Theme</option>
-      <option value="disco-theme">Disco Theme</option>
-    </select>
-  </li>
+          <!-- Theme Selector Dropdown -->
+          <li class="nav-item dropdown" id="theme-dropdown-wrapper">
+            <a class="nav-link dropdown-toggle" href="#" role="button"
+               data-bs-toggle="dropdown" id="themeDropdown" aria-expanded="false">
+              Theme
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end"
+                aria-labelledby="themeDropdown" id="theme-dropdown-list">
+              <li><a class="dropdown-item theme-option" data-theme="light-theme" href="#">Light Theme</a></li>
+              <li><a class="dropdown-item theme-option" data-theme="dark-theme" href="#">Dark Theme</a></li>
+              <li><a class="dropdown-item theme-option" data-theme="blue-theme" href="#">Blue Theme</a></li>
+              <li><a class="dropdown-item theme-option" data-theme="disco-theme" href="#">Disco Theme</a></li>
+            </ul>
+          </li>
 
-  <!-- Exit Link -->
-  <li class="nav-item">
-    <a class="nav-link" id="exit-nav" href="#">Exit</a>
-  </li>
-</ul>
+          <!-- Exit Link -->
+          <li class="nav-item">
+            <a class="nav-link" id="exit-nav" href="#">Exit</a>
+          </li>
+        </ul>
 
+      </div>
     </div>
-  </div>
-</nav>
-
+  </nav>
 
   <!-- Main Content -->
   <div id="d_content" class="container-fluid mt-4">
@@ -88,5 +86,4 @@
   <script type="module" src="../src/frontend/js/renderer.js"></script>
 </body>
 </html>
-
 

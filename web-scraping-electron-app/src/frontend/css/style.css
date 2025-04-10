@@ -189,49 +189,44 @@ body {
 .active-nav-item {
   background-color: var(--accent-bg);
 }
-/*=======================================================================
-    Specific Link Colors for Navbar
-    - Customize individual link colors if needed.
-=======================================================================*/
-#home-nav,
-#scrape-nav,
-#about-nav,
-#exit-nav {
-  color: var(--navbar-link-color);
-  cursor: pointer; /* Indicate clickable items */
-  transition:
-    color 0.3s ease,
-    background-color 0.3s ease;
-  padding: 0.5rem 0.75rem;
-  border-radius: 4px; /* Match the rounded corners for consistency */
-}
+/* ========================================================================
+   Dropdown Menu Styling — Theme-Aware (replaces Bootstrap's built-ins)
+======================================================================== */
 
-/* Hover effect for ID-linked navbar items */
-#home-nav:hover,
-#scrape-nav:hover,
-#about-nav:hover,
-#exit-nav:hover {
-  color: var(--hover-color);
+/* Dropdown background & text color */
+.dropdown-menu {
   background-color: var(--accent-bg);
+  color: var(--primary-color);
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
-/* Custom style for Theme Select dropdown to keep a constant size and theme consistency */
-#theme-select {
-  background-color: var(--primary-bg); /* Use the current theme's background */
-  color: var(--primary-color); /* Use the current theme's text color */
-  border: 2px solid var(--border-color); /* Match the border color with the current theme */
-  border-radius: 4px; /* Rounded corners for a better look */
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease,
-    border-color 0.3s ease; /* Smooth transitions for color changes */
+/* Individual items */
+.dropdown-menu .dropdown-item {
+  color: var(--primary-color);
+  background-color: transparent;
+  transition: background-color 0.2s, color 0.2s;
 }
 
-/* Change hover behavior for dropdown to match the theme */
-#theme-select:hover {
-  background-color: var(--accent-bg); /* Use accent color for a hover effect */
-  color: var(--primary-color); /* Keep text color consistent */
+/* Hover + active state styling */
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus,
+.dropdown-menu .dropdown-item.active {
+  background-color: var(--hover-color);
+  color: var(--primary-bg);
+  border-radius: 4px;
 }
+
+/* Catch all input types except radio/checkbox/range/etc. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+textarea,
+select {
+  background-color: var(--primary-bg) !important;
+  color: var(--primary-color) !important;
+  border: 2px solid var(--secondary-color) !important;
+}
+
+
 /*=======================================================================
     Content Area Styling
 =======================================================================*/

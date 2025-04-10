@@ -34,7 +34,7 @@ const Pages = {
     Annotation: new AnnotationPageController(),
     Database: new DatabasePageController(),
     About: new AboutPageController(),
-    Logs: new LogPageController()
+    Logs: new LogPageController(),
 };
 
 let currentPage;
@@ -202,48 +202,64 @@ document.addEventListener('DOMContentLoaded', () => {
     * @returns {void}
     */
     function initializeTheme() {
-        const themeSelect = $('#theme-select');
-
-        // Load the saved theme from localStorage if it exists
         const savedTheme = localStorage.getItem('theme');
+
         if (savedTheme) {
-            document.documentElement.className = savedTheme; // Apply saved theme to the document
+            document.documentElement.className = savedTheme;
             logDebug(`Applied saved theme: ${savedTheme}`);
         } else {
-            // Set default theme if none is saved
             document.documentElement.className = 'light-theme';
             logDebug('Applied default theme: light-theme');
         }
 
-        if (themeSelect) {
-            // Set the dropdown to the saved value if available
-            themeSelect.val(savedTheme || 'light-theme');
-
-            // Add an event listener to change the theme whenever the user selects a new option
-            themeSelect.on('change', changeTheme);
-        } else {
-            logWarn('Theme select element not found.');
-        }
+        attachThemeDropdownListeners(savedTheme || 'light-theme');
     }
 
     /**
-    * Handle theme change event and update localStorage and UI.
+    * Attach click handlers to each dropdown theme option.
+    *
+    * @function attachThemeDropdownListeners
+    * @memberof module:Renderer
+    * @param {string} activeTheme - Theme to visually mark as selected on load.
+    * @returns {void}
+    */
+    function attachThemeDropdownListeners(activeTheme) {
+        const themeOptions = document.querySelectorAll('.theme-option');
+
+        themeOptions.forEach(option => {
+            const theme = option.getAttribute('data-theme');
+
+            // Highlight current theme visually
+            if (theme === activeTheme) {
+                option.classList.add('active');
+            }
+
+            option.addEventListener('click', (e) => {
+                e.preventDefault();
+                changeTheme(theme);
+            });
+        });
+    }
+
+    /**
+    * Apply selected theme and update state.
     *
     * @function changeTheme
     * @memberof module:Renderer
+    * @param {string} theme - The selected theme class name.
     * @returns {void}
     */
-    function changeTheme() {
-        const theme = $('#theme-select').val();
-
-        // Set the selected theme class on the HTML element
+    function changeTheme(theme) {
         document.documentElement.className = theme;
-
-        // Save the selected theme to localStorage so it persists across sessions
         localStorage.setItem('theme', theme);
+
+        // Update visual highlight
+        document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('active'));
+        document.querySelector(`.theme-option[data-theme="${theme}"]`)?.classList.add('active');
 
         logInfo(`Theme changed to: ${theme}`);
     }
+
 
     //============================================================================================================================
     // Logging Helpers (WIP - Plan to move to a separate class that is imported)
