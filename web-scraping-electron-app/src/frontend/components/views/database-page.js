@@ -218,7 +218,7 @@ export class DatabasePageController {
       websiteInfo.innerHTML = '';
       const websites = await this.databaseAPI.getWebsiteData();
       const websiteList = websites.split(/\n/);
-
+      const fragment = document.createDocumentFragment();
       let headerCheck = true;
       for (let website of websiteList) {
         if(website !== "") {
@@ -267,11 +267,12 @@ export class DatabasePageController {
           newRow.appendChild(newURL);
           newRow.appendChild(newEntry);
           newRow.appendChild(newTime);
-          websiteInfo.appendChild(newRow);
+          fragment.appendChild(newRow);
 
         }
 
       }
+      websiteInfo.appendChild(fragment);
       this.logDebug('website data displayed in UI.');
     }
 }
