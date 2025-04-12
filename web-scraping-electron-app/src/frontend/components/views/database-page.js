@@ -284,6 +284,8 @@ export class DatabasePageController {
           fragment.appendChild(tempContainer.firstChild);
         }
         websiteInfo.appendChild(fragment);
+      } else {
+        websiteInfo.innerHTML = 'No scraped data available.';
       }
       this.logDebug('website data displayed in UI.');
     }
