@@ -220,8 +220,14 @@ export class DatabasePageController {
       const websiteList = websites.split(/\n/);
       const fragment = document.createDocumentFragment();
       let headerCheck = true;
+      let hasData = false;
+      let currentPercentage = 0;
+      const tempContainer = document.createElement('div');
       for (let website of websiteList) {
         if(website !== "") {
+          hasData = true;
+          currentPercentage++;
+          websiteInfo.innerHTML = 'Loading table: ' + ((currentPercentage / websiteList.length) * 100).toFixed(2) + '%';
           this.logDebug("website: " + website);
           if(headerCheck) {
             let headerRow = document.createElement('tr');
@@ -236,7 +242,7 @@ export class DatabasePageController {
             headerRow.appendChild(headerWebsite);
             headerRow.appendChild(headerEntry);
             headerRow.appendChild(headerLastAccessed);
-            websiteInfo.appendChild(headerRow);
+            tempContainer.appendChild(headerRow);
             headerCheck = false;
           }
 
@@ -267,12 +273,18 @@ export class DatabasePageController {
           newRow.appendChild(newURL);
           newRow.appendChild(newEntry);
           newRow.appendChild(newTime);
-          fragment.appendChild(newRow);
+          tempContainer.appendChild(newRow);
 
         }
 
       }
-      websiteInfo.appendChild(fragment);
+      websiteInfo.innerHTML = '';
+      if (hasData) {
+        while (tempContainer.firstChild) {
+          fragment.appendChild(tempContainer.firstChild);
+        }
+        websiteInfo.appendChild(fragment);
+      }
       this.logDebug('website data displayed in UI.');
     }
 }
