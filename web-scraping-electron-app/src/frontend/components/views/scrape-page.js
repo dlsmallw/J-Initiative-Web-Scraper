@@ -526,6 +526,8 @@ export class ScrapePageController {
     checkURL(url) {
         let urlObj;
 
+
+        // TODO: problem seems to be here. Goal: determine whether the reset is due to promise failure or something else
         return new Promise((resolve) => {
             try {  
                 urlObj = new URL(url);
