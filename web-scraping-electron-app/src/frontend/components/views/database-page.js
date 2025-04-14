@@ -207,31 +207,86 @@ export class DatabasePageController {
     * await controller.displayWebsiteData();
     */
     async displayWebsiteData() {
-        await new Promise(resolve => setTimeout(resolve, 50));
-        const websiteInfo = document.getElementById('website-info');
-        if (!websiteInfo) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+      const websiteInfo = document.getElementById('website-info');
+
+
+      if (!websiteInfo) {
         this.logError('website-info element not found.');
         return;
-        }
-        websiteInfo.innerHTML = '';
-        const websites = await this.databaseAPI.getWebsiteData();
-        const websiteList = websites.split(/\n/);
-        for (let website of websiteList) {
-        let entries = await this.databaseAPI.getWebsiteEntries(website);
-        entries = entries.split(/\n/);
-        website = decodeURIComponent(website);
-        let counter = 1;
-        for (const entry of entries) {
+      }
+      websiteInfo.innerHTML = '';
+      const websites = await this.databaseAPI.getWebsiteData();
+      const websiteList = websites.split(/\n/);
+      const fragment = document.createDocumentFragment();
+      let headerCheck = true;
+      let hasData = false;
+      let currentPercentage = 0;
+      const tempContainer = document.createElement('div');
+      for (let website of websiteList) {
+        if(website !== "") {
+          hasData = true;
+          currentPercentage++;
+          websiteInfo.innerHTML = 'Loading table: ' + ((currentPercentage / websiteList.length) * 100).toFixed(2) + '%';
+          this.logDebug("website: " + website);
+          if(headerCheck) {
+            let headerRow = document.createElement('tr');
+            let headerWebsite = document.createElement("td");
+            let headerEntry = document.createElement("td");
+            let headerLastAccessed = document.createElement("td");
+
+            headerWebsite.textContent = "Website";
+            headerEntry.textContent = "Entries";
+            headerLastAccessed.textContent = "Last Accessed";
+
+            headerRow.appendChild(headerWebsite);
+            headerRow.appendChild(headerEntry);
+            headerRow.appendChild(headerLastAccessed);
+            tempContainer.appendChild(headerRow);
+            headerCheck = false;
+          }
+
+
+
+
+          let entries = await this.databaseAPI.getWebsiteEntries(website);
+          let time = await this.databaseAPI.getWebsiteLastAccessed(website);
+          entries = entries.split(/\n/);
+          website = decodeURIComponent(website);
+          let newRow = document.createElement('tr');
+          let newTime = document.createElement("td");
+          let newURL = document.createElement("td");
+          let newEntry = document.createElement("td");
+          let counter = 1;
+          for (let entry of entries) {
             if(entry !== '') {
-            website += '\n    ' + 'Entry ' + counter + ': ' + entry;
-            counter++;
+              newEntry.textContent += '\n    ' + 'Entry ' + counter + ': ' + entry;
+              counter++;
             }
+          }
+
+
+
+          newURL.textContent = website;
+          newTime.textContent = time;
+
+          newRow.appendChild(newURL);
+          newRow.appendChild(newEntry);
+          newRow.appendChild(newTime);
+          tempContainer.appendChild(newRow);
+
         }
-        const websiteEntry = document.createElement('div');
-        websiteEntry.className = 'website-entry';
-        websiteEntry.textContent = website;
-        websiteInfo.appendChild(websiteEntry);
+
+      }
+      websiteInfo.innerHTML = '';
+      if (hasData) {
+        while (tempContainer.firstChild) {
+          fragment.appendChild(tempContainer.firstChild);
         }
-        this.logDebug('website data displayed in UI.');
+        websiteInfo.appendChild(fragment);
+      } else {
+        websiteInfo.innerHTML = 'No scraped data available.';
+      }
+      this.logDebug('website data displayed in UI.');
     }
 }

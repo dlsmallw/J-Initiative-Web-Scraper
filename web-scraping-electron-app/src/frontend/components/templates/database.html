@@ -1,11 +1,28 @@
 <!-- HTML component used for the database page in the application. -->
-<div id="database-container" class="my-5 container" style="display: none">
-  <h1 class="display-4">Database Information</h1>
-  <pre
-    id="website-info"
-    class="bg-dark text-white p-3 rounded"
-    style="max-height: 400px; overflow-y: auto"
-  >
+<style>
+    #database-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+
+</style>
+<div id="database-container" class="my-5 container" style="display: none;">
+    <h1 class="display-4">Database Information</h1>
+    <pre id="website-info" class="bg-dark text-white p-3 rounded" style="white-space: pre-wrap; overflow: hidden; max-height: 500px; overflow-y: auto; ">
         <!-- website information will be added here -->
     </pre>
 </div>

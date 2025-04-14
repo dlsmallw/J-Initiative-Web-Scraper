@@ -241,6 +241,7 @@ contextBridge.exposeInMainWorld('urlScrape', {
  * @namespace databaseAPI
  * @property {function(): Promise<string>} getWebsiteData - Get list of websites.
  * @property {function(string): Promise<string>} getWebsiteEntries - Get entries for a given website.
+ * @property {function(string): Promise<string>} getWebsiteLastAccessed - Get last accessed for a given website.
  * @property {function(string): Promise<void>} addWebsiteToDatabase - Add new website URL.
  * @property {function(Array): Promise<void>} addScrapedDataToDatabase - Add scraped data for a website.
  */
@@ -250,6 +251,9 @@ contextBridge.exposeInMainWorld('databaseAPI', {
   },
   getWebsiteEntries: (url) => {
     return ipcRenderer.invoke('get-websites-entries', url);
+  },
+  getWebsiteLastAccessed: (url) => {
+    return ipcRenderer.invoke('get-websites-LastAccessed', url);
   },
   addWebsiteToDatabase: (url) => {
     return ipcRenderer.invoke('add-website', url);
