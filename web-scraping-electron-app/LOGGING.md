@@ -233,9 +233,9 @@ Before:
 
 ```javascript
 try {
-    // Code that may throw an error
+  // Code that may throw an error
 } catch (error) {
-    console.error('Error:', error);
+  console.error('Error:', error);
 }
 ```
 
@@ -243,10 +243,10 @@ After:
 
 ```javascript
 try {
-    // Code that may throw an error
+  // Code that may throw an error
 } catch (error) {
-    log.error(`Error processing request: ${error.message}`);
-    // Optional: log.error(error.stack);
+  log.error(`Error processing request: ${error.message}`);
+  // Optional: log.error(error.stack);
 }
 ```
 
@@ -276,6 +276,3 @@ log.transports.file.level = 'info';
 log.transports.file.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}';
 log.transports.console.format = '[{h}:{i}:{s}.{ms}] [{level}] {text}';
 ```
-
-
-
