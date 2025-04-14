@@ -235,9 +235,9 @@ export class DatabasePageController {
             let headerEntry = document.createElement("td");
             let headerLastAccessed = document.createElement("td");
 
-            headerWebsite.textContent = "Websites";
+            headerWebsite.textContent = "Website";
             headerEntry.textContent = "Entries";
-            headerLastAccessed.textContent = "Time Last Accessed";
+            headerLastAccessed.textContent = "Last Accessed";
 
             headerRow.appendChild(headerWebsite);
             headerRow.appendChild(headerEntry);
