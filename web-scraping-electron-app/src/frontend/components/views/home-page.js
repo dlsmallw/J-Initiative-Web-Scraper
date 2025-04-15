@@ -211,6 +211,7 @@ export class HomePageController {
         document.getElementById("tutorial-content").style.display = "block";
 
         $('#embed-tutorial').load("../src/frontend/components/templates/tutorial.html");
+        localStorage.setItem('tutorial', "disableOnExit");
     }
 
     /**

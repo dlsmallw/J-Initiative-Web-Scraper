@@ -111,6 +111,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Event listener for the "Exit" navigation link
         $('#exit-nav').on('click', () => {
+
+            // disable tutorial if app closes while watching it
+            if (localStorage.getItem('tutorial') === "disableOnExit") {
+                localStorage.setItem('tutorial', "disabled");
+            }
+
             ipcRenderer.exitSignal();
         });
     }
@@ -149,6 +155,21 @@ document.addEventListener('DOMContentLoaded', () => {
             newPage.setPageActive();
 
             currentPage = newPage;
+
+            // ensure embedded tutorial is not visible on other tabs
+            if (currentPage.getName() !==  "home" || localStorage.getItem('tutorial') === "disabled") {
+                if (document.getElementById('tutorial').style.display === "block") {
+                    document.getElementById("tutorial").style.display = "none";
+
+                    localStorage.setItem('tutorial', "disabled");
+
+                    alert("Tutorial disabled. If you would like to enable it again, see the about page.");
+                }
+
+                document.getElementById("tutorial-content").style.display = "none";
+            } else if (document.getElementById('tutorial').style.display !== "block") {
+                document.getElementById("tutorial-content").style.display = "block";
+            }
 
             logInfo(`Page changed to ${currentPage.getName()}.`);
         } else {
