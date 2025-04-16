@@ -65,21 +65,25 @@ export class HomePageController {
     * @memberof module:PageController-Home.HomePageController
     * @returns {void}
     */
-    initPage() {
-        var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
-        var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
+     async initPage() {
+        // Create a <li> inside the dropdown
+        const li = $(`
+          <li>
+            <a class="dropdown-item" id="${this.name}" href="#">
+              ${this.navbarName()}
+            </a>
+          </li>
+        `);
 
-        $('#navbar-ul-1').append(navbarItem);
+        // Append <li> into the "Pages" <ul id="navbar-dropdown-list">
+        $('#navbar-dropdown-list').append(li);
 
-        const insertElement = async () => {
-            $('#d_content').append( await $.get(this.htmlFilePath));
-        }
+        // Insert our container into #d_content so it's in the DOM from the get-go
+        const htmlFragment = await $.get(this.htmlFilePath);
+        $('#d_content').append(htmlFragment);
 
-        insertElement().then(() => {
-            
-
-            this.initPageListeners();
-        });
+        // Initialize any event listeners that rely on #about-container being in the DOM
+        this.initPageListeners();
     }
 
     /**
