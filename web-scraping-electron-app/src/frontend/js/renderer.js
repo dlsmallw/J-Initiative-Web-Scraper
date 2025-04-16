@@ -249,17 +249,58 @@ document.addEventListener('DOMContentLoaded', () => {
     * @param {string} theme - The selected theme class name.
     * @returns {void}
     */
-    function changeTheme(theme) {
+   function changeTheme(theme) {
+    const overlay = document.getElementById('theme-overlay');
+
+    if (overlay) {
+        // Set the overlay color to match the current theme's background
+        const currentBg = getComputedStyle(document.documentElement).getPropertyValue('--primary-bg');
+        overlay.style.backgroundColor = currentBg;
+
+        overlay.style.display = 'block';
+        overlay.style.opacity = '1';
+
+        // Wait for fade-in before changing the actual theme
+        setTimeout(() => {
+            document.documentElement.className = theme;
+            localStorage.setItem('theme', theme);
+
+            //  Let new theme CSS apply, then fade out
+            setTimeout(() => {
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 400);
+
+                showThemeToast(theme);
+            }, 50);
+        }, 50);
+    } else {
         document.documentElement.className = theme;
         localStorage.setItem('theme', theme);
-
-        // Update visual highlight
-        document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('active'));
-        document.querySelector(`.theme-option[data-theme="${theme}"]`)?.classList.add('active');
-
-        logInfo(`Theme changed to: ${theme}`);
+        showThemeToast(theme);
     }
 
+    // Update visual highlight
+    document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('active'));
+    document.querySelector(`.theme-option[data-theme="${theme}"]`)?.classList.add('active');
+
+    logInfo(`Theme changed to: ${theme}`);
+}
+
+
+function showThemeToast(theme) {
+  const toast = document.createElement('div');
+  toast.className = 'theme-toast';
+
+  const emoji = theme === 'disco-theme' ? '🪩🎉✨' : '🎨';
+  toast.textContent = `${emoji} Switched to ${theme.replace('-', ' ')}`;
+
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 600);
+  }, 1500);
+}
 
     //============================================================================================================================
     // Logging Helpers (WIP - Plan to move to a separate class that is imported)

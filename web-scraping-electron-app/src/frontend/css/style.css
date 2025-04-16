@@ -91,17 +91,56 @@ html.blue-theme {
     - Party time.
 =======================================================================*/
 html.disco-theme {
-  --primary-bg: #ff00ff;
-  --secondary-bg: #00ced1;
-  --acc-body-bg: #92fdff;
+  --primary-bg: transparent;
+  --secondary-bg: rgba(0, 0, 0, 0.5);
   --accent-bg: #c8bca7;
-  --primary-color: #4b0082;
-  --secondary-color: #8d6e63;
-  --hover-color: #6d4c41;
-  --navbar-bg: #7fff00;
-  --content-bg: #00ced1;
-  --link-color: #5d4037;
+  --primary-color: white;
+  --hover-text-color: white;
+  --hover-color: #ff69b4;
+  --navbar-bg: transparent;
+  --link-color: #ff00ff;
   --border-style: none;
+  --body-border-style: 3px solid #ff00ff;
+  background: linear-gradient(-45deg, #ff00ff, #00ffff, #ffff00, #ff1493);
+  background-size: 400% 400%;
+  animation: discoBackground 8s ease infinite;
+}
+
+@keyframes discoBackground {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes borderGlow {
+  0%   { border-color: #ff00ff; }
+  25%  { border-color: #00ffff; }
+  50%  { border-color: #ffff00; }
+  75%  { border-color: #ff1493; }
+  100% { border-color: #ff00ff; }
+}
+
+html.disco-theme body {
+  animation: borderGlow 3s linear infinite;
+}
+
+html.disco-theme body {
+  box-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff, 0 0 30px #ffff00;
+  transition: box-shadow 0.5s ease-in-out;
+}
+
+#theme-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background-color: var(--primary-bg);
+  opacity: 1;
+  backdrop-filter: blur(20px);
+  pointer-events: none;
+  transition: opacity 0.4s ease;
 }
 
 /*=======================================================================
@@ -213,7 +252,7 @@ body {
 .dropdown-menu .dropdown-item:focus,
 .dropdown-menu .dropdown-item.active {
   background-color: var(--hover-color);
-  color: var(--primary-bg);
+  color: var(--hover-text-color);
   border-radius: 4px;
 }
 
