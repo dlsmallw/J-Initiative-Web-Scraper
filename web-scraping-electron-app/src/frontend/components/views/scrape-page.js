@@ -502,10 +502,17 @@ export class ScrapePageController {
                     this.enableURLField();
                 } else {
                     // Send the URL to the main process to open it
-                    this.electronAPI.openExternal(url);
+                    try {
+                        this.electronAPI.openExternal(url);
 
-                    // Update the results container to display the submitted URL
-                    $('#staticURL').val(url);
+                        // Update the results container to display the submitted URL
+                        $('#staticURL').val(url);
+                    }
+                    catch(err) {
+                        this.postAlert('URL failed to respond', 'Invalid URL');
+                        this.logWarn('Inactive URL entered.');
+                    }
+                    
                 }
             });
         } else {
