@@ -505,6 +505,8 @@ export class ScrapePageController {
                     try {
                         this.electronAPI.openExternal(url);
 
+                        // TODO: throw error if the url fails to respond
+
                         // Update the results container to display the submitted URL
                         $('#staticURL').val(url);
                     }
@@ -533,8 +535,6 @@ export class ScrapePageController {
     checkURL(url) {
         let urlObj;
 
-
-        // TODO: problem seems to be here. Goal: determine whether the reset is due to promise failure or something else
         return new Promise((resolve) => {
             try {  
                 urlObj = new URL(url);
