@@ -474,6 +474,20 @@ export class ScrapePageController {
         }
     }
 
+    // if-url-exist.js v2
+    async ifUrlExist(url) {
+        return new Promise((resolve, reject) => {
+            fetch(url, {
+                method: "HEAD"
+            }).then(response => {
+                resolve(response.status.toString()[0] === "2")
+            }).catch(error => {
+                reject(false)
+            })
+        })
+    }
+
+
     /**
     * Handle the submit button press event in URL scrape mode.
     * Validates the URL and initiates scraping via Electron IPC.
@@ -502,18 +516,28 @@ export class ScrapePageController {
                     this.enableURLField();
                 } else {
                     // Send the URL to the main process to open it
-                    try {
-                        this.electronAPI.openExternal(url);
+                    if(ifUrlExist(url)) {
+                        try {
+                            this.electronAPI.openExternal(url);
 
-                        // TODO: throw error if the url fails to respond
+                            // TODO: throw error if the url fails to respond
 
-                        // Update the results container to display the submitted URL
-                        $('#staticURL').val(url);
+                            // Update the results container to display the submitted URL
+                            $('#staticURL').val(url);
+                        }
+                        catch(err) {
+                            this.postAlert('URL failed to respond', 'Invalid URL');
+                            this.logWarn('Inactive URL entered.');
+                        }
                     }
-                    catch(err) {
-                        this.postAlert('URL failed to respond', 'Invalid URL');
+                    else {
+                        this.postAlert('Please enter an active URL', 'Inactive URL');
                         this.logWarn('Inactive URL entered.');
+                        this.enableURLField();
                     }
+
+
+    
                     
                 }
             });
