@@ -13,14 +13,7 @@ structured instructions and quick references.
 J-Initiative-Web-Scraper
 ├── .github/
 │   └── workflows/
-│       ├── node.js.yml
-├── docs/
-│   ├── General Database Diagram.png
-│   ├── SER 401 Task #103.pdf
-│   ├── Task#102 Database Research.pdf
-│   ├── Task105DatabaseWindow.png
-│   ├── research-notes.md
-│   └── ...
+│       └── node.js.yml
 ├── scripts/
 │   └── setup.sh             # Any additional build/test/deploy scripts
 │
