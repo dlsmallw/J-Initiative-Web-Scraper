@@ -534,7 +534,7 @@ export class ScrapePageController {
                     return resolve(false);
                 } 
         
-                var req = new XMLHttpRequest(); 
+                var req = new XMLHttpRequest();
                 req.open('GET', url, true);
                 req.onreadystatechange = function() {
 
