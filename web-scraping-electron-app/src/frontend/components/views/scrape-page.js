@@ -518,18 +518,8 @@ export class ScrapePageController {
                     // Send the URL to the main process to open it
                     this.electronAPI.openExternal(url);
 
-                    // TODO: throw error if the url fails to respond
-
                     // Update the results container to display the submitted URL
                     $('#staticURL').val(url);
-                    
-                            //this.postAlert('URL failed to respond', 'Invalid URL');
-                            //this.logWarn('Inactive URL entered.');
-                    
-                   
-
-    
-                    
                 }
             });
         } else {
@@ -549,7 +539,6 @@ export class ScrapePageController {
     */
     checkURL(url) {
         let urlObj;
-
         return new Promise((resolve) => {
             try {  
                 urlObj = new URL(url);
@@ -561,11 +550,12 @@ export class ScrapePageController {
                 var req = new XMLHttpRequest(); 
                 req.open('GET', url, true);
                 req.onreadystatechange = function() {
+
                     if (req.readyState === 4) {
-                        if (req.status === 404) {
-                            resolve(false);
-                        } else {
+                        if ((req.status >= 200) && (req.status <= 299)) { // 200-299 are "all clear" status codes of various stripes
                             resolve(true);
+                        } else {
+                            resolve(false);
                         }
                     }
                 }
