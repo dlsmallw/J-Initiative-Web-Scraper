@@ -34,7 +34,7 @@ const Pages = {
     Annotation: new AnnotationPageController(),
     Database: new DatabasePageController(),
     About: new AboutPageController(),
-    Logs: new LogPageController(),
+    Logs: new LogPageController()
 };
 
 let currentPage;
@@ -202,105 +202,48 @@ document.addEventListener('DOMContentLoaded', () => {
     * @returns {void}
     */
     function initializeTheme() {
-        const savedTheme = localStorage.getItem('theme');
+        const themeSelect = $('#theme-select');
 
+        // Load the saved theme from localStorage if it exists
+        const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
-            document.documentElement.className = savedTheme;
+            document.documentElement.className = savedTheme; // Apply saved theme to the document
             logDebug(`Applied saved theme: ${savedTheme}`);
         } else {
+            // Set default theme if none is saved
             document.documentElement.className = 'light-theme';
             logDebug('Applied default theme: light-theme');
         }
 
-        attachThemeDropdownListeners(savedTheme || 'light-theme');
+        if (themeSelect) {
+            // Set the dropdown to the saved value if available
+            themeSelect.val(savedTheme || 'light-theme');
+
+            // Add an event listener to change the theme whenever the user selects a new option
+            themeSelect.on('change', changeTheme);
+        } else {
+            logWarn('Theme select element not found.');
+        }
     }
 
     /**
-    * Attach click handlers to each dropdown theme option.
-    *
-    * @function attachThemeDropdownListeners
-    * @memberof module:Renderer
-    * @param {string} activeTheme - Theme to visually mark as selected on load.
-    * @returns {void}
-    */
-    function attachThemeDropdownListeners(activeTheme) {
-        const themeOptions = document.querySelectorAll('.theme-option');
-
-        themeOptions.forEach(option => {
-            const theme = option.getAttribute('data-theme');
-
-            // Highlight current theme visually
-            if (theme === activeTheme) {
-                option.classList.add('active');
-            }
-
-            option.addEventListener('click', (e) => {
-                e.preventDefault();
-                changeTheme(theme);
-            });
-        });
-    }
-
-    /**
-    * Apply selected theme and update state.
+    * Handle theme change event and update localStorage and UI.
     *
     * @function changeTheme
     * @memberof module:Renderer
-    * @param {string} theme - The selected theme class name.
     * @returns {void}
     */
-   function changeTheme(theme) {
-    const overlay = document.getElementById('theme-overlay');
+    function changeTheme() {
+        const theme = $('#theme-select').val();
 
-    if (overlay) {
-        // Set the overlay color to match the current theme's background
-        const currentBg = getComputedStyle(document.documentElement).getPropertyValue('--primary-bg');
-        overlay.style.backgroundColor = currentBg;
-
-        overlay.style.display = 'block';
-        overlay.style.opacity = '1';
-
-        // Wait for fade-in before changing the actual theme
-        setTimeout(() => {
-            document.documentElement.className = theme;
-            localStorage.setItem('theme', theme);
-
-            //  Let new theme CSS apply, then fade out
-            setTimeout(() => {
-                overlay.style.opacity = '0';
-                setTimeout(() => overlay.style.display = 'none', 400);
-
-                showThemeToast(theme);
-            }, 50);
-        }, 50);
-    } else {
+        // Set the selected theme class on the HTML element
         document.documentElement.className = theme;
+
+        // Save the selected theme to localStorage so it persists across sessions
         localStorage.setItem('theme', theme);
-        showThemeToast(theme);
+
+        logInfo(`Theme changed to: ${theme}`);
     }
-
-    // Update visual highlight
-    document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('active'));
-    document.querySelector(`.theme-option[data-theme="${theme}"]`)?.classList.add('active');
-
-    logInfo(`Theme changed to: ${theme}`);
-}
-
-
-function showThemeToast(theme) {
-  const toast = document.createElement('div');
-  toast.className = 'theme-toast';
-
-  const emoji = theme === 'disco-theme' ? '🪩🎉✨' : '🎨';
-  toast.textContent = `${emoji} Switched to ${theme.replace('-', ' ')}`;
-
-  document.body.appendChild(toast);
-
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    setTimeout(() => toast.remove(), 600);
-  }, 1500);
-}
 
     //============================================================================================================================
     // Logging Helpers (WIP - Plan to move to a separate class that is imported)

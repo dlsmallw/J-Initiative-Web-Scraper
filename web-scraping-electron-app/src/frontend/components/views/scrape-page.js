@@ -70,7 +70,7 @@ export class ScrapePageController {
         var navLink = $(`<a class="nav-link" id="${this.name}-nav" href="#">${this.navbarName()}</a>`);
         var navbarItem = $(`<li class="nav-item" id="${this.name}"></li>`).append(navLink);
 
-        $('#navbar-ul-2').append(navbarItem);
+        $('#navbar-ul-1').append(navbarItem);
 
         const insertElement = async () => {
             $('#d_content').append( await $.get(this.htmlFilePath));

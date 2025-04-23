@@ -91,56 +91,17 @@ html.blue-theme {
     - Party time.
 =======================================================================*/
 html.disco-theme {
-  --primary-bg: transparent;
-  --secondary-bg: rgba(0, 0, 0, 0.5);
+  --primary-bg: #ff00ff;
+  --secondary-bg: #00ced1;
+  --acc-body-bg: #92fdff;
   --accent-bg: #c8bca7;
-  --primary-color: white;
-  --hover-text-color: white;
-  --hover-color: #ff69b4;
-  --navbar-bg: transparent;
-  --link-color: #ff00ff;
+  --primary-color: #4b0082;
+  --secondary-color: #8d6e63;
+  --hover-color: #6d4c41;
+  --navbar-bg: #7fff00;
+  --content-bg: #00ced1;
+  --link-color: #5d4037;
   --border-style: none;
-  --body-border-style: 3px solid #ff00ff;
-  background: linear-gradient(-45deg, #ff00ff, #00ffff, #ffff00, #ff1493);
-  background-size: 400% 400%;
-  animation: discoBackground 8s ease infinite;
-}
-
-@keyframes discoBackground {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes borderGlow {
-  0%   { border-color: #ff00ff; }
-  25%  { border-color: #00ffff; }
-  50%  { border-color: #ffff00; }
-  75%  { border-color: #ff1493; }
-  100% { border-color: #ff00ff; }
-}
-
-html.disco-theme body {
-  animation: borderGlow 3s linear infinite;
-}
-
-html.disco-theme body {
-  box-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff, 0 0 30px #ffff00;
-  transition: box-shadow 0.5s ease-in-out;
-}
-
-#theme-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 9999;
-  background-color: var(--primary-bg);
-  opacity: 1;
-  backdrop-filter: blur(20px);
-  pointer-events: none;
-  transition: opacity 0.4s ease;
 }
 
 /*=======================================================================
@@ -228,44 +189,49 @@ body {
 .active-nav-item {
   background-color: var(--accent-bg);
 }
-/* ========================================================================
-   Dropdown Menu Styling — Theme-Aware (replaces Bootstrap's built-ins)
-======================================================================== */
+/*=======================================================================
+    Specific Link Colors for Navbar
+    - Customize individual link colors if needed.
+=======================================================================*/
+#home-nav,
+#scrape-nav,
+#about-nav,
+#exit-nav {
+  color: var(--navbar-link-color);
+  cursor: pointer; /* Indicate clickable items */
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px; /* Match the rounded corners for consistency */
+}
 
-/* Dropdown background & text color */
-.dropdown-menu {
+/* Hover effect for ID-linked navbar items */
+#home-nav:hover,
+#scrape-nav:hover,
+#about-nav:hover,
+#exit-nav:hover {
+  color: var(--hover-color);
   background-color: var(--accent-bg);
-  color: var(--primary-color);
-  border: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
-/* Individual items */
-.dropdown-menu .dropdown-item {
-  color: var(--primary-color);
-  background-color: transparent;
-  transition: background-color 0.2s, color 0.2s;
+/* Custom style for Theme Select dropdown to keep a constant size and theme consistency */
+#theme-select {
+  background-color: var(--primary-bg); /* Use the current theme's background */
+  color: var(--primary-color); /* Use the current theme's text color */
+  border: 2px solid var(--border-color); /* Match the border color with the current theme */
+  border-radius: 4px; /* Rounded corners for a better look */
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease; /* Smooth transitions for color changes */
 }
 
-/* Hover + active state styling */
-.dropdown-menu .dropdown-item:hover,
-.dropdown-menu .dropdown-item:focus,
-.dropdown-menu .dropdown-item.active {
-  background-color: var(--hover-color);
-  color: var(--hover-text-color);
-  border-radius: 4px;
+/* Change hover behavior for dropdown to match the theme */
+#theme-select:hover {
+  background-color: var(--accent-bg); /* Use accent color for a hover effect */
+  color: var(--primary-color); /* Keep text color consistent */
 }
-
-/* Catch all input types except radio/checkbox/range/etc. */
-input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
-textarea,
-select {
-  background-color: var(--primary-bg) !important;
-  color: var(--primary-color) !important;
-  border: 2px solid var(--secondary-color) !important;
-}
-
-
 /*=======================================================================
     Content Area Styling
 =======================================================================*/
@@ -776,6 +742,3 @@ input[readonly].default-cursor {
 .element-disabled {
   filter: brightness(50%);
 }
-
-
-

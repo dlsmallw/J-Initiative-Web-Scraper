@@ -1,90 +1,64 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>J-Initiative Web Scraper</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J-Initiative Web Scraper</title>
 
-  <!-- Content Security Policy -->
-  <meta http-equiv="Content-Security-Policy" content="
-      default-src 'self';
-      script-src 'self';
-      connect-src 'self' * 'unsafe-inline' 'unsafe-eval';
-      frame-src * 'unsafe-inline' 'unsafe-eval';
-      img-src 'self' data:;
-      style-src 'self' 'unsafe-inline';">
+     <!-- Content Security Policy  -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self';
+        connect-src 'self' * 'unsafe-inline' 'unsafe-eval';
+        frame-src * 'unsafe-inline' 'unsafe-eval';
+        img-src 'self' data:;
+        style-src 'self' 'unsafe-inline';">
 
-  <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
-  <link rel="stylesheet" href="../src/frontend/css/style.css">
+    <!-- CSS Stylesheets -->
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="../src/frontend/css/style.css">
 
-  <!-- jQuery -->
-  <script src="../node_modules/jquery/dist/jquery.js"></script>
+    <!-- jQuery -->
+     <script src="../node_modules/jquery/dist/jquery.js"></script>
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-sm navbar-dark fixed-top draggable">
-    <div class="container-fluid">
-      <span class="navbar-brand mb-0 h1">Web Scraper</span>
-      <button class="navbar-toggler not-draggable" type="button" data-bs-toggle="collapse"
-              data-bs-target="#navbarSupportedContent">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+    <nav class="navbar navbar-expand-sm navbar-dark fixed-top draggable">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">Web Scraper</span>
+            <button class="navbar-toggler not-draggable" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <!-- Navigation Links -->
+                <ul class="navbar-nav mb-0 not-draggable" id="navbar-ul-1">
+                    
+                </ul>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <!-- Right-aligned Controls -->
-        <ul class="navbar-nav me-auto mb-2 mb-sm-0 not-draggable" id="navbar-ul-2">
-          <!-- annotation and scrape will get appended here -->
-        </ul>
-        <!-- “Other” Dropdown -->
-        <ul class="navbar-nav ms-auto mb-0 not-draggable" id="navbar-ul-right">
-          <li class="nav-item dropdown" id="nav-dropdown-wrapper">
-            <!-- Style the <a> so it looks more like a “box” -->
-            <a class="nav-link dropdown-toggle" href="#" role="button"
-               data-bs-toggle="dropdown" id="otherDropdown" aria-expanded="false">
-              Other
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" id="navbar-dropdown-list">
-              <!-- about, database, home, log appended here -->
-            </ul>
-          </li>
-
-          <!-- Theme Selector Dropdown -->
-          <li class="nav-item dropdown" id="theme-dropdown-wrapper">
-            <a class="nav-link dropdown-toggle" href="#" role="button"
-               data-bs-toggle="dropdown" id="themeDropdown" aria-expanded="false">
-              Theme
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end"
-                aria-labelledby="themeDropdown" id="theme-dropdown-list">
-              <li><a class="dropdown-item theme-option" data-theme="light-theme" href="#">Light Theme</a></li>
-              <li><a class="dropdown-item theme-option" data-theme="dark-theme" href="#">Dark Theme</a></li>
-              <li><a class="dropdown-item theme-option" data-theme="blue-theme" href="#">Blue Theme</a></li>
-              <li><a class="dropdown-item theme-option" data-theme="disco-theme" href="#">Disco Theme</a></li>
-            </ul>
-          </li>
-
-          <!-- Exit Link -->
-          <li class="nav-item">
-            <a class="nav-link" id="exit-nav" href="#">Exit</a>
-          </li>
-        </ul>
-
-      </div>
+                <!-- Theme Selector and Exit aligned to the right -->
+                <ul class="navbar-nav ms-auto mb-0 not-draggable" id="navbar-ul-2">
+                    <li class="nav-item">
+                        <select id="theme-select" class="form-select form-select-sm">
+                            <option value="light-theme">Light Theme</option>
+                            <option value="dark-theme">Dark Theme</option>
+                            <option value="blue-theme">Blue Theme</option>
+                            <option value="disco-theme">Disco Theme</option>
+                        </select>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="exit-nav" href="#">Exit</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div id="d_content" class="container-fluid mt-4">
+        <!-- Each of the pages are loaded as individual components to separate the html -->
     </div>
-  </nav>
-
-  <!-- Main Content -->
-  <div id="d_content" class="container-fluid mt-4">
-    <!-- Page components will be injected here -->
-  </div>
-
-  <!-- Bootstrap JS Bundle -->
-  <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
-
-  <!-- Entry Script -->
-  <script type="module" src="../src/frontend/js/renderer.js"></script>
-  <div id="theme-overlay" style="display: none;"></div>
+    <!-- Bootstrap JS Bundle -->
+    <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <!-- Include renderer.js -->
+    <script type="module" src="../src/frontend/js/renderer.js"></script>
 </body>
 </html>
 
