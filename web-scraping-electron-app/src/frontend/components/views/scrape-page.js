@@ -474,19 +474,6 @@ export class ScrapePageController {
         }
     }
 
-    // if-url-exist.js v2
-    async ifUrlExist(url) {
-        return new Promise((resolve, reject) => {
-            fetch(url, {
-                method: "HEAD"
-            }).then(response => {
-                resolve(response.status.toString()[0] === "2")
-            }).catch(error => {
-                reject(false)
-            })
-        })
-    }
-
 
     /**
     * Handle the submit button press event in URL scrape mode.
