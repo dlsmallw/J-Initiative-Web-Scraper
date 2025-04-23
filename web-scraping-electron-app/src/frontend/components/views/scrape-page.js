@@ -516,26 +516,17 @@ export class ScrapePageController {
                     this.enableURLField();
                 } else {
                     // Send the URL to the main process to open it
-                    if(ifUrlExist(url)) {
-                        try {
-                            this.electronAPI.openExternal(url);
+                    this.electronAPI.openExternal(url);
 
-                            // TODO: throw error if the url fails to respond
+                    // TODO: throw error if the url fails to respond
 
-                            // Update the results container to display the submitted URL
-                            $('#staticURL').val(url);
-                        }
-                        catch(err) {
-                            this.postAlert('URL failed to respond', 'Invalid URL');
-                            this.logWarn('Inactive URL entered.');
-                        }
-                    }
-                    else {
-                        this.postAlert('Please enter an active URL', 'Inactive URL');
-                        this.logWarn('Inactive URL entered.');
-                        this.enableURLField();
-                    }
-
+                    // Update the results container to display the submitted URL
+                    $('#staticURL').val(url);
+                    
+                            //this.postAlert('URL failed to respond', 'Invalid URL');
+                            //this.logWarn('Inactive URL entered.');
+                    
+                   
 
     
                     
@@ -567,7 +558,7 @@ export class ScrapePageController {
                     return resolve(false);
                 } 
         
-                var req = new XMLHttpRequest();
+                var req = new XMLHttpRequest(); 
                 req.open('GET', url, true);
                 req.onreadystatechange = function() {
                     if (req.readyState === 4) {
