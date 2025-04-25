@@ -66,28 +66,50 @@ export class DatabasePageController {
     * @returns {void}
     */
      async initPage() {
-        // Create a <li> inside the dropdown
-        const li = $(`
-          <li>
-            <a class="dropdown-item" id="${this.name}" href="#">
-              ${this.navbarName()}
-            </a>
-          </li>
-        `);
+    // ======= New: Add toggle flag =======
+    const enableDatabaseTab = false; // << Set to false to disable Database tab
 
-        // Append <li> into the "Pages" <ul id="navbar-dropdown-list">
-        $('#navbar-dropdown-list').append(li);
-
-        // Insert our container into #d_content so it's in the DOM from the get-go
-        const htmlFragment = await $.get(this.htmlFilePath);
-        $('#d_content').append(htmlFragment);
-
-        // Hide it by default; only show it once setPageActive() is called
-        $(this.compID).hide();
-
-        // Initialize any event listeners that rely on #about-container being in the DOM
-        this.initPageListeners();
+    if (!enableDatabaseTab) {
+        console.log('Database page disabled.');
+        return; // Skip loading the Database tab entirely
     }
+
+    // Create a <li> inside the dropdown
+    const li = $(`
+      <li>
+        <a class="dropdown-item" id="${this.name}" href="#">
+          ${this.navbarName()}
+        </a>
+      </li>
+    `);
+
+    // Append <li> into the "Pages" <ul id="navbar-dropdown-list">
+    $('#navbar-dropdown-list').append(li);
+
+    // Insert our container into #d_content so it's in the DOM from the get-go
+    const htmlFragment = await $.get(this.htmlFilePath);
+    $('#d_content').append(htmlFragment);
+
+    // Hide it by default; only show it once setPageActive() is called
+    $(this.compID).hide();
+
+    // Initialize any event listeners that rely on #database-container being in the DOM
+    this.initPageListeners();
+    }
+
+
+    /**
+    * @note
+    * SECURITY NOTICE:
+    * The Database tab is currently disabled for security reasons.
+    * Code is preserved for future enablement if needed.
+    *
+    * To re-enable:
+    * 1. Set `enableDatabaseTab = true` inside `initPage()`.
+    * 2. Verify appropriate security measures before exposing database UI.
+    *
+    * Last updated by:
+    */
 
     /**
     * Initialize event listeners for this page's DOM elements.
