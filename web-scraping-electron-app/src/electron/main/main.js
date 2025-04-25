@@ -640,10 +640,8 @@ ipcMain.handle('add-scraped-data', async (event, data) => {
         // Disable the default application menu
         lsWindow.setMenu(null);
 
-        // lsWindow.webContents.openDevTools();
-
         try {
-            lsWindow.loadFile('../webviews/templates/anno-window.html')
+            lsWindow.loadFile(path.join(__dirname, '../webviews/templates/anno-window.html'))
                 .then(() => {
                     lsWindow.webContents.send('set-ls-url', url);
                     lsWindow.show();
