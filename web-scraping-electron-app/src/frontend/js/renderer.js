@@ -98,6 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
             $(`#${Pages[e].getName()}`).on('click', changePage);
         });
 
+        $('#home-navbar-brand').on('click', changePage);
+
         // Handles receipt of updated project list
         lsAPI.updateToProjectList((res) => {
             var response = JSON.parse(res);
@@ -105,7 +107,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 updateProjectOptions(response.data);
             } else {
-                postAlert(response.resMsg, response.errType);
+                // Disables the Alert prompt due to being somewhat of a nusance
+                // postAlert(response.resMsg, response.errType);
+                postAlert(response.resMsg, undefined);
             }
         });
 
