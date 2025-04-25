@@ -98,6 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
             $(`#${Pages[e].getName()}`).on('click', changePage);
         });
 
+        $('#home-navbar-brand').on('click', changePage);
+
         // Handles receipt of updated project list
         lsAPI.updateToProjectList((res) => {
             var response = JSON.parse(res);

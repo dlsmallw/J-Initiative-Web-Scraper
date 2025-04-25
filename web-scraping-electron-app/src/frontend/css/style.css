@@ -217,11 +217,14 @@ body {
   color: var(--primary-color);
   text-decoration: none;
   padding: 0.5rem 1rem; /* Add padding to balance with other links */
+  
 }
 
 /* Prevent hover effect on navbar brand */
 .navbar-brand:hover {
-  color: var(--primary-color); /* Keep color the same on hover */
+  color: var(--hover-color);
+  border-radius: 4px; /* Add rounded corners for better UI */
+  cursor: pointer; /* Change cursor to pointer on hover */
 }
 
 /* Maintains the current page highlighted */
