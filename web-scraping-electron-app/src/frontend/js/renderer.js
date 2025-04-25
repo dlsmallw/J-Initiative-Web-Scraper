@@ -107,7 +107,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 updateProjectOptions(response.data);
             } else {
-                postAlert(response.resMsg, response.errType);
+                // Disables the Alert prompt due to being somewhat of a nusance
+                // postAlert(response.resMsg, response.errType);
+                postAlert(response.resMsg, undefined);
             }
         });
 

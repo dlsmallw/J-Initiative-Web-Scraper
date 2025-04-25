@@ -137,10 +137,11 @@ var BASEURL = '';
                     }
 
                     resolve(jsonOBJ);
-                }).catch(err => {
+                }).catch((err) => {
+                    var response = err.response;
                     jsonOBJ.ok = false;
-                    jsonOBJ.errType = 'Request Failure';
-                    jsonOBJ.resMsg = 'Error Encountered Making Request to Label Studio Project';
+                    jsonOBJ.errType = `${response.status}`;
+                    jsonOBJ.resMsg = `Failed to make request to linked LS project - ${response.statusText}`;
 
                     resolve(jsonOBJ);
                 });

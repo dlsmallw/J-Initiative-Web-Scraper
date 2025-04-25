@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /**
 * @file annotation-page.js
 * @fileoverview Controls the behavior and initialization of the Annotation page, including Label Studio integration.
